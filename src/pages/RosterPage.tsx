@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
+import { useGameStore } from '@/store/useGameStore'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 type SortKey = 'name' | 'position' | 'age' | 'overall'
 
 export function RosterPage() {
+  const save = useGameStore((s) => s.save)
   const staticData = useStaticData()
   const defaultSeasonId =
     staticData.status === 'ready' ? staticData.manifest.defaultSnapshotId : null
@@ -22,9 +24,28 @@ export function RosterPage() {
   const [sortKey, setSortKey] = useState<SortKey>('overall')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
 
+  const userTeamId = save?.league.userTeamId
+  const allTeams = save
+    ? Object.values(save.league.teams)
+    : snapshot?.teams ?? []
+  const allPlayers = save
+    ? Object.values(save.league.players)
+    : snapshot?.players ?? []
+  const seasonLabel = save
+    ? save.metadata.snapshotId
+    : snapshot?.seasonLabel ?? null
+
+  const players = useMemo(() => {
+    if (save && userTeamId) {
+      const rosterIds = new Set(save.league.teams[userTeamId]?.roster ?? [])
+      return allPlayers.filter((p) => rosterIds.has(p.id))
+    }
+    return allPlayers
+  }, [save, userTeamId, allPlayers])
+  const teams = allTeams
+
   const rows = useMemo(() => {
-    if (!snapshot) return []
-    const filtered = snapshot.players.filter((p) => {
+    const filtered = players.filter((p) => {
       if (position !== 'ALL' && p.position !== position) return false
       if (!search) return true
       const s = search.toLowerCase()
@@ -44,14 +65,18 @@ export function RosterPage() {
       return sortDir === 'asc' ? cmp : -cmp
     })
     return sorted
-  }, [snapshot, position, search, sortKey, sortDir])
+  }, [players, position, search, sortKey, sortDir])
 
   return (
     <div>
       <PageHeader
         eyebrow="Front Office"
         title="Roster"
-        description="Every player in the current snapshot. Real NBA names with stat-derived ratings. Click a row to open the career tab."
+        description={
+          save
+            ? `${save.metadata.teamName} roster — ${save.metadata.snapshotId}`
+            : 'Every player in the current snapshot. Real NBA names with stat-derived ratings. Click a row to open the career tab.'
+        }
       />
 
       <Card>
@@ -81,7 +106,7 @@ export function RosterPage() {
           </div>
           <div className="ml-auto text-xs text-[var(--color-muted-foreground)]">
             {rows.length} player{rows.length === 1 ? '' : 's'} ·{' '}
-            {snapshot?.seasonLabel ?? '—'}
+            {seasonLabel ?? '—'}
           </div>
         </CardContent>
       </Card>
@@ -162,14 +187,14 @@ export function RosterPage() {
                       colSpan={9}
                       className="text-center py-10 text-sm text-[var(--color-muted-foreground)]"
                     >
-                      {snapshot
+                      {players.length > 0
                         ? 'No players match those filters.'
                         : 'Loading snapshot…'}
                     </td>
                   </tr>
                 ) : null}
                 {rows.map((p) => {
-                  const team = snapshot?.teams.find((t) => t.id === p.teamId)
+                  const team = teams.find((t) => t.id === p.teamId)
                   return (
                     <tr
                       key={p.id}
@@ -184,7 +209,7 @@ export function RosterPage() {
                             className="size-8 rounded-md grid place-items-center font-display text-[10px]"
                             style={{
                               backgroundColor:
-                                team?.colors.primary ?? '#1d428a',
+                                team?.colors?.primary ?? '#1d428a',
                               color: '#0b0d10',
                             }}
                           >

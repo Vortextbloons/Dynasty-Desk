@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   PlayCircle,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { useGameStore } from '@/store/useGameStore'
 import { cn } from '@/lib/utils'
 
 const features = [
@@ -37,12 +39,20 @@ const features = [
 ]
 
 export function HomePage() {
+  const saves = useGameStore((s) => s.saves)
+  const loadSavesList = useGameStore((s) => s.loadSavesList)
+  const hasSaves = saves.length > 0
+
+  useEffect(() => {
+    void loadSavesList()
+  }, [loadSavesList])
+
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
       <TopNav />
 
       <main className="mx-auto max-w-7xl px-5 lg:px-8 pt-10 pb-20">
-        <Hero />
+        <Hero hasSaves={hasSaves} />
 
         <section className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
@@ -149,7 +159,7 @@ function TopNav() {
   )
 }
 
-function Hero() {
+function Hero({ hasSaves }: { hasSaves: boolean }) {
   return (
     <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
       <div>
@@ -174,11 +184,19 @@ function Hero() {
               <PlayCircle className="size-4" /> New League
             </Link>
           </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link to="/load-game">
-              <FolderOpen className="size-4" /> Load Game
-            </Link>
-          </Button>
+          {hasSaves ? (
+            <Button asChild size="lg">
+              <Link to="/load-game">
+                <FolderOpen className="size-4" /> Continue
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="lg" variant="outline">
+              <Link to="/load-game">
+                <FolderOpen className="size-4" /> Load Game
+              </Link>
+            </Button>
+          )}
           <Button asChild size="lg" variant="ghost">
             <Link to="/dashboard">
               <BookOpen className="size-4" /> Open Dashboard
@@ -430,19 +448,19 @@ const milestones: Milestone[] = [
     id: 'M0',
     title: 'App shell',
     summary: 'Vite + React + Tailwind + routing + dark theme.',
-    status: 'in_progress',
+    status: 'done',
   },
   {
     id: 'M1',
     title: 'Real NBA data',
     summary: 'Static snapshot, ~450 players, 30 teams.',
-    status: 'next',
+    status: 'done',
   },
   {
     id: 'M2',
     title: 'New league & saves',
     summary: 'Dexie storage, export/import JSON.',
-    status: 'later',
+    status: 'in_progress',
   },
   {
     id: 'M3',

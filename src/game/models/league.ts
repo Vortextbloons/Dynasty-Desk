@@ -40,6 +40,8 @@ export interface LeagueState {
   draftClasses: Record<string, DraftClass>
   champions: Champion[]
   awards: AwardWinner[]
+
+  userTeamId: string
 }
 
 export { type LeagueRules } from './leagueRules'

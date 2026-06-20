@@ -55,6 +55,7 @@ export interface Team {
   abbreviation: string
   conference: 'East' | 'West'
   division: string
+  colors: { primary: string; secondary: string }
 
   roster: string[]
   lineup: LineupSettings

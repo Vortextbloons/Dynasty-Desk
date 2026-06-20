@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Sparkles, Clock } from 'lucide-react'
+import { ArrowLeft, Sparkles, Clock, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -8,7 +8,9 @@ import { AppShell } from '@/components/layout/AppShell'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
 import { getEraConfig, getLeagueRules } from '@/game/models'
 import { seasonOpeningNight } from '@/game/core/seasonCalendar'
+import { useGameStore } from '@/store/useGameStore'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 const DIFFICULTIES = [
   {
@@ -51,6 +53,9 @@ export function NewLeaguePage() {
   const [injuries, setInjuries] = useState(true)
   const [fatigue, setFatigue] = useState(true)
   const [salaryCap, setSalaryCap] = useState(true)
+  const [creating, setCreating] = useState(false)
+
+  const initFromSnapshot = useGameStore((s) => s.initFromSnapshot)
 
   const effectiveSeasonId = startSeason ?? defaultSeasonId
   const { snapshot } = useSnapshot(
@@ -274,22 +279,43 @@ export function NewLeaguePage() {
                 <Button
                   size="lg"
                   className="w-full"
-                  disabled={!snapshot || !teamId || !effectiveSeasonId}
-                  onClick={() => {
+                  disabled={!snapshot || !teamId || !effectiveSeasonId || creating}
+                  onClick={async () => {
                     if (!snapshot || !teamId || !effectiveSeasonId) return
-                    const params = new URLSearchParams({
-                      season: effectiveSeasonId,
-                      team: teamId,
-                    })
-                    void navigate(`/dashboard?${params.toString()}`)
+                    setCreating(true)
+                    try {
+                      await initFromSnapshot(
+                        snapshot,
+                        teamId,
+                        `${managerName}'s Dynasty`,
+                        managerName,
+                        {
+                          difficulty,
+                          simSpeed: 'balanced',
+                          autoSave: true,
+                          injuries,
+                          fatigue,
+                          salaryCap,
+                          startSeason: effectiveSeasonId,
+                          snapshotId: effectiveSeasonId,
+                        },
+                      )
+                      void navigate('/dashboard')
+                    } catch (err) {
+                      const msg = err instanceof Error ? err.message : 'Failed to create league'
+                      toast.error(msg)
+                    } finally {
+                      setCreating(false)
+                    }
                   }}
                 >
-                  <Sparkles className="size-4" /> Begin dynasty
+                  {creating ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="size-4" />
+                  )}{' '}
+                  Begin dynasty
                 </Button>
-                <div className="text-[11px] text-[var(--color-muted-foreground)] mt-2 text-center">
-                  Save creation lands in Milestone 2. For now, this confirms the
-                  snapshot loads end-to-end.
-                </div>
               </div>
             </CardContent>
           </Card>

@@ -11,6 +11,18 @@ import { computeCareerStats } from '@/game/models/playerCareerStats'
 import { getEraConfig } from '@/game/models/eraConfig'
 import { getLeagueRules } from '@/game/models/leagueRules'
 
+interface AwardsFile {
+  version: string
+  updatedAt: string
+  awards: AwardWinner[]
+}
+
+interface ChampionsFile {
+  version: string
+  updatedAt: string
+  champions: Champion[]
+}
+
 export interface StaticDataLoader {
   loadManifest(): Promise<DataManifest>
   loadSnapshot(id: string): Promise<StaticSnapshot>
@@ -56,7 +68,7 @@ export function createStaticDataLoader(
         throw new Error(`Snapshot not found: ${id}`)
       }
       const base = entry.basePath
-      const [teams, players, seasonStats, awards, champions] =
+      const [teams, players, seasonStats, awardsFile, championsFile] =
         await Promise.all([
           fetchJson<StaticTeam[]>(`${baseUrl}${base}/teams.json`, fetcher),
           fetchJson<StaticPlayer[]>(`${baseUrl}${base}/roster.json`, fetcher),
@@ -64,15 +76,18 @@ export function createStaticDataLoader(
             `${baseUrl}${base}/season-stats.json`,
             fetcher,
           ),
-          fetchJson<AwardWinner[]>(
+          fetchJson<AwardsFile>(
             `${baseUrl}/data/shared/awards-history.json`,
             fetcher,
-          ).catch(() => [] as AwardWinner[]),
-          fetchJson<Champion[]>(
+          ).catch(() => ({ version: '0', updatedAt: '', awards: [] } as AwardsFile)),
+          fetchJson<ChampionsFile>(
             `${baseUrl}/data/shared/champions.json`,
             fetcher,
-          ).catch(() => [] as Champion[]),
+          ).catch(() => ({ version: '0', updatedAt: '', champions: [] } as ChampionsFile)),
         ])
+
+      const awards = awardsFile.awards ?? []
+      const champions = championsFile.champions ?? []
 
       const filteredAwards = awards.filter(
         (a) => a.season === entry.seasonLabel,

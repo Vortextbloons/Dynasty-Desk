@@ -1,6 +1,7 @@
-import { Bell, Search, Sun, Moon } from 'lucide-react'
+import { Bell, Search, Sun, Moon, Loader2 } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useState } from 'react'
+import { useGameStore } from '@/store/useGameStore'
 
 function titleFor(pathname: string): string {
   if (pathname.startsWith('/dashboard')) return 'Dashboard'
@@ -29,6 +30,8 @@ function readInitialTheme(): 'dark' | 'light' {
 export function Topbar() {
   const location = useLocation()
   const [theme, setTheme] = useState<'dark' | 'light'>(readInitialTheme)
+  const save = useGameStore((s) => s.save)
+  const saveStatus = useGameStore((s) => s.saveStatus)
 
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark'
@@ -80,12 +83,19 @@ export function Topbar() {
           </button>
           <div className="ml-1 flex items-center gap-2 pl-2 border-l border-[var(--color-line-soft)] h-9">
             <div className="size-8 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] text-[var(--color-primary-foreground)] grid place-items-center font-display text-xs">
-              GM
+              {save ? save.user.managerName.charAt(0).toUpperCase() : 'GM'}
             </div>
             <div className="hidden md:block leading-tight">
-              <div className="text-xs font-medium">No active save</div>
+              <div className="text-xs font-medium flex items-center gap-1.5">
+                {save ? save.metadata.name : 'No active save'}
+                {saveStatus === 'saving' && (
+                  <Loader2 className="size-3 animate-spin text-[var(--color-primary)]" />
+                )}
+              </div>
               <div className="text-[10px] text-[var(--color-muted-foreground)]">
-                Start a new league
+                {save
+                  ? `${save.metadata.teamName} · ${save.metadata.snapshotId}`
+                  : 'Start a new league'}
               </div>
             </div>
           </div>

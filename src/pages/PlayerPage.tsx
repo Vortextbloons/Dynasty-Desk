@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { AppShell } from '@/components/layout/AppShell'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
+import { useGameStore } from '@/store/useGameStore'
 import {
   computeCareerStats,
   type PlayerCareerStats,
@@ -32,6 +33,7 @@ const TABS: {
 
 export function PlayerPage() {
   const { id = '' } = useParams<{ id: string }>()
+  const save = useGameStore((s) => s.save)
   const staticData = useStaticData()
   const defaultSeasonId =
     staticData.status === 'ready' ? staticData.manifest.defaultSnapshotId : null
@@ -41,22 +43,34 @@ export function PlayerPage() {
   )
   const [tab, setTab] = useState<Tab>('career')
 
+  const allPlayers = save
+    ? Object.values(save.league.players)
+    : snapshot?.players ?? []
+  const allTeams = save
+    ? Object.values(save.league.teams)
+    : snapshot?.teams ?? []
+  const allAwards = save
+    ? save.league.awards
+    : snapshot?.awards ?? []
+  const allSeasonStats = save
+    ? Object.values(save.league.players).flatMap((p) => p.historicalSeasons)
+    : snapshot?.seasonStats ?? []
+
   const player = useMemo(
-    () => snapshot?.players.find((p) => p.id === id),
-    [snapshot, id],
+    () => allPlayers.find((p) => p.id === id),
+    [allPlayers, id],
   )
   const team = useMemo(
     () =>
       player?.teamId
-        ? snapshot?.teams.find((t) => t.id === player.teamId)
+        ? allTeams.find((t) => t.id === player.teamId)
         : null,
-    [snapshot, player],
+    [allTeams, player],
   )
 
   const historicalSeasons = useMemo<PlayerSeasonStats[]>(() => {
-    if (!snapshot || !player) return []
-    return snapshot.seasonStats.filter((s) => s.playerId === player.id)
-  }, [snapshot, player])
+    return allSeasonStats.filter((s) => s.playerId === player?.id)
+  }, [allSeasonStats, player])
 
   const career = useMemo<PlayerCareerStats | null>(() => {
     if (!player) return null
@@ -64,9 +78,8 @@ export function PlayerPage() {
   }, [player, historicalSeasons])
 
   const awards = useMemo<AwardWinner[]>(() => {
-    if (!snapshot || !player) return []
-    return snapshot.awards.filter((a) => a.playerId === player.id)
-  }, [snapshot, player])
+    return allAwards.filter((a) => a.playerId === player?.id)
+  }, [allAwards, player])
 
   if (!player) {
     return (
