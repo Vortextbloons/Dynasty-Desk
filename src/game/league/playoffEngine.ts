@@ -8,10 +8,20 @@ import type {
 } from '@/game/models/playoff'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { Team } from '@/game/models/team'
+import type { BoxScoreResult } from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
-import { simulateGame } from '@/game/sim/gameSimulator'
-import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
 import { addDays } from '@/lib/utils'
+import {
+  createSimSessionState,
+  simulateAndFinalizeGame,
+  type FinalizationTarget,
+  type SimSessionState,
+} from '@/game/league/gameFinalization'
+
+export interface PostseasonSimOptions {
+  injuriesEnabled?: boolean
+  fatigueEnabled?: boolean
+}
 
 export interface PlayoffGameResult {
   gameId: string
@@ -29,6 +39,44 @@ export interface AdvancePlayoffResult {
   results: PlayoffGameResult[]
   seriesCompleted: string[]
   bracketComplete: boolean
+}
+
+function getPlayersForTeam(team: Team, league: LeagueState) {
+  return team.roster
+    .map((id) => league.players[id])
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+}
+
+function finalizationTarget(
+  league: LeagueState,
+  options?: PostseasonSimOptions,
+): FinalizationTarget {
+  return {
+    league,
+    settings: {
+      injuries: options?.injuriesEnabled ?? true,
+      fatigue: options?.fatigueEnabled ?? true,
+    },
+  }
+}
+
+async function runScheduledPlayoffGame(
+  league: LeagueState,
+  game: ScheduledGame,
+  rng: SeededRandom,
+  session: SimSessionState,
+  options?: PostseasonSimOptions,
+): Promise<BoxScoreResult | null> {
+  const result = await simulateAndFinalizeGame(
+    finalizationTarget(league, options),
+    game,
+    rng,
+    session,
+    'instant',
+  )
+  if (!result) return null
+  league.news.push(...result.post.news)
+  return result.boxScore
 }
 
 function getRequiredWins(seriesLength: 1 | 3 | 5 | 7): number {
@@ -357,12 +405,13 @@ export async function simulatePlayIn(
   league: LeagueState,
   bracket: PlayoffBracket,
   rng: SeededRandom,
-  options?: { injuriesEnabled?: boolean },
+  options?: PostseasonSimOptions,
 ): Promise<{ playIn: PlayInBracket | null; gamesSimulated: number }> {
   if (!bracket.playIn) return { playIn: null, gamesSimulated: 0 }
 
   const playIn = { ...bracket.playIn }
   let gamesSimulated = 0
+  const session = createSimSessionState(league)
 
   for (const conf of ['east', 'west'] as const) {
     const games = playIn[conf]
@@ -375,10 +424,6 @@ export async function simulatePlayIn(
       const home = league.teams[game.homeTeamId]
       const away = league.teams[game.awayTeamId]
       if (!home || !away) continue
-
-      const homePlayers = getPlayersForTeam(home, league)
-      const awayPlayers = getPlayersForTeam(away, league)
-      if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
       const scheduledGame: ScheduledGame = {
         id: game.scheduledGameId,
@@ -397,33 +442,16 @@ export async function simulatePlayIn(
         isPlayIn: true,
       }
 
-      const { gameState, keyPlays } = await simulateGame({
-        id: game.scheduledGameId,
-        home,
-        away,
-        homeLineup: home.lineup,
-        awayLineup: away.lineup,
-        homePlayers,
-        awayPlayers,
-        rules: league.rules,
-        era: league.eraConfig,
+      const boxScore = await runScheduledPlayoffGame(
+        league,
+        scheduledGame,
         rng,
-        date: league.currentDate,
-        injuriesEnabled: options?.injuriesEnabled ?? false,
-        fatigueEnabled: false,
-        simSpeed: 'instant',
-      })
+        session,
+        options,
+      )
+      if (!boxScore) continue
 
-      const boxScore = buildBoxScore({ gameState, keyPlays })
       game.winnerTeamId = boxScore.homeWin ? game.homeTeamId : game.awayTeamId
-
-      scheduledGame.status = 'final'
-      scheduledGame.homeScore = boxScore.homeScore
-      scheduledGame.awayScore = boxScore.awayScore
-      scheduledGame.boxScore = boxScore
-      scheduledGame.boxScoreId = scheduledGame.id
-      scheduledGame.winnerTeamId = game.winnerTeamId
-      if (boxScore.overtimeOccurred) scheduledGame.ot = true
       league.games[scheduledGame.id] = scheduledGame
       gamesSimulated++
     }
@@ -440,59 +468,34 @@ export async function simulatePlayIn(
       finalGame.homeTeamId = game7v8Loser
       finalGame.awayTeamId = game9v10.winnerTeamId
 
-      const home = league.teams[finalGame.homeTeamId]
-      const away = league.teams[finalGame.awayTeamId]
-      if (home && away) {
-        const homePlayers = getPlayersForTeam(home, league)
-        const awayPlayers = getPlayersForTeam(away, league)
-        if (homePlayers.length >= 5 && awayPlayers.length >= 5) {
-          const finalScheduledGame: ScheduledGame = {
-            id: finalGame.scheduledGameId,
-            season: league.rules.seasonLabel,
-            date: league.currentDate,
-            homeTeamId: finalGame.homeTeamId,
-            awayTeamId: finalGame.awayTeamId,
-            status: 'scheduled',
-            homeScore: null,
-            awayScore: null,
-            boxScoreId: null,
-            isConference: true,
-            isDivision: false,
-            seasonYear: league.seasonYear,
-            isUserTeamGame: finalGame.homeTeamId === league.userTeamId || finalGame.awayTeamId === league.userTeamId,
-            isPlayIn: true,
-          }
+      const finalScheduledGame: ScheduledGame = {
+        id: finalGame.scheduledGameId,
+        season: league.rules.seasonLabel,
+        date: league.currentDate,
+        homeTeamId: finalGame.homeTeamId,
+        awayTeamId: finalGame.awayTeamId,
+        status: 'scheduled',
+        homeScore: null,
+        awayScore: null,
+        boxScoreId: null,
+        isConference: true,
+        isDivision: false,
+        seasonYear: league.seasonYear,
+        isUserTeamGame: finalGame.homeTeamId === league.userTeamId || finalGame.awayTeamId === league.userTeamId,
+        isPlayIn: true,
+      }
 
-          const { gameState, keyPlays } = await simulateGame({
-            id: finalGame.scheduledGameId,
-            home,
-            away,
-            homeLineup: home.lineup,
-            awayLineup: away.lineup,
-            homePlayers,
-            awayPlayers,
-            rules: league.rules,
-            era: league.eraConfig,
-            rng,
-            date: league.currentDate,
-        injuriesEnabled: options?.injuriesEnabled ?? false,
-        fatigueEnabled: false,
-            simSpeed: 'instant',
-          })
-
-          const boxScore = buildBoxScore({ gameState, keyPlays })
-          finalGame.winnerTeamId = boxScore.homeWin ? finalGame.homeTeamId : finalGame.awayTeamId
-
-          finalScheduledGame.status = 'final'
-          finalScheduledGame.homeScore = boxScore.homeScore
-          finalScheduledGame.awayScore = boxScore.awayScore
-          finalScheduledGame.boxScore = boxScore
-          finalScheduledGame.boxScoreId = finalScheduledGame.id
-          finalScheduledGame.winnerTeamId = finalGame.winnerTeamId
-          if (boxScore.overtimeOccurred) finalScheduledGame.ot = true
-          league.games[finalScheduledGame.id] = finalScheduledGame
-          gamesSimulated++
-        }
+      const boxScore = await runScheduledPlayoffGame(
+        league,
+        finalScheduledGame,
+        rng,
+        session,
+        options,
+      )
+      if (boxScore) {
+        finalGame.winnerTeamId = boxScore.homeWin ? finalGame.homeTeamId : finalGame.awayTeamId
+        league.games[finalScheduledGame.id] = finalScheduledGame
+        gamesSimulated++
       }
     }
   }
@@ -537,12 +540,6 @@ function fillPlayInSeeds(
       }
     }
   }
-}
-
-function getPlayersForTeam(team: Team, league: LeagueState) {
-  return team.roster
-    .map((id) => league.players[id])
-    .filter((p): p is NonNullable<typeof p> => Boolean(p))
 }
 
 function updateSeriesFromGames(series: PlayoffSeries, games: Record<string, ScheduledGame>): void {
@@ -660,7 +657,7 @@ function populateFinalsFromConferenceWinners(bracket: PlayoffBracket): void {
 export async function advancePlayoffSeries(
   league: LeagueState,
   rng: SeededRandom,
-  options?: { injuriesEnabled?: boolean },
+  options?: PostseasonSimOptions,
 ): Promise<AdvancePlayoffResult> {
   const bracket = league.playoffBracket
   if (!bracket) {
@@ -669,6 +666,7 @@ export async function advancePlayoffSeries(
 
   const results: PlayoffGameResult[] = []
   const seriesCompleted: string[] = []
+  const session = createSimSessionState(league)
 
   if (bracket.status === 'play_in' && bracket.playIn) {
     const playInResult = await simulatePlayIn(league, bracket, rng, options)
@@ -722,32 +720,14 @@ export async function advancePlayoffSeries(
     const awayPlayers = getPlayersForTeam(away, league)
     if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
-    const { gameState, keyPlays } = await simulateGame({
-      id: game.id,
-      home,
-      away,
-      homeLineup: home.lineup,
-      awayLineup: away.lineup,
-      homePlayers,
-      awayPlayers,
-      rules: league.rules,
-      era: league.eraConfig,
+    const boxScore = await runScheduledPlayoffGame(
+      league,
+      game,
       rng,
-      date: game.date,
-      injuriesEnabled: options?.injuriesEnabled ?? false,
-      fatigueEnabled: false,
-      simSpeed: 'instant',
-    })
-
-    const boxScore = buildBoxScore({ gameState, keyPlays })
-
-    game.status = 'final'
-    game.homeScore = boxScore.homeScore
-    game.awayScore = boxScore.awayScore
-    game.boxScore = boxScore
-    game.boxScoreId = game.id
-    game.winnerTeamId = boxScore.homeWin ? game.homeTeamId : game.awayTeamId
-    if (boxScore.overtimeOccurred) game.ot = true
+      session,
+      options,
+    )
+    if (!boxScore) continue
 
     updateSeriesFromGames(series, league.games)
 
@@ -784,7 +764,7 @@ export async function simulateSeries(
   league: LeagueState,
   seriesId: string,
   rng: SeededRandom,
-  options?: { injuriesEnabled?: boolean },
+  options?: PostseasonSimOptions,
 ): Promise<PlayoffGameResult[]> {
   const bracket = league.playoffBracket
   if (!bracket) return []
@@ -797,6 +777,7 @@ export async function simulateSeries(
 
   const results: PlayoffGameResult[] = []
   const required = getRequiredWins(series.seriesLength)
+  const session = createSimSessionState(league)
 
   while (series.higherSeedWins < required && series.lowerSeedWins < required) {
     const nextGameNum = series.higherSeedWins + series.lowerSeedWins + 1
@@ -827,32 +808,14 @@ export async function simulateSeries(
     const awayPlayers = getPlayersForTeam(away, league)
     if (homePlayers.length < 5 || awayPlayers.length < 5) break
 
-    const { gameState, keyPlays } = await simulateGame({
-      id: game.id,
-      home,
-      away,
-      homeLineup: home.lineup,
-      awayLineup: away.lineup,
-      homePlayers,
-      awayPlayers,
-      rules: league.rules,
-      era: league.eraConfig,
+    const boxScore = await runScheduledPlayoffGame(
+      league,
+      game,
       rng,
-      date: game.date,
-      injuriesEnabled: options?.injuriesEnabled ?? false,
-      fatigueEnabled: false,
-      simSpeed: 'instant',
-    })
-
-    const boxScore = buildBoxScore({ gameState, keyPlays })
-
-    game.status = 'final'
-    game.homeScore = boxScore.homeScore
-    game.awayScore = boxScore.awayScore
-    game.boxScore = boxScore
-    game.boxScoreId = game.id
-    game.winnerTeamId = boxScore.homeWin ? game.homeTeamId : game.awayTeamId
-    if (boxScore.overtimeOccurred) game.ot = true
+      session,
+      options,
+    )
+    if (!boxScore) break
 
     updateSeriesFromGames(series, league.games)
 

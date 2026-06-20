@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
-  applyInjuryRecoveryForTeams,
+  applyLeagueInjuryRecovery,
   computeBackToBackTeams,
 } from '@/game/league/gameFinalization'
-import { makePlayer, makeTeam } from '@/tests/fixtures'
+import { makePlayer } from '@/tests/fixtures'
 import type { ScheduledGame } from '@/game/models/game'
 
 describe('gameFinalization helpers', () => {
@@ -30,9 +30,8 @@ describe('gameFinalization helpers', () => {
     expect(b2b.has('t3')).toBe(false)
   })
 
-  it('ticks injury recovery for injured roster players', () => {
-    const team = makeTeam({ id: 't1', roster: ['p1'] })
-    const player = makePlayer({
+  it('ticks injury recovery league-wide when calendar advances', () => {
+    const injured = makePlayer({
       id: 'p1',
       teamId: 't1',
       health: {
@@ -43,12 +42,24 @@ describe('gameFinalization helpers', () => {
         injuryHistory: [],
       },
     })
+    const idle = makePlayer({
+      id: 'p2',
+      teamId: 't2',
+      health: {
+        status: 'day_to_day',
+        injuryDescription: 'knee',
+        daysRemaining: 4,
+        gamesRemaining: 2,
+        injuryHistory: [],
+      },
+    })
     const league = {
-      teams: { t1: team },
-      players: { p1: player },
+      players: { p1: injured, p2: idle },
     } as any
 
-    applyInjuryRecoveryForTeams(league, ['t1'])
-    expect(player.health.gamesRemaining).toBe(4)
+    applyLeagueInjuryRecovery(league, 2)
+    expect(injured.health.gamesRemaining).toBe(3)
+    expect(idle.health.gamesRemaining).toBe(0)
+    expect(idle.health.status).toBe('healthy')
   })
 })

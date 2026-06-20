@@ -27,13 +27,12 @@ import {
   runLeagueEndOfSeasonDevelopment,
   runLeagueSeasonAwards,
 } from '@/game/league/seasonWrapUp'
+import type { BoxScoreResult } from '@/game/models/sim'
 import { SeededRandom } from '@/game/sim/rng'
-import { simulateGame } from '@/game/sim/gameSimulator'
-import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
 import {
   createSimSessionState,
-  finalizeSimulatedGame,
-  prepareGameDay,
+  finalizationTargetFromSave,
+  simulateAndFinalizeGame,
 } from '@/game/league/gameFinalization'
 import { generateStubSchedule } from '@/game/sim/stubSchedule'
 import { generateSchedule } from '@/game/league/scheduleGenerator'
@@ -160,7 +159,7 @@ interface GameStore {
   autoRotate: () => void
   saveLineup: () => void
   generateRotationIfMissing: () => void
-  simOneGame: (gameId: string) => Promise<{ gameId: string; boxScore: ReturnType<typeof buildBoxScore> } | { error: string }>
+  simOneGame: (gameId: string) => Promise<{ gameId: string; boxScore: BoxScoreResult } | { error: string }>
   simNextGame: () => Promise<{ gameId: string } | { error: string }>
   simDay: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
   simWeek: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
@@ -903,56 +902,34 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const away = save.league.teams[game.awayTeamId]
     if (!home || !away) return { error: 'Teams not found.' }
 
-    const players = new Map(Object.entries(save.league.players))
     const homePlayers = home.roster
-      .map((id) => players.get(id))
+      .map((id) => save.league.players[id])
       .filter((p): p is NonNullable<typeof p> => Boolean(p))
     const awayPlayers = away.roster
-      .map((id) => players.get(id))
+      .map((id) => save.league.players[id])
       .filter((p): p is NonNullable<typeof p> => Boolean(p))
     if (homePlayers.length < 5 || awayPlayers.length < 5) {
       return { error: 'Both teams need at least 5 players.' }
     }
 
     const seededRng = new SeededRandom(save.rngState)
-    const session = createSimSessionState(save)
-
-    prepareGameDay(save, game, session)
-
-    const { gameState, keyPlays, gameFatigue } = await simulateGame({
-      id: gameId,
-      home,
-      away,
-      homeLineup: home.lineup,
-      awayLineup: away.lineup,
-      homePlayers,
-      awayPlayers,
-      rules: save.league.rules,
-      era: save.league.eraConfig,
-      rng: seededRng,
-      date: game.date,
-      injuriesEnabled: save.settings.injuries,
-      fatigueEnabled: save.settings.fatigue,
-      simSpeed: normalizeModernSimSpeed(save.settings.simSpeed),
-    })
-
-    const boxScore = buildBoxScore({ gameState, keyPlays })
-
-    const post = finalizeSimulatedGame(
-      save,
+    const session = createSimSessionState(save.league)
+    const target = finalizationTargetFromSave(save)
+    const result = await simulateAndFinalizeGame(
+      target,
       game,
-      boxScore,
-      gameFatigue,
-      gameState.minutesPlayed,
       seededRng,
+      session,
+      normalizeModernSimSpeed(save.settings.simSpeed),
     )
-    save.league.news.push(...post.news)
+    if (!result) return { error: 'Could not simulate game.' }
 
+    save.league.news.push(...result.post.news)
     save.rngState = seededRng.state
 
     set({ save: { ...save } })
     get().scheduleAutoSave()
-    return { gameId, boxScore }
+    return { gameId, boxScore: result.boxScore }
   },
 
   simNextGame: async () => {
@@ -1213,7 +1190,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const rng = new SeededRandom(save.rngState)
 
     try {
-      const result = await advancePlayoffSeries(save.league, rng, { injuriesEnabled: save.settings.injuries })
+      const result = await advancePlayoffSeries(save.league, rng, {
+        injuriesEnabled: save.settings.injuries,
+        fatigueEnabled: save.settings.fatigue,
+      })
 
       if (result.bracketComplete) {
         const mvpId = computeFinalsMvp(save.league.playoffBracket, save.league.games)
@@ -1246,7 +1226,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
 
     const rng = new SeededRandom(save.rngState)
-    const results = await simSeries(save.league, seriesId, rng, { injuriesEnabled: save.settings.injuries })
+    const results = await simSeries(save.league, seriesId, rng, {
+      injuriesEnabled: save.settings.injuries,
+      fatigueEnabled: save.settings.fatigue,
+    })
 
     save.rngState = rng.state
     set({ save: { ...save } })
@@ -1277,7 +1260,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       while (!bracketComplete) {
         if (cancelToken.cancelled) break
 
-        const result = await advancePlayoffSeries(save.league, rng, { injuriesEnabled: save.settings.injuries })
+        const result = await advancePlayoffSeries(save.league, rng, {
+        injuriesEnabled: save.settings.injuries,
+        fatigueEnabled: save.settings.fatigue,
+      })
         totalSimulated += result.gamesSimulated
         bracketComplete = result.bracketComplete
 

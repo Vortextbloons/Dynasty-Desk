@@ -1,4 +1,5 @@
 import type { GameSave } from '@/game/models/save'
+import type { LeagueState } from '@/game/models/league'
 import type { ScheduledGame } from '@/game/models/game'
 import type { BoxScoreResult } from '@/game/models/sim'
 import { recomputeStandings } from '@/game/league/standingsEngine'
@@ -9,15 +10,41 @@ import {
   type PostGameResult,
 } from '@/game/sim/postGameProcessor'
 import { processRecovery } from '@/game/sim/injuryEngine'
+import { simulateGame } from '@/game/sim/gameSimulator'
+import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
+import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import type { SeededRandom } from '@/game/sim/rng'
+import type { SimSpeed } from '@/game/models'
 import { addDays, daysBetween } from '@/lib/utils'
+
+export interface GameSimSettings {
+  injuries: boolean
+  fatigue: boolean
+}
+
+export interface FinalizationTarget {
+  league: LeagueState
+  settings: GameSimSettings
+  metadata?: { currentDate: string }
+}
 
 export interface SimSessionState {
   lastFatigueRecoveryDate: string
 }
 
-export function createSimSessionState(save: GameSave): SimSessionState {
-  return { lastFatigueRecoveryDate: save.league.currentDate }
+export function finalizationTargetFromSave(save: GameSave): FinalizationTarget {
+  return {
+    league: save.league,
+    settings: {
+      injuries: save.settings.injuries,
+      fatigue: save.settings.fatigue,
+    },
+    metadata: save.metadata,
+  }
+}
+
+export function createSimSessionState(league: { currentDate: string }): SimSessionState {
+  return { lastFatigueRecoveryDate: league.currentDate }
 }
 
 export function computeBackToBackTeams(
@@ -40,47 +67,47 @@ export function computeBackToBackTeams(
   return backToBack
 }
 
-export function applyInjuryRecoveryForTeams(
-  league: GameSave['league'],
-  teamIds: string[],
+export function applyLeagueInjuryRecovery(
+  league: LeagueState,
+  days: number,
 ): void {
-  const ids = new Set(teamIds)
+  if (days <= 0) return
   for (const player of Object.values(league.players)) {
-    if (!player?.teamId || !ids.has(player.teamId)) continue
-    if (player.health.status === 'healthy') continue
-    player.health = processRecovery(player.health, 1)
+    if (!player || player.health.status === 'healthy') continue
+    player.health = processRecovery(player.health, days)
   }
 }
 
 export function prepareGameDay(
-  save: GameSave,
+  target: FinalizationTarget,
   game: ScheduledGame,
   session: SimSessionState,
 ): void {
-  const league = save.league
+  const { league, settings } = target
 
-  if (save.settings.fatigue && game.date > session.lastFatigueRecoveryDate) {
-    const days = daysBetween(session.lastFatigueRecoveryDate, game.date)
-    if (days > 0) {
-      recoverFatigueBetweenGames(league, days)
+  if (game.date > session.lastFatigueRecoveryDate) {
+    const elapsed = daysBetween(session.lastFatigueRecoveryDate, game.date)
+    if (elapsed > 0) {
+      if (settings.fatigue) {
+        recoverFatigueBetweenGames(league, elapsed)
+      }
+      if (settings.injuries) {
+        applyLeagueInjuryRecovery(league, elapsed)
+      }
     }
     session.lastFatigueRecoveryDate = game.date
-  }
-
-  if (save.settings.injuries) {
-    applyInjuryRecoveryForTeams(league, [game.homeTeamId, game.awayTeamId])
   }
 }
 
 export function finalizeSimulatedGame(
-  save: GameSave,
+  target: FinalizationTarget,
   game: ScheduledGame,
   boxScore: BoxScoreResult,
   gameFatigue: Record<string, number>,
   minutesPlayed: Record<string, number>,
   rng: SeededRandom,
 ): PostGameResult {
-  const league = save.league
+  const { league, settings } = target
 
   game.status = 'final'
   game.homeScore = boxScore.homeScore
@@ -114,7 +141,7 @@ export function finalizeSimulatedGame(
   )
 
   const post = processPostGame(
-    save,
+    { league, settings, metadata: target.metadata ?? { currentDate: league.currentDate } } as GameSave,
     {
       homeTeamId: game.homeTeamId,
       awayTeamId: game.awayTeamId,
@@ -122,8 +149,8 @@ export function finalizeSimulatedGame(
       date: game.date,
       minutesPlayed,
       gameFatigue,
-      injuriesEnabled: save.settings.injuries,
-      fatigueEnabled: save.settings.fatigue,
+      injuriesEnabled: settings.injuries,
+      fatigueEnabled: settings.fatigue,
       backToBackTeams,
     },
     rng,
@@ -132,9 +159,61 @@ export function finalizeSimulatedGame(
   if (league.currentDate < game.date) {
     league.currentDate = game.date
   }
-  if (save.metadata.currentDate < game.date) {
-    save.metadata.currentDate = game.date
+  if (target.metadata && target.metadata.currentDate < game.date) {
+    target.metadata.currentDate = game.date
   }
 
   return post
+}
+
+export async function simulateAndFinalizeGame(
+  target: FinalizationTarget,
+  game: ScheduledGame,
+  rng: SeededRandom,
+  session: SimSessionState,
+  simSpeed: SimSpeed = 'instant',
+): Promise<{ boxScore: BoxScoreResult; post: PostGameResult } | null> {
+  const { league } = target
+  const home = league.teams[game.homeTeamId]
+  const away = league.teams[game.awayTeamId]
+  if (!home || !away) return null
+
+  const homePlayers = home.roster
+    .map((id) => league.players[id])
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+  const awayPlayers = away.roster
+    .map((id) => league.players[id])
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+  if (homePlayers.length < 5 || awayPlayers.length < 5) return null
+
+  prepareGameDay(target, game, session)
+
+  const { gameState, keyPlays, gameFatigue } = await simulateGame({
+    id: game.id,
+    home,
+    away,
+    homeLineup: home.lineup,
+    awayLineup: away.lineup,
+    homePlayers,
+    awayPlayers,
+    rules: league.rules,
+    era: league.eraConfig,
+    rng,
+    date: game.date,
+    injuriesEnabled: target.settings.injuries,
+    fatigueEnabled: target.settings.fatigue,
+    simSpeed: normalizeModernSimSpeed(simSpeed),
+  })
+
+  const boxScore = buildBoxScore({ gameState, keyPlays })
+  const post = finalizeSimulatedGame(
+    target,
+    game,
+    boxScore,
+    gameFatigue,
+    gameState.minutesPlayed,
+    rng,
+  )
+
+  return { boxScore, post }
 }
