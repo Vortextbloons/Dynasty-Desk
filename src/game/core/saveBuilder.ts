@@ -60,16 +60,40 @@ export function buildSave(input: NewSaveInput): GameSave {
         },
       },
       finances: {
-        salaryCap: 0,
+        salaryCap: snapshot.rules.salaryCap,
+        apron: snapshot.rules.apron,
+        secondApron: snapshot.rules.secondApron,
+        luxuryTaxLine: snapshot.rules.luxuryTaxLine,
         payroll: 0,
-        luxuryTaxLine: 0,
-        capSpace: 0,
+        capSpace: snapshot.rules.salaryCap,
         taxBill: 0,
+        projectedTaxBill: 0,
+
+        baseRevenue: 0,
+        localRevenue: 0,
+        seasonPerformanceBonus: 0,
+        totalRevenue: 0,
+
+        operatingExpenses: 10_000_000,
+        totalExpenses: 10_000_000,
+        netIncome: 0,
+
+        ownerCash: 50_000_000,
+        cashReserves: 100_000_000,
+        ownerPatience: 70,
+
+        exceptionsUsed: {
+          mle: false,
+          bae: false,
+          roomMle: false,
+          minimumCount: 0,
+        },
       },
       direction: 'middle',
       chemistry: 50,
       morale: 50,
       prestige: st.prestige,
+      owner: st.owner,
     }
   }
 

@@ -3,6 +3,7 @@ import type { GameSave, SaveMetadata } from '@/game/models'
 import { validateSave } from '@/game/core/saveValidation'
 import { initDB } from './dexie'
 import { downloadTextFile } from '@/lib/download'
+import { migrateToV2 } from './saveMigration'
 
 let dbInitialized = false
 
@@ -29,7 +30,18 @@ export async function createSave(save: GameSave): Promise<void> {
 export async function loadSave(id: string): Promise<GameSave | null> {
   await ensureDB()
   const row = await db.saves.get(id)
-  return row?.data ?? null
+  if (!row?.data) return null
+
+  const raw = row.data as unknown
+  const result = validateSave(raw)
+  if (!result.ok) return null
+
+  let save = result.save
+  if (save.metadata.schemaVersion === 1) {
+    save = migrateToV2(save)
+  }
+
+  return save
 }
 
 export async function listSaves(): Promise<SaveMetadata[]> {

@@ -10,6 +10,14 @@ import type { DraftPick, DraftClass } from './draft'
 import type { EraConfig } from './eraConfig'
 import type { LeagueRules } from './leagueRules'
 
+export type TeamSeasonResult =
+  | 'missed_playoffs'
+  | 'first_round_loss'
+  | 'second_round_loss'
+  | 'conference_finals_loss'
+  | 'finals_loss'
+  | 'champion'
+
 export type LeaguePhase =
   | 'preseason'
   | 'regular_season'

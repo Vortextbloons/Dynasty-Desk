@@ -2,6 +2,7 @@ import type { AwardWinner } from './award'
 import type { Champion } from './champion'
 import type { Contract } from './contract'
 import type { EraConfig } from './eraConfig'
+import type { OwnerProfile } from './owner'
 import type { PlayerSeasonStats } from './playerSeasonStats'
 import type { Position } from './position'
 import type { PlayerRatings } from './ratings'
@@ -21,6 +22,7 @@ export interface StaticTeam {
   marketSize: number
   prestige: number
   fanPatience: number
+  owner?: OwnerProfile
 }
 
 export interface StaticPlayer {

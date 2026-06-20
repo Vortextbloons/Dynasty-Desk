@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildSave } from '@/game/core/saveBuilder'
 import type { StaticSnapshot } from '@/game/models'
+import { emptyContract, getLeagueRules } from '@/game/models'
 
 function makeFakeSnapshot(): StaticSnapshot {
   return {
@@ -107,13 +108,7 @@ function makeFakeSnapshot(): StaticSnapshot {
           shotCreation: 85,
           defensiveVersatility: 70,
         },
-        contract: {
-          salaryByYear: [50000000],
-          yearsRemaining: 1,
-          option: 'none',
-          noTradeClause: false,
-          guaranteed: true,
-        },
+        contract: emptyContract(50_000_000, 1),
       },
       {
         id: 'player-2',
@@ -186,13 +181,7 @@ function makeFakeSnapshot(): StaticSnapshot {
           shotCreation: 80,
           defensiveVersatility: 65,
         },
-        contract: {
-          salaryByYear: [54000000],
-          yearsRemaining: 4,
-          option: 'none',
-          noTradeClause: false,
-          guaranteed: true,
-        },
+        contract: emptyContract(54_000_000, 4),
       },
     ],
     seasonStats: [],
@@ -205,23 +194,7 @@ function makeFakeSnapshot(): StaticSnapshot {
       leaguePpg: 114.7,
       possessionCoefficient: 1.0,
     },
-    rules: {
-      seasonLabel: '2025-26',
-      teamCount: 30,
-      regularSeasonGames: 82,
-      playoffTeamsPerConference: 8,
-      playoffSeriesLength: 7,
-      salaryCapEnabled: true,
-      salaryCap: 140000000,
-      luxuryTaxEnabled: true,
-      maxRosterSize: 15,
-      minRosterSize: 13,
-      maxContractYears: 5,
-      draftRounds: 2,
-      threePointLineDistance: 23.75,
-      playoffFormat: 'playin_then_top8',
-      hasPlayIn: true,
-    },
+    rules: getLeagueRules('2025-26'),
     awards: [],
     champions: [],
   }

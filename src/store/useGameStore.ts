@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { GameSave, GameSettings } from '@/game/models'
 import type { SaveMetadata } from '@/game/models'
+import type { LeaguePhase } from '@/game/models/league'
 import {
   createSave as dbCreateSave,
   loadSave as dbLoadSave,
@@ -13,6 +14,17 @@ import {
 } from '@/db/saveRepository'
 import { buildSave } from '@/game/core/saveBuilder'
 import type { StaticSnapshot } from '@/game/models'
+import {
+  cutPlayer as cutPlayerAction,
+  stretchContract as stretchContractAction,
+  buyoutPlayer as buyoutPlayerAction,
+  extendPlayer as extendPlayerAction,
+  signFreeAgent as signFreeAgentAction,
+  type ContractActionResult,
+  type ExtensionOffer,
+  type FreeAgentOffer,
+  type ExceptionType,
+} from '@/game/management/contractActions'
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -38,6 +50,19 @@ interface GameStore {
   exportSave: (id: string) => Promise<void>
   clearActiveSave: () => void
   scheduleAutoSave: () => void
+  cutPlayer: (playerId: string) => ContractActionResult
+  stretchContract: (playerId: string) => ContractActionResult
+  buyoutPlayer: (playerId: string, settleAmount: number) => ContractActionResult
+  extendPlayer: (
+    playerId: string,
+    offer: ExtensionOffer,
+  ) => ContractActionResult
+  signFreeAgent: (
+    playerId: string,
+    offer: FreeAgentOffer,
+    exception: ExceptionType,
+  ) => ContractActionResult
+  advancePhase: () => void
 }
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -171,4 +196,192 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       })()
     }, 1500)
   },
+
+  cutPlayer: (playerId) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+
+    const player = save.league.players[playerId]
+    if (!player) return { ok: false, reason: 'Player not found.' }
+
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return { ok: false, reason: 'Team not found.' }
+
+    const result = cutPlayerAction(
+      playerId,
+      player,
+      team,
+      save.league.players,
+      save.league.rules,
+    )
+    if (!result.ok) return result
+
+    applyPatch(save, result.patch)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return result
+  },
+
+  stretchContract: (playerId) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+
+    const player = save.league.players[playerId]
+    if (!player) return { ok: false, reason: 'Player not found.' }
+
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return { ok: false, reason: 'Team not found.' }
+
+    const result = stretchContractAction(
+      playerId,
+      player,
+      team,
+      save.league.rules,
+    )
+    if (!result.ok) return result
+
+    applyPatch(save, result.patch)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return result
+  },
+
+  buyoutPlayer: (playerId, settleAmount) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+
+    const player = save.league.players[playerId]
+    if (!player) return { ok: false, reason: 'Player not found.' }
+
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return { ok: false, reason: 'Team not found.' }
+
+    const result = buyoutPlayerAction(
+      playerId,
+      player,
+      settleAmount,
+      team,
+      save.league.rules,
+    )
+    if (!result.ok) return result
+
+    applyPatch(save, result.patch)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return result
+  },
+
+  extendPlayer: (playerId, offer) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+
+    const player = save.league.players[playerId]
+    if (!player) return { ok: false, reason: 'Player not found.' }
+
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return { ok: false, reason: 'Team not found.' }
+
+    const result = extendPlayerAction(
+      playerId,
+      player,
+      offer,
+      team,
+      save.league.players,
+      save.league.rules,
+    )
+    if (!result.ok) return result
+
+    applyPatch(save, result.patch)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return result
+  },
+
+  signFreeAgent: (playerId, offer, exception) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+
+    const player = save.league.players[playerId]
+    if (!player) return { ok: false, reason: 'Player not found.' }
+
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return { ok: false, reason: 'Team not found.' }
+
+    const result = signFreeAgentAction(
+      playerId,
+      player,
+      offer,
+      exception,
+      team,
+      save.league.rules,
+      team.finances.exceptionsUsed,
+    )
+    if (!result.ok) return result
+
+    applyPatch(save, result.patch)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return result
+  },
+
+  advancePhase: () => {
+    const { save } = get()
+    if (!save) return
+
+    const phaseOrder: LeaguePhase[] = [
+      'preseason',
+      'regular_season',
+      'play_in',
+      'playoffs',
+      'offseason',
+      'draft',
+      'free_agency',
+    ]
+    const currentIdx = phaseOrder.indexOf(save.league.phase)
+    const nextPhase =
+      phaseOrder[(currentIdx + 1) % phaseOrder.length] ?? 'regular_season'
+
+    save.league.phase = nextPhase
+
+    if (nextPhase === 'offseason') {
+      for (const team of Object.values(save.league.teams)) {
+        if (team) {
+          team.finances.exceptionsUsed = {
+            mle: false,
+            bae: false,
+            roomMle: false,
+            minimumCount: 0,
+          }
+        }
+      }
+    }
+
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
 }))
+
+function applyPatch(
+  save: GameSave,
+  patch: import('@/game/management/contractActions').ContractPatch,
+) {
+  for (const [playerId, playerPatch] of Object.entries(patch.players)) {
+    const existing = save.league.players[playerId]
+    if (existing) {
+      Object.assign(existing, playerPatch)
+    }
+  }
+  for (const [teamId, teamPatch] of Object.entries(patch.teams)) {
+    const existing = save.league.teams[teamId]
+    if (existing) {
+      if (teamPatch.roster !== undefined) existing.roster = teamPatch.roster
+      if (teamPatch.finances)
+        existing.finances = teamPatch.finances as typeof existing.finances
+    }
+  }
+}

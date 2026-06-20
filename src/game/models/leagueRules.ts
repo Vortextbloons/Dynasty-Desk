@@ -14,6 +14,26 @@ export interface LeagueRules {
   threePointLineDistance: number
   playoffFormat: 'top8' | 'playin_then_top8' | 'top6_playin_7_10'
   hasPlayIn: boolean
+
+  apron: number
+  secondApron: number
+  luxuryTaxLine: number
+  luxuryTaxRates: { nonTaxpayer: number; taxpayer: number; repeater: number }
+  secondApronTaxRate: number
+  apronPenaltyPerMillion: number
+
+  midLevelException: number
+  biAnnualException: number
+  roomMle: number
+  minimumPlayerSalary: number
+  minimumTeamSalary: number
+  tradeExceptionYears: number
+  allowCashInTrades: boolean
+
+  twoWaySlots: number
+  rookieScale: 'real' | 'flat'
+  rookieDealYears: number
+  rookieOptionYears: number
 }
 
 export const DEFAULT_LEAGUE_RULES: LeagueRules = {
@@ -32,6 +52,26 @@ export const DEFAULT_LEAGUE_RULES: LeagueRules = {
   threePointLineDistance: 23.75,
   playoffFormat: 'playin_then_top8',
   hasPlayIn: true,
+
+  apron: 178_132_000,
+  secondApron: 189_502_000,
+  luxuryTaxLine: 171_314_000,
+  luxuryTaxRates: { nonTaxpayer: 1.5, taxpayer: 1.75, repeater: 2.5 },
+  secondApronTaxRate: 3.75,
+  apronPenaltyPerMillion: 1_000_000,
+
+  midLevelException: 12_800_000,
+  biAnnualException: 4_600_000,
+  roomMle: 7_700_000,
+  minimumPlayerSalary: 1_100_000,
+  minimumTeamSalary: 126_529_200,
+  tradeExceptionYears: 1,
+  allowCashInTrades: true,
+
+  twoWaySlots: 2,
+  rookieScale: 'real',
+  rookieDealYears: 4,
+  rookieOptionYears: 2,
 }
 
 export const HISTORICAL_LEAGUE_RULES: Readonly<

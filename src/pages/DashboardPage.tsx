@@ -4,6 +4,12 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { PlaceholderPage } from '@/components/layout/PlaceholderPage'
 import { useGameStore } from '@/store/useGameStore'
 
+function fmt(n: number): string {
+  if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
+  if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
+  return `$${n}`
+}
+
 export function DashboardPage() {
   const save = useGameStore((s) => s.save)
 
@@ -95,6 +101,51 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {userTeam && (
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                  Cap Health
+                </div>
+                <div className="flex items-baseline gap-3 mt-1">
+                  <div className="font-display text-2xl">
+                    {fmt(userTeam.finances.payroll)}
+                  </div>
+                  <div className="text-sm text-[var(--color-muted-foreground)]">
+                    / {fmt(league.rules.salaryCap)} cap
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 mt-1 text-xs text-[var(--color-muted-foreground)]">
+                  <span>
+                    Cap space:{' '}
+                    <span
+                      className={
+                        userTeam.finances.capSpace < 0
+                          ? 'text-red-500 font-medium'
+                          : 'text-emerald-500 font-medium'
+                      }
+                    >
+                      {fmt(userTeam.finances.capSpace)}
+                    </span>
+                  </span>
+                  <span>
+                    Tax bill: <span className="font-medium">{fmt(userTeam.finances.taxBill)}</span>
+                  </span>
+                </div>
+              </div>
+              <Link
+                to="/contracts"
+                className="rounded-md border border-[var(--color-line-soft)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-surface-2)] transition-colors"
+              >
+                Go to contracts
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <PlaceholderPage
         title="Dashboard is wired to a live league"

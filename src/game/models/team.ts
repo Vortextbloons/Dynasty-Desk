@@ -1,3 +1,5 @@
+import type { OwnerProfile } from './owner'
+
 export interface OffensiveStrategy {
   pace: 'slow' | 'balanced' | 'fast'
   shotProfile: 'paint' | 'balanced' | 'three_heavy'
@@ -24,12 +26,37 @@ export interface TeamStrategy {
   defense: DefensiveStrategy
 }
 
+export interface TeamExceptionBook {
+  mle: boolean
+  bae: boolean
+  roomMle: boolean
+  minimumCount: number
+}
+
 export interface TeamFinances {
   salaryCap: number
-  payroll: number
+  apron: number
+  secondApron: number
   luxuryTaxLine: number
+  payroll: number
   capSpace: number
   taxBill: number
+  projectedTaxBill: number
+
+  baseRevenue: number
+  localRevenue: number
+  seasonPerformanceBonus: number
+  totalRevenue: number
+
+  operatingExpenses: number
+  totalExpenses: number
+  netIncome: number
+
+  ownerCash: number
+  cashReserves: number
+  ownerPatience: number
+
+  exceptionsUsed: TeamExceptionBook
 }
 
 export type TeamDirection =
@@ -66,4 +93,6 @@ export interface Team {
   chemistry: number
   morale: number
   prestige: number
+
+  owner?: OwnerProfile
 }

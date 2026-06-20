@@ -1,5 +1,5 @@
 import { Bell, Search, Sun, Moon, Loader2 } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useGameStore } from '@/store/useGameStore'
 
@@ -53,6 +53,31 @@ export function Topbar() {
         </div>
 
         <div className="ml-auto flex items-center gap-1">
+          {save && (() => {
+            const team = save.league.teams[save.league.userTeamId]
+            if (!team) return null
+            const capSpace = team.finances.capSpace
+            const isNegative = capSpace < 0
+            const fmt = (n: number) => {
+              const abs = Math.abs(n)
+              if (abs >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+              if (abs >= 1_000) return `${(n / 1_000).toFixed(0)}K`
+              return `${n}`
+            }
+            return (
+              <Link
+                to="/contracts"
+                className={`hidden md:flex items-center gap-1.5 rounded-md border px-2.5 h-9 text-xs font-mono font-medium transition-colors ${
+                  isNegative
+                    ? 'border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20'
+                    : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'
+                }`}
+              >
+                <span className="text-[10px]">$</span>
+                {fmt(capSpace)}
+              </Link>
+            )
+          })()}
           <div className="hidden lg:flex items-center gap-2 mr-2 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2.5 h-9 w-72 text-sm text-[var(--color-muted-foreground)]">
             <Search className="size-4" />
             <input

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { validateSave } from '@/game/core/saveValidation'
 import type { GameSave } from '@/game/models'
+import { emptyContract, getLeagueRules } from '@/game/models'
 
 function makeValidSave(): GameSave {
   return {
@@ -24,23 +25,7 @@ function makeValidSave(): GameSave {
       currentDate: '2025-10-21',
       seasonYear: 2025,
       phase: 'regular_season',
-      rules: {
-        seasonLabel: '2025-26',
-        teamCount: 30,
-        regularSeasonGames: 82,
-        playoffTeamsPerConference: 8,
-        playoffSeriesLength: 7,
-        salaryCapEnabled: true,
-        salaryCap: 140000000,
-        luxuryTaxEnabled: true,
-        maxRosterSize: 15,
-        minRosterSize: 13,
-        maxContractYears: 5,
-        draftRounds: 2,
-        threePointLineDistance: 23.75,
-        playoffFormat: 'playin_then_top8',
-        hasPlayIn: true,
-      },
+      rules: getLeagueRules('2025-26'),
       eraConfig: {
         season: '2025-26',
         pace: 100,
@@ -84,11 +69,30 @@ function makeValidSave(): GameSave {
             },
           },
           finances: {
-            salaryCap: 140000000,
-            payroll: 120000000,
-            luxuryTaxLine: 170000000,
-            capSpace: 20000000,
+            salaryCap: 140_588_000,
+            apron: 178_132_000,
+            secondApron: 189_502_000,
+            luxuryTaxLine: 171_314_000,
+            payroll: 120_000_000,
+            capSpace: 20_588_000,
             taxBill: 0,
+            projectedTaxBill: 0,
+            baseRevenue: 0,
+            localRevenue: 0,
+            seasonPerformanceBonus: 0,
+            totalRevenue: 0,
+            operatingExpenses: 0,
+            totalExpenses: 0,
+            netIncome: 0,
+            ownerCash: 0,
+            cashReserves: 0,
+            ownerPatience: 70,
+            exceptionsUsed: {
+              mle: true,
+              bae: true,
+              roomMle: true,
+              minimumCount: 0,
+            },
           },
           direction: 'contender',
           chemistry: 75,
@@ -168,13 +172,7 @@ function makeValidSave(): GameSave {
             shotCreation: 85,
             defensiveVersatility: 70,
           },
-          contract: {
-            salaryByYear: [50000000],
-            yearsRemaining: 1,
-            option: 'none',
-            noTradeClause: false,
-            guaranteed: true,
-          },
+          contract: emptyContract(50_000_000, 1),
           morale: { level: 70, happiness: 75, tradeRequest: false },
           health: {
             status: 'healthy',

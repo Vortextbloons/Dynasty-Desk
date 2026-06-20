@@ -11,6 +11,7 @@ export type NewsType =
   | 'record_broken'
   | 'playoff_upset'
   | 'championship'
+  | 'financial_review'
 
 export type NewsImportance = 'low' | 'medium' | 'high'
 

@@ -8,6 +8,7 @@ import type {
   StaticPlayer,
   StaticTeam,
 } from '@/game/models'
+import { emptyContract } from '@/game/models'
 
 interface FetchResponse {
   ok: boolean
@@ -140,13 +141,7 @@ describe('static data loader', () => {
         shotCreation: 95,
         defensiveVersatility: 80,
       },
-      contract: {
-        salaryByYear: [50_000_000],
-        yearsRemaining: 1,
-        option: 'none',
-        noTradeClause: false,
-        guaranteed: true,
-      },
+      contract: emptyContract(50_000_000, 1),
       importMeta: {
         snapshotSeason: '2025-26',
         statsSource: 'test',

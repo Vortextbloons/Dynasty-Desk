@@ -13,6 +13,8 @@ import type {
 import { computeCareerStats } from '../../src/game/models/playerCareerStats.js'
 import { HISTORICAL_ERA_CONFIGS } from '../../src/game/models/eraConfig.js'
 import { getLeagueRules } from '../../src/game/models/leagueRules.js'
+import { deriveContract } from '../deriveContracts.js'
+import { deriveOwner } from '../deriveOwners.js'
 import { CHAMPIONS_HISTORY } from './championsHistory.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -125,8 +127,9 @@ function generateTeams(season: string): StaticTeam[] {
       fanPatience: 60,
     },
   ]
-  return teams.map((t) => ({
+  return teams.map((t, i) => ({
     ...t,
+    owner: deriveOwner(t, i),
     importMeta: {
       snapshotSeason: season,
       statsSource: 'synthetic',
@@ -301,11 +304,22 @@ function generatePlayers(teams: StaticTeam[], season: string): StaticPlayer[] {
           defensiveVersatility: clamp(rating + randInt(-5, 5), 50, 99),
         },
         contract: {
-          salaryByYear: [randInt(2_000_000, 55_000_000)],
-          yearsRemaining: randInt(1, 4),
+          salaryByYear: [0],
+          yearsRemaining: 1,
           option: 'none',
-          noTradeClause: idx < 2,
-          guaranteed: true,
+          optionYear: null,
+          noTradeClause: false,
+          signingBonusByYear: [0],
+          likelyBonusesByYear: [0],
+          unlikelyBonusesByYear: [0],
+          guaranteed: false,
+          guaranteedByYear: [false],
+          tradeKickers: [],
+          poisonPill: false,
+          birdRights: false,
+          earlyBird: false,
+          baseYearCompensation: false,
+          deferredMoney: [],
         },
         importMeta: {
           snapshotSeason: season,
@@ -316,6 +330,12 @@ function generatePlayers(teams: StaticTeam[], season: string): StaticPlayer[] {
       idx++
     }
   }
+
+  const rules = getLeagueRules(season)
+  for (const player of players) {
+    player.contract = deriveContract(player, rules, season)
+  }
+
   return players
 }
 
