@@ -118,6 +118,10 @@ function makeSave(): GameSave {
           homeScore: 110,
           awayScore: 105,
           boxScoreId: null,
+          isConference: false,
+          isDivision: false,
+          seasonYear: 2025,
+          isUserTeamGame: false,
           boxScore: {
             homeTeamId: 't-home',
             awayTeamId: 't-away',
@@ -174,6 +178,7 @@ function makeSave(): GameSave {
         },
       },
       standings: {},
+      scheduleGenerated: false,
       transactions: [],
       news: [],
       awardsHistory: [],

@@ -124,7 +124,7 @@ export function buildSave(input: NewSaveInput): GameSave {
         status: 'healthy',
         injuryDescription: null,
         daysRemaining: 0,
-        gamesRemaining: 0,
+    gamesRemaining: 82,
       },
       development: {
         lastTrainedAt: null,
@@ -214,6 +214,20 @@ export function buildSave(input: NewSaveInput): GameSave {
       clinchedPlayoff: false,
       clinchedDivision: false,
       eliminated: false,
+      conferenceWins: 0,
+      conferenceLosses: 0,
+      divisionWins: 0,
+      divisionLosses: 0,
+      pointsPerGame: 0,
+      pointsAllowedPerGame: 0,
+      pointDifferentialPerGame: 0,
+      gamesRemaining: snapshot.rules.regularSeasonGames,
+      magicNumber: 0,
+      tiebreaker: {
+        headToHeadWins: 0,
+        conferenceWinPct: 0,
+        pointDifferential: 0,
+      },
     }
   }
 
@@ -243,6 +257,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     players,
     games: {},
     standings,
+    scheduleGenerated: false,
     transactions: [],
     news: [welcomeNews],
     awardsHistory: [],
@@ -259,7 +274,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     createdAt: now,
     updatedAt: now,
     appVersion: '0.1.0',
-    schemaVersion: 4,
+    schemaVersion: 5,
     teamId,
     teamName:
       snapshot.teams.find((t) => t.id === teamId)?.name ?? teamId,
@@ -303,5 +318,19 @@ export function initStanding(
     clinchedPlayoff: false,
     clinchedDivision: false,
     eliminated: false,
+    conferenceWins: 0,
+    conferenceLosses: 0,
+    divisionWins: 0,
+    divisionLosses: 0,
+    pointsPerGame: 0,
+    pointsAllowedPerGame: 0,
+    pointDifferentialPerGame: 0,
+    gamesRemaining: 0,
+    magicNumber: 0,
+    tiebreaker: {
+      headToHeadWins: 0,
+      conferenceWinPct: 0,
+      pointDifferential: 0,
+    },
   }
 }

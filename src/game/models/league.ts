@@ -41,6 +41,7 @@ export interface LeagueState {
   players: Record<string, Player>
   games: Record<string, ScheduledGame>
   standings: Record<string, TeamStanding>
+  scheduleGenerated: boolean
   transactions: Transaction[]
   news: NewsEvent[]
   awardsHistory: AwardSeason[]

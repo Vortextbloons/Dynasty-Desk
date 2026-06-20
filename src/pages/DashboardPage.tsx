@@ -1,5 +1,6 @@
+import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AlertTriangle, Play, Calendar, FastForward } from 'lucide-react'
+import { AlertTriangle, Play, Calendar, FastForward, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -9,6 +10,7 @@ import { Chip } from '@/components/shared/Chip'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { SimSpeedToggle } from '@/components/sim/SimSpeedToggle'
 import { Button } from '@/components/ui/button'
+import { recomputeStandings, computeGB } from '@/game/league/standingsEngine'
 
 function fmt(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
@@ -21,14 +23,9 @@ function DashboardSimControls() {
   const simNextGame = useGameStore((s) => s.simNextGame)
   const simDay = useGameStore((s) => s.simDay)
   const simWeek = useGameStore((s) => s.simWeek)
-  const hasOpponents = useGameStore((s) => {
-    if (!s.save) return false
-    const teamId = s.save.league.userTeamId
-    return Object.values(s.save.league.teams).some(
-      (t) => t !== undefined && t.id !== teamId,
-    )
-  })
-  const hasNext = hasOpponents
+  const simUntilUserGame = useGameStore((s) => s.simUntilUserGame)
+  const save = useGameStore((s) => s.save)
+  const hasSchedule = save?.league.scheduleGenerated ?? false
 
   const handleSimNext = async () => {
     const result = await simNextGame()
@@ -40,11 +37,27 @@ function DashboardSimControls() {
   }
   const handleSimDay = async () => {
     const r = await simDay()
-    toast.success(`Simulated ${r.gamesSimulated} game${r.gamesSimulated === 1 ? '' : 's'}.`)
+    if (r.gamesSimulated === 0) {
+      toast.info('No games to simulate today.')
+    } else {
+      toast.success(`Simulated ${r.gamesSimulated} game${r.gamesSimulated === 1 ? '' : 's'}.`)
+    }
   }
   const handleSimWeek = async () => {
     const r = await simWeek()
-    toast.success(`Simulated ${r.gamesSimulated} game${r.gamesSimulated === 1 ? '' : 's'}.`)
+    if (r.gamesSimulated === 0) {
+      toast.info('No games to simulate this week.')
+    } else {
+      toast.success(`Simulated ${r.gamesSimulated} game${r.gamesSimulated === 1 ? '' : 's'}.`)
+    }
+  }
+  const handleSimToMyGame = async () => {
+    const r = await simUntilUserGame()
+    if (r.gamesSimulated === 0) {
+      toast.info('No games to simulate before your next game.')
+    } else {
+      toast.success(`Simulated ${r.gamesSimulated} game${r.gamesSimulated === 1 ? '' : 's'}.`)
+    }
   }
 
   return (
@@ -60,29 +73,17 @@ function DashboardSimControls() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              size="sm"
-              onClick={handleSimNext}
-              disabled={!hasNext}
-              title={hasNext ? 'Sim the next game' : 'No upcoming games'}
-            >
+            <Button size="sm" onClick={handleSimNext} disabled={!hasSchedule}>
               <Play className="mr-1 size-3.5" /> Sim next game
             </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleSimDay}
-              disabled={!hasNext}
-            >
+            <Button size="sm" variant="secondary" onClick={handleSimDay} disabled={!hasSchedule}>
               <Calendar className="mr-1 size-3.5" /> Sim day
             </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleSimWeek}
-              disabled={!hasNext}
-            >
+            <Button size="sm" variant="secondary" onClick={handleSimWeek} disabled={!hasSchedule}>
               <FastForward className="mr-1 size-3.5" /> Sim week
+            </Button>
+            <Button size="sm" variant="secondary" onClick={handleSimToMyGame} disabled={!hasSchedule}>
+              <Play className="mr-1 size-3.5" /> Sim to my game
             </Button>
             <SimSpeedToggle />
           </div>
@@ -94,8 +95,69 @@ function DashboardSimControls() {
 
 export function DashboardPage() {
   const save = useGameStore((s) => s.save)
+  const simSeason = useGameStore((s) => s.simSeason)
+  const simRunning = useGameStore((s) => s.simRunning)
+  const simProgress = useGameStore((s) => s.simProgress)
+  const cancelSimulation = useGameStore((s) => s.cancelSimulation)
+  const navigate = useNavigate()
 
-  if (!save) {
+  const league = save?.league
+  const metadata = save?.metadata
+  const userTeam = league ? league.teams[league.userTeamId] : undefined
+
+  const standings = useMemo(() => {
+    if (!league) return {}
+    return recomputeStandings(
+      league.games,
+      league.teams,
+      league.rules.seasonLabel,
+      league.rules.regularSeasonGames,
+    )
+  }, [league])
+
+  const standing = league ? (standings[league.userTeamId] ?? null) : null
+
+  const nextUserGame = useMemo(() => {
+    if (!league) return null
+    const teamId = league.userTeamId
+    const today = league.currentDate
+    const games = Object.values(league.games)
+      .filter(
+        (g): g is NonNullable<typeof g> =>
+          g?.status === 'scheduled' &&
+          (g.homeTeamId === teamId || g.awayTeamId === teamId) &&
+          g.date >= today,
+      )
+      .sort((a, b) => a.date.localeCompare(b.date))
+    return games[0] ?? null
+  }, [league])
+
+  const lastUserGame = useMemo(() => {
+    if (!league) return null
+    const teamId = league.userTeamId
+    const games = Object.values(league.games)
+      .filter(
+        (g): g is NonNullable<typeof g> =>
+          g?.status === 'final' &&
+          (g.homeTeamId === teamId || g.awayTeamId === teamId),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date))
+    return games[0] ?? null
+  }, [league])
+
+  const conferenceLeader = useMemo(() => {
+    if (!league || !userTeam) return null
+    const conf = userTeam.conference
+    const confTeams = Object.values(standings)
+      .filter((s) => {
+        const team = league.teams[s.teamId]
+        return team?.conference === conf
+      })
+      .sort((a, b) => a.conferenceRank - b.conferenceRank)
+    return confTeams[0] ?? null
+  }, [standings, league, userTeam])
+
+  if (!save || !league || !metadata) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -129,10 +191,6 @@ export function DashboardPage() {
     )
   }
 
-  const { league, metadata } = save
-  const userTeam = league.teams[league.userTeamId]
-  const standing = league.standings[league.userTeamId]
-
   const rosterPlayers = userTeam
     ? userTeam.roster
         .map((id) => league.players[id])
@@ -151,6 +209,17 @@ export function DashboardPage() {
     (p) => p.morale.happiness < 50,
   )
 
+  const handleSimSeason = async () => {
+    if (!league.scheduleGenerated) {
+      toast.error('Generate a schedule first.')
+      return
+    }
+    if (save.settings.simSpeed === 'normal') {
+      toast.info('Tip: Switch to instant speed for faster bulk sim.', { duration: 5000 })
+    }
+    await simSeason()
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -161,6 +230,28 @@ export function DashboardPage() {
 
       <DashboardSimControls />
 
+      {simRunning && simProgress && (
+        <Card>
+          <CardContent className="p-5">
+            <div className="mb-2 flex items-center justify-between text-[10px] text-[var(--color-muted-foreground)]">
+              <span>Simulating {simProgress.current} of {simProgress.total} games</span>
+              <span>{simProgress.percentage}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-surface-3)]">
+              <div
+                className="h-full rounded-full bg-[var(--color-primary)] transition-all duration-200"
+                style={{ width: `${simProgress.percentage}%` }}
+              />
+            </div>
+            <div className="mt-2 flex justify-end">
+              <Button size="sm" variant="ghost" onClick={cancelSimulation}>
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-5">
@@ -170,48 +261,125 @@ export function DashboardPage() {
             <div className="font-display text-3xl mt-2">
               {standing ? `${standing.wins} - ${standing.losses}` : '0 - 0'}
             </div>
+            {standing && (
+              <div className="mt-1 flex items-center gap-2 text-xs text-[var(--color-muted-foreground)]">
+                <span>{standing.winPct.toFixed(3)}</span>
+                <span>·</span>
+                <span>#{standing.conferenceRank} {userTeam?.conference}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-5">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-              Conference
-            </div>
-            <div className="font-display text-3xl mt-2">
-              {userTeam?.conference ?? '—'}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-              Phase
-            </div>
-            <div className="font-display text-3xl mt-2 capitalize">
-              {league.phase.replace('_', ' ')}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-              Season
-            </div>
-            <div className="font-display text-3xl mt-2">
-              {metadata.snapshotId}
-            </div>
-          </CardContent>
-        </Card>
+
+        {nextUserGame && (
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                Next Game
+              </div>
+              <div className="mt-2">
+                <div className="text-sm font-medium">
+                  {nextUserGame.homeTeamId === league.userTeamId ? 'vs' : '@'}{' '}
+                  {league.teams[nextUserGame.homeTeamId === league.userTeamId ? nextUserGame.awayTeamId : nextUserGame.homeTeamId]?.abbreviation ?? '???'}
+                </div>
+                <div className="text-[10px] text-[var(--color-muted-foreground)]">
+                  {nextUserGame.date}
+                </div>
+              </div>
+              <Button
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  void (async () => {
+                    const result = await useGameStore.getState().simOneGame(nextUserGame.id)
+                    if ('error' in result) {
+                      toast.error(result.error)
+                      return
+                    }
+                    void navigate(`/game/${result.gameId}`)
+                  })()
+                }}
+              >
+                <Play className="mr-1 size-3" /> Sim
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {standing && conferenceLeader && (
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                Playoff Picture
+              </div>
+              <div className="mt-2">
+                <div className="text-sm">
+                  <span className="font-medium">#{standing.conferenceRank}</span>
+                  <span className="ml-1 text-[var(--color-muted-foreground)]">{userTeam?.conference}</span>
+                </div>
+                <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                  GB: {computeGB(conferenceLeader.wins, conferenceLeader.losses, standing.wins, standing.losses)}
+                </div>
+                {standing.clinchedPlayoff && (
+                  <div className="mt-1 text-[10px] text-emerald-500 font-medium">Clinched Playoff</div>
+                )}
+                {standing.eliminated && (
+                  <div className="mt-1 text-[10px] text-red-500 font-medium">Eliminated</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {lastUserGame && (
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                Last Game
+              </div>
+              <div className="mt-2">
+                <div className="text-sm font-medium">
+                  {lastUserGame.homeTeamId === league.userTeamId ? 'vs' : '@'}{' '}
+                  {league.teams[lastUserGame.homeTeamId === league.userTeamId ? lastUserGame.awayTeamId : lastUserGame.homeTeamId]?.abbreviation ?? '???'}
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="font-mono">
+                    {lastUserGame.homeScore} – {lastUserGame.awayScore}
+                  </span>
+                  {(() => {
+                    const isHome = lastUserGame.homeTeamId === league.userTeamId
+                    const won = isHome
+                      ? (lastUserGame.homeScore ?? 0) > (lastUserGame.awayScore ?? 0)
+                      : (lastUserGame.awayScore ?? 0) > (lastUserGame.homeScore ?? 0)
+                    return (
+                      <span className={`text-[10px] font-bold ${won ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {won ? 'W' : 'L'}
+                      </span>
+                    )
+                  })()}
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="mt-2"
+                onClick={() => void navigate(`/game/${lastUserGame.id}`)}
+              >
+                Box score <ChevronRight className="ml-1 size-3" />
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {userTeam && (
-        <Card>
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-                  Cap Health
-                </div>
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                Cap Health
+              </div>
+              {userTeam && (
                 <div className="flex items-baseline gap-3 mt-1">
                   <div className="font-display text-2xl">
                     {fmt(userTeam.finances.payroll)}
@@ -220,6 +388,8 @@ export function DashboardPage() {
                     / {fmt(league.rules.salaryCap)} cap
                   </div>
                 </div>
+              )}
+              {userTeam && (
                 <div className="flex items-center gap-4 mt-1 text-xs text-[var(--color-muted-foreground)]">
                   <span>
                     Cap space:{' '}
@@ -237,7 +407,18 @@ export function DashboardPage() {
                     Tax bill: <span className="font-medium">{fmt(userTeam.finances.taxBill)}</span>
                   </span>
                 </div>
-              </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleSimSeason}
+                disabled={simRunning}
+              >
+                <FastForward className="mr-1 size-3.5" />
+                {simRunning ? `Simming ${simProgress?.percentage ?? 0}%` : 'Sim Season'}
+              </Button>
               <Link
                 to="/contracts"
                 className="rounded-md border border-[var(--color-line-soft)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-surface-2)] transition-colors"
@@ -245,9 +426,9 @@ export function DashboardPage() {
                 Go to contracts
               </Link>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </CardContent>
+      </Card>
 
       {userTeam && userTeam.lineup.starters.length > 0 && (
         <Card>

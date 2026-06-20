@@ -31,6 +31,10 @@ export function generateStubSchedule(options: StubScheduleOptions): ScheduledGam
       awayScore: null,
       boxScoreId: null,
       boxScore: null,
+      isConference: false,
+      isDivision: false,
+      seasonYear: 0,
+      isUserTeamGame: true,
     })
   }
   return games

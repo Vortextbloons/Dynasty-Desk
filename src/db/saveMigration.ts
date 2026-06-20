@@ -244,3 +244,57 @@ export function migrateToV4(input: unknown): GameSave {
     },
   }
 }
+
+export function migrateToV5(input: unknown): GameSave {
+  const save = input as GameSave
+
+  const league = save.league as unknown as Record<string, unknown>
+
+  const standingsRaw = league.standings as Record<string, Record<string, unknown>> | undefined
+  const standings: GameSave['league']['standings'] = {}
+  if (standingsRaw) {
+    for (const [tid, s] of Object.entries(standingsRaw)) {
+      standings[tid] = {
+        ...s,
+        conferenceWins: typeof s.conferenceWins === 'number' ? s.conferenceWins : 0,
+        conferenceLosses: typeof s.conferenceLosses === 'number' ? s.conferenceLosses : 0,
+        divisionWins: typeof s.divisionWins === 'number' ? s.divisionWins : 0,
+        divisionLosses: typeof s.divisionLosses === 'number' ? s.divisionLosses : 0,
+        pointsPerGame: typeof s.pointsPerGame === 'number' ? s.pointsPerGame : 0,
+        pointsAllowedPerGame: typeof s.pointsAllowedPerGame === 'number' ? s.pointsAllowedPerGame : 0,
+        pointDifferentialPerGame: typeof s.pointDifferentialPerGame === 'number' ? s.pointDifferentialPerGame : 0,
+        gamesRemaining: typeof s.gamesRemaining === 'number' ? s.gamesRemaining : 82,
+        magicNumber: typeof s.magicNumber === 'number' ? s.magicNumber : 0,
+        tiebreaker: s.tiebreaker ?? { headToHeadWins: 0, conferenceWinPct: 0, pointDifferential: 0 },
+      } as GameSave['league']['standings'][string]
+    }
+  }
+
+  const gamesRaw = league.games as Record<string, Record<string, unknown>> | undefined
+  const games: GameSave['league']['games'] = {}
+  if (gamesRaw) {
+    for (const [gid, g] of Object.entries(gamesRaw)) {
+      games[gid] = {
+        ...g,
+        isConference: typeof g.isConference === 'boolean' ? g.isConference : false,
+        isDivision: typeof g.isDivision === 'boolean' ? g.isDivision : false,
+        seasonYear: typeof g.seasonYear === 'number' ? g.seasonYear : 0,
+        isUserTeamGame: typeof g.isUserTeamGame === 'boolean' ? g.isUserTeamGame : false,
+      } as GameSave['league']['games'][string]
+    }
+  }
+
+  return {
+    ...save,
+    metadata: {
+      ...save.metadata,
+      schemaVersion: 5,
+    },
+    league: {
+      ...save.league,
+      standings,
+      games,
+      scheduleGenerated: typeof league.scheduleGenerated === 'boolean' ? league.scheduleGenerated : false,
+    },
+  }
+}

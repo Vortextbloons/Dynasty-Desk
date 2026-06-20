@@ -13,6 +13,13 @@ export interface ScheduledGame {
   awayScore: number | null
   boxScoreId: string | null
   boxScore?: BoxScoreResult | null
+
+  isConference: boolean
+  isDivision: boolean
+  seasonYear: number
+  isUserTeamGame: boolean
+  winnerTeamId?: string
+  ot?: boolean
 }
 
 export interface TeamStanding {
@@ -36,4 +43,19 @@ export interface TeamStanding {
   clinchedPlayoff: boolean
   clinchedDivision: boolean
   eliminated: boolean
+
+  conferenceWins: number
+  conferenceLosses: number
+  divisionWins: number
+  divisionLosses: number
+  pointsPerGame: number
+  pointsAllowedPerGame: number
+  pointDifferentialPerGame: number
+  gamesRemaining: number
+  magicNumber: number
+  tiebreaker: {
+    headToHeadWins: number
+    conferenceWinPct: number
+    pointDifferential: number
+  }
 }

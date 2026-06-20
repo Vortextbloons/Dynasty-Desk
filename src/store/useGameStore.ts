@@ -18,6 +18,9 @@ import { SeededRandom } from '@/game/sim/rng'
 import { simulateGame } from '@/game/sim/gameSimulator'
 import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
 import { generateStubSchedule } from '@/game/sim/stubSchedule'
+import { generateSchedule } from '@/game/league/scheduleGenerator'
+import { recomputeStandings, initializeStandings } from '@/game/league/standingsEngine'
+import { advanceSeason, advanceToNextUserGame, type SimProgress, type CancelToken } from '@/game/league/simController'
 import type { StaticSnapshot } from '@/game/models'
 import {
   cutPlayer as cutPlayerAction,
@@ -33,8 +36,10 @@ import {
 import { validateRotation } from '@/game/management/rotationValidator'
 import { generateAutoRotation } from '@/game/management/autoRotation'
 import { addDays } from '@/lib/utils'
+import { toast } from 'sonner'
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+let cancelTokenRef: CancelToken | null = null
 
 interface GameStore {
   save: GameSave | null
@@ -42,6 +47,8 @@ interface GameStore {
   saveStatus: 'idle' | 'loading' | 'ready' | 'saving' | 'error'
   error: string | null
   lastSavedAt: string | null
+  simProgress: SimProgress | null
+  simRunning: boolean
 
   initFromSnapshot: (
     snapshot: StaticSnapshot,
@@ -86,6 +93,10 @@ interface GameStore {
   setSimSpeed: (speed: SimSpeed) => void
   getNextScheduledGameForUser: () => string | null
   ensureSchedule: (count?: number) => string[]
+  generateSeasonSchedule: () => void
+  simSeason: () => Promise<{ gamesSimulated: number }>
+  simUntilUserGame: () => Promise<{ gamesSimulated: number }>
+  cancelSimulation: () => void
 }
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -94,6 +105,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   saveStatus: 'idle',
   error: null,
   lastSavedAt: null,
+  simProgress: null,
+  simRunning: false,
 
   initFromSnapshot: async (
     snapshot,
@@ -593,10 +606,19 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     game.awayScore = boxScore.awayScore
     game.boxScore = boxScore
     game.boxScoreId = gameId
+    game.winnerTeamId = boxScore.homeWin ? game.homeTeamId : game.awayTeamId
+    if (boxScore.overtimeOccurred) {
+      game.ot = true
+    }
 
     save.rngState = seededRng.state
-    applyGameResultToStandings(save, gameId, boxScore)
     advanceLeagueDate(save, game.date)
+    save.league.standings = recomputeStandings(
+      save.league.games,
+      save.league.teams,
+      save.league.rules.seasonLabel,
+      save.league.rules.regularSeasonGames,
+    )
     set({ save: { ...save } })
     get().scheduleAutoSave()
     return { gameId, boxScore }
@@ -607,7 +629,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!save) return { error: 'No active save.' }
     let nextId = get().getNextScheduledGameForUser()
     if (!nextId) {
-      get().ensureSchedule(3)
+      if (!save.league.scheduleGenerated) {
+        get().generateSeasonSchedule()
+      }
       nextId = get().getNextScheduledGameForUser()
     }
     if (!nextId) return { error: 'No upcoming games to simulate.' }
@@ -619,23 +643,25 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   simDay: async () => {
     const { save } = get()
     if (!save) return { gamesSimulated: 0, gameIds: [] }
-    if (Object.keys(save.league.games).length === 0) {
-      get().ensureSchedule(3)
+    if (!save.league.scheduleGenerated && Object.keys(save.league.games).length === 0) {
+      get().generateSeasonSchedule()
     }
-    let today = save.league.currentDate
-    let todays = Object.values(save.league.games)
+    const today = save.league.currentDate
+    const todays = Object.values(save.league.games)
       .filter((g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === today)
-    if (todays.length === 0) {
-      get().ensureSchedule(3)
-      today = save.league.currentDate
-      todays = Object.values(save.league.games)
-        .filter((g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === today)
-    }
     const simIds: string[] = []
     for (const game of todays) {
-      if (!game) continue
       const result = await get().simOneGame(game.id)
       if (!('error' in result)) simIds.push(result.gameId)
+    }
+    if (simIds.length > 0) {
+      save.league.standings = recomputeStandings(
+        save.league.games,
+        save.league.teams,
+        save.league.rules.seasonLabel,
+        save.league.rules.regularSeasonGames,
+      )
+      set({ save: { ...save } })
     }
     return { gamesSimulated: simIds.length, gameIds: simIds }
   },
@@ -643,8 +669,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   simWeek: async () => {
     const { save } = get()
     if (!save) return { gamesSimulated: 0, gameIds: [] }
-    if (Object.keys(save.league.games).length === 0) {
-      get().ensureSchedule(3)
+    if (!save.league.scheduleGenerated && Object.keys(save.league.games).length === 0) {
+      get().generateSeasonSchedule()
     }
     const simIds: string[] = []
     for (let day = 0; day < 7; day++) {
@@ -653,25 +679,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         (g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === targetDate,
       )
       for (const game of dayGames) {
-        if (!game) continue
         const result = await get().simOneGame(game.id)
         if (!('error' in result)) simIds.push(result.gameId)
       }
     }
-    if (simIds.length === 0) {
-      get().ensureSchedule(3)
-      const start = save.league.currentDate
-      for (let day = 0; day < 3; day++) {
-        const targetDate = addDays(start, day)
-        const dayGames = Object.values(save.league.games).filter(
-          (g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === targetDate,
-        )
-        for (const game of dayGames) {
-          if (!game) continue
-          const result = await get().simOneGame(game.id)
-          if (!('error' in result)) simIds.push(result.gameId)
-        }
-      }
+    if (simIds.length > 0) {
+      save.league.standings = recomputeStandings(
+        save.league.games,
+        save.league.teams,
+        save.league.rules.seasonLabel,
+        save.league.rules.regularSeasonGames,
+      )
+      set({ save: { ...save } })
     }
     return { gamesSimulated: simIds.length, gameIds: simIds }
   },
@@ -682,6 +701,126 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     save.settings.simSpeed = speed
     set({ save: { ...save } })
     get().scheduleAutoSave()
+  },
+
+  generateSeasonSchedule: () => {
+    const { save } = get()
+    if (!save) return
+    if (save.league.scheduleGenerated) return
+
+    const existingGameCount = Object.keys(save.league.games).length
+    if (existingGameCount > 0) {
+      save.league.games = {}
+    }
+
+    const teams = Object.values(save.league.teams).filter(
+      (t): t is NonNullable<typeof t> => Boolean(t),
+    )
+    const rng = new SeededRandom(save.rngState)
+    const games = generateSchedule(teams, {
+      startDate: save.league.currentDate,
+      seasonYear: save.league.seasonYear,
+      seasonLabel: save.league.rules.seasonLabel,
+      rng,
+    })
+    save.rngState = rng.state
+
+    for (const game of games) {
+      game.isUserTeamGame = game.homeTeamId === save.league.userTeamId || game.awayTeamId === save.league.userTeamId
+      save.league.games[game.id] = game
+    }
+
+    save.league.scheduleGenerated = true
+
+    const standings = initializeStandings(
+      teams,
+      save.league.rules.seasonLabel,
+      save.league.rules.regularSeasonGames,
+    )
+    save.league.standings = standings
+
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    toast.success(`Generated ${games.length}-game schedule.`)
+  },
+
+  simSeason: async () => {
+    const { save } = get()
+    if (!save) return { gamesSimulated: 0 }
+    if (!save.league.scheduleGenerated) {
+      get().generateSeasonSchedule()
+    }
+
+    const scheduledGames = Object.values(save.league.games).filter(
+      (g) => g?.status === 'scheduled',
+    )
+    if (scheduledGames.length === 0) return { gamesSimulated: 0 }
+
+    const speed = save.settings.simSpeed === 'normal' ? 'normal' : 'instant'
+    const cancelToken: CancelToken = { cancelled: false }
+    cancelTokenRef = cancelToken
+
+    set({ simRunning: true, simProgress: { current: 0, total: scheduledGames.length, percentage: 0, currentMatchup: '' } })
+
+    const rng = new SeededRandom(save.rngState)
+
+    try {
+      const { results } = await advanceSeason(save, rng, (progress) => {
+        set({ simProgress: progress })
+      }, { cancelToken, speed })
+
+      save.league.standings = recomputeStandings(
+        save.league.games,
+        save.league.teams,
+        save.league.rules.seasonLabel,
+        save.league.rules.regularSeasonGames,
+      )
+
+      set({ save: { ...save }, simProgress: null, simRunning: false })
+      get().scheduleAutoSave()
+
+      if (cancelToken.cancelled) {
+        toast.info(`Sim cancelled. ${results.length} games simulated.`)
+      } else {
+        toast.success(`Season sim complete. ${results.length} games simulated.`)
+      }
+
+      return { gamesSimulated: results.length }
+    } catch {
+      set({ simProgress: null, simRunning: false })
+      return { gamesSimulated: 0 }
+    } finally {
+      cancelTokenRef = null
+    }
+  },
+
+  simUntilUserGame: async () => {
+    const { save } = get()
+    if (!save) return { gamesSimulated: 0 }
+    if (!save.league.scheduleGenerated) {
+      get().generateSeasonSchedule()
+    }
+
+    const rng = new SeededRandom(save.rngState)
+    const { results } = await advanceToNextUserGame(save, rng)
+
+    save.league.standings = recomputeStandings(
+      save.league.games,
+      save.league.teams,
+      save.league.rules.seasonLabel,
+      save.league.rules.regularSeasonGames,
+    )
+
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+
+    return { gamesSimulated: results.length }
+  },
+
+  cancelSimulation: () => {
+    if (cancelTokenRef) {
+      cancelTokenRef.cancelled = true
+    }
   },
 }))
 
@@ -734,45 +873,6 @@ function revalidateLineup(save: GameSave, teamId: string) {
   )
   team.lineup.lastValidatedAt = new Date().toISOString()
   team.lineup.lastValidationWarnings = result.warnings.map((w) => w.code)
-}
-
-function applyGameResultToStandings(
-  save: GameSave,
-  _gameId: string,
-  box: import('@/game/models').BoxScoreResult,
-) {
-  const home = save.league.standings[box.homeTeamId]
-  const away = save.league.standings[box.awayTeamId]
-  if (!home || !away) return
-  home.gamesPlayed += 1
-  away.gamesPlayed += 1
-  home.pointsFor += box.homeScore
-  home.pointsAgainst += box.awayScore
-  away.pointsFor += box.awayScore
-  away.pointsAgainst += box.homeScore
-  home.pointDifferential = home.pointsFor - home.pointsAgainst
-  away.pointDifferential = away.pointsFor - away.pointsAgainst
-  const homeWin = box.homeWin
-  if (homeWin) {
-    home.wins += 1
-    home.homeWins += 1
-    home.streak = home.streak >= 0 ? home.streak + 1 : 1
-    away.losses += 1
-    away.awayLosses += 1
-    away.streak = away.streak <= 0 ? away.streak - 1 : -1
-  } else {
-    home.losses += 1
-    home.homeLosses += 1
-    home.streak = home.streak <= 0 ? home.streak - 1 : -1
-    away.wins += 1
-    away.awayWins += 1
-    away.streak = away.streak >= 0 ? away.streak + 1 : 1
-  }
-  home.winPct = home.wins / Math.max(1, home.gamesPlayed)
-  away.winPct = away.wins / Math.max(1, away.gamesPlayed)
-  const winChar = homeWin ? 'W' : 'L'
-  home.last10 = (home.last10 + winChar).slice(-10)
-  away.last10 = (away.last10 + (homeWin ? 'L' : 'W')).slice(-10)
 }
 
 function advanceLeagueDate(save: GameSave, gameDate: string): void {

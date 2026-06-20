@@ -3,7 +3,7 @@ import type { GameSave, SaveMetadata } from '@/game/models'
 import { validateSave } from '@/game/core/saveValidation'
 import { initDB } from './dexie'
 import { downloadTextFile } from '@/lib/download'
-import { migrateToV2, migrateToV3, migrateToV4 } from './saveMigration'
+import { migrateToV2, migrateToV3, migrateToV4, migrateToV5 } from './saveMigration'
 
 let dbInitialized = false
 
@@ -47,6 +47,10 @@ export async function loadSave(id: string): Promise<GameSave | null> {
   }
   if (save.metadata.schemaVersion === 3) {
     save = migrateToV4(save)
+    await db.saves.update(id, { data: save, metadata: save.metadata })
+  }
+  if (save.metadata.schemaVersion === 4) {
+    save = migrateToV5(save)
     await db.saves.update(id, { data: save, metadata: save.metadata })
   }
 
@@ -151,6 +155,9 @@ export async function importSaveFromFile(file: File): Promise<GameSave> {
   }
   if (save.metadata.schemaVersion === 3) {
     save = migrateToV4(save)
+  }
+  if (save.metadata.schemaVersion === 4) {
+    save = migrateToV5(save)
   }
 
   save.metadata.id = crypto.randomUUID()

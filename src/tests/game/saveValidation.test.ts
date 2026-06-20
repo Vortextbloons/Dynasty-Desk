@@ -216,6 +216,7 @@ function makeValidSave(): GameSave {
       },
       games: {},
       standings: {},
+      scheduleGenerated: false,
       transactions: [],
       news: [],
       awardsHistory: [],
