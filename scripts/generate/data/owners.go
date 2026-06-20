@@ -1,0 +1,43 @@
+package data
+
+var OwnerNames = []string{
+	"Riley Sterling",
+	"Marcus Chen",
+	"Victoria Ashford",
+	"James Whitfield",
+	"Sofia Ramirez",
+	"Robert Thornton",
+	"Elena Vasquez",
+	"William Drake",
+	"Catherine Huang",
+	"Daniel Okafor",
+	"Margaret Bell",
+	"Andrew Sinclair",
+	"Patricia Kowalski",
+	"Thomas Blackwell",
+	"Diana Petrov",
+	"Charles Wellington",
+	"Amara Jefferson",
+	"Richard Montoya",
+	"Grace Nakamura",
+	"Henry Baldwin",
+	"Lucia Fernández",
+	"George Hartley",
+	"Zara Patel",
+	"Edward Callahan",
+	"Nadia Volkov",
+	"Michael Harrington",
+	"Olivia Brennan",
+	"Stephen Cartwright",
+	"Aisha Koroma",
+	"Philip Drummond",
+}
+
+var OwnerPersonalities = []string{
+	"spendthrift",
+	"patient",
+	"win_now",
+	"frugal",
+	"meddler",
+	"hands_off",
+}

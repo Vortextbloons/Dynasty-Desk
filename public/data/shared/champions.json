@@ -1,6 +1,4 @@
 {
-  "version": "0.2.0",
-  "updatedAt": "2026-06-20T05:08:15.811Z",
   "champions": [
     {
       "season": "2024-25",
@@ -247,5 +245,7 @@
       "finalsMvpPlayerId": "unknown",
       "seriesResult": "4-1"
     }
-  ]
+  ],
+  "updatedAt": "2026-01-01T00:00:00Z",
+  "version": "0.2.0"
 }

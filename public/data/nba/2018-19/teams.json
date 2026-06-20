@@ -17,14 +17,14 @@
       "teamId": "team-bos",
       "name": "Riley Sterling",
       "personality": "win_now",
-      "netWorth": 19358449238,
-      "cash": 57687566,
+      "netWorth": 21724579749,
+      "cash": 69046397,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -45,14 +45,14 @@
       "teamId": "team-lal",
       "name": "Marcus Chen",
       "personality": "win_now",
-      "netWorth": 19020636883,
-      "cash": 60390149,
+      "netWorth": 19605734311,
+      "cash": 64388036,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -73,14 +73,14 @@
       "teamId": "team-gsw",
       "name": "Victoria Ashford",
       "personality": "win_now",
-      "netWorth": 20755112662,
-      "cash": 52098182,
+      "netWorth": 23611706877,
+      "cash": 52390477,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -101,14 +101,14 @@
       "teamId": "team-mil",
       "name": "James Whitfield",
       "personality": "meddler",
-      "netWorth": 22280188221,
-      "cash": 47002439,
+      "netWorth": 22678477147,
+      "cash": 49326581,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -129,14 +129,14 @@
       "teamId": "team-den",
       "name": "Sofia Ramirez",
       "personality": "patient",
-      "netWorth": 17456128374,
-      "cash": 44860447,
+      "netWorth": 23089766428,
+      "cash": 46844647,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -157,14 +157,14 @@
       "teamId": "team-okc",
       "name": "Robert Thornton",
       "personality": "hands_off",
-      "netWorth": 19247382469,
-      "cash": 43285327,
+      "netWorth": 19423024594,
+      "cash": 45235926,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -185,14 +185,14 @@
       "teamId": "team-mia",
       "name": "Elena Vasquez",
       "personality": "spendthrift",
-      "netWorth": 19538835932,
-      "cash": 63074960,
+      "netWorth": 22428843323,
+      "cash": 43510629,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -213,14 +213,14 @@
       "teamId": "team-phi",
       "name": "William Drake",
       "personality": "frugal",
-      "netWorth": 16235717994,
-      "cash": 63075758,
+      "netWorth": 19431950897,
+      "cash": 43736615,
       "softCashPressureSeasons": 0
     },
     "importMeta": {
       "snapshotSeason": "2018-19",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T05:08:15.784Z"
+      "lastUpdated": "2026-01-01T00:00:00Z"
     }
   }
 ]

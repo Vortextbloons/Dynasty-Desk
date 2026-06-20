@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "data:build": "tsx scripts/generate/run.ts",
+    "data:build": "go run -C scripts/generate .",
+    "data:build:ts": "tsx scripts/generate/run.ts",
     "data:build:python": "py scripts/import_nba/run_all.py"
   },
   "dependencies": {
