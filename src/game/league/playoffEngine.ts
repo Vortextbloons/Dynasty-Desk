@@ -196,6 +196,11 @@ export function generatePlayoffBracket(
     startDate: finalsStartDate,
   }
 
+  if (!rules.hasPlayIn) {
+    resolveBracketByes(bracket, 'East')
+    resolveBracketByes(bracket, 'West')
+  }
+
   return bracket
 }
 
@@ -249,6 +254,14 @@ function createBracketRounds(
   const result: PlayoffSeries[] = []
   const startDate = hasPlayIn ? '2026-04-19' : '2026-04-15'
 
+  if (hasPlayIn && topSeeds.length < 6) {
+    throw new Error(`Play-in bracket requires at least 6 teams per conference, got ${topSeeds.length}`)
+  }
+
+  if (!hasPlayIn && topSeeds.length < 4) {
+    throw new Error(`Playoff bracket requires at least 4 teams per conference, got ${topSeeds.length}`)
+  }
+
   const matchups = hasPlayIn
     ? [
         { higher: topSeeds[0]!, lower: { teamId: '', seed: 8 } },
@@ -275,9 +288,9 @@ function createBracketRounds(
       conference,
       round: 1,
       higherSeedTeamId: m.higher.teamId,
-      lowerSeedTeamId: m.lower.teamId,
+      lowerSeedTeamId: m.lower?.teamId ?? '',
       higherSeed: m.higher.seed,
-      lowerSeed: m.lower.seed,
+      lowerSeed: m.lower?.seed ?? 0,
       seriesLength,
       higherSeedWins: 0,
       lowerSeedWins: 0,
@@ -320,6 +333,23 @@ function createBracketRounds(
   }
 
   return result
+}
+
+function resolveBracketByes(bracket: PlayoffBracket, conference: 'East' | 'West'): void {
+  const seriesList = bracket[conference.toLowerCase() as 'east' | 'west']
+  const roundOneSeries = seriesList
+    .filter((s) => s.round === 1)
+    .sort((a, b) => a.id.localeCompare(b.id))
+
+  for (const series of roundOneSeries) {
+    if (series.status !== 'scheduled') continue
+    if (!series.higherSeedTeamId || series.lowerSeedTeamId) continue
+
+    series.status = 'final'
+    series.winnerTeamId = series.higherSeedTeamId
+    series.isUpset = false
+    advanceBracketWinner(bracket, series)
+  }
 }
 
 export async function simulatePlayIn(

@@ -192,6 +192,34 @@ describe('generatePlayoffBracket', () => {
     expect(bracket.playIn).toBeUndefined()
     expect(bracket.status).toBe('bracket')
   })
+
+  it('auto-advances byes when only six seeds exist', () => {
+    const league = makeLeague({
+      rules: {
+        hasPlayIn: false,
+        playoffFormat: 'top8',
+        playoffTeamsPerConference: 6,
+      },
+    })
+
+    for (const teamId of ['east-7', 'east-8', 'east-9', 'east-10', 'west-7', 'west-8', 'west-9', 'west-10']) {
+      delete league.teams[teamId]
+      delete league.standings[teamId]
+    }
+
+    const bracket = generatePlayoffBracket(league, league.rules)
+
+    const eastR1 = bracket.east.filter((s) => s.round === 1).sort((a, b) => a.id.localeCompare(b.id))
+    expect(eastR1).toHaveLength(4)
+    expect(eastR1.filter((s) => s.status === 'final')).toHaveLength(2)
+    expect(eastR1[0]!.winnerTeamId).toBe(eastR1[0]!.higherSeedTeamId)
+    expect(eastR1[3]!.winnerTeamId).toBe(eastR1[3]!.higherSeedTeamId)
+
+    const eastR2 = bracket.east.filter((s) => s.round === 2)
+    expect(eastR2).toHaveLength(2)
+    expect(eastR2[0]!.higherSeedTeamId).toBe('east-1')
+    expect(eastR2[1]!.lowerSeedTeamId).toBe('east-2')
+  })
 })
 
 describe('advancePlayoffSeries', () => {

@@ -7,10 +7,11 @@ interface ProspectCardProps {
   prospect: DraftProspect
   scoutingPoints?: number
   onSelect?: () => void
+  onTwoWay?: () => void
   selected?: boolean
 }
 
-export function ProspectCard({ prospect, scoutingPoints, onSelect, selected }: ProspectCardProps) {
+export function ProspectCard({ prospect, scoutingPoints, onSelect, onTwoWay, selected }: ProspectCardProps) {
   const ovr = prospect.visibleRatings.overall ?? '?'
   const [potLow, potHigh] = prospect.visiblePotentialRange
 
@@ -38,10 +39,19 @@ export function ProspectCard({ prospect, scoutingPoints, onSelect, selected }: P
             Scouted: {scoutingPoints}/100
           </div>
         )}
-        {onSelect && (
-          <Button size="sm" variant="secondary" className="w-full" onClick={onSelect}>
-            Select
-          </Button>
+        {(onSelect || onTwoWay) && (
+          <div className="flex gap-2">
+            {onSelect && (
+              <Button size="sm" variant="secondary" className="flex-1" onClick={onSelect}>
+                Select
+              </Button>
+            )}
+            {onTwoWay && (
+              <Button size="sm" variant="outline" className="flex-1" onClick={onTwoWay}>
+                Two-way
+              </Button>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

@@ -12,8 +12,10 @@ import {
   pickArchetypeForPosition,
 } from '@/data/draftArchetypes'
 import { pickRandomName } from '@/data/draftNamePools'
+import { initScoutingForDraftClass } from './scoutingEngine'
+import type { DraftPick } from '@/game/models/draft'
 
-const TOTAL_PROSPECTS = 60
+export const BASE_DRAFT_PROSPECTS = 60
 const POSITIONS: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 
 interface RealProspectData {
@@ -97,7 +99,7 @@ export function generateDraftClass(
     usedNames.add(`${real.firstName} ${real.lastName}`)
   }
 
-  while (prospects.length < TOTAL_PROSPECTS) {
+  while (prospects.length < BASE_DRAFT_PROSPECTS) {
     const position = POSITIONS[prospects.length % POSITIONS.length]!
     prospects.push(buildSyntheticProspect(classId, position, usedNames, rng))
   }
@@ -110,8 +112,50 @@ export function generateDraftClass(
     prospects,
     generatedBy: 'hybrid',
     realProspectCount: realData.length,
-    syntheticProspectCount: TOTAL_PROSPECTS - realData.length,
+    syntheticProspectCount: BASE_DRAFT_PROSPECTS - realData.length,
   }
+}
+
+/** Placeholder class for offseason scouting; replaced when real JSON is available at draft. */
+export function prepareDraftClass(
+  league: LeagueState,
+  seasonYear: number,
+  rules: LeagueRules,
+  realData: RealProspectData[],
+  rng: SeededRandom,
+): DraftClass {
+  const existing = getDraftClassForYear(league, seasonYear)
+  const shouldReplace =
+    !existing || (existing.realProspectCount === 0 && realData.length > 0)
+
+  if (!shouldReplace && existing) return existing
+
+  const oldClassId = existing?.id
+  const draftClass = generateDraftClass(seasonYear, rules, realData, rng)
+  league.draftClasses[draftClass.id] = draftClass
+
+  if (oldClassId && oldClassId !== draftClass.id) {
+    delete league.draftClasses[oldClassId]
+    for (const key of Object.keys(league.scoutingState)) {
+      if (key.endsWith(`-${oldClassId}`)) {
+        delete league.scoutingState[key]
+      }
+    }
+  }
+
+  initScoutingForDraftClass(league, draftClass.id)
+  return draftClass
+}
+
+export function isCompensationDraftPick(pick: DraftPick): boolean {
+  return pick.id.startsWith('comp-')
+}
+
+export function countDraftSlots(league: LeagueState, seasonYear: number): number {
+  const seasonLabel = formatSeasonLabel(seasonYear)
+  return league.draftPicks.filter(
+    (p) => p.season === seasonLabel && p.pickNumber > 0,
+  ).length
 }
 
 function buildRealProspect(
@@ -326,6 +370,7 @@ export function assignPickNumbers(
 
   for (const pick of league.draftPicks) {
     if (pick.season !== seasonLabel) continue
+    if (isCompensationDraftPick(pick)) continue
     if (pick.round === 1) {
       const slot = orderMap.get(pick.originalTeamId)
       if (slot) pick.pickNumber = slot
@@ -333,6 +378,23 @@ export function assignPickNumbers(
       const slot = orderMap.get(pick.originalTeamId)
       if (slot) pick.pickNumber = teamCount + slot
     }
+  }
+
+  assignCompensationPickNumbers(league, seasonLabel)
+}
+
+function assignCompensationPickNumbers(league: LeagueState, seasonLabel: string): void {
+  const compPicks = league.draftPicks
+    .filter((p) => p.season === seasonLabel && isCompensationDraftPick(p))
+    .sort((a, b) => a.id.localeCompare(b.id))
+
+  const maxSlot = league.draftPicks
+    .filter((p) => p.season === seasonLabel && !isCompensationDraftPick(p))
+    .reduce((max, p) => Math.max(max, p.pickNumber), 0)
+
+  let next = maxSlot + 1
+  for (const pick of compPicks) {
+    pick.pickNumber = next++
   }
 }
 
@@ -376,13 +438,20 @@ export function getCurrentPickOwner(
   draft: Draft,
 ): { teamId: string; pickId: string } | null {
   const seasonLabel = formatSeasonLabel(draft.seasonYear)
-  const pick = league.draftPicks.find(
-    (p) =>
-      p.season === seasonLabel &&
-      p.round <= 2 &&
-      p.pickNumber === draft.currentPickNumber &&
-      !p.prospectId,
-  )
+  const slotPicks = league.draftPicks
+    .filter(
+      (p) =>
+        p.season === seasonLabel &&
+        p.pickNumber === draft.currentPickNumber &&
+        !p.prospectId,
+    )
+    .sort((a, b) => {
+      if (isCompensationDraftPick(a) !== isCompensationDraftPick(b)) {
+        return isCompensationDraftPick(a) ? 1 : -1
+      }
+      return a.id.localeCompare(b.id)
+    })
+  const pick = slotPicks[0]
   if (!pick) return null
   return { teamId: pick.currentTeamId, pickId: pick.id }
 }
@@ -448,7 +517,8 @@ export function simulateDraftPick(
   pickAsset.prospectId = prospectId
   draft.currentPickNumber++
 
-  if (draft.currentPickNumber > 60) {
+  const totalSlots = countDraftSlots(league, draft.seasonYear)
+  if (draft.currentPickNumber > totalSlots) {
     draft.status = 'complete'
     draft.completedAt = league.currentDate
   }

@@ -57,6 +57,7 @@ import {
   submitOffer as submitFAOffer,
   matchOfferSheet,
   signPlayerFromOffer,
+  validateFreeAgentOffer,
 } from '@/game/management/freeAgencyEngine'
 import type { FreeAgentOfferInput } from '@/game/models/freeAgent'
 import { canSignTwoWay, addTwoWayPlayer } from '@/game/management/twoWayEngine'
@@ -110,7 +111,6 @@ interface GameStore {
     exception: ExceptionType,
   ) => ContractActionResult
   advancePhase: () => Promise<{ newPhase: LeaguePhase; blocked?: boolean; reason?: string } | void>
-  beginOffseason: () => void
   allocateScoutingPoints: (prospectId: string, points: number) => { ok: boolean; reason?: string }
   makeDraftPick: (prospectId: string, isTwoWay?: boolean) => { ok: boolean; reason?: string }
   autoDraftOffClock: () => void
@@ -453,16 +453,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
   },
 
-  beginOffseason: () => {
-    const { save } = get()
-    if (!save) return
-    const rng = new SeededRandom(save.rngState)
-    beginOffseason(save.league, rng)
-    save.rngState = rng.state
-    set({ save: { ...save } })
-    get().scheduleAutoSave()
-  },
-
   allocateScoutingPoints: (prospectId, points) => {
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
@@ -548,6 +538,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!player || player.teamId !== null) {
       return { ok: false, reason: 'Player is not a free agent.' }
     }
+    const validation = validateFreeAgentOffer(
+      save.league,
+      save.league.userTeamId,
+      playerId,
+      offer,
+    )
+    if (!validation.ok) return validation
     const isRFA = save.league.qualifyingOffers.some((q) => q.playerId === playerId)
     const faOffer = submitFAOffer(
       offer,

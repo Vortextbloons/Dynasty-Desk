@@ -19,6 +19,7 @@ export function FreeAgencyPage() {
   const save = useGameStore((s) => s.save)
   const makeFreeAgentOffer = useGameStore((s) => s.makeFreeAgentOffer)
   const withdrawOffer = useGameStore((s) => s.withdrawOffer)
+  const matchOfferSheetAction = useGameStore((s) => s.matchOfferSheetAction)
   const [tab, setTab] = useState<'ufa' | 'rfa' | 'offers' | 'exceptions'>('ufa')
 
   if (!save) {
@@ -33,6 +34,14 @@ export function FreeAgencyPage() {
   )
   const rfaIds = identifyRestrictedFreeAgents(league, league.qualifyingOffers)
   const myOffers = league.freeAgentOffers.filter((o) => o.teamId === league.userTeamId)
+  const incomingSheets = league.freeAgentOffers.filter(
+    (o) =>
+      o.status === 'pending' &&
+      o.teamId !== league.userTeamId &&
+      league.qualifyingOffers.some(
+        (q) => q.playerId === o.playerId && q.teamId === league.userTeamId,
+      ),
+  )
 
   const handleOffer = (playerId: string, salary: number) => {
     const years = 2
@@ -146,7 +155,54 @@ export function FreeAgencyPage() {
       )}
 
       {tab === 'offers' && (
-        <div className="space-y-2">
+        <div className="space-y-4">
+          {incomingSheets.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium">Incoming offer sheets (match or let walk)</h3>
+              {incomingSheets.map((offer) => {
+                const player = league.players[offer.playerId]
+                const biddingTeam = league.teams[offer.teamId]
+                const daysLeft = Math.max(
+                  0,
+                  Math.ceil(
+                    (new Date(offer.matchDeadline).getTime() -
+                      new Date(league.currentDate).getTime()) /
+                      (1000 * 60 * 60 * 24),
+                  ),
+                )
+                return (
+                  <Card key={offer.id} className="border-amber-500/30">
+                    <CardContent className="p-3 flex items-center justify-between gap-4">
+                      <div>
+                        <div className="font-medium">
+                          {player ? `${player.firstName} ${player.lastName}` : offer.playerId}
+                        </div>
+                        <div className="text-xs text-[var(--color-muted-foreground)]">
+                          {biddingTeam?.abbreviation ?? offer.teamId} ·{' '}
+                          {fmtSalary(offer.salaryByYear[0] ?? 0)}/yr × {offer.years} · {daysLeft}d to match
+                        </div>
+                      </div>
+                      {isFA && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            const result = matchOfferSheetAction(offer.id)
+                            if (!result.matched) toast.error(result.reason ?? 'Could not match')
+                            else toast.success('Offer sheet matched')
+                          }}
+                        >
+                          Match
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">My offers</h3>
           {myOffers.map((offer) => {
             const player = league.players[offer.playerId]
             const daysLeft = Math.max(
@@ -179,6 +235,7 @@ export function FreeAgencyPage() {
               </Card>
             )
           })}
+          </div>
         </div>
       )}
 

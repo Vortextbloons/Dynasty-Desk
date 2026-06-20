@@ -7,6 +7,11 @@ import {
   mergeCompensationPicksIntoDraftPicks,
   upcomingDraftYear,
 } from '@/game/league/offseasonEngine'
+import {
+  prepareDraftClass,
+  getDraftClassForYear,
+  assignPickNumbers,
+} from '@/game/league/draftEngine'
 import { makeTeam, makeRoster, emptyM10LeagueFields } from '@/tests/fixtures'
 import type { LeagueState } from '@/game/models/league'
 import type { Draft } from '@/game/models/draft'
@@ -262,6 +267,87 @@ describe('offseasonEngine', () => {
     ]
     mergeCompensationPicksIntoDraftPicks(league)
     expect(league.draftPicks.some((p) => p.id === 'comp-1')).toBe(true)
+    expect(league.draftPicks.find((p) => p.id === 'comp-1')?.pickNumber).toBe(0)
+  })
+
+  it('prepareDraftClass replaces placeholder when real data is available', () => {
+    const league = makeOffseasonLeague()
+    beginOffseason(league, rng)
+    const draftYear = upcomingDraftYear(league)
+    const placeholder = getDraftClassForYear(league, draftYear)!
+    expect(placeholder.realProspectCount).toBe(0)
+
+    prepareDraftClass(league, draftYear, league.rules, [
+      {
+        firstName: 'Cooper',
+        lastName: 'Flagg',
+        age: 19,
+        position: 'SF',
+        heightInches: 81,
+        weightLbs: 205,
+        archetype: 'two_way_wing',
+      },
+    ], rng)
+
+    const hydrated = getDraftClassForYear(league, draftYear)!
+    expect(hydrated.realProspectCount).toBe(1)
+    expect(hydrated.prospects.some((p) => p.lastName === 'Flagg')).toBe(true)
+    expect(league.scoutingState[`user-${hydrated.id}`]?.pointsRemaining).toBe(100)
+  })
+
+  it('assigns unique pick numbers when a team has a normal and compensation second-round pick', () => {
+    const league = makeOffseasonLeague()
+    const seasonLabel = '2027-28'
+    league.draftPicks = [
+      { id: 'r1-user', season: seasonLabel, round: 1, pickNumber: 0, originalTeamId: 'user', currentTeamId: 'user', prospectId: null },
+      { id: 'r1-other', season: seasonLabel, round: 1, pickNumber: 0, originalTeamId: 'other', currentTeamId: 'other', prospectId: null },
+      { id: 'r2-user', season: seasonLabel, round: 2, pickNumber: 0, originalTeamId: 'user', currentTeamId: 'user', prospectId: null },
+      { id: 'r2-other', season: seasonLabel, round: 2, pickNumber: 0, originalTeamId: 'other', currentTeamId: 'other', prospectId: null },
+    ]
+    league.compensationPicks = [
+      {
+        id: 'comp-user-extra',
+        seasonYear: 2027,
+        round: 2,
+        originalTeamId: 'user',
+        currentTeamId: 'user',
+        reason: 'outgoing_free_agent',
+        amount: 15_000_000,
+        threshold: 'standard',
+        playerId: 'p1',
+      },
+    ]
+    mergeCompensationPicksIntoDraftPicks(league)
+    assignPickNumbers(
+      league,
+      [
+        { teamId: 'user', pickNumber: 1 },
+        { teamId: 'other', pickNumber: 2 },
+      ],
+      seasonLabel,
+    )
+
+    const userPickNumbers = league.draftPicks
+      .filter((p) => p.originalTeamId === 'user' && p.season === seasonLabel)
+      .map((p) => p.pickNumber)
+      .filter((n) => n > 0)
+
+    expect(new Set(userPickNumbers).size).toBe(userPickNumbers.length)
+    expect(league.draftPicks.find((p) => p.id === 'comp-user-extra')?.pickNumber).toBe(5)
+  })
+
+  it('blocks preseason to regular season while unsigned free agents remain', () => {
+    const league = makeOffseasonLeague('preseason')
+    const fa = makeRoster('other', 1)[0]!
+    fa.teamId = null
+    fa.contract.yearsRemaining = 0
+    league.players[fa.id] = fa
+
+    const guard = canAdvancePhase(league)
+    expect(guard.ok).toBe(false)
+    if (!guard.ok) {
+      expect(guard.reason).toContain('unsigned')
+    }
   })
 })
 

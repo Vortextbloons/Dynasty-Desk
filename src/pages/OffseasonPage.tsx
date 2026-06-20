@@ -7,15 +7,20 @@ import { PendingItemsList } from '@/components/offseason/PendingItemsList'
 import { OffseasonLog } from '@/components/offseason/OffseasonLog'
 import {
   getExpiringContractCount,
-  getPendingOptionCount,
+  getPendingTeamOptionCount,
+  getPendingPlayerOptionCount,
+  getPlayersWithPendingOptions,
   canAdvancePhase,
 } from '@/game/league/offseasonEngine'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const OFFSEASON_PHASES = ['offseason', 'draft', 'free_agency', 'preseason'] as const
 
 export function OffseasonPage() {
   const save = useGameStore((s) => s.save)
   const advancePhase = useGameStore((s) => s.advancePhase)
+  const decideOption = useGameStore((s) => s.decideOption)
   const [advancing, setAdvancing] = useState(false)
 
   if (!save) {
@@ -37,6 +42,7 @@ export function OffseasonPage() {
   }
 
   const advanceGuard = canAdvancePhase(league)
+  const pendingOptions = getPlayersWithPendingOptions(league, teamId)
 
   const handleAdvance = async () => {
     setAdvancing(true)
@@ -75,12 +81,59 @@ export function OffseasonPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <PendingItemsList
           expiringContracts={getExpiringContractCount(league, teamId)}
-          teamOptions={getPendingOptionCount(league, teamId)}
-          playerOptions={0}
+          teamOptions={getPendingTeamOptionCount(league, teamId)}
+          playerOptions={getPendingPlayerOptionCount(league, teamId)}
           qualifyingOffers={league.qualifyingOffers.filter((q) => q.teamId === teamId).length}
         />
         <OffseasonLog events={league.offseasonLog} />
       </div>
+
+      {pendingOptions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Contract options</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {pendingOptions.map((player) => (
+              <div
+                key={player.id}
+                className="flex items-center justify-between gap-4 text-sm"
+              >
+                <div>
+                  <div className="font-medium">
+                    {player.firstName} {player.lastName}
+                  </div>
+                  <div className="text-xs text-[var(--color-muted-foreground)]">
+                    {player.contract.option === 'team' ? 'Team option' : 'Player option'} ·{' '}
+                    {player.contract.yearsRemaining} yr left
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      decideOption(player.id, true)
+                      toast.success('Option exercised')
+                    }}
+                  >
+                    Exercise
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      decideOption(player.id, false)
+                      toast.success('Option declined')
+                    }}
+                  >
+                    Decline
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

@@ -40,6 +40,7 @@ export function MyPickPanel({
               prospect={p}
               scoutingPoints={scoutingAllocations[p.id]}
               onSelect={() => onPick(p.id, false)}
+              onTwoWay={() => onPick(p.id, true)}
             />
           ))}
         </div>

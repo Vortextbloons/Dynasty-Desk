@@ -16,6 +16,7 @@ import {
   formatSeasonLabel,
   getDraftClassForYear,
   getDraftForYear,
+  prepareDraftClass,
 } from './draftEngine'
 import {
   expireContracts,
@@ -113,17 +114,12 @@ export function mergeCompensationPicksIntoDraftPicks(league: LeagueState): void 
     if (league.draftPicks.some((p) => p.id === comp.id)) continue
 
     const seasonLabel = formatSeasonLabel(comp.seasonYear)
-    const round2ForSeason = league.draftPicks.filter(
-      (p) => p.season === seasonLabel && p.round === 2,
-    )
-    const maxSlot = round2ForSeason.reduce((max, p) => Math.max(max, p.pickNumber), 0)
-    const teamCount = Object.keys(league.teams).length
 
     const pick: DraftPick = {
       id: comp.id,
       season: seasonLabel,
       round: 2,
-      pickNumber: maxSlot > 0 ? maxSlot + 1 : teamCount + 1,
+      pickNumber: 0,
       originalTeamId: comp.originalTeamId,
       currentTeamId: comp.currentTeamId,
       prospectId: null,
@@ -149,6 +145,19 @@ export function canAdvancePhase(
       return {
         ok: false,
         reason: 'Complete all draft picks before advancing to free agency.',
+      }
+    }
+  }
+
+  if (league.phase === 'preseason' && next === 'regular_season') {
+    const unsigned = identifyFreeAgents(league).length
+    const pending = league.freeAgentOffers.filter(
+      (o) => o.status === 'pending' && league.currentDate <= o.matchDeadline,
+    ).length
+    if (unsigned > 0 || pending > 0) {
+      return {
+        ok: false,
+        reason: `Resolve free agency first (${unsigned} unsigned FAs, ${pending} pending offers).`,
       }
     }
   }
@@ -196,13 +205,8 @@ export async function advancePhase(
 
   if (nextPhase === 'draft') {
     const draftYear = upcomingDraftYear(league)
-    let draftClass = getDraftClassForYear(league, draftYear)
-    if (!draftClass) {
-      const realData = await loadRealDraftData(draftYear)
-      draftClass = generateDraftClass(draftYear, league.rules, realData, rng)
-      league.draftClasses[draftClass.id] = draftClass
-      initScoutingForDraftClass(league, draftClass.id)
-    }
+    const realData = await loadRealDraftData(draftYear)
+    const draftClass = prepareDraftClass(league, draftYear, league.rules, realData, rng)
     const seasonLabel = formatSeasonLabel(draftYear)
     const orderSource = isModernLotteryEra(league.rules.seasonLabel) ? 'lottery' : 'inverse_record'
     const order =
@@ -270,6 +274,16 @@ function resolvePreseasonFreeAgency(
 
     const dayBatch = resolveDailyBatches(league, league.currentDate)
     newsEvents.push(...dayBatch.newsEvents)
+  }
+
+  finalizePreseasonFreeAgency(league)
+}
+
+function finalizePreseasonFreeAgency(league: LeagueState): void {
+  for (const offer of league.freeAgentOffers) {
+    if (offer.status === 'pending' && league.currentDate > offer.matchDeadline) {
+      offer.status = 'expired'
+    }
   }
 }
 
@@ -508,13 +522,40 @@ export function getNextPhase(phase: LeaguePhase): LeaguePhase | null {
   return PHASE_ORDER[idx + 1] ?? null
 }
 
-export function getPendingOptionCount(league: LeagueState, teamId: string): number {
+export function getPendingTeamOptionCount(league: LeagueState, teamId: string): number {
   let count = 0
   for (const p of Object.values(league.players)) {
     if (!p || p.teamId !== teamId) continue
-    if (p.contract.option !== 'none' && p.contract.yearsRemaining <= 1) count++
+    if (p.contract.option === 'team' && p.contract.yearsRemaining <= 1) count++
   }
   return count
+}
+
+export function getPendingPlayerOptionCount(league: LeagueState, teamId: string): number {
+  let count = 0
+  for (const p of Object.values(league.players)) {
+    if (!p || p.teamId !== teamId) continue
+    if (p.contract.option === 'player' && p.contract.yearsRemaining <= 1) count++
+  }
+  return count
+}
+
+/** @deprecated Use getPendingTeamOptionCount */
+export function getPendingOptionCount(league: LeagueState, teamId: string): number {
+  return getPendingTeamOptionCount(league, teamId)
+}
+
+export function getPlayersWithPendingOptions(
+  league: LeagueState,
+  teamId: string,
+): Player[] {
+  return Object.values(league.players).filter(
+    (p): p is Player =>
+      !!p &&
+      p.teamId === teamId &&
+      p.contract.option !== 'none' &&
+      p.contract.yearsRemaining <= 1,
+  )
 }
 
 export function getExpiringContractCount(league: LeagueState, teamId: string): number {

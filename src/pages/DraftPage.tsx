@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import {
   getCurrentPickOwner,
   getAvailableProspects,
+  countDraftSlots,
 } from '@/game/league/draftEngine'
 import { Lock } from 'lucide-react'
 
@@ -54,6 +55,8 @@ export function DraftPage() {
   const userTeam = save.league.teams[save.league.userTeamId]
   const available = getAvailableProspects(save.league, draft)
 
+  const totalSlots = countDraftSlots(save.league, draft.seasonYear)
+
   const handlePick = (prospectId: string, isTwoWay: boolean) => {
     const result = makeDraftPick(prospectId, isTwoWay)
     if (!result.ok) toast.error(result.reason ?? 'Pick failed')
@@ -65,7 +68,7 @@ export function DraftPage() {
       <PageHeader
         eyebrow={`${draft.seasonYear} NBA Draft`}
         title={`Round ${draft.currentPickNumber <= 30 ? 1 : 2}`}
-        description={`Pick ${draft.currentPickNumber} / 60 · Order: ${draft.orderSource === 'lottery' ? 'Lottery' : 'Inverse record'}`}
+        description={`Pick ${draft.currentPickNumber} / ${totalSlots} · Order: ${draft.orderSource === 'lottery' ? 'Lottery' : 'Inverse record'}`}
       />
 
       <Card className="border-amber-500/30 bg-amber-500/5">
@@ -82,10 +85,7 @@ export function DraftPage() {
           prospects={available}
           scoutingAllocations={scoutingState?.allocations ?? {}}
           onPick={handlePick}
-          onAutoPick={() => {
-            skipDraftPick()
-            autoDraftOffClock()
-          }}
+          onAutoPick={() => skipDraftPick()}
         />
       )}
 

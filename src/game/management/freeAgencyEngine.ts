@@ -86,6 +86,30 @@ export function computeAskingSalary(player: Player, rules: { salaryCap: number }
   return Math.round(Math.max(rules.salaryCap * 0.02, base))
 }
 
+export function validateFreeAgentOffer(
+  league: LeagueState,
+  teamId: string,
+  playerId: string,
+  offer: FreeAgentOfferInput,
+): { ok: true } | { ok: false; reason: string } {
+  const team = league.teams[teamId]
+  const player = league.players[playerId]
+  if (!team || !player) return { ok: false, reason: 'Invalid player or team.' }
+  if (player.teamId !== null) return { ok: false, reason: 'Player is not a free agent.' }
+
+  const cap = league.rosterSizeCap ?? 20
+  if (team.roster.length >= cap) {
+    return { ok: false, reason: `Roster full (${cap} players).` }
+  }
+
+  const firstYear = offer.salaryByYear[0] ?? 0
+  if (team.finances.capSpace < firstYear) {
+    return { ok: false, reason: 'Insufficient cap space for year-one salary.' }
+  }
+
+  return { ok: true }
+}
+
 export function submitOffer(
   offer: FreeAgentOfferInput,
   playerId: string,
