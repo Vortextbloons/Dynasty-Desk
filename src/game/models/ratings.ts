@@ -27,6 +27,8 @@ export interface PlayerRatings {
   clutch: number
   consistency: number
   potential: number
+
+  overall: number
 }
 
 export const RATING_MIN = 0

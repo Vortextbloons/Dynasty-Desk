@@ -152,6 +152,7 @@ export function generateRatings(
     clutch: ratingScale(clutch),
     consistency: ratingScale(consistency),
     potential: clampRating(potential),
+    overall: 50,
   }
 }
 
@@ -180,6 +181,7 @@ function makeDefault(position: Position): PlayerRatings {
     clutch: 50,
     consistency: 55,
     potential: 60,
+    overall: 50,
   }
   if (position === 'C') {
     baseline.interiorDefense = 60

@@ -6,6 +6,7 @@ import {
   CASH_RESERVES_INITIAL,
   OWNER_PATIENCE_INITIAL,
 } from '@/game/management/financeConstants'
+import { computeOverall } from '@/game/ratings/overallWeights'
 
 interface GameSaveV1 {
   metadata: {
@@ -155,4 +156,69 @@ export function migrateToV2(input: unknown): GameSave {
       teams,
     },
   } as unknown as GameSave
+}
+
+export function migrateToV3(input: unknown): GameSave {
+  const save = input as GameSave
+
+  const players: GameSave['league']['players'] = {}
+  for (const [pid, player] of Object.entries(save.league.players)) {
+    const p = player as unknown as Record<string, unknown>
+    const ratings = p.ratings as Record<string, unknown>
+    const position = p.position as string
+
+    const overall = typeof ratings.overall === 'number'
+      ? ratings.overall
+      : computeOverall(ratings as any, position as any)
+
+    const morale = (p.morale ?? {}) as Record<string, unknown>
+    const health = (p.health ?? {}) as Record<string, unknown>
+    const development = (p.development ?? {}) as Record<string, unknown>
+
+    const teamId = p.teamId as string | null
+    const teamStanding = teamId ? (save.league.standings[teamId] as Record<string, unknown> | undefined) : undefined
+    const winPct = (teamStanding?.winPct as number) ?? 0.5
+    const happiness = typeof morale.happiness === 'number' ? morale.happiness : Math.round(50 + winPct * 50)
+
+    players[pid] = {
+      ...p,
+      ratings: { ...ratings, overall },
+      morale: {
+        level: typeof morale.level === 'number' ? morale.level : happiness,
+        happiness,
+        roleSatisfaction: typeof morale.roleSatisfaction === 'number' ? morale.roleSatisfaction : 75,
+        teamSatisfaction: typeof morale.teamSatisfaction === 'number' ? morale.teamSatisfaction : happiness,
+        tradeRequest: typeof morale.tradeRequest === 'boolean' ? morale.tradeRequest : false,
+        tradeRequestLevel: typeof morale.tradeRequestLevel === 'number' ? morale.tradeRequestLevel : 0,
+      },
+      health: {
+        status: health.status ?? 'healthy',
+        injuryDescription: health.injuryDescription ?? null,
+        daysRemaining: typeof health.daysRemaining === 'number' ? health.daysRemaining : 0,
+        gamesRemaining: typeof health.gamesRemaining === 'number' ? health.gamesRemaining : 0,
+      },
+      development: {
+        lastTrainedAt: development.lastTrainedAt ?? null,
+        focusArea: development.focusArea ?? null,
+        recentForm: typeof development.recentForm === 'number' ? development.recentForm : 50,
+        ageAtPeak: typeof development.ageAtPeak === 'number' ? development.ageAtPeak : 27,
+        progressionCurve: development.progressionCurve ?? 'normal',
+        ratingsDelta: development.ratingsDelta ?? {},
+        breakoutChance: typeof development.breakoutChance === 'number' ? development.breakoutChance : 0.1,
+        bustRisk: typeof development.bustRisk === 'number' ? development.bustRisk : 0.1,
+      },
+    } as GameSave['league']['players'][string]
+  }
+
+  return {
+    ...save,
+    metadata: {
+      ...save.metadata,
+      schemaVersion: 3,
+    },
+    league: {
+      ...save.league,
+      players,
+    },
+  } as GameSave
 }

@@ -1,11 +1,14 @@
-import { Bell, Search, Sun, Moon, Loader2 } from 'lucide-react'
+import { Bell, Sun, Moon, Loader2 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useGameStore } from '@/store/useGameStore'
+import { GlobalSearch } from '@/components/shared/GlobalSearch'
 
 function titleFor(pathname: string): string {
   if (pathname.startsWith('/dashboard')) return 'Dashboard'
   if (pathname.startsWith('/roster')) return 'Roster'
+  if (pathname.startsWith('/player/compare')) return 'Compare'
+  if (pathname.startsWith('/player')) return 'Player'
   if (pathname.startsWith('/lineup')) return 'Lineup & Rotation'
   if (pathname.startsWith('/schedule')) return 'Schedule'
   if (pathname.startsWith('/standings')) return 'Standings'
@@ -78,16 +81,22 @@ export function Topbar() {
               </Link>
             )
           })()}
-          <div className="hidden lg:flex items-center gap-2 mr-2 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2.5 h-9 w-72 text-sm text-[var(--color-muted-foreground)]">
-            <Search className="size-4" />
-            <input
-              placeholder="Search players, teams, news…"
-              className="bg-transparent flex-1 outline-none placeholder:text-[var(--color-muted-foreground)]"
-            />
-            <span className="text-[10px] font-mono border border-[var(--color-line-soft)] rounded px-1.5 py-0.5">
-              /
-            </span>
-          </div>
+
+          {save && (() => {
+            const team = save.league.teams[save.league.userTeamId]
+            if (!team) return null
+            return (
+              <Link
+                to="/roster"
+                className="hidden md:flex items-center gap-1.5 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2.5 h-9 text-xs font-display font-medium hover:bg-[var(--color-surface-3)] transition-colors"
+              >
+                {team.abbreviation}
+              </Link>
+            )
+          })()}
+
+          <GlobalSearch />
+
           <button
             onClick={toggleTheme}
             className="size-9 grid place-items-center rounded-md text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface-2)]"

@@ -10,6 +10,7 @@ import type {
 import { seasonOpeningNight } from './seasonCalendar'
 import { createRngState } from './seededRandom'
 import { computeCapHit } from '@/game/management/capEngine'
+import { computeOverall } from '@/game/ratings/overallWeights'
 
 export interface NewSaveInput {
   snapshot: StaticSnapshot
@@ -100,6 +101,9 @@ export function buildSave(input: NewSaveInput): GameSave {
 
   const players: LeagueState['players'] = {}
   for (const sp of snapshot.players) {
+    const overall = sp.ratings.overall ?? computeOverall(sp.ratings, sp.position)
+    const happiness = 75
+
     players[sp.id] = {
       id: sp.id,
       firstName: sp.firstName,
@@ -110,20 +114,33 @@ export function buildSave(input: NewSaveInput): GameSave {
       heightInches: sp.heightInches,
       weightLbs: sp.weightLbs,
       teamId: sp.teamId,
-      ratings: sp.ratings,
+      ratings: { ...sp.ratings, overall },
       tendencies: sp.tendencies,
       traits: sp.traits,
       contract: sp.contract,
-      morale: { level: 50, happiness: 50, tradeRequest: false },
+      morale: {
+        level: happiness,
+        happiness,
+        roleSatisfaction: 75,
+        teamSatisfaction: happiness,
+        tradeRequest: false,
+        tradeRequestLevel: 0,
+      },
       health: {
         status: 'healthy',
         injuryDescription: null,
+        daysRemaining: 0,
         gamesRemaining: 0,
       },
       development: {
         lastTrainedAt: null,
         focusArea: null,
         recentForm: 50,
+        ageAtPeak: 27,
+        progressionCurve: 'normal',
+        ratingsDelta: {},
+        breakoutChance: 0.1,
+        bustRisk: 0.1,
       },
       seasonStats: {
         season: snapshot.seasonLabel,

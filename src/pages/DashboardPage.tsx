@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { PlaceholderPage } from '@/components/layout/PlaceholderPage'
 import { useGameStore } from '@/store/useGameStore'
+import { FaceIndicator } from '@/components/shared/FaceIndicator'
+import { Chip } from '@/components/shared/Chip'
+import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 
 function fmt(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
@@ -50,6 +52,24 @@ export function DashboardPage() {
   const { league, metadata } = save
   const userTeam = league.teams[league.userTeamId]
   const standing = league.standings[league.userTeamId]
+
+  const rosterPlayers = userTeam
+    ? userTeam.roster
+        .map((id) => league.players[id])
+        .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    : []
+
+  const topByOverall = [...rosterPlayers]
+    .sort((a, b) => (b.ratings.overall ?? 0) - (a.ratings.overall ?? 0))
+    .slice(0, 3)
+
+  const injuredPlayers = rosterPlayers.filter(
+    (p) => p.health.status !== 'healthy',
+  )
+
+  const unhappyPlayers = rosterPlayers.filter(
+    (p) => p.morale.happiness < 50,
+  )
 
   return (
     <div className="space-y-6">
@@ -147,19 +167,102 @@ export function DashboardPage() {
         </Card>
       )}
 
-      <PlaceholderPage
-        title="Dashboard is wired to a live league"
-        description="Once the sim ships, this screen will surface standings snapshot, your next matchup, active injuries, morale alerts, and quick-sim controls."
-        milestone="Milestone 6 — Schedule & Standings"
-        features={[
-          'Team record + recent form',
-          'Next game preview with start time',
-          'Active injuries and projected return',
-          'Morale/chemistry alerts',
-          'League news ticker',
-          'Sim next / sim day / sim week controls',
-        ]}
-      />
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardContent className="p-5">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-3">
+              Roster Summary
+            </div>
+            {topByOverall.length === 0 ? (
+              <div className="text-sm text-[var(--color-muted-foreground)]">No roster data</div>
+            ) : (
+              <div className="space-y-3">
+                {topByOverall.map((p) => {
+                  const team = p.teamId ? league.teams[p.teamId] : null
+                  return (
+                    <Link
+                      key={p.id}
+                      to={`/player/${p.id}`}
+                      className="flex items-center gap-3 group"
+                    >
+                      <PlayerHeadshot player={p} team={team} size={36} />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium group-hover:text-[var(--color-primary)] transition-colors truncate">
+                          {p.firstName} {p.lastName}
+                        </div>
+                        <div className="text-[10px] text-[var(--color-muted-foreground)]">
+                          {p.position} · {p.ratings.overall} OVR
+                        </div>
+                      </div>
+                      <div className="text-xs font-mono text-[var(--color-muted-foreground)]">
+                        {fmt(p.contract.salaryByYear[0] ?? 0)}
+                      </div>
+                    </Link>
+                  )
+                })}
+                <Link
+                  to="/roster"
+                  className="block text-center text-xs text-[var(--color-primary)] hover:underline mt-2"
+                >
+                  View full roster
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-3">
+              Injury Report
+            </div>
+            {injuredPlayers.length === 0 ? (
+              <div className="text-sm text-[var(--color-muted-foreground)]">
+                <div className="text-emerald-500 font-medium">All healthy</div>
+                <div className="mt-1">No injuries to report</div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {injuredPlayers.map((p) => (
+                  <div key={p.id} className="flex items-center gap-2">
+                    <Chip
+                      label={p.health.status === 'day_to_day' ? 'DTD' : 'Out'}
+                      variant="danger"
+                    />
+                    <span className="text-sm">{p.firstName} {p.lastName}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-3">
+              Morale Alerts
+            </div>
+            {unhappyPlayers.length === 0 ? (
+              <div className="text-sm text-[var(--color-muted-foreground)]">
+                <div className="text-emerald-500 font-medium">Team morale good</div>
+                <div className="mt-1">No unhappy players</div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {unhappyPlayers.map((p) => (
+                  <div key={p.id} className="flex items-center gap-2">
+                    <FaceIndicator value={p.morale.happiness} />
+                    <span className="text-sm">{p.firstName} {p.lastName}</span>
+                    <span className="text-xs text-[var(--color-muted-foreground)]">
+                      ({p.morale.happiness}/100)
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

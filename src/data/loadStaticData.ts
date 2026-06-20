@@ -25,6 +25,12 @@ function defaultFetch(input: string): ReturnType<FetchLike> {
   return fetch(input)
 }
 
+function joinBaseUrl(baseUrl: string, path: string): string {
+  const normalizedBase = baseUrl.replace(/\/+$/, '')
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  return `${normalizedBase}${normalizedPath}` || normalizedPath
+}
+
 async function fetchJson<T>(
   url: string,
   fetcher: FetchLike = defaultFetch,
@@ -42,12 +48,15 @@ export function createStaticDataLoader(
     fetcher?: FetchLike
   } = {},
 ): StaticDataLoader {
-  const baseUrl = options.baseUrl ?? ''
+  const baseUrl = options.baseUrl ?? import.meta.env.BASE_URL ?? ''
   const fetcher = options.fetcher ?? defaultFetch
 
   return {
     async loadManifest() {
-      return fetchJson<DataManifest>(`${baseUrl}/data/manifest.json`, fetcher)
+      return fetchJson<DataManifest>(
+        joinBaseUrl(baseUrl, '/data/manifest.json'),
+        fetcher,
+      )
     },
     async loadSnapshot(id) {
       const manifest = await this.loadManifest()
@@ -58,18 +67,24 @@ export function createStaticDataLoader(
       const base = entry.basePath
       const [teams, players, seasonStats, awardsFile, championsFile] =
         await Promise.all([
-          fetchJson<StaticTeam[]>(`${baseUrl}${base}/teams.json`, fetcher),
-          fetchJson<StaticPlayer[]>(`${baseUrl}${base}/roster.json`, fetcher),
+          fetchJson<StaticTeam[]>(
+            joinBaseUrl(baseUrl, `${base}/teams.json`),
+            fetcher,
+          ),
+          fetchJson<StaticPlayer[]>(
+            joinBaseUrl(baseUrl, `${base}/roster.json`),
+            fetcher,
+          ),
           fetchJson<PlayerSeasonStats[]>(
-            `${baseUrl}${base}/season-stats.json`,
+            joinBaseUrl(baseUrl, `${base}/season-stats.json`),
             fetcher,
           ),
           fetchJson<AwardsFile>(
-            `${baseUrl}/data/shared/awards-history.json`,
+            joinBaseUrl(baseUrl, '/data/shared/awards-history.json'),
             fetcher,
           ).catch((): AwardsFile => ({ version: '0', updatedAt: '', awards: [] })),
           fetchJson<ChampionsFile>(
-            `${baseUrl}/data/shared/champions.json`,
+            joinBaseUrl(baseUrl, '/data/shared/champions.json'),
             fetcher,
           ).catch((): ChampionsFile => ({ version: '0', updatedAt: '', champions: [] })),
         ])

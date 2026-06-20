@@ -1,0 +1,73 @@
+#!/usr/bin/env npx tsx
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { OVERALL_WEIGHTS, computeOverall } from '../src/game/ratings/overallWeights'
+import type { Position } from '../src/game/models/position'
+
+const DATA_DIR = join(import.meta.dirname, '..', 'public', 'data', 'nba')
+
+interface SnapshotEntry {
+  id: string
+  seasonLabel: string
+  basePath: string
+}
+
+interface StaticPlayer {
+  id: string
+  externalId?: string
+  firstName: string
+  lastName: string
+  position: Position
+  ratings: Record<string, number>
+  [key: string]: unknown
+}
+
+function deriveOverallForSnapshot(snapshotDir: string): number {
+  const rosterPath = join(snapshotDir, 'roster.json')
+  if (!existsSync(rosterPath)) return 0
+
+  const players: StaticPlayer[] = JSON.parse(readFileSync(rosterPath, 'utf-8'))
+  let updated = 0
+
+  for (const player of players) {
+    const position = player.position as Position
+    if (!(position in OVERALL_WEIGHTS)) continue
+
+    const overall = computeOverall(player.ratings as any, position)
+    player.ratings.overall = overall
+    updated++
+  }
+
+  writeFileSync(rosterPath, JSON.stringify(players, null, 2))
+  return updated
+}
+
+function main() {
+  const manifestPath = join(DATA_DIR, '..', 'manifest.json')
+  if (!existsSync(manifestPath)) {
+    console.error('manifest.json not found. Run Go generator first.')
+    process.exit(1)
+  }
+
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+  const snapshots: SnapshotEntry[] = manifest.snapshots ?? []
+
+  let totalPlayers = 0
+  let totalSnapshots = 0
+
+  for (const snapshot of snapshots) {
+    const snapshotDir = join(DATA_DIR, snapshot.basePath.replace('/data/nba/', ''))
+    if (!existsSync(snapshotDir)) continue
+
+    const count = deriveOverallForSnapshot(snapshotDir)
+    if (count > 0) {
+      totalPlayers += count
+      totalSnapshots++
+      console.log(`  ${snapshot.seasonLabel}: ${count} players`)
+    }
+  }
+
+  console.log(`\nDerived overall for ${totalPlayers} players across ${totalSnapshots} snapshots`)
+}
+
+main()

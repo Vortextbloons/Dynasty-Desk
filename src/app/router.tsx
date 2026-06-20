@@ -15,6 +15,7 @@ import { LeagueNewsPage } from '@/pages/LeagueNewsPage'
 import { AwardsPage } from '@/pages/AwardsPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { PlayerPage } from '@/pages/PlayerPage'
+import { PlayerComparePage } from '@/pages/PlayerComparePage'
 import { AllTimeLeadersPage } from '@/pages/AllTimeLeadersPage'
 import { AppShell } from '@/components/layout/AppShell'
 
@@ -118,6 +119,14 @@ export function AppRouter() {
         element={
           <AppShell>
             <SettingsPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/player/compare"
+        element={
+          <AppShell>
+            <PlayerComparePage />
           </AppShell>
         }
       />

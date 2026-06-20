@@ -71,6 +71,7 @@ function makeFakeSnapshot(): StaticSnapshot {
           clutch: 90,
           consistency: 88,
           potential: 40,
+          overall: 50,
         },
         tendencies: {
           usageRate: 28,
@@ -144,6 +145,7 @@ function makeFakeSnapshot(): StaticSnapshot {
           clutch: 75,
           consistency: 80,
           potential: 70,
+          overall: 50,
         },
         tendencies: {
           usageRate: 30,

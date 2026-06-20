@@ -1,34 +1,40 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Trophy, TrendingUp, Calendar } from 'lucide-react'
+import { ArrowLeft, Trophy, TrendingUp, BarChart3, DollarSign, Activity, FlaskConical, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { AppShell } from '@/components/layout/AppShell'
+import { usePlayerById } from '@/hooks/usePlayerById'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
 import { useGameStore } from '@/store/useGameStore'
-import {
-  computeCareerStats,
-  type PlayerCareerStats,
-} from '@/game/models/playerCareerStats'
-import {
-  perGame,
-  type PlayerSeasonStats,
-} from '@/game/models/playerSeasonStats'
-import { AWARD_SHORT_LABELS, type AwardWinner } from '@/game/models/award'
+import { PlayerBioCard } from '@/components/player/PlayerBioCard'
+import { PlayerRatingsRadar } from '@/components/player/PlayerRatingsRadar'
+import { RatingsTable } from '@/components/player/RatingsTable'
+import { TendenciesList } from '@/components/player/TendenciesList'
+import { ContractDetail } from '@/components/player/ContractDetail'
+import { StatsTable } from '@/components/player/StatsTable'
+import { DevelopmentChart } from '@/components/player/DevelopmentChart'
+import { TradeValueCard } from '@/components/player/TradeValueCard'
+import { FaceIndicator } from '@/components/shared/FaceIndicator'
+import { Chip } from '@/components/shared/Chip'
+import { type PlayerSeasonStats } from '@/game/models/playerSeasonStats'
 import { cn } from '@/lib/utils'
 
-type Tab = 'ratings' | 'career' | 'awards' | 'bio'
+type Tab = 'overview' | 'ratings' | 'tendencies' | 'contract' | 'stats' | 'development' | 'tradeValue'
 
 const TABS: {
   id: Tab
   label: string
   icon: React.ComponentType<{ className?: string }>
 }[] = [
-  { id: 'career', label: 'Career', icon: TrendingUp },
+  { id: 'overview', label: 'Overview', icon: Star },
   { id: 'ratings', label: 'Ratings', icon: Trophy },
-  { id: 'awards', label: 'Awards', icon: Trophy },
-  { id: 'bio', label: 'Bio', icon: Calendar },
+  { id: 'tendencies', label: 'Tendencies', icon: BarChart3 },
+  { id: 'contract', label: 'Contract', icon: DollarSign },
+  { id: 'stats', label: 'Stats', icon: TrendingUp },
+  { id: 'development', label: 'Development', icon: FlaskConical },
+  { id: 'tradeValue', label: 'Trade Value', icon: Activity },
 ]
 
 export function PlayerPage() {
@@ -41,47 +47,32 @@ export function PlayerPage() {
     staticData.status === 'ready' ? staticData.loader : null,
     defaultSeasonId,
   )
-  const [tab, setTab] = useState<Tab>('career')
+  const [tab, setTab] = useState<Tab>('overview')
 
-  const player = useMemo(
-    () => {
-      const list = save
-        ? Object.values(save.league.players)
-        : snapshot?.players ?? []
-      return list.find((p) => p.id === id)
-    },
-    [save, snapshot, id],
-  )
-  const team = useMemo(
-    () => {
-      if (!player?.teamId) return null
-      const teams = save
-        ? Object.values(save.league.teams)
-        : snapshot?.teams ?? []
-      return teams.find((t) => t.id === player.teamId) ?? null
-    },
-    [save, snapshot, player],
-  )
+  const player = usePlayerById(id)
+
+  const team = useMemo(() => {
+    if (!player?.teamId) return null
+    if (save) {
+      return save.league.teams[player.teamId] ?? null
+    }
+    if (snapshot) {
+      return snapshot.teams.find((t) => t.id === player.teamId) ?? null
+    }
+    return null
+  }, [save, snapshot, player])
 
   const historicalSeasons = useMemo<PlayerSeasonStats[]>(() => {
     if (!player) return []
-    const allSeasonStats = save
-      ? Object.values(save.league.players).flatMap((p) => p.historicalSeasons)
-      : snapshot?.seasonStats ?? []
-    return allSeasonStats.filter((s) => s.playerId === player.id)
-  }, [save, snapshot, player])
-
-  const career = useMemo<PlayerCareerStats | null>(() => {
-    if (!player) return null
-    return computeCareerStats(player.id, historicalSeasons)
-  }, [player, historicalSeasons])
-
-  const awards = useMemo<AwardWinner[]>(() => {
-    if (!player) return []
-    const allAwards = save
-      ? save.league.awards
-      : snapshot?.awards ?? []
-    return allAwards.filter((a) => a.playerId === player.id)
+    if (save) {
+      return Object.values(save.league.players)
+        .flatMap((p) => p.historicalSeasons)
+        .filter((s) => s.playerId === player.id)
+    }
+    if (snapshot) {
+      return snapshot.seasonStats.filter((s) => s.playerId === player.id)
+    }
+    return []
   }, [save, snapshot, player])
 
   if (!player) {
@@ -103,12 +94,19 @@ export function PlayerPage() {
     )
   }
 
+  const healthStatus = player.health.status
+  const healthLabel = healthStatus === 'healthy' ? 'Healthy'
+    : healthStatus === 'day_to_day' ? 'DTD'
+    : healthStatus === 'short_term' ? 'Out (Short)'
+    : healthStatus === 'long_term' ? 'Out (Long)'
+    : 'Season Ending'
+
   return (
     <AppShell>
       <PageHeader
         eyebrow="Player"
         title={`${player.firstName} ${player.lastName}`}
-        description={`${team?.city ?? ''} ${team?.name ?? 'Free Agent'} · #${player.position} · Age ${player.age}`}
+        description={`${team ? team.city : ''} ${team ? team.name : 'Free Agent'} · #${player.position} · Age ${player.age}`}
         actions={
           <Button asChild variant="ghost" size="sm">
             <Link to="/roster">
@@ -125,10 +123,22 @@ export function PlayerPage() {
           value={`${Math.floor(player.heightInches / 12)}'${player.heightInches % 12}"`}
         />
         <Stat label="Weight" value={`${player.weightLbs} lbs`} />
-        <Stat label="OVR" value={String(overall(player))} />
+        <Stat label="OVR" value={String(player.ratings.overall)} />
       </div>
 
-      <div className="flex items-center gap-1 border-b border-[var(--color-line-soft)] mb-6">
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <Chip label={healthLabel} variant={healthStatus === 'healthy' ? 'success' : 'danger'} />
+        {player.contract.noTradeClause && <Chip label="NTC" variant="info" />}
+        {player.contract.option !== 'none' && (
+          <Chip
+            label={player.contract.option === 'team' ? 'Team Option' : 'Player Option'}
+            variant="warning"
+          />
+        )}
+        <FaceIndicator value={player.morale.happiness} showLabel />
+      </div>
+
+      <div className="flex items-center gap-1 border-b border-[var(--color-line-soft)] mb-6 overflow-x-auto">
         {TABS.map((t) => {
           const Icon = t.icon
           return (
@@ -137,7 +147,7 @@ export function PlayerPage() {
               type="button"
               onClick={() => setTab(t.id)}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 text-sm border-b-2 -mb-px transition-colors',
+                'flex items-center gap-1.5 px-3 py-2 text-sm border-b-2 -mb-px transition-colors whitespace-nowrap',
                 tab === t.id
                   ? 'border-[var(--color-primary)] text-[var(--color-foreground)]'
                   : 'border-transparent text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
@@ -150,289 +160,49 @@ export function PlayerPage() {
         })}
       </div>
 
-      {tab === 'career' ? <CareerTab career={career} /> : null}
-      {tab === 'ratings' ? <RatingsTab player={player} /> : null}
-      {tab === 'awards' ? <AwardsTab awards={awards} /> : null}
-      {tab === 'bio' ? <BioTab player={player} /> : null}
-    </AppShell>
-  )
-}
-
-function CareerTab({ career }: { career: PlayerCareerStats | null }) {
-  if (!career) {
-    return (
-      <EmptyCard body="No season stats available for this player in the current snapshot." />
-    )
-  }
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Career averages</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            <Stat label="PPG" value={career.averages.ppg.toFixed(1)} />
-            <Stat label="RPG" value={career.averages.rpg.toFixed(1)} />
-            <Stat label="APG" value={career.averages.apg.toFixed(1)} />
-            <Stat label="SPG" value={career.averages.spg.toFixed(1)} />
-            <Stat label="BPG" value={career.averages.bpg.toFixed(1)} />
-            <Stat label="MPG" value={career.averages.mpg.toFixed(1)} />
+      {tab === 'overview' && (
+        <div className="space-y-6">
+          <PlayerBioCard player={player} team={team} />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <PlayerRatingsRadar ratings={player.ratings} position={player.position} />
+            <Card>
+              <CardContent className="p-5">
+                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-3">
+                  Quick Stats
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <MiniStat label="PPG" value={(player.seasonStats.points / Math.max(1, player.seasonStats.gamesPlayed)).toFixed(1)} />
+                  <MiniStat label="RPG" value={(player.seasonStats.rebounds / Math.max(1, player.seasonStats.gamesPlayed)).toFixed(1)} />
+                  <MiniStat label="APG" value={(player.seasonStats.assists / Math.max(1, player.seasonStats.gamesPlayed)).toFixed(1)} />
+                  <MiniStat label="SPG" value={(player.seasonStats.steals / Math.max(1, player.seasonStats.gamesPlayed)).toFixed(1)} />
+                  <MiniStat label="BPG" value={(player.seasonStats.blocks / Math.max(1, player.seasonStats.gamesPlayed)).toFixed(1)} />
+                  <MiniStat label="GP" value={String(player.seasonStats.gamesPlayed)} />
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Season by season</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)] border-b border-[var(--color-line-soft)]">
-                  <th className="text-left px-5 py-2 font-medium">Season</th>
-                  <th className="text-right px-3 py-2 font-medium">GP</th>
-                  <th className="text-right px-3 py-2 font-medium">MPG</th>
-                  <th className="text-right px-3 py-2 font-medium">PPG</th>
-                  <th className="text-right px-3 py-2 font-medium">RPG</th>
-                  <th className="text-right px-3 py-2 font-medium">APG</th>
-                  <th className="text-right px-3 py-2 font-medium">SPG</th>
-                  <th className="text-right px-3 py-2 font-medium">BPG</th>
-                  <th className="text-right px-3 py-2 font-medium">TS%</th>
-                </tr>
-              </thead>
-              <tbody>
-                {career.seasons.map((s) => {
-                  const pg = perGame(s)
-                  return (
-                    <tr
-                      key={s.season}
-                      className="border-b border-[var(--color-line-soft)] last:border-b-0"
-                    >
-                      <td className="px-5 py-2 font-mono">
-                        <span className="inline-flex items-center gap-1.5">
-                          {s.season}
-                          <span className="text-[9px] uppercase tracking-[0.2em] rounded-sm bg-[var(--color-surface-3)] text-[var(--color-muted-foreground)] px-1.5 py-0.5">
-                            NBA
-                          </span>
-                        </span>
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {s.gamesPlayed}
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {pg.mpg.toFixed(1)}
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {pg.ppg.toFixed(1)}
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {pg.rpg.toFixed(1)}
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {pg.apg.toFixed(1)}
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {pg.spg.toFixed(1)}
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {pg.bpg.toFixed(1)}
-                      </td>
-                      <td className="text-right px-3 py-2 font-mono">
-                        {(s.tsPct * 100).toFixed(1)}%
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-type RatingKey = keyof import('@/game/models/ratings').PlayerRatings
-
-function RatingsTab({
-  player,
-}: {
-  player: { ratings: import('@/game/models/ratings').PlayerRatings }
-}) {
-  const groups: { label: string; keys: { key: RatingKey; label: string }[] }[] =
-    [
-      {
-        label: 'Scoring',
-        keys: [
-          { key: 'insideScoring', label: 'Inside' },
-          { key: 'closeShot', label: 'Close' },
-          { key: 'midrange', label: 'Mid' },
-          { key: 'threePoint', label: '3PT' },
-          { key: 'freeThrow', label: 'FT' },
-        ],
-      },
-      {
-        label: 'Playmaking',
-        keys: [
-          { key: 'ballHandling', label: 'Handle' },
-          { key: 'passing', label: 'Pass' },
-          { key: 'offensiveIq', label: 'O-IQ' },
-        ],
-      },
-      {
-        label: 'Rebounding',
-        keys: [
-          { key: 'offensiveRebound', label: 'OREB' },
-          { key: 'defensiveRebound', label: 'DREB' },
-        ],
-      },
-      {
-        label: 'Defense',
-        keys: [
-          { key: 'perimeterDefense', label: 'Perim' },
-          { key: 'interiorDefense', label: 'Paint' },
-          { key: 'steal', label: 'Steal' },
-          { key: 'block', label: 'Block' },
-          { key: 'defensiveIq', label: 'D-IQ' },
-        ],
-      },
-      {
-        label: 'Athletic',
-        keys: [
-          { key: 'speed', label: 'Speed' },
-          { key: 'strength', label: 'Str' },
-          { key: 'vertical', label: 'Vert' },
-          { key: 'stamina', label: 'Stam' },
-          { key: 'durability', label: 'Dur' },
-        ],
-      },
-      {
-        label: 'Mental',
-        keys: [
-          { key: 'clutch', label: 'Clutch' },
-          { key: 'consistency', label: 'Cons' },
-          { key: 'potential', label: 'Pot' },
-        ],
-      },
-    ]
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {groups.map((g) => (
-        <Card key={g.label}>
-          <CardHeader>
-            <CardTitle className="text-sm font-display tracking-wide">
-              {g.label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {g.keys.map((k) => {
-              const value = player.ratings[k.key]
-              return (
-                <div key={k.key} className="flex items-center gap-3">
-                  <div className="w-14 text-xs text-[var(--color-muted-foreground)]">
-                    {k.label}
-                  </div>
-                  <div className="flex-1 h-2 rounded-full bg-[var(--color-surface-3)] overflow-hidden">
-                    <div
-                      className="h-full bg-[var(--color-primary)]"
-                      style={{ width: `${value}%` }}
-                    />
-                  </div>
-                  <div className="w-8 text-right font-mono text-sm">
-                    {value}
-                  </div>
-                </div>
-              )
-            })}
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  )
-}
-
-function AwardsTab({ awards }: { awards: AwardWinner[] }) {
-  if (awards.length === 0) {
-    return (
-      <EmptyCard body="No awards recorded in the current snapshot for this player." />
-    )
-  }
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <ul className="divide-y divide-[var(--color-line-soft)]">
-          {awards.map((a, i) => (
-            <li key={i} className="flex items-center justify-between px-5 py-3">
-              <div className="flex items-center gap-3">
-                <div className="size-9 rounded-md bg-[var(--color-primary)]/15 text-[var(--color-primary)] grid place-items-center font-display text-xs">
-                  {AWARD_SHORT_LABELS[a.award]}
-                </div>
-                <div>
-                  <div className="font-display text-sm">
-                    {AWARD_SHORT_LABELS[a.award]}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
-                    {a.season}
-                  </div>
-                </div>
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-2">
+                Contract
               </div>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
-  )
-}
+              <div className="text-sm">
+                {player.contract.yearsRemaining} yr · ${((player.contract.salaryByYear[0] ?? 0) / 1_000_000).toFixed(1)}M/yr
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-function BioTab({
-  player,
-}: {
-  player: {
-    heightInches: number
-    weightLbs: number
-    age: number
-    position: string
-    secondaryPositions: string[]
-    contract: {
-      salaryByYear: number[]
-      yearsRemaining: number
-      noTradeClause: boolean
-    }
-  }
-}) {
-  return (
-    <Card>
-      <CardContent className="p-5 space-y-4 text-sm">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <Stat label="Position" value={player.position} />
-          <Stat
-            label="Height"
-            value={`${Math.floor(player.heightInches / 12)}'${player.heightInches % 12}"`}
-          />
-          <Stat label="Weight" value={`${player.weightLbs} lbs`} />
-          <Stat label="Age" value={String(player.age)} />
-          <Stat
-            label="Secondary"
-            value={player.secondaryPositions.join(', ') || '—'}
-          />
-          <Stat
-            label="NTC"
-            value={player.contract.noTradeClause ? 'Yes' : 'No'}
-          />
-        </div>
-        <div className="border-t border-[var(--color-line-soft)] pt-4">
-          <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-2">
-            Contract
-          </div>
-          <div className="text-sm">
-            {player.contract.yearsRemaining} yr · $
-            {(player.contract.salaryByYear[0] ?? 0).toLocaleString()}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      {tab === 'ratings' && <RatingsTable ratings={player.ratings} />}
+      {tab === 'tendencies' && <TendenciesList tendencies={player.tendencies} />}
+      {tab === 'contract' && <ContractDetail contract={player.contract} />}
+      {tab === 'stats' && (
+        <StatsTable historicalSeasons={historicalSeasons} />
+      )}
+      {tab === 'development' && <DevelopmentChart player={player} />}
+      {tab === 'tradeValue' && <TradeValueCard player={player} />}
+    </AppShell>
   )
 }
 
@@ -447,40 +217,11 @@ function Stat({ label, value }: { label: string; value: string }) {
   )
 }
 
-function EmptyCard({ body }: { body: string }) {
+function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <Card>
-      <CardContent className="p-8 text-center text-sm text-[var(--color-muted-foreground)]">
-        {body}
-      </CardContent>
-    </Card>
-  )
-}
-
-function overall(p: {
-  ratings: {
-    insideScoring: number
-    threePoint: number
-    passing: number
-    defensiveIq: number
-    speed: number
-    offensiveRebound: number
-    defensiveRebound: number
-    perimeterDefense: number
-    interiorDefense: number
-    potential: number
-  }
-}): number {
-  const r = p.ratings
-  return Math.round(
-    (r.insideScoring * 0.18 +
-      r.threePoint * 0.12 +
-      r.passing * 0.12 +
-      r.defensiveIq * 0.12 +
-      r.speed * 0.06 +
-      (r.offensiveRebound + r.defensiveRebound) * 0.05 +
-      (r.perimeterDefense + r.interiorDefense) * 0.1 +
-      r.potential * 0.05) /
-      0.8,
+    <div>
+      <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">{label}</div>
+      <div className="font-display text-lg">{value}</div>
+    </div>
   )
 }

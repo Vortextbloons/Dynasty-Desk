@@ -8,7 +8,10 @@ import type { PlayerTraits } from './traits'
 export interface PlayerMorale {
   level: number
   happiness: number
+  roleSatisfaction: number
+  teamSatisfaction: number
   tradeRequest: boolean
+  tradeRequestLevel: number
 }
 
 export interface PlayerHealth {
@@ -19,6 +22,7 @@ export interface PlayerHealth {
     | 'long_term'
     | 'season_ending'
   injuryDescription: string | null
+  daysRemaining: number
   gamesRemaining: number
 }
 
@@ -26,6 +30,11 @@ export interface PlayerDevelopment {
   lastTrainedAt: string | null
   focusArea: string | null
   recentForm: number
+  ageAtPeak: number
+  progressionCurve: 'early' | 'normal' | 'late' | 'veteran_decline'
+  ratingsDelta: Record<string, number>
+  breakoutChance: number
+  bustRisk: number
 }
 
 export interface PlayerSeasonStat {

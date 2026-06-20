@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { createStaticDataLoader } from '@/data/loadStaticData'
 import type {
   AwardWinner,
@@ -104,6 +104,7 @@ describe('static data loader', () => {
         clutch: 92,
         consistency: 95,
         potential: 80,
+        overall: 50,
       },
       tendencies: {
         usageRate: 30,
@@ -223,6 +224,22 @@ describe('static data loader', () => {
     const result = await loader.loadManifest()
     expect(result.defaultSnapshotId).toBe('nba-2025-26')
     expect(result.snapshots).toHaveLength(1)
+  })
+
+  it('uses the Vite base url by default', async () => {
+    vi.stubEnv('BASE_URL', '/DynastyDesk/')
+    try {
+      const loader = createStaticDataLoader({
+        fetcher: fakeFetcher({
+          '/DynastyDesk/data/manifest.json': manifest,
+        }),
+      })
+
+      const result = await loader.loadManifest()
+      expect(result.defaultSnapshotId).toBe('nba-2025-26')
+    } finally {
+      vi.unstubAllEnvs()
+    }
   })
 
   it('loads a snapshot with teams, players, season stats, awards, champions', async () => {

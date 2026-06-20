@@ -135,6 +135,7 @@ function makeValidSave(): GameSave {
             clutch: 90,
             consistency: 88,
             potential: 40,
+            overall: 50,
           },
           tendencies: {
             usageRate: 28,
@@ -173,16 +174,22 @@ function makeValidSave(): GameSave {
             defensiveVersatility: 70,
           },
           contract: emptyContract(50_000_000, 1),
-          morale: { level: 70, happiness: 75, tradeRequest: false },
+          morale: { level: 70, happiness: 75, roleSatisfaction: 75, teamSatisfaction: 75, tradeRequest: false, tradeRequestLevel: 0 },
           health: {
             status: 'healthy',
             injuryDescription: null,
+            daysRemaining: 0,
             gamesRemaining: 0,
           },
           development: {
             lastTrainedAt: null,
             focusArea: null,
             recentForm: 50,
+            ageAtPeak: 27,
+            progressionCurve: 'normal',
+            ratingsDelta: {},
+            breakoutChance: 0.1,
+            bustRisk: 0.1,
           },
           seasonStats: {
             season: '2025-26',
