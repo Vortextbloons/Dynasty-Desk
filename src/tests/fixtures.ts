@@ -20,6 +20,19 @@ import {
 
 let playerCounter = 0
 
+export function emptyM10LeagueFields() {
+  return {
+    drafts: {},
+    scoutingState: {},
+    freeAgentOffers: [],
+    qualifyingOffers: [],
+    compensationPicks: [],
+    offseasonLog: [],
+    rosterSizeCap: 15,
+  }
+}
+
+
 export function makePlayer(overrides: Partial<Player> = {}): Player {
   playerCounter++
   const id = overrides.id ?? `p-${playerCounter}`
@@ -149,6 +162,7 @@ export function makeTeam(overrides: Partial<Team> = {}): Team {
     frozenPicks: overrides.frozenPicks ?? [],
     priorTaxpayerYears: overrides.priorTaxpayerYears ?? 0,
     taxpayerHistory: overrides.taxpayerHistory ?? [],
+    twoWayPlayers: overrides.twoWayPlayers ?? [],
   } as Team
 }
 

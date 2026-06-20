@@ -18,6 +18,13 @@ export type NewsType =
   | 'finals_mvp'
   | 'offseason_begins'
   | 'play_in_result'
+  | 'lottery_result'
+  | 'qualifying_offer'
+  | 'comp_pick'
+  | 'two_way_signing'
+  | 'offer_sheet_matched'
+  | 'phase_advance'
+  | 'roster_change'
 
 export type NewsImportance = 'low' | 'medium' | 'high'
 

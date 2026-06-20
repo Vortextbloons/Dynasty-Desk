@@ -1,0 +1,36 @@
+{
+  "classes": {
+    "2026": {
+      "prospects": [
+        {
+          "externalId": "real-2026-1",
+          "firstName": "Cooper",
+          "lastName": "Flagg",
+          "age": 19,
+          "position": "SF",
+          "secondaryPositions": ["PF"],
+          "heightInches": 81,
+          "weightLbs": 205,
+          "archetype": "two_way_wing",
+          "ratings": {
+            "insideScoring": 72,
+            "closeShot": 74,
+            "midrange": 70,
+            "threePoint": 68,
+            "ballHandling": 70,
+            "passing": 68,
+            "perimeterDefense": 78,
+            "interiorDefense": 70,
+            "steal": 72,
+            "block": 65,
+            "speed": 74,
+            "strength": 68
+          },
+          "potential": 92,
+          "bustRisk": 0.08,
+          "breakoutChance": 0.25
+        }
+      ]
+    }
+  }
+}

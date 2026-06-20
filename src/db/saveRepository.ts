@@ -3,7 +3,7 @@ import type { GameSave, SaveMetadata } from '@/game/models'
 import { validateSave } from '@/game/core/saveValidation'
 import { initDB } from './dexie'
 import { downloadTextFile } from '@/lib/download'
-import { migrateToV2, migrateToV3, migrateToV4, migrateToV5, migrateToV6 } from './saveMigration'
+import { migrateToCurrent } from './saveMigration'
 
 let dbInitialized = false
 
@@ -37,24 +37,9 @@ export async function loadSave(id: string): Promise<GameSave | null> {
   if (!result.ok) return null
 
   let save = result.save
-  if (save.metadata.schemaVersion === 1) {
-    save = migrateToV2(save)
-    await db.saves.update(id, { data: save, metadata: save.metadata })
-  }
-  if (save.metadata.schemaVersion === 2) {
-    save = migrateToV3(save)
-    await db.saves.update(id, { data: save, metadata: save.metadata })
-  }
-  if (save.metadata.schemaVersion === 3) {
-    save = migrateToV4(save)
-    await db.saves.update(id, { data: save, metadata: save.metadata })
-  }
-  if (save.metadata.schemaVersion === 4) {
-    save = migrateToV5(save)
-    await db.saves.update(id, { data: save, metadata: save.metadata })
-  }
-  if (save.metadata.schemaVersion === 5) {
-    save = migrateToV6(save)
+  const migrated = migrateToCurrent(save)
+  if (migrated.metadata.schemaVersion !== save.metadata.schemaVersion) {
+    save = migrated
     await db.saves.update(id, { data: save, metadata: save.metadata })
   }
 
@@ -151,21 +136,7 @@ export async function importSaveFromFile(file: File): Promise<GameSave> {
   }
 
   let save = result.save
-  if (save.metadata.schemaVersion === 1) {
-    save = migrateToV2(save)
-  }
-  if (save.metadata.schemaVersion === 2) {
-    save = migrateToV3(save)
-  }
-  if (save.metadata.schemaVersion === 3) {
-    save = migrateToV4(save)
-  }
-  if (save.metadata.schemaVersion === 4) {
-    save = migrateToV5(save)
-  }
-  if (save.metadata.schemaVersion === 5) {
-    save = migrateToV6(save)
-  }
+  save = migrateToCurrent(save)
 
   save.metadata.id = crypto.randomUUID()
   save.league.id = crypto.randomUUID()

@@ -145,4 +145,5 @@ export interface Team {
   frozenPicks: string[]
   priorTaxpayerYears: number
   taxpayerHistory: number[]
+  twoWayPlayers?: string[]
 }

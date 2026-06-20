@@ -44,6 +44,20 @@ import {
 } from '@/game/league/playoffEngine'
 import { computeFinalsMvp } from '@/game/league/awardsEngine'
 import { transitionToOffseason as doTransitionToOffseason } from '@/game/league/offseasonTransition'
+import { beginOffseason, advancePhase as advanceOffseasonPhase, decideOption } from '@/game/league/offseasonEngine'
+import {
+  simulateDraftPick,
+  autoDraftOffClock,
+  autoPickForTeam,
+  getCurrentPickOwner,
+} from '@/game/league/draftEngine'
+import { allocateScoutingPoints as allocateScouting } from '@/game/league/scoutingEngine'
+import {
+  submitOffer as submitFAOffer,
+  matchOfferSheet,
+} from '@/game/management/freeAgencyEngine'
+import type { FreeAgentOfferInput } from '@/game/models/freeAgent'
+import { canSignTwoWay, addTwoWayPlayer } from '@/game/management/twoWayEngine'
 import { evaluateTradeForAI } from '@/game/management/tradeAI'
 import { validateTradeLegality, executeTrade as executeTradeEngine } from '@/game/management/tradeEngine'
 import { findTrades as findTradesEngine } from '@/game/management/tradeFinder'
@@ -93,7 +107,17 @@ interface GameStore {
     offer: FreeAgentOffer,
     exception: ExceptionType,
   ) => ContractActionResult
-  advancePhase: () => void
+  advancePhase: () => Promise<{ newPhase: LeaguePhase } | void>
+  beginOffseason: () => void
+  allocateScoutingPoints: (prospectId: string, points: number) => { ok: boolean; reason?: string }
+  makeDraftPick: (prospectId: string, isTwoWay?: boolean) => { ok: boolean; reason?: string }
+  autoDraftOffClock: () => void
+  skipDraftPick: () => void
+  makeFreeAgentOffer: (playerId: string, offer: FreeAgentOfferInput) => { ok: boolean; reason?: string }
+  withdrawOffer: (offerId: string) => void
+  matchOfferSheetAction: (offerId: string) => { matched: boolean; reason?: string }
+  decideOption: (playerId: string, accept: boolean) => void
+  signTwoWay: (playerId: string) => { ok: boolean; reason?: string }
   setStarters: (playerIds: string[]) => void
   setBench: (playerIds: string[]) => void
   setClosingLineup: (playerIds: string[]) => void
@@ -404,40 +428,185 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     return result
   },
 
-  advancePhase: () => {
+  advancePhase: async () => {
     const { save } = get()
     if (!save) return
 
-    const phaseOrder: LeaguePhase[] = [
-      'preseason',
-      'regular_season',
-      'play_in',
-      'playoffs',
-      'offseason',
-      'draft',
-      'free_agency',
-    ]
-    const currentIdx = phaseOrder.indexOf(save.league.phase)
-    const nextPhase =
-      phaseOrder[(currentIdx + 1) % phaseOrder.length] ?? 'regular_season'
-
-    save.league.phase = nextPhase
-
-    if (nextPhase === 'offseason') {
-      for (const team of Object.values(save.league.teams)) {
-        if (team) {
-          team.finances.exceptionsUsed = {
-            mle: false,
-            bae: false,
-            roomMle: false,
-            minimumCount: 0,
-          }
-        }
-      }
-    }
-
+    const rng = new SeededRandom(save.rngState)
+    const result = await advanceOffseasonPhase(
+      save.league,
+      save.league.userTeamId,
+      rng,
+    )
+    save.league.news.push(...result.newsEvents)
+    save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
+    return { newPhase: result.newPhase }
+  },
+
+  beginOffseason: () => {
+    const { save } = get()
+    if (!save) return
+    doTransitionToOffseason(save.league)
+    beginOffseason(save.league)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  allocateScoutingPoints: (prospectId, points) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+    const teamId = save.league.userTeamId
+    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
+    if (!draft) return { ok: false, reason: 'No draft in progress.' }
+    const key = `${teamId}-${draft.draftClassId}`
+    const state = save.league.scoutingState[key]
+    if (!state) return { ok: false, reason: 'Scouting state not found.' }
+    const draftClass = save.league.draftClasses[draft.draftClassId]
+    const prospect = draftClass?.prospects.find((p) => p.id === prospectId)
+    if (!prospect) return { ok: false, reason: 'Prospect not found.' }
+    const result = allocateScouting(state, prospect, points)
+    if ('error' in result) return { ok: false, reason: result.error }
+    save.league.scoutingState[key] = result.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return { ok: true }
+  },
+
+  makeDraftPick: (prospectId, isTwoWay = false) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+    if (save.league.phase !== 'draft') {
+      return { ok: false, reason: 'Not in draft phase.' }
+    }
+    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
+    if (!draft) return { ok: false, reason: 'No draft in progress.' }
+    const owner = getCurrentPickOwner(save.league, draft)
+    if (!owner || owner.teamId !== save.league.userTeamId) {
+      return { ok: false, reason: 'Not your pick.' }
+    }
+    const rng = new SeededRandom(save.rngState)
+    const result = simulateDraftPick(
+      save.league,
+      draft,
+      save.league.userTeamId,
+      prospectId,
+      isTwoWay,
+      rng,
+    )
+    if ('error' in result) return { ok: false, reason: result.error }
+    save.rngState = rng.state
+    autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
+    save.rngState = rng.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return { ok: true }
+  },
+
+  autoDraftOffClock: () => {
+    const { save } = get()
+    if (!save) return
+    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
+    if (!draft) return
+    const rng = new SeededRandom(save.rngState)
+    autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
+    save.rngState = rng.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  skipDraftPick: () => {
+    const { save } = get()
+    if (!save) return
+    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
+    if (!draft) return
+    const owner = getCurrentPickOwner(save.league, draft)
+    if (!owner || owner.teamId !== save.league.userTeamId) return
+    const rng = new SeededRandom(save.rngState)
+    autoPickForTeam(save.league, draft, save.league.userTeamId, rng)
+    autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
+    save.rngState = rng.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  makeFreeAgentOffer: (playerId, offer) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+    if (save.league.phase !== 'free_agency') {
+      return { ok: false, reason: 'Not in free agency phase.' }
+    }
+    const player = save.league.players[playerId]
+    if (!player || player.teamId !== null) {
+      return { ok: false, reason: 'Player is not a free agent.' }
+    }
+    const isRFA = save.league.qualifyingOffers.some((q) => q.playerId === playerId)
+    const faOffer = submitFAOffer(
+      offer,
+      playerId,
+      save.league.userTeamId,
+      player,
+      save.league.currentDate,
+      isRFA,
+    )
+    save.league.freeAgentOffers.push(faOffer)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return { ok: true }
+  },
+
+  withdrawOffer: (offerId) => {
+    const { save } = get()
+    if (!save) return
+    const offer = save.league.freeAgentOffers.find((o) => o.id === offerId)
+    if (offer && offer.teamId === save.league.userTeamId) {
+      offer.status = 'withdrawn'
+    }
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  matchOfferSheetAction: (offerId) => {
+    const { save } = get()
+    if (!save) return { matched: false, reason: 'No active save.' }
+    const offer = save.league.freeAgentOffers.find((o) => o.id === offerId)
+    if (!offer) return { matched: false, reason: 'Offer not found.' }
+    const player = save.league.players[offer.playerId]
+    const team = save.league.teams[save.league.userTeamId]
+    if (!player || !team) return { matched: false, reason: 'Invalid state.' }
+    const result = matchOfferSheet(offer, team, save.league.userTeamId, save.league.currentDate, player)
+    if (result.matched) {
+      offer.status = 'matched'
+      offer.matchedByTeamId = save.league.userTeamId
+    }
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return result
+  },
+
+  decideOption: (playerId, accept) => {
+    const { save } = get()
+    if (!save) return
+    const rng = new SeededRandom(save.rngState)
+    decideOption(save.league, playerId, accept, save.league.userTeamId, rng)
+    save.rngState = rng.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  signTwoWay: (playerId) => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+    const player = save.league.players[playerId]
+    const team = save.league.teams[save.league.userTeamId]
+    if (!player || !team) return { ok: false, reason: 'Invalid state.' }
+    const check = canSignTwoWay(team, player)
+    if (!check.canSign) return { ok: false, reason: check.reason }
+    addTwoWayPlayer(team, playerId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return { ok: true }
   },
 
   setStarters: (playerIds) => {
@@ -1033,6 +1202,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!save) return
 
     doTransitionToOffseason(save.league)
+    beginOffseason(save.league)
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },
@@ -1048,6 +1218,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       set({ save: { ...save } })
       return null
     }
+    if (save.league.phase === 'draft') return null
     if (teamIds.length < 2 || teamIds.length > 4) return null
     const proposal: TradeProposal = {
       id: crypto.randomUUID(),
@@ -1177,6 +1348,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       set({ save: { ...save } })
       return { accepted: false, rejectionReason: 'Trade market closed during playoffs' }
     }
+    if (save.league.phase === 'draft') {
+      return { accepted: false, rejectionReason: 'Trade market closed during the draft.' }
+    }
     const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
     if (!proposal) {
       return { accepted: false, rejectionReason: 'Trade not found.' }
@@ -1263,6 +1437,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   findTradesForPlayer: (playerId) => {
     const { save } = get()
     if (!save) return []
+    if (save.league.phase === 'free_agency') return []
     const userTeam = save.league.teams[save.league.userTeamId]
     if (!userTeam) return []
     const target = save.league.players[playerId]

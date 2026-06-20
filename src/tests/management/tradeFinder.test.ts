@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { findTrades } from '@/game/management/tradeFinder'
-import { makePlayer, makeTeam } from '@/tests/fixtures'
+import { makePlayer, makeTeam, emptyM10LeagueFields } from '@/tests/fixtures'
 import { emptyContract, createContract } from '@/game/models/contract'
 import { getLeagueRules } from '@/game/models/leagueRules'
 import type { LeagueState } from '@/game/models/league'
@@ -58,6 +58,7 @@ function buildLeague(): { league: LeagueState; user: Team; other: Team; star: Pl
     awardsHistory: [],
     draftPicks: [],
     draftClasses: {},
+    ...emptyM10LeagueFields(),
     champions: [],
     awards: [],
     activeProposals: [],

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { validateSave } from '@/game/core/saveValidation'
 import type { GameSave } from '@/game/models'
 import { emptyContract, getLeagueRules, DEFAULT_LEAGUE_RULES } from '@/game/models'
+import { emptyM10LeagueFields } from '@/tests/fixtures'
 
 function makeValidSave(): GameSave {
   return {
@@ -226,6 +227,7 @@ function makeValidSave(): GameSave {
       awardsHistory: [],
       draftPicks: [],
       draftClasses: {},
+      ...emptyM10LeagueFields(),
       champions: [],
       awards: [],
       activeProposals: [],

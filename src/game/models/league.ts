@@ -6,7 +6,10 @@ import type { ScheduledGame, TeamStanding } from './game'
 import type { Transaction } from './transaction'
 import type { NewsEvent } from './news'
 import type { AwardSeason } from './award'
-import type { DraftPick, DraftClass } from './draft'
+import type { DraftPick, DraftClass, Draft, TeamScoutingState } from './draft'
+import type { FreeAgentOffer, QualifyingOffer } from './freeAgent'
+import type { CompensationPick } from './compensationPick'
+import type { OffseasonEvent } from './offseason'
 import type { EraConfig } from './eraConfig'
 import type { LeagueRules } from './leagueRules'
 import type { PlayoffBracket } from './playoff'
@@ -49,6 +52,13 @@ export interface LeagueState {
   awardsHistory: AwardSeason[]
   draftPicks: DraftPick[]
   draftClasses: Record<string, DraftClass>
+  drafts: Record<string, Draft>
+  scoutingState: Record<string, TeamScoutingState>
+  freeAgentOffers: FreeAgentOffer[]
+  qualifyingOffers: QualifyingOffer[]
+  compensationPicks: CompensationPick[]
+  offseasonLog: OffseasonEvent[]
+  rosterSizeCap: number
   champions: Champion[]
   awards: AwardWinner[]
 

@@ -406,3 +406,85 @@ function formatSeasonLabel(startYear: number): string {
   const endYear = (startYear + 1) % 100
   return `${startYear}-${String(endYear).padStart(2, '0')}`
 }
+
+// Schema version history:
+//   v1: M2 base save
+//   v2: M3 money fields
+//   v3, v5, v6: never shipped as canonical milestones (skipped in target chain)
+//   v4: M9 trade fields, picks (plus v3 morale + v5 schedule in legacy path)
+//   v7: M10 offseason, draft, FA, two-way
+//   Target migration path: v1 → v2 → v4 → v7
+//   Legacy saves at v3/v5/v6 are upgraded through the historical chain then v7.
+
+export function migrateToV7(input: unknown): GameSave {
+  const save = input as GameSave
+  const league = save.league as unknown as Record<string, unknown>
+
+  const teamsRaw = (league.teams as Record<string, Record<string, unknown>>) ?? {}
+  const teams: GameSave['league']['teams'] = {}
+  for (const [tid, t] of Object.entries(teamsRaw)) {
+    teams[tid] = {
+      ...t,
+      twoWayPlayers: Array.isArray(t.twoWayPlayers) ? t.twoWayPlayers : [],
+    } as GameSave['league']['teams'][string]
+  }
+
+  return {
+    ...save,
+    metadata: {
+      ...save.metadata,
+      schemaVersion: 7,
+    },
+    league: {
+      ...save.league,
+      teams,
+      drafts: (league.drafts as GameSave['league']['drafts']) ?? {},
+      scoutingState: (league.scoutingState as GameSave['league']['scoutingState']) ?? {},
+      freeAgentOffers: Array.isArray(league.freeAgentOffers)
+        ? (league.freeAgentOffers as GameSave['league']['freeAgentOffers'])
+        : [],
+      qualifyingOffers: Array.isArray(league.qualifyingOffers)
+        ? (league.qualifyingOffers as GameSave['league']['qualifyingOffers'])
+        : [],
+      compensationPicks: Array.isArray(league.compensationPicks)
+        ? (league.compensationPicks as GameSave['league']['compensationPicks'])
+        : [],
+      offseasonLog: Array.isArray(league.offseasonLog)
+        ? (league.offseasonLog as GameSave['league']['offseasonLog'])
+        : [],
+      rosterSizeCap:
+        typeof league.rosterSizeCap === 'number' ? league.rosterSizeCap : 15,
+      draftClasses: (league.draftClasses as GameSave['league']['draftClasses']) ?? {},
+    } as unknown as GameSave['league'],
+  }
+}
+
+export function migrateToCurrent(input: unknown): GameSave {
+  let save = input as GameSave
+  const version = save.metadata.schemaVersion
+
+  if (version === 1) {
+    save = migrateToV2(save)
+  }
+  if (save.metadata.schemaVersion === 2) {
+    save = migrateToV3(save)
+    save = migrateToV4(save)
+    save = migrateToV5(save)
+    save = migrateToV6(save)
+  } else if (save.metadata.schemaVersion === 3) {
+    save = migrateToV4(save)
+    save = migrateToV5(save)
+    save = migrateToV6(save)
+  } else if (save.metadata.schemaVersion === 4) {
+    save = migrateToV5(save)
+    save = migrateToV6(save)
+  } else if (save.metadata.schemaVersion === 5) {
+    save = migrateToV6(save)
+  }
+
+  if (save.metadata.schemaVersion < 7) {
+    save = migrateToV7(save)
+  }
+
+  return save
+}

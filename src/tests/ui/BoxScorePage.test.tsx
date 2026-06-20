@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { BoxScorePage } from '@/pages/BoxScorePage'
 import type { GameSave } from '@/game/models'
+import { emptyM10LeagueFields } from '@/tests/fixtures'
 
 const mockUseGameStore = vi.fn()
 vi.mock('@/store/useGameStore', () => ({
@@ -192,6 +193,7 @@ function makeSave(): GameSave {
       awardsHistory: [],
       draftPicks: [],
       draftClasses: {},
+      ...emptyM10LeagueFields(),
       champions: [],
       awards: [],
       activeProposals: [],

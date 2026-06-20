@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { makeTeam, makeRoster, makePlayer, resetFixtureCounters } from '@/tests/fixtures'
+import { makeTeam, makeRoster, makePlayer, resetFixtureCounters, emptyM10LeagueFields } from '@/tests/fixtures'
 import {
   generatePlayoffBracket,
   advancePlayoffSeries,
@@ -124,6 +124,7 @@ function makeLeague(overrides: Record<string, any> = {}): LeagueState {
     awardsHistory: [],
     draftPicks: [],
     draftClasses: {},
+    ...emptyM10LeagueFields(),
     champions: [],
     awards: [],
     activeProposals: [],

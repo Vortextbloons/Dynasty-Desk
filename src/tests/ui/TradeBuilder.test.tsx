@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { TradeBuilder } from '@/components/trade/TradeBuilder'
-import { makePlayer, makeTeam } from '@/tests/fixtures'
+import { makePlayer, makeTeam, emptyM10LeagueFields } from '@/tests/fixtures'
 import { getLeagueRules } from '@/game/models/leagueRules'
 import { createContract } from '@/game/models/contract'
 import type { LeagueState } from '@/game/models/league'
@@ -53,6 +53,7 @@ function buildFixture(): { league: LeagueState; proposal: TradeProposal } {
     awardsHistory: [],
     draftPicks: [],
     draftClasses: {},
+    ...emptyM10LeagueFields(),
     champions: [],
     awards: [],
     activeProposals: [],

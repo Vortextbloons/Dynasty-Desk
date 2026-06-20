@@ -9,7 +9,11 @@ interface TradeNavItemProps {
 }
 
 export function TradeNavItem({ phase, label }: TradeNavItemProps) {
-  const locked = phase === 'playoffs' || phase === 'play_in'
+  const locked = phase === 'playoffs' || phase === 'play_in' || phase === 'draft'
+  const lockReason =
+    phase === 'draft'
+      ? 'Trade market closed during the draft'
+      : 'Trade market closed — playoffs in progress'
   const baseClasses = cn(
     'group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
     locked
@@ -22,7 +26,7 @@ export function TradeNavItem({ phase, label }: TradeNavItemProps) {
       {locked ? (
         <div
           className={baseClasses}
-          title="Trade market closed — playoffs in progress"
+          title={lockReason}
           aria-disabled
         >
           <Lock className="size-4" />

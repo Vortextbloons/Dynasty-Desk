@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle, Play, Calendar, FastForward, ChevronRight, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
@@ -10,13 +10,63 @@ import { Chip } from '@/components/shared/Chip'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { SimSpeedToggle } from '@/components/sim/SimSpeedToggle'
 import { Button } from '@/components/ui/button'
+import { PhaseTimeline } from '@/components/offseason/PhaseTimeline'
 import { recomputeStandings, computeGB } from '@/game/league/standingsEngine'
 import { getSeriesRoundLabel } from '@/game/models/playoff'
+import type { LeagueState } from '@/game/models/league'
 
 function fmt(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
   if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
   return `$${n}`
+}
+
+function OffseasonDashboardCard({ league }: { league: LeagueState }) {
+  const advancePhase = useGameStore((s) => s.advancePhase)
+  const [advancing, setAdvancing] = useState(false)
+
+  const handleAdvance = async () => {
+    setAdvancing(true)
+    try {
+      const result = await advancePhase()
+      if (result?.newPhase === 'regular_season') {
+        toast.success('New season started!')
+      } else if (result?.newPhase) {
+        toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
+      }
+    } finally {
+      setAdvancing(false)
+    }
+  }
+
+  return (
+    <Card className="border-[var(--color-primary)]/20">
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-primary)]">
+              Offseason · {league.phase.replace(/_/g, ' ')}
+            </div>
+            <div className="mt-1 text-sm">
+              Roster cap: {league.rosterSizeCap} · Continue the dynasty loop.
+            </div>
+          </div>
+          <Trophy className="size-5 text-[var(--color-primary)]" />
+        </div>
+        <PhaseTimeline
+          currentPhase={league.phase}
+          onAdvance={handleAdvance}
+          advancing={advancing}
+        />
+        <Link
+          to="/offseason"
+          className="text-xs text-[var(--color-primary)] hover:underline"
+        >
+          Offseason hub →
+        </Link>
+      </CardContent>
+    </Card>
+  )
 }
 
 function DashboardSimControls() {
@@ -454,22 +504,11 @@ export function DashboardPage() {
         </div>
       )}
 
-      {league.phase === 'offseason' && (
-        <Card className="border-[var(--color-primary)]/20">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-primary)]">
-                  Offseason
-                </div>
-                <div className="mt-1 text-sm">
-                  The {league.rules.seasonLabel} offseason is underway. Trades, free agency, and the draft await.
-                </div>
-              </div>
-              <Trophy className="size-5 text-[var(--color-primary)]" />
-            </div>
-          </CardContent>
-        </Card>
+      {(league.phase === 'offseason' ||
+        league.phase === 'draft' ||
+        league.phase === 'free_agency' ||
+        league.phase === 'preseason') && (
+        <OffseasonDashboardCard league={league} />
       )}
 
       <Card>

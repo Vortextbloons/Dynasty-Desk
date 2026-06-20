@@ -3,7 +3,7 @@ import {
   validateTradeLegality,
   executeTrade,
 } from '@/game/management/tradeEngine'
-import { makePlayer, makeTeam } from '@/tests/fixtures'
+import { makePlayer, makeTeam, emptyM10LeagueFields } from '@/tests/fixtures'
 import { createContract } from '@/game/models/contract'
 import { getLeagueRules } from '@/game/models/leagueRules'
 import type { LeagueState } from '@/game/models/league'
@@ -53,6 +53,7 @@ function baseLeague(teams: Team[], players: Player[], picks: DraftPick[] = []): 
     awardsHistory: [],
     draftPicks: picks,
     draftClasses: {},
+    ...emptyM10LeagueFields(),
     champions: [],
     awards: [],
     activeProposals: [],

@@ -94,6 +94,7 @@ export function buildSave(input: NewSaveInput): GameSave {
       frozenPicks: [],
       priorTaxpayerYears: 0,
       taxpayerHistory: [],
+      twoWayPlayers: [],
     }
   }
 
@@ -268,6 +269,13 @@ export function buildSave(input: NewSaveInput): GameSave {
     awardsHistory: [],
     draftPicks: seedDraftPicks(snapshot),
     draftClasses: {},
+    drafts: {},
+    scoutingState: {},
+    freeAgentOffers: [],
+    qualifyingOffers: [],
+    compensationPicks: [],
+    offseasonLog: [],
+    rosterSizeCap: 15,
     champions: snapshot.champions,
     awards: snapshot.awards,
     activeProposals: [],
@@ -280,7 +288,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     createdAt: now,
     updatedAt: now,
     appVersion: '0.1.0',
-    schemaVersion: 6,
+    schemaVersion: 7,
     teamId,
     teamName:
       snapshot.teams.find((t) => t.id === teamId)?.name ?? teamId,

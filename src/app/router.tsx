@@ -18,6 +18,8 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { PlayerPage } from '@/pages/PlayerPage'
 import { PlayerComparePage } from '@/pages/PlayerComparePage'
 import { AllTimeLeadersPage } from '@/pages/AllTimeLeadersPage'
+import { OffseasonPage } from '@/pages/OffseasonPage'
+import { ScoutingPage } from '@/pages/ScoutingPage'
 import { PlayoffsPage } from '@/pages/PlayoffsPage'
 import { AppShell } from '@/components/layout/AppShell'
 
@@ -153,6 +155,22 @@ export function AppRouter() {
         element={
           <AppShell>
             <AllTimeLeadersPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/offseason"
+        element={
+          <AppShell>
+            <OffseasonPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/scouting"
+        element={
+          <AppShell>
+            <ScoutingPage />
           </AppShell>
         }
       />
