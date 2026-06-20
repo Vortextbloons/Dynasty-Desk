@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0",
+  "defaultSnapshotId": "nba-2025-26",
+  "snapshots": [
+    {
+      "id": "nba-2025-26",
+      "name": "NBA 2025-26 Season",
+      "type": "nba",
+      "seasonLabel": "2025-26",
+      "teamsFile": "/data/nba/teams-nba-2025-26.json",
+      "rosterFile": "/data/nba/roster-nba-2025-26.json",
+      "rulesFile": "/data/shared/league-rules.json",
+      "playerCount": 450,
+      "teamCount": 30
+    },
+    {
+      "id": "fictional-base",
+      "name": "Fictional League",
+      "type": "fictional",
+      "seasonLabel": "2025-26",
+      "teamsFile": "/data/fictional/teams-base.json",
+      "rosterFile": "/data/fictional/roster-base.json",
+      "rulesFile": "/data/shared/league-rules.json",
+      "playerCount": 450,
+      "teamCount": 30
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "seasonLength": {
+    "regularSeasonGames": 82,
+    "playoffRounds": 4,
+    "gamesPerRound": [7, 7, 7, 7]
+  },
+  "roster": {
+    "activeRosterSize": 15,
+    "inactiveRosterSize": 3,
+    "twoWayContracts": 2
+  },
+  "salary": {
+    "salaryCap": 140588000,
+    "luxuryTax": 170814000,
+    "minimumSalary": 1119563,
+    "maxSalary": 47607350
+  },
+  "draft": {
+    "rounds": 2,
+    "picksPerRound": 30,
+    "lotteryTeams": 14
+  },
+  "playoffs": {
+    "teamsPerConference": 8,
+    "seedingType": "record"
+  }
+}
