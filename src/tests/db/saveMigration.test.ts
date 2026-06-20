@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { migrateToV2, migrateToV3, migrateToV4 } from '@/db/saveMigration'
+import { migrateToV2, migrateToV3, migrateToV4, migrateToV5 } from '@/db/saveMigration'
 import type { GameSave } from '@/game/models'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
@@ -421,5 +421,131 @@ describe('migrateToV4', () => {
 
     expect(v4Again.metadata.schemaVersion).toBe(4)
     expect(v4Again.settings.simSpeed).toBe('normal')
+  })
+})
+
+function makeV4SaveForV5(): any {
+  const v2 = makeV2Save()
+  const v3 = migrateToV3(v2) as GameSave
+  const v4 = migrateToV4({
+    ...v3,
+    metadata: { ...v3.metadata, schemaVersion: 4 },
+    settings: { ...v3.settings, simSpeed: 'normal' },
+  }) as GameSave
+  v4.league.games = {
+    'game-1': {
+      id: 'game-1',
+      season: '2025-26',
+      date: '2025-10-21',
+      homeTeamId: 'team-1',
+      awayTeamId: 'team-2',
+      status: 'scheduled',
+      homeScore: null,
+      awayScore: null,
+      boxScoreId: null,
+      boxScore: null,
+    },
+  } as any
+  v4.league.standings = {
+    'team-1': {
+      teamId: 'team-1',
+      season: '2025-26',
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      winPct: 0,
+      homeWins: 0,
+      homeLosses: 0,
+      awayWins: 0,
+      awayLosses: 0,
+      pointsFor: 0,
+      pointsAgainst: 0,
+      pointDifferential: 0,
+      conferenceRank: 0,
+      divisionRank: 0,
+      streak: 0,
+      last10: '',
+      clinchedPlayoff: false,
+      clinchedDivision: false,
+      eliminated: false,
+    },
+  } as any
+  return v4
+}
+
+describe('migrateToV5', () => {
+  it('bumps schemaVersion to 5', () => {
+    const v4 = makeV4SaveForV5()
+    const result = migrateToV5(v4) as GameSave
+    expect(result.metadata.schemaVersion).toBe(5)
+  })
+
+  it('adds scheduleGenerated default', () => {
+    const v4 = makeV4SaveForV5()
+    delete v4.league.scheduleGenerated
+    const result = migrateToV5(v4) as GameSave
+    expect(result.league.scheduleGenerated).toBe(false)
+  })
+
+  it('preserves existing scheduleGenerated', () => {
+    const v4 = makeV4SaveForV5()
+    v4.league.scheduleGenerated = true
+    const result = migrateToV5(v4) as GameSave
+    expect(result.league.scheduleGenerated).toBe(true)
+  })
+
+  it('adds new standing fields with defaults', () => {
+    const v4 = makeV4SaveForV5()
+    const result = migrateToV5(v4) as GameSave
+    const standing = result.league.standings['team-1'] as any
+    expect(standing.conferenceWins).toBe(0)
+    expect(standing.conferenceLosses).toBe(0)
+    expect(standing.divisionWins).toBe(0)
+    expect(standing.divisionLosses).toBe(0)
+    expect(standing.pointsPerGame).toBe(0)
+    expect(standing.pointsAllowedPerGame).toBe(0)
+    expect(standing.pointDifferentialPerGame).toBe(0)
+    expect(standing.gamesRemaining).toBe(82)
+    expect(standing.magicNumber).toBe(0)
+    expect(standing.tiebreaker).toEqual({ headToHeadWins: 0, conferenceWinPct: 0, pointDifferential: 0 })
+  })
+
+  it('preserves existing standing values', () => {
+    const v4 = makeV4SaveForV5()
+    v4.league.standings['team-1'].conferenceWins = 5
+    v4.league.standings['team-1'].gamesRemaining = 40
+    const result = migrateToV5(v4) as GameSave
+    const standing = result.league.standings['team-1'] as any
+    expect(standing.conferenceWins).toBe(5)
+    expect(standing.gamesRemaining).toBe(40)
+  })
+
+  it('adds new game fields with defaults', () => {
+    const v4 = makeV4SaveForV5()
+    const result = migrateToV5(v4) as GameSave
+    const game = result.league.games['game-1'] as any
+    expect(game.isConference).toBe(false)
+    expect(game.isDivision).toBe(false)
+    expect(game.seasonYear).toBe(0)
+    expect(game.isUserTeamGame).toBe(false)
+  })
+
+  it('preserves existing game values', () => {
+    const v4 = makeV4SaveForV5()
+    v4.league.games['game-1'].isConference = true
+    v4.league.games['game-1'].seasonYear = 2025
+    const result = migrateToV5(v4) as GameSave
+    const game = result.league.games['game-1'] as any
+    expect(game.isConference).toBe(true)
+    expect(game.seasonYear).toBe(2025)
+  })
+
+  it('is idempotent when re-migrating v5 saves', () => {
+    const v4 = makeV4SaveForV5()
+    const v5 = migrateToV5(v4) as GameSave
+    const v5Again = migrateToV5(v5) as GameSave
+    expect(v5Again.metadata.schemaVersion).toBe(5)
+    expect(v5Again.league.scheduleGenerated).toBe(false)
+    expect((v5Again.league.standings['team-1'] as any).conferenceWins).toBe(0)
   })
 })

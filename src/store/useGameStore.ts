@@ -654,15 +654,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       const result = await get().simOneGame(game.id)
       if (!('error' in result)) simIds.push(result.gameId)
     }
-    if (simIds.length > 0) {
-      save.league.standings = recomputeStandings(
-        save.league.games,
-        save.league.teams,
-        save.league.rules.seasonLabel,
-        save.league.rules.regularSeasonGames,
-      )
-      set({ save: { ...save } })
-    }
     return { gamesSimulated: simIds.length, gameIds: simIds }
   },
 
@@ -684,12 +675,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       }
     }
     if (simIds.length > 0) {
-      save.league.standings = recomputeStandings(
-        save.league.games,
-        save.league.teams,
-        save.league.rules.seasonLabel,
-        save.league.rules.regularSeasonGames,
-      )
       set({ save: { ...save } })
     }
     return { gamesSimulated: simIds.length, gameIds: simIds }
@@ -708,8 +693,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!save) return
     if (save.league.scheduleGenerated) return
 
-    const existingGameCount = Object.keys(save.league.games).length
-    if (existingGameCount > 0) {
+    const existingGames = Object.values(save.league.games)
+    const hasFinalGames = existingGames.some((g) => g?.status === 'final')
+    if (hasFinalGames) {
+      toast.error('Cannot regenerate schedule — games have already been played.')
+      return
+    }
+
+    if (existingGames.length > 0) {
       save.league.games = {}
     }
 

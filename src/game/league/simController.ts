@@ -128,30 +128,6 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export async function advanceDays(
-  save: GameSave,
-  days: number,
-  rng: SeededRandom,
-): Promise<SimBatchResult> {
-  const results: SimResult[] = []
-  for (let d = 0; d < days; d++) {
-    const targetDate = addDays(save.league.currentDate, d)
-    const dayGames = getGamesOnDate(save.league.games, targetDate)
-    for (const game of dayGames) {
-      const result = await simSingleGame(save, game, rng)
-      if (result) results.push(result)
-    }
-  }
-  return { gamesSimulated: results.length, results }
-}
-
-export async function advanceWeek(
-  save: GameSave,
-  rng: SeededRandom,
-): Promise<SimBatchResult> {
-  return advanceDays(save, 7, rng)
-}
-
 export async function advanceToNextUserGame(
   save: GameSave,
   rng: SeededRandom,
@@ -170,16 +146,14 @@ export async function advanceToNextUserGame(
 
   if (!userGameDate) return { gamesSimulated: 0, results: [] }
 
-  const currentDate = new Date(save.league.currentDate)
-  const targetDate = new Date(userGameDate)
-
-  for (let d = new Date(currentDate); d < targetDate; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0]!
-    const dayGames = getGamesOnDate(save.league.games, dateStr)
+  let currentDate = save.league.currentDate
+  while (currentDate < userGameDate) {
+    const dayGames = getGamesOnDate(save.league.games, currentDate)
     for (const g of dayGames) {
       const result = await simSingleGame(save, g, rng)
       if (result) results.push(result)
     }
+    currentDate = addDays(currentDate, 1)
   }
 
   const userDayGames = getGamesOnDate(save.league.games, userGameDate)

@@ -59,24 +59,24 @@ export function StandingsPage() {
 
   const leaderWins = useMemo(() => {
     if (!save) return 0
-    const userConf = save.league.teams[save.league.userTeamId]?.conference
+    const activeConf = activeTab === 'League' ? null : activeTab
     const confStandings = activeTab === 'League'
       ? leagueStandings
       : standings.filter((s) => {
           const team = save.league.teams[s.teamId]
-          return team?.conference === userConf
+          return team?.conference === activeConf
         }).sort((a, b) => a.conferenceRank - b.conferenceRank)
     return confStandings[0]?.wins ?? 0
   }, [standings, leagueStandings, activeTab, save])
 
   const leaderLosses = useMemo(() => {
     if (!save) return 0
-    const userConf = save.league.teams[save.league.userTeamId]?.conference
+    const activeConf = activeTab === 'League' ? null : activeTab
     const confStandings = activeTab === 'League'
       ? leagueStandings
       : standings.filter((s) => {
           const team = save.league.teams[s.teamId]
-          return team?.conference === userConf
+          return team?.conference === activeConf
         }).sort((a, b) => a.conferenceRank - b.conferenceRank)
     return confStandings[0]?.losses ?? 0
   }, [standings, leagueStandings, activeTab, save])

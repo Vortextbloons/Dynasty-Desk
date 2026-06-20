@@ -77,7 +77,8 @@ export function recomputeStandings(
     if (!home || !away) continue
     if (game.homeScore == null || game.awayScore == null) continue
 
-    const homeWin = game.homeScore >= game.awayScore
+    const homeWin = game.homeScore > game.awayScore
+    const awayWin = game.awayScore > game.homeScore
 
     home.gamesPlayed++
     away.gamesPlayed++
@@ -110,7 +111,7 @@ export function recomputeStandings(
       const ag = teamGames.get(game.awayTeamId)
       if (hg) { hg.wins++; hg.results.push('W') }
       if (ag) { ag.losses++; ag.results.push('L') }
-    } else {
+    } else if (awayWin) {
       home.losses++
       home.homeLosses++
       home.streak = home.streak <= 0 ? home.streak - 1 : -1
@@ -122,6 +123,18 @@ export function recomputeStandings(
       const ag = teamGames.get(game.awayTeamId)
       if (hg) { hg.losses++; hg.results.push('L') }
       if (ag) { ag.wins++; ag.results.push('W') }
+    } else {
+      home.losses++
+      home.homeLosses++
+      home.streak = home.streak <= 0 ? home.streak - 1 : -1
+      away.losses++
+      away.awayLosses++
+      away.streak = away.streak <= 0 ? away.streak - 1 : -1
+
+      const hg = teamGames.get(game.homeTeamId)
+      const ag = teamGames.get(game.awayTeamId)
+      if (hg) { hg.losses++; hg.results.push('L') }
+      if (ag) { ag.losses++; ag.results.push('L') }
     }
 
     if (game.isConference) {
@@ -280,14 +293,6 @@ function computeClinchAndElimination(
         if (lastIn && s.wins + s.gamesRemaining < lastIn.wins) {
           s.eliminated = true
         }
-      }
-    }
-
-    const leaderTid = sorted[0]
-    if (leaderTid) {
-      const leader = standings[leaderTid]
-      if (leader) {
-        leader.clinchedDivision = leader.divisionRank === 1
       }
     }
   }
