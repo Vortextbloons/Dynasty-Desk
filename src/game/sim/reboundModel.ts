@@ -53,11 +53,6 @@ export function resolveRebound(
   const pool = offensive ? offense : defense
   const teamId = offensive ? offenseTeamId : defenseTeamId
 
-  const ratings: number = offensive
-    ? 0
-    : 0
-  void ratings
-
   const weights = pool.map((p) => {
     const r = offensive ? p.ratings.offensiveRebound : p.ratings.defensiveRebound
     return Math.max(1, r + p.ratings.vertical * 0.3)

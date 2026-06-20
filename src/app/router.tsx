@@ -51,22 +51,22 @@ export function AppRouter() {
           </AppShell>
         }
       />
-  <Route
-    path="/schedule"
-    element={
-      <AppShell>
-        <SchedulePage />
-      </AppShell>
-    }
-  />
-  <Route
-    path="/game/:id"
-    element={
-      <AppShell>
-        <BoxScorePage />
-      </AppShell>
-    }
-  />
+      <Route
+        path="/schedule"
+        element={
+          <AppShell>
+            <SchedulePage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/game/:id"
+        element={
+          <AppShell>
+            <BoxScorePage />
+          </AppShell>
+        }
+      />
       <Route
         path="/standings"
         element={

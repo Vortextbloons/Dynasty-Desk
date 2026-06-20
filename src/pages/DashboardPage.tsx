@@ -21,9 +21,11 @@ function DashboardSimControls() {
   const simNextGame = useGameStore((s) => s.simNextGame)
   const simDay = useGameStore((s) => s.simDay)
   const simWeek = useGameStore((s) => s.simWeek)
-  const getNext = useGameStore((s) => s.getNextScheduledGameForUser)
-  const ensureSchedule = useGameStore((s) => s.ensureSchedule)
-  const hasNext = Boolean(getNext() ?? ensureSchedule(1))
+  const nextGameId = useGameStore((s) => {
+    const id = s.getNextScheduledGameForUser()
+    return id
+  })
+  const hasNext = Boolean(nextGameId)
 
   const handleSimNext = async () => {
     const result = await simNextGame()

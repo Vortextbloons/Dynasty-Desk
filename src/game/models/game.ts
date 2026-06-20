@@ -1,4 +1,4 @@
-import type { BoxScoreResult } from '@/game/sim/gameState'
+import type { BoxScoreResult } from '@/game/models/sim'
 
 export type GameStatus = 'scheduled' | 'in_progress' | 'final' | 'postponed'
 

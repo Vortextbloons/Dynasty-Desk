@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
+import { toast } from 'sonner'
 import { useGameStore } from '@/store/useGameStore'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, CardContent } from '@/components/ui/card'
@@ -111,9 +112,11 @@ export function BoxScorePage() {
 
   const handleSimNext = async () => {
     const result = await simNextGame()
-    if ('gameId' in result) {
-      void navigate(`/game/${result.gameId}`)
+    if ('error' in result) {
+      toast.error(result.error)
+      return
     }
+    void navigate(`/game/${result.gameId}`)
   }
 
   return (

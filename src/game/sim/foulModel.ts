@@ -18,7 +18,6 @@ export function shootingFoulChance(
   defender: Player,
   zone: ShotZone,
 ): number {
-  void zone
   const tendency = offense.tendencies.foulRate / 100
   const ftRate = offense.tendencies.freeThrowRate / 100
   const zoneFactor = zone === 'at_rim' ? 1.4 : zone.endsWith('three') ? 0.7 : 1

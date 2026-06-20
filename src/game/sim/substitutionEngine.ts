@@ -80,7 +80,6 @@ export function planSubstitutions(ctx: SubstitutionContext): PlannedSub[] {
       if (!replacement) break
       const p = ctx.players.get(replacement)
       if (!p || isInjured(p)) {
-        desiredCourt.add(replacement)
         continue
       }
       subs.push({

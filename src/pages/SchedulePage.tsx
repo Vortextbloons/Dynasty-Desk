@@ -5,32 +5,23 @@ import { useGameStore } from '@/store/useGameStore'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { generateStubSchedule } from '@/game/sim/stubSchedule'
 import { toast } from 'sonner'
 
 export function SchedulePage() {
   const save = useGameStore((s) => s.save)
   const simOneGame = useGameStore((s) => s.simOneGame)
+  const ensureSchedule = useGameStore((s) => s.ensureSchedule)
   const navigate = useNavigate()
 
   const games = useMemo(() => {
     if (!save) return []
     const teamId = save.league.userTeamId
-    const allTeams = Object.values(save.league.teams).filter(Boolean)
-    const stored = Object.values(save.league.games)
+    return Object.values(save.league.games)
       .filter(
-        (g) =>
-          g && (g.homeTeamId === teamId || g.awayTeamId === teamId),
+        (g): g is NonNullable<typeof g> =>
+          g !== undefined && (g.homeTeamId === teamId || g.awayTeamId === teamId),
       )
       .sort((a, b) => a.date.localeCompare(b.date))
-    if (stored.length > 0) return stored
-    if (allTeams.length === 0) return []
-    return generateStubSchedule({
-      startDate: save.league.currentDate,
-      userTeamId: teamId,
-      teams: allTeams,
-      count: 3,
-    })
   }, [save])
 
   if (!save) {
@@ -46,6 +37,10 @@ export function SchedulePage() {
   }
 
   const teamId = save.league.userTeamId
+
+  const handleGenerate = () => {
+    ensureSchedule(3)
+  }
 
   const handleSim = async (gameId: string) => {
     const result = await simOneGame(gameId)
@@ -66,18 +61,24 @@ export function SchedulePage() {
 
       <Card>
         <CardContent className="p-0">
-          <div className="flex items-center gap-2 border-b border-[var(--color-line-soft)] px-5 py-3 text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-            <CalendarDays className="size-3.5" />
-            Next {games.length} games
+          <div className="flex items-center justify-between gap-2 border-b border-[var(--color-line-soft)] px-5 py-3 text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="size-3.5" />
+              {games.length} game{games.length === 1 ? '' : 's'}
+            </div>
+            {games.length === 0 && (
+              <Button size="sm" variant="secondary" onClick={handleGenerate}>
+                Generate schedule
+              </Button>
+            )}
           </div>
           {games.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-[var(--color-muted-foreground)]">
-              No games scheduled.
+              No games scheduled. Generate one to get started.
             </div>
           ) : (
             <ul className="divide-y divide-[var(--color-line-soft)]">
               {games.map((game) => {
-                if (!game) return null
                 const home = save.league.teams[game.homeTeamId]
                 const away = save.league.teams[game.awayTeamId]
                 const isHome = game.homeTeamId === teamId

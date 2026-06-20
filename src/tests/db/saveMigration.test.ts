@@ -378,14 +378,24 @@ describe('migrateToV4', () => {
     expect(result.metadata.schemaVersion).toBe(4)
   })
 
-  it('migrates simSpeed to balanced from legacy normal', () => {
+  it('migrates simSpeed to normal from legacy non-instant values', () => {
     const v2 = makeV2Save()
     const v3 = migrateToV3(v2) as GameSave
-    v3.settings.simSpeed = 'normal'
+    v3.settings.simSpeed = 'fast'
 
     const result = migrateToV4(v3) as GameSave
 
-    expect(result.settings.simSpeed).toBe('balanced')
+    expect(result.settings.simSpeed).toBe('instant')
+  })
+
+  it('preserves instant simSpeed through migration', () => {
+    const v2 = makeV2Save()
+    const v3 = migrateToV3(v2) as GameSave
+    v3.settings.simSpeed = 'instant'
+
+    const result = migrateToV4(v3) as GameSave
+
+    expect(result.settings.simSpeed).toBe('instant')
   })
 
   it('is idempotent when re-migrating v4 saves', () => {
@@ -394,11 +404,11 @@ describe('migrateToV4', () => {
     const v4 = migrateToV4({
       ...v3,
       metadata: { ...v3.metadata, schemaVersion: 4 },
-      settings: { ...v3.settings, simSpeed: 'balanced' },
+      settings: { ...v3.settings, simSpeed: 'normal' },
     }) as GameSave
     const v4Again = migrateToV4(v4) as GameSave
 
     expect(v4Again.metadata.schemaVersion).toBe(4)
-    expect(v4Again.settings.simSpeed).toBe('balanced')
+    expect(v4Again.settings.simSpeed).toBe('normal')
   })
 })

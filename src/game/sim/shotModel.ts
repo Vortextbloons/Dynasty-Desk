@@ -1,5 +1,5 @@
 import type { Player } from '@/game/models/player'
-import type { ShotZone, ShotType } from '@/game/sim/gameState'
+import type { ShotZone, ShotType } from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
 import {
   BASE_ZONE_PCT,

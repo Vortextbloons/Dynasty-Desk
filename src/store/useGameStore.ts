@@ -13,7 +13,6 @@ import {
   importSaveFromFile as dbImportSaveFromFile,
 } from '@/db/saveRepository'
 import { buildSave } from '@/game/core/saveBuilder'
-import { createSeededRandom } from '@/game/core/seededRandom'
 import { SeededRandom } from '@/game/sim/rng'
 import { simulateGame } from '@/game/sim/gameSimulator'
 import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
@@ -515,7 +514,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       teams: allTeams,
       count: count ?? 3,
     })
-    return stub.map((g) => g.id)
+    const createdIds: string[] = []
+    for (const game of stub) {
+      if (save.league.games[game.id]) continue
+      save.league.games[game.id] = game
+      createdIds.push(game.id)
+    }
+    if (createdIds.length > 0) {
+      save.league.currentDate = save.league.currentDate
+      set({ save: { ...save } })
+      get().scheduleAutoSave()
+    }
+    return createdIds
   },
 
   getNextScheduledGameForUser: () => {
@@ -558,7 +568,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return { error: 'Both teams need at least 5 players.' }
     }
 
-    const seedRng = createSeededRandom(save.rngState)
     const seededRng = new SeededRandom(save.rngState)
 
     const { gameState, keyPlays } = await simulateGame({
@@ -583,8 +592,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     game.homeScore = boxScore.homeScore
     game.awayScore = boxScore.awayScore
     game.boxScore = boxScore
+    game.boxScoreId = gameId
 
-    save.rngState = seedRng.getState()
+    save.rngState = seededRng.state
+    applyGameResultToStandings(save, gameId, boxScore)
+    if (save.metadata.currentDate < game.date) {
+      save.metadata.currentDate = game.date
+    }
     set({ save: { ...save } })
     get().scheduleAutoSave()
     return { gameId, boxScore }
@@ -610,11 +624,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (Object.keys(save.league.games).length === 0) {
       get().ensureSchedule(3)
     }
-    const today = save.league.currentDate
-    const todays = Object.values(save.league.games)
+    let today = save.league.currentDate
+    let todays = Object.values(save.league.games)
       .filter((g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === today)
     if (todays.length === 0) {
-      get().ensureSchedule(1)
+      get().ensureSchedule(3)
+      today = save.league.currentDate
+      todays = Object.values(save.league.games)
+        .filter((g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === today)
     }
     const simIds: string[] = []
     for (const game of todays) {
@@ -707,4 +724,45 @@ function revalidateLineup(save: GameSave, teamId: string) {
   )
   team.lineup.lastValidatedAt = new Date().toISOString()
   team.lineup.lastValidationWarnings = result.warnings.map((w) => w.code)
+}
+
+function applyGameResultToStandings(
+  save: GameSave,
+  gameId: string,
+  box: import('@/game/models').BoxScoreResult,
+) {
+  const home = save.league.standings[box.homeTeamId]
+  const away = save.league.standings[box.awayTeamId]
+  if (!home || !away) return
+  const homeWin = box.homeWin
+  for (const s of [home, away]) {
+    s.gamesPlayed += 0
+  }
+  home.gamesPlayed += 1
+  away.gamesPlayed += 1
+  home.pointsFor += box.homeScore
+  home.pointsAgainst += box.awayScore
+  away.pointsFor += box.awayScore
+  away.pointsAgainst += box.homeScore
+  home.pointDifferential = home.pointsFor - home.pointsAgainst
+  away.pointDifferential = away.pointsFor - away.pointsAgainst
+  if (homeWin) {
+    home.wins += 1
+    home.homeWins += 1
+    away.losses += 1
+    away.awayLosses += 1
+  } else if (box.homeScore < box.awayScore) {
+    home.losses += 1
+    home.homeLosses += 1
+    away.wins += 1
+    away.awayWins += 1
+  } else {
+    home.wins += 1
+    home.homeWins += 1
+    away.losses += 1
+    away.awayLosses += 1
+  }
+  home.winPct = home.wins / Math.max(1, home.gamesPlayed)
+  away.winPct = away.wins / Math.max(1, away.gamesPlayed)
+  void gameId
 }

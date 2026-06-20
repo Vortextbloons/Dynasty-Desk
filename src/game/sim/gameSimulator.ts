@@ -107,17 +107,15 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
     await yieldIfNormal(input.simSpeed, ++possessionsSinceYield)
   }
 
-  if (state.score.home === state.score.away) {
-    const triggered = input.rng.chance(0.05)
-    state.ot5PercentRollTriggered = triggered
-    if (triggered) {
-      state.overtimeOccurred = true
-      state.clock = { period: 5, timeRemainingSeconds: OT_SECONDS }
-      state.events.push({ type: 'endOfPeriod', period: 4 })
-      playPeriod(state, input, homeById, awayById, 5)
-    } else {
-      state.events.push({ type: 'endOfPeriod', period: 4 })
-    }
+  let otPeriod = 5 as 5 | 6 | 7
+  while (state.score.home === state.score.away) {
+    if (otPeriod > 7) break
+    state.overtimeOccurred = true
+    state.ot5PercentRollTriggered = true
+    state.clock = { period: otPeriod, timeRemainingSeconds: OT_SECONDS }
+    state.events.push({ type: 'endOfPeriod', period: otPeriod - 1 })
+    playPeriod(state, input, homeById, awayById, otPeriod)
+    otPeriod = (otPeriod + 1) as 5 | 6 | 7
   }
 
   state.clock.timeRemainingSeconds = 0
@@ -275,7 +273,7 @@ function planSubstitutionsFor(
     period,
     timeRemainingSeconds,
     foulsByPlayer: state.fouls[team].byPlayer,
-    closingMarginLeq5: closingMargin || true,
+    closingMarginLeq5: closingMargin,
   })
 }
 
