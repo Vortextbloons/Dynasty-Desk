@@ -959,12 +959,20 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const rng = new SeededRandom(save.rngState)
 
     try {
+      let stallCount = 0
       while (!bracketComplete) {
         if (cancelToken.cancelled) break
 
         const result = await advancePlayoffSeries(save.league, rng, { injuriesEnabled: save.settings.injuries })
         totalSimulated += result.gamesSimulated
         bracketComplete = result.bracketComplete
+
+        if (result.gamesSimulated === 0 && !bracketComplete) {
+          stallCount++
+          if (stallCount > 3) break
+        } else {
+          stallCount = 0
+        }
 
         const remaining = countRemainingPlayoffGames(save.league.playoffBracket)
         const progress = totalGames > 0 ? Math.min(99, Math.round(((totalGames - remaining) / totalGames) * 100)) : 0
@@ -1012,8 +1020,9 @@ function countRemainingPlayoffGames(bracket: import('@/game/models/playoff').Pla
     if (s.status === 'final') continue
     if (!s.higherSeedTeamId || !s.lowerSeedTeamId) continue
     const required = Math.ceil(s.seriesLength / 2)
-    const remaining = required * 2 - s.higherSeedWins - s.lowerSeedWins
-    count += Math.max(0, remaining)
+    const leaderWins = Math.max(s.higherSeedWins, s.lowerSeedWins)
+    const remaining = Math.max(0, required - leaderWins)
+    count += remaining
   }
   return count
 }

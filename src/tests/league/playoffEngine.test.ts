@@ -348,12 +348,47 @@ describe('full bracket simulation', () => {
     expect(eastCF?.winnerTeamId).toBeDefined()
     expect(westCF?.winnerTeamId).toBeDefined()
 
-    expect(bracket.finals!.higherSeedTeamId).toBe(eastCF!.winnerTeamId)
-    expect(bracket.finals!.lowerSeedTeamId).toBe(westCF!.winnerTeamId)
+    const finalsTeams = [bracket.finals!.higherSeedTeamId, bracket.finals!.lowerSeedTeamId]
+    expect(finalsTeams).toContain(eastCF!.winnerTeamId)
+    expect(finalsTeams).toContain(westCF!.winnerTeamId)
 
     const required = Math.ceil(bracket.finals!.seriesLength / 2)
     const finalsWins = bracket.finals!.higherSeedWins + bracket.finals!.lowerSeedWins
     expect(finalsWins).toBeGreaterThanOrEqual(required)
+  }, 30000)
+
+  it('simulates play-in then bracket to champion', async () => {
+    const league = makeLeague({ rules: { hasPlayIn: true, playoffFormat: 'playin_then_top8' } })
+    const bracket = generatePlayoffBracket(league, league.rules)
+    league.playoffBracket = bracket
+
+    expect(bracket.status).toBe('play_in')
+    expect(bracket.playIn).toBeDefined()
+    expect(bracket.playIn!.east.length).toBe(3)
+    expect(bracket.playIn!.west.length).toBe(3)
+
+    const rng = new SeededRandom({ seed: 'playin-e2e-test', position: 0 })
+
+    let iterations = 0
+    while (bracket.status !== 'complete' && iterations < 300) {
+      const result = await advancePlayoffSeries(league, rng)
+      if (result.bracketComplete) break
+      iterations++
+    }
+
+    expect(bracket.status).toBe('complete')
+    expect(bracket.championTeamId).toBeDefined()
+    expect(bracket.playIn!.playInWinners).toBeDefined()
+    expect(bracket.playIn!.playInWinners!.east7).toBeDefined()
+    expect(bracket.playIn!.playInWinners!.east8).toBeDefined()
+    expect(bracket.playIn!.playInWinners!.west7).toBeDefined()
+    expect(bracket.playIn!.playInWinners!.west8).toBeDefined()
+
+    const eastR1 = bracket.east.filter((s) => s.round === 1)
+    const playInSeeds78 = eastR1.filter((s) => s.higherSeed === 7 || s.higherSeed === 8 || s.lowerSeed === 7 || s.lowerSeed === 8)
+    for (const s of playInSeeds78) {
+      expect(s.status).not.toBe('scheduled')
+    }
   }, 30000)
 
   it('assigns missed_playoffs to non-playoff teams', async () => {

@@ -326,6 +326,7 @@ export async function simulatePlayIn(
   league: LeagueState,
   bracket: PlayoffBracket,
   rng: SeededRandom,
+  options?: { injuriesEnabled?: boolean },
 ): Promise<{ playIn: PlayInBracket | null; gamesSimulated: number }> {
   if (!bracket.playIn) return { playIn: null, gamesSimulated: 0 }
 
@@ -377,7 +378,7 @@ export async function simulatePlayIn(
         era: league.eraConfig,
         rng,
         date: league.currentDate,
-        injuriesEnabled: league.rules.hasPlayIn,
+        injuriesEnabled: options?.injuriesEnabled ?? false,
         simSpeed: 'instant',
       })
 
@@ -442,7 +443,7 @@ export async function simulatePlayIn(
             era: league.eraConfig,
             rng,
             date: league.currentDate,
-            injuriesEnabled: league.rules.hasPlayIn,
+        injuriesEnabled: options?.injuriesEnabled ?? false,
             simSpeed: 'instant',
           })
 
@@ -596,25 +597,25 @@ function populateFinalsFromConferenceWinners(bracket: PlayoffBracket): void {
 
   if (!eastCF?.winnerTeamId || !westCF?.winnerTeamId) return
 
-  const eastRecord = eastCF.winnerTeamId === eastCF.higherSeedTeamId
-    ? eastCF.higherSeedWins
-    : eastCF.lowerSeedWins
-  const westRecord = westCF.winnerTeamId === westCF.higherSeedTeamId
-    ? westCF.higherSeedWins
-    : westCF.lowerSeedWins
+  const eastSeed = eastCF.winnerTeamId === eastCF.higherSeedTeamId
+    ? eastCF.higherSeed
+    : eastCF.lowerSeed
+  const westSeed = westCF.winnerTeamId === westCF.higherSeedTeamId
+    ? westCF.higherSeed
+    : westCF.lowerSeed
 
   if (!bracket.finals) return
 
-  if (eastRecord >= westRecord) {
+  if (eastSeed <= westSeed) {
     bracket.finals.higherSeedTeamId = eastCF.winnerTeamId
-    bracket.finals.higherSeed = 1
+    bracket.finals.higherSeed = eastSeed
     bracket.finals.lowerSeedTeamId = westCF.winnerTeamId
-    bracket.finals.lowerSeed = 2
+    bracket.finals.lowerSeed = westSeed
   } else {
     bracket.finals.higherSeedTeamId = westCF.winnerTeamId
-    bracket.finals.higherSeed = 1
+    bracket.finals.higherSeed = westSeed
     bracket.finals.lowerSeedTeamId = eastCF.winnerTeamId
-    bracket.finals.lowerSeed = 2
+    bracket.finals.lowerSeed = eastSeed
   }
 
   if (bracket.finals.higherSeedTeamId && bracket.finals.lowerSeedTeamId) {
@@ -637,7 +638,7 @@ export async function advancePlayoffSeries(
   const seriesCompleted: string[] = []
 
   if (bracket.status === 'play_in' && bracket.playIn) {
-    const playInResult = await simulatePlayIn(league, bracket, rng)
+    const playInResult = await simulatePlayIn(league, bracket, rng, options)
     if (playInResult.playIn) {
       bracket.playIn = playInResult.playIn
       if (playInResult.playIn.playInWinners) {
