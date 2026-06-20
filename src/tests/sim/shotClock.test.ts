@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { lateClockMakePenalty } from '@/game/sim/shotClock'
 import { SeededRandom } from '@/game/sim/rng'

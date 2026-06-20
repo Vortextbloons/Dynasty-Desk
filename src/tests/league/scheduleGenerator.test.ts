@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { generateSchedule } from '@/game/league/scheduleGenerator'
 import { makeTeam } from '@/tests/fixtures'

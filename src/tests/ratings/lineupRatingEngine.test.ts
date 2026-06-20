@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { rateLineup } from '@/game/ratings/lineupRatingEngine'
 import { makePlayer } from '@/tests/fixtures'

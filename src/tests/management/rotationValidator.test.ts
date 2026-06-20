@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { validateRotation } from '@/game/management/rotationValidator'
 import type { Player } from '@/game/models/player'

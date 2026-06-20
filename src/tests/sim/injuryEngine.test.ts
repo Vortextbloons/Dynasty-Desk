@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { injuryChance, rollInjurySeverity } from '@/game/sim/injuryEngine'
 import { makePlayer } from '@/tests/fixtures'

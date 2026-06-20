@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { isClutch, applyClutchAdjustments } from '@/game/sim/clutchEngine'
 import { makePlayer } from '@/tests/fixtures'

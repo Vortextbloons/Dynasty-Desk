@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { buildSave } from '@/game/core/saveBuilder'
 import type { StaticSnapshot } from '@/game/models'

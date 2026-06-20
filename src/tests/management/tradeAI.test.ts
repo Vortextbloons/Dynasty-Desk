@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { evaluateTradeForAI, updateTeamDirection } from '@/game/management/tradeAI'
 import { makePlayer, makeTeam, emptyM10LeagueFields } from '@/tests/fixtures'

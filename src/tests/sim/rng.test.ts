@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { SeededRandom } from '@/game/sim/rng'
 import { createRngState } from '@/game/core/seededRandom'

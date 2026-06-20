@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { migrateToV2, migrateToV3, migrateToV4, migrateToV5, migrateToV6 } from '@/db/saveMigration'
 import type { GameSave } from '@/game/models'

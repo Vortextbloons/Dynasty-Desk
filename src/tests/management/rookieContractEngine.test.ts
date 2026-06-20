@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { generateRookieContract, getRookieScaleSalary } from '@/game/management/rookieContractEngine'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'

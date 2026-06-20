@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { findTrades } from '@/game/management/tradeFinder'
 import { makePlayer, makeTeam, emptyM10LeagueFields } from '@/tests/fixtures'

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { mergeBoxScoreIntoSeasonStats } from '@/game/league/seasonStatsEngine'
 import { makePlayer } from '@/tests/fixtures'

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { computeFinalsMvp, getCandidatesForFinals, computeSeasonAwards } from '@/game/league/awardsEngine'
 import { makePlayer, makeTeam } from '@/tests/fixtures'

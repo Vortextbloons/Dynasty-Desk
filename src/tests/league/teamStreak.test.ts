@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { computeTeamStreak } from '@/game/league/teamStreak'
 import type { ScheduledGame } from '@/game/models/game'

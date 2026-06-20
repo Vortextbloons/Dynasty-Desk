@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { initializeStandings, recomputeStandings, computeGB, formatStreak, formatLast10 } from '@/game/league/standingsEngine'
 import { makeTeam } from '@/tests/fixtures'

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { offensiveReboundChance, resolveRebound } from '@/game/sim/reboundModel'
 import { SeededRandom } from '@/game/sim/rng'

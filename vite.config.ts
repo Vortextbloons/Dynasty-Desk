@@ -16,6 +16,20 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/tests/setup.ts',
-    css: true,
+    css: false,
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        maxThreads: 4,
+        minThreads: 2,
+      },
+    },
+    deps: {
+      optimizer: {
+        web: {
+          include: ['@testing-library/react', '@testing-library/jest-dom', '@testing-library/user-event'],
+        },
+      },
+    },
   },
 })

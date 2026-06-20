@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { planSubstitutions, type SubstitutionContext } from '@/game/sim/substitutionEngine'
 import { makePlayer } from '@/tests/sim/fixtures'

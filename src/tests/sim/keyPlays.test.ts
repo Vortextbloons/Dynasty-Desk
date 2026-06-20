@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { rankKeyPlays, eventImpact } from '@/game/sim/keyPlays'
 import type { SimEvent } from '@/game/models/sim'

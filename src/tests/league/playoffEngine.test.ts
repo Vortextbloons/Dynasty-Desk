@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach } from 'vitest'
 import { makeTeam, makeRoster, makePlayer, resetFixtureCounters, emptyM10LeagueFields } from '@/tests/fixtures'
 import {

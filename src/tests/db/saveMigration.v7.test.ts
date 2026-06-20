@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { migrateToV7, migrateToCurrent } from '@/db/saveMigration'
 import { migrateToV6 } from '@/db/saveMigration'

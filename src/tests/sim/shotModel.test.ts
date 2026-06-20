@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { makeChance, resolveShot, selectZone, computeImpact } from '@/game/sim/shotModel'
 import { BASE_ZONE_PCT, isThreePointZone, threePointRateForTeam } from '@/game/sim/shotZones'

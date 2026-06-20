@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { canSignTwoWay, MAX_TWO_WAY_PLAYERS } from '@/game/management/twoWayEngine'
 import { makePlayer, makeTeam } from '@/tests/fixtures'

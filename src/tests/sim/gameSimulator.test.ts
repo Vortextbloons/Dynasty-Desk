@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { simulateGame } from '@/game/sim/gameSimulator'
 import { buildBoxScore, checkConsistency } from '@/game/sim/boxScoreBuilder'

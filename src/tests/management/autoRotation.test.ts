@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { generateAutoRotation } from '@/game/management/autoRotation'
 import { emptyHealth } from '@/game/models/defaults'

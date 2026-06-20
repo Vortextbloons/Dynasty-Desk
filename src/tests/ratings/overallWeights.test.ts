@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { computeOverall, OVERALL_WEIGHTS, getPositionWeights } from '@/game/ratings/overallWeights'
 import type { PlayerRatings } from '@/game/models/ratings'
