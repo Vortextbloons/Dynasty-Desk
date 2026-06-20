@@ -122,6 +122,9 @@ interface GameStore {
 
   createTradeProposal: (teamIds: string[]) => TradeProposal | null
   addAssetToTrade: (proposalId: string, teamId: string, asset: TradeAsset) => void
+  addTeamToTrade: (proposalId: string, teamId: string) => void
+  removeTeamFromTrade: (proposalId: string, teamId: string) => void
+  importProposal: (proposal: TradeProposal) => void
   removeAssetFromTrade: (proposalId: string, teamId: string, assetIndex: number) => void
   cancelTradeProposal: (proposalId: string) => void
   submitTrade: (proposalId: string) => {
@@ -1064,8 +1067,59 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!proposal) return
     const side = proposal.sides.find((s) => s.teamId === teamId)
     if (!side) return
-    side.outgoing = [...side.outgoing, asset]
-    distributeIncoming(proposal)
+    if (isAssetDuplicate(side.outgoing, asset)) return
+    let nextAsset: TradeAsset = { ...asset }
+    if (!nextAsset.toTeamId) {
+      const inferred = inferTargetTeamId(proposal, teamId)
+      if (inferred) nextAsset.toTeamId = inferred
+    }
+    side.outgoing = [...side.outgoing, nextAsset]
+    reconcileSides(proposal)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  addTeamToTrade: (proposalId, teamId) => {
+    const { save } = get()
+    if (!save) return
+    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    if (!proposal) return
+    if (proposal.sides.some((s) => s.teamId === teamId)) return
+    if (proposal.sides.length >= 4) return
+    proposal.sides = [
+      ...proposal.sides,
+      { teamId, outgoing: [], incoming: [] },
+    ]
+    reconcileSides(proposal)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  removeTeamFromTrade: (proposalId, teamId) => {
+    const { save } = get()
+    if (!save) return
+    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    if (!proposal) return
+    if (proposal.sides.length <= 2) return
+    proposal.sides = proposal.sides
+      .filter((s) => s.teamId !== teamId)
+      .map((s) => ({
+        ...s,
+        outgoing: s.outgoing.filter(
+          (a) => !a.toTeamId || a.toTeamId !== teamId,
+        ),
+      }))
+    reconcileSides(proposal)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  importProposal: (proposal) => {
+    const { save } = get()
+    if (!save) return
+    reconcileSides(proposal)
+    if (save.league.activeProposals.some((p) => p.id === proposal.id)) return
+    save.league.activeProposals = [...save.league.activeProposals, proposal]
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },
@@ -1078,7 +1132,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const side = proposal.sides.find((s) => s.teamId === teamId)
     if (!side) return
     side.outgoing = side.outgoing.filter((_, i) => i !== assetIndex)
-    distributeIncoming(proposal)
+    reconcileSides(proposal)
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },
@@ -1158,9 +1212,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           ...save.league.news,
           createVetoEvent(
             proposal,
+            save.league,
             response.vetoingOwnerName,
             response.reason,
-            save.league.currentDate,
           ),
         ]
         set({ save: { ...save } })
@@ -1185,8 +1239,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
     save.league.news = [
       ...save.league.news,
-      createTradeCompletedEvent(proposal, save.league.currentDate, teamIdMap),
+      createTradeCompletedEvent(proposal, save.league),
     ]
+    void teamIdMap
 
     set({ save: { ...save } })
     get().scheduleAutoSave()
@@ -1224,17 +1279,62 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   },
 }))
 
-function distributeIncoming(proposal: TradeProposal): void {
+function reconcileSides(proposal: TradeProposal): void {
   for (const side of proposal.sides) {
-    const incoming: TradeAsset[] = []
-    for (const other of proposal.sides) {
-      if (other.teamId === side.teamId) continue
-      for (const asset of other.outgoing) {
-        incoming.push({ ...asset })
+    side.incoming = []
+  }
+  for (const side of proposal.sides) {
+    for (const asset of side.outgoing) {
+      const targetId = resolveAssetTarget(proposal, side.teamId, asset)
+      if (!targetId) continue
+      const target = proposal.sides.find((s) => s.teamId === targetId)
+      if (target) {
+        target.incoming.push({ ...asset })
       }
     }
-    side.incoming = incoming
   }
+}
+
+function resolveAssetTarget(
+  proposal: TradeProposal,
+  fromTeamId: string,
+  asset: TradeAsset,
+): string | null {
+  if (asset.toTeamId) {
+    if (asset.toTeamId === fromTeamId) return null
+    if (!proposal.sides.some((s) => s.teamId === asset.toTeamId)) return null
+    return asset.toTeamId
+  }
+  return inferTargetTeamId(proposal, fromTeamId)
+}
+
+function inferTargetTeamId(
+  proposal: TradeProposal,
+  fromTeamId: string,
+): string | null {
+  const otherSides = proposal.sides.filter((s) => s.teamId !== fromTeamId)
+  if (otherSides.length === 1) return otherSides[0]!.teamId
+  return null
+}
+
+function isAssetDuplicate(outgoing: TradeAsset[], candidate: TradeAsset): boolean {
+  if (candidate.type === 'cash') return false
+  if (candidate.type === 'player' && candidate.playerId) {
+    return outgoing.some(
+      (a) => a.type === 'player' && a.playerId === candidate.playerId,
+    )
+  }
+  if (candidate.type === 'pick' && candidate.pickId) {
+    return outgoing.some(
+      (a) => a.type === 'pick' && a.pickId === candidate.pickId,
+    )
+  }
+  if (candidate.type === 'exception' && candidate.exceptionId) {
+    return outgoing.some(
+      (a) => a.type === 'exception' && a.exceptionId === candidate.exceptionId,
+    )
+  }
+  return false
 }
 
 function countRemainingPlayoffGames(bracket: import('@/game/models/playoff').PlayoffBracket): number {

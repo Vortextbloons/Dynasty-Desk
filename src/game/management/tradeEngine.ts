@@ -2,9 +2,16 @@ import type { Player } from '@/game/models/player'
 import type { DraftPick } from '@/game/models/draft'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { LeagueState } from '@/game/models/league'
-import type { Team } from '@/game/models/team'
-import type { TradeException, TradeProposal, TradeSide } from '@/game/models/trade'
-import { computeCapHit } from './capEngine'
+import type { Team, TeamFinances } from '@/game/models/team'
+import type {
+  TradeException,
+  TradeProposal,
+  TradeSide,
+  TradeAsset,
+} from '@/game/models/trade'
+import { computeApronStatus } from './capEngine'
+import { computeFullTaxBill } from './luxuryTaxEngine'
+import { recomputeStepienFlags } from './tradeStepien'
 
 export type ApronStatus = 'below' | 'first' | 'second'
 
@@ -19,6 +26,8 @@ export interface TradeExecutionResult {
   league: LeagueState
   events: string[]
   tradeExceptionsCreated: TradeException[]
+  exceptionsConsumed: TradeException[]
+  cashPaidOut: Record<string, number>
 }
 
 export function validateTradeLegality(
@@ -35,24 +44,29 @@ export function validateTradeLegality(
   if (proposal.sides.length < 2 || proposal.sides.length > 4) {
     return { ...result, legal: false, reason: 'Trade must involve 2 to 4 teams.' }
   }
-
   const teamIds = new Set(proposal.sides.map((s) => s.teamId))
   if (teamIds.size !== proposal.sides.length) {
     return { ...result, legal: false, reason: 'Duplicate team in proposal.' }
   }
-
-  const apronStatus: Record<string, ApronStatus> = {}
+  const teamById: Record<string, Team> = {}
   for (const side of proposal.sides) {
     const team = league.teams[side.teamId]
     if (!team) {
       return { ...result, legal: false, reason: `Unknown team: ${side.teamId}` }
     }
-    const status = computeApronStatus(team, rules)
+    teamById[side.teamId] = team
+  }
+
+  const apronEnforced = isApronEnforced(rules)
+  const apronStatus: Record<string, ApronStatus> = {}
+  for (const side of proposal.sides) {
+    const status = apronEnforced
+      ? computeApronStatus(teamById[side.teamId]!, rules)
+      : 'below'
     apronStatus[side.teamId] = status
     result.perSideApronStatus[side.teamId] = status
   }
 
-  const cashTotals: Record<string, number> = {}
   for (const side of proposal.sides) {
     let cash = 0
     for (const asset of side.outgoing) {
@@ -60,12 +74,11 @@ export function validateTradeLegality(
         cash += asset.cashAmount ?? 0
       }
     }
-    cashTotals[side.teamId] = cash
-    if (rules.allowCashInTrades && cash > rules.maxCashPerSide) {
+    if (cash > rules.maxCashPerSide) {
       return {
         ...result,
         legal: false,
-        reason: `Cash exceeds $${(rules.maxCashPerSide / 1_000_000).toFixed(1)}M limit for ${side.teamId}.`,
+        reason: `Cash $${(cash / 1_000_000).toFixed(1)}M exceeds limit of $${(rules.maxCashPerSide / 1_000_000).toFixed(1)}M for ${side.teamId}.`,
       }
     }
   }
@@ -82,6 +95,13 @@ export function validateTradeLegality(
             ...result,
             legal: false,
             reason: `${player.firstName} ${player.lastName} has a no-trade clause.`,
+          }
+        }
+        if (player.teamId !== side.teamId) {
+          return {
+            ...result,
+            legal: false,
+            reason: `${player.firstName} ${player.lastName} is not on ${side.teamId}.`,
           }
         }
       }
@@ -104,26 +124,50 @@ export function validateTradeLegality(
             reason: `Pick ${pick.id} is Stepien-blocked (would create a two-year gap).`,
           }
         }
-        const teamStatus = apronStatus[side.teamId]
-        if (
-          teamStatus === 'second' &&
-          pick.round === 1 &&
-          pick.frozenUntilSeason
-        ) {
-          const currentYear = league.rules.seasonLabel
-          if (isPickFrozenByApron(pick, currentYear, rules.pickFreezeYears)) {
-            return {
-              ...result,
-              legal: false,
-              reason: `First-round pick ${pick.id} is frozen by 2nd apron (${rules.pickFreezeYears} years out).`,
+        if (apronEnforced) {
+          const status = apronStatus[side.teamId]!
+          if (status === 'second' && pick.round === 1) {
+            if (isFrozenByApron(pick)) {
+              return {
+                ...result,
+                legal: false,
+                reason: `First-round pick ${pick.id} is frozen by 2nd apron rule.`,
+              }
+            }
+            const yearsOut = yearsUntilSeason(pick.season, league.rules.seasonLabel)
+            if (yearsOut > rules.pickFreezeYears) {
+              return {
+                ...result,
+                legal: false,
+                reason: `2nd-apron team cannot trade 1st-round pick ${rules.pickFreezeYears}+ years out (${pick.season}).`,
+              }
             }
           }
         }
-        if (teamStatus === 'second' && pick.round === 1) {
+      }
+      if (asset.type === 'exception' && asset.exceptionId) {
+        const ex = teamById[side.teamId]?.tradeExceptions?.find(
+          (te) => te.id === asset.exceptionId,
+        )
+        if (!ex) {
           return {
             ...result,
             legal: false,
-            reason: '2nd-apron teams cannot trade 1st-round picks more than pickFreezeYears out.',
+            reason: `Trade exception ${asset.exceptionId} not found on ${side.teamId}.`,
+          }
+        }
+        if (new Date(ex.expiresAt) < new Date(league.currentDate)) {
+          return {
+            ...result,
+            legal: false,
+            reason: `Trade exception ${asset.exceptionId} has expired.`,
+          }
+        }
+        if (asset.toTeamId && asset.toTeamId !== side.teamId) {
+          return {
+            ...result,
+            legal: false,
+            reason: `Trade exception cannot be sent to another team.`,
           }
         }
       }
@@ -131,7 +175,7 @@ export function validateTradeLegality(
   }
 
   for (const side of proposal.sides) {
-    const team = league.teams[side.teamId]!
+    const team = teamById[side.teamId]!
     const finalRosterSize = computeFinalRosterSize(team, side, league)
     result.perSideRosterSize[side.teamId] = finalRosterSize
     if (finalRosterSize < rules.minRosterSize || finalRosterSize > rules.maxRosterSize) {
@@ -143,28 +187,21 @@ export function validateTradeLegality(
     }
   }
 
-  const pairs = generatePairs(proposal.sides)
-  for (const [aId, bId] of pairs) {
-    const aSide = proposal.sides.find((s) => s.teamId === aId)!
-    const bSide = proposal.sides.find((s) => s.teamId === bId)!
-
-    const outgoingA = sumOutgoingSalary(aSide, league, rules)
-    const incomingA = sumIncomingSalary(bSide.outgoing, league, rules)
-    const outgoingB = sumOutgoingSalary(bSide, league, rules)
-    const incomingB = sumIncomingSalary(aSide.outgoing, league, rules)
-
-    if (!checkSalaryMatch(outgoingA, incomingA, rules, apronStatus[aId]!)) {
-      return {
-        ...result,
-        legal: false,
-        reason: `Salary matching failed for ${aId} (incoming $${(incomingA / 1_000_000).toFixed(1)}M vs outgoing $${(outgoingA / 1_000_000).toFixed(1)}M).`,
-      }
-    }
-    if (!checkSalaryMatch(outgoingB, incomingB, rules, apronStatus[bId]!)) {
-      return {
-        ...result,
-        legal: false,
-        reason: `Salary matching failed for ${bId} (incoming $${(incomingB / 1_000_000).toFixed(1)}M vs outgoing $${(outgoingB / 1_000_000).toFixed(1)}M).`,
+  if (apronEnforced) {
+    for (const side of proposal.sides) {
+      const outgoing = sumSalary(side.outgoing, league, rules)
+      const incoming = sumSalary(side.incoming, league, rules)
+      const exceptionIn = side.incoming
+        .filter((a) => a.type === 'exception')
+        .reduce((sum) => sum + 0, 0)
+      const effectiveIncoming = incoming + exceptionIn
+      const teamApron = apronStatus[side.teamId]!
+      if (!checkSalaryMatch(outgoing, effectiveIncoming, teamApron)) {
+        return {
+          ...result,
+          legal: false,
+          reason: `Salary match failed for ${side.teamId} (out $${(outgoing / 1_000_000).toFixed(1)}M, in $${(effectiveIncoming / 1_000_000).toFixed(1)}M, ${teamApron} apron).`,
+        }
       }
     }
   }
@@ -172,28 +209,23 @@ export function validateTradeLegality(
   return result
 }
 
-function isPickFrozenByApron(
-  pick: DraftPick,
-  _currentSeason: string,
-  _years: number,
-): boolean {
+function isApronEnforced(rules: LeagueRules): boolean {
+  return rules.apron > 0 && rules.secondApron > 0 && rules.luxuryTaxLine > 0
+}
+
+function isFrozenByApron(pick: DraftPick): boolean {
   return Boolean(pick.frozenUntilSeason)
 }
 
-function generatePairs(sides: TradeSide[]): Array<[string, string]> {
-  const pairs: Array<[string, string]> = []
-  for (let i = 0; i < sides.length; i++) {
-    for (let j = i + 1; j < sides.length; j++) {
-      pairs.push([sides[i]!.teamId, sides[j]!.teamId])
-    }
-  }
-  return pairs
+function yearsUntilSeason(targetSeason: string, currentSeason: string): number {
+  const target = parseSeasonStartYear(targetSeason)
+  const current = parseSeasonStartYear(currentSeason)
+  return target - current
 }
 
-function computeApronStatus(team: Team, rules: LeagueRules): ApronStatus {
-  if (team.finances.payroll >= rules.secondApron) return 'second'
-  if (team.finances.payroll >= rules.apron) return 'first'
-  return 'below'
+function parseSeasonStartYear(season: string): number {
+  const m = season.match(/^(\d{4})/)
+  return m ? Number(m[1]) : 0
 }
 
 function computeFinalRosterSize(
@@ -214,47 +246,38 @@ function computeFinalRosterSize(
       return p && p.teamId !== team.id
     })
 
-  return team.roster.filter((id) => !outPlayerIds.has(id)).length + inPlayerIds.length
+  return (
+    team.roster.filter((id) => !outPlayerIds.has(id)).length + inPlayerIds.length
+  )
 }
 
-function sumOutgoingSalary(
-  side: TradeSide,
+function sumSalary(
+  assets: TradeAsset[],
   league: LeagueState,
   rules: LeagueRules,
 ): number {
   let total = 0
-  for (const asset of side.outgoing) {
+  for (const asset of assets) {
     if (asset.type === 'player' && asset.playerId) {
       const player = league.players[asset.playerId]
       if (player) {
-        total += computeCapHit(player, rules, 0)
+        total += computeCapHitForPlayer(player, rules)
       }
     }
   }
   return total
 }
 
-function sumIncomingSalary(
-  incoming: TradeSide['outgoing'],
-  league: LeagueState,
-  rules: LeagueRules,
-): number {
-  let total = 0
-  for (const asset of incoming) {
-    if (asset.type === 'player' && asset.playerId) {
-      const player = league.players[asset.playerId]
-      if (player) {
-        total += computeCapHit(player, rules, 0)
-      }
-    }
-  }
-  return total
+function computeCapHitForPlayer(player: Player, _rules: LeagueRules): number {
+  const salary = player.contract.salaryByYear[0] ?? 0
+  const signingBonus = player.contract.signingBonusByYear[0] ?? 0
+  const likelyBonus = player.contract.likelyBonusesByYear[0] ?? 0
+  return salary + signingBonus + likelyBonus
 }
 
 function checkSalaryMatch(
   outgoing: number,
   incoming: number,
-  _rules: LeagueRules,
   apronStatus: ApronStatus,
 ): boolean {
   if (apronStatus === 'second') {
@@ -296,34 +319,26 @@ export function executeTrade(
     for (const asset of side.outgoing) {
       if (asset.type === 'player' && asset.playerId) {
         const player = newLeague.players[asset.playerId]
-        if (player) {
-          const toTeamId = findReceivingTeam(
-            asset.playerId,
-            side.teamId,
-            proposal,
-            'player',
-          )
-          if (toTeamId) playerMoves.push({ player, toTeamId })
-        }
+        if (!player) continue
+        const toTeamId = resolveAssetTarget(asset, side.teamId, proposal)
+        if (toTeamId) playerMoves.push({ player, toTeamId })
       }
     }
   }
-  const targetByPlayer = new Map(playerMoves.map((m) => [m.player.id, m.toTeamId]))
 
-  for (const [pid, toTeamId] of targetByPlayer) {
-    const player = newLeague.players[pid]!
+  for (const move of playerMoves) {
+    const player = move.player
     const fromTeamId = player.teamId
-    player.teamId = toTeamId
-
+    player.teamId = move.toTeamId
     if (fromTeamId) {
       const fromTeam = newLeague.teams[fromTeamId]
       if (fromTeam) {
-        fromTeam.roster = fromTeam.roster.filter((id) => id !== pid)
+        fromTeam.roster = fromTeam.roster.filter((id) => id !== player.id)
       }
     }
-    const toTeam = newLeague.teams[toTeamId]
-    if (toTeam && !toTeam.roster.includes(pid)) {
-      toTeam.roster = [...toTeam.roster, pid]
+    const toTeam = newLeague.teams[move.toTeamId]
+    if (toTeam && !toTeam.roster.includes(player.id)) {
+      toTeam.roster = [...toTeam.roster, player.id]
     }
   }
 
@@ -331,42 +346,54 @@ export function executeTrade(
     for (const asset of side.outgoing) {
       if (asset.type === 'pick' && asset.pickId) {
         const pick = newLeague.draftPicks.find((p) => p.id === asset.pickId)
-        if (pick) {
-          const toTeamId = findReceivingTeam(
-            asset.pickId,
-            side.teamId,
-            proposal,
-            'pick',
-          )
-          if (toTeamId) pick.currentTeamId = toTeamId
-        }
+        if (!pick) continue
+        const toTeamId = resolveAssetTarget(asset, side.teamId, proposal)
+        if (toTeamId) pick.currentTeamId = toTeamId
       }
     }
   }
 
   const events: string[] = []
   const exceptionsCreated: TradeException[] = []
+  const exceptionsConsumed: TradeException[] = []
+  const cashPaidOut: Record<string, number> = {}
 
   for (const side of proposal.sides) {
     const team = newLeague.teams[side.teamId]!
-    const outgoingSalary = sumOutgoingSalary(side, newLeague, rules)
-    const incomingSalary = sumIncomingSalary(side.incoming, newLeague, rules)
+    const outgoingSalary = sumSalary(side.outgoing, newLeague, rules)
+    const incomingSalary = sumSalary(side.incoming, newLeague, rules)
     const cashOut = side.outgoing
       .filter((a) => a.type === 'cash')
       .reduce((sum, a) => sum + (a.cashAmount ?? 0), 0)
     const cashIn = side.incoming
       .filter((a) => a.type === 'cash')
       .reduce((sum, a) => sum + (a.cashAmount ?? 0), 0)
-    const exceptionNet = Math.max(0, outgoingSalary - incomingSalary)
-    void cashOut
-    void cashIn
+    cashPaidOut[side.teamId] = (cashPaidOut[side.teamId] ?? 0) + cashOut - cashIn
 
-    if (exceptionNet > 0 && rules.tradeExceptionYears > 0) {
+    const exceptionIn = side.incoming.filter(
+      (a) => a.type === 'exception' && a.exceptionId,
+    )
+    const newPayroll = team.finances.payroll - outgoingSalary + incomingSalary
+
+    let consumedAmount = 0
+    for (const exAsset of exceptionIn) {
+      const ex = team.tradeExceptions?.find((e) => e.id === exAsset.exceptionId)
+      if (ex) {
+        consumedAmount += ex.amount
+        team.tradeExceptions = (team.tradeExceptions ?? []).filter(
+          (e) => e.id !== ex.id,
+        )
+        exceptionsConsumed.push(ex)
+      }
+    }
+
+    const netWithoutException = outgoingSalary - (incomingSalary + consumedAmount)
+    if (netWithoutException > 0 && rules.tradeExceptionYears > 0) {
       const expiresAt = addYearsISO(newLeague.currentDate, rules.tradeExceptionYears)
       const exception: TradeException = {
         id: crypto.randomUUID(),
         teamId: side.teamId,
-        amount: exceptionNet,
+        amount: netWithoutException,
         expiresAt,
         source: 'outgoing_salary',
       }
@@ -374,24 +401,27 @@ export function executeTrade(
       team.tradeExceptions = [...(team.tradeExceptions ?? []), exception]
     }
 
-    const newPayroll = team.finances.payroll - outgoingSalary + incomingSalary
-    team.finances = {
-      ...team.finances,
-      payroll: newPayroll,
-      capSpace: rules.salaryCap - newPayroll,
+    team.finances = applyFinancials(team.finances, newPayroll, rules, team.priorTaxpayerYears ?? 0)
+
+    if (newPayroll >= rules.secondApron && rules.secondApron > 0) {
+      freeze1stRoundPicks(
+        team,
+        newLeague,
+        rules.pickFreezeYears,
+        newLeague.rules.seasonLabel,
+      )
     }
 
-    team.finances.taxBill = newPayroll - rules.luxuryTaxLine > 0
-      ? Math.round((newPayroll - rules.luxuryTaxLine) * 1.5)
-      : 0
-    team.finances.projectedTaxBill = team.finances.taxBill
-
-    if (newPayroll >= rules.secondApron) {
-      freeze1stRoundPicks(team, newLeague, rules.pickFreezeYears, newLeague.currentDate)
+    if (team.finances.payroll >= rules.luxuryTaxLine) {
+      team.priorTaxpayerYears = (team.priorTaxpayerYears ?? 0) + 1
+    } else {
+      team.priorTaxpayerYears = 0
     }
 
     events.push(`${side.teamId} completed trade side`)
   }
+
+  recomputeStepienFlags(newLeague)
 
   newLeague.transactions = [
     ...newLeague.transactions,
@@ -404,11 +434,53 @@ export function executeTrade(
       pickIds: proposal.sides.flatMap((s) =>
         s.outgoing.filter((a) => a.type === 'pick').map((a) => a.pickId!).filter(Boolean),
       ),
-      description: buildTradeDescription(proposal),
+      description: buildTradeDescription(proposal, newLeague),
     },
   ]
 
-  return { league: newLeague, events, tradeExceptionsCreated: exceptionsCreated }
+  return {
+    league: newLeague,
+    events,
+    tradeExceptionsCreated: exceptionsCreated,
+    exceptionsConsumed,
+    cashPaidOut,
+  }
+}
+
+function applyFinancials(
+  finances: TeamFinances,
+  newPayroll: number,
+  rules: LeagueRules,
+  priorTaxpayerYears: number,
+): TeamFinances {
+  const bill = computeFullTaxBill(
+    { finances: { ...finances, payroll: newPayroll } } as Team,
+    rules,
+    priorTaxpayerYears,
+    new Date().getFullYear(),
+  )
+  return {
+    ...finances,
+    payroll: newPayroll,
+    capSpace: rules.salaryCap - newPayroll,
+    taxBill: bill.totalTaxBill,
+    projectedTaxBill: bill.totalTaxBill,
+  }
+}
+
+function resolveAssetTarget(
+  asset: TradeAsset,
+  fromTeamId: string,
+  proposal: TradeProposal,
+): string | null {
+  if (asset.toTeamId && asset.toTeamId !== fromTeamId) {
+    if (proposal.sides.some((s) => s.teamId === asset.toTeamId)) {
+      return asset.toTeamId
+    }
+  }
+  const otherSides = proposal.sides.filter((s) => s.teamId !== fromTeamId)
+  if (otherSides.length === 1) return otherSides[0]!.teamId
+  return null
 }
 
 function addYearsISO(iso: string, years: number): string {
@@ -421,11 +493,11 @@ function freeze1stRoundPicks(
   team: Team,
   league: LeagueState,
   years: number,
-  currentDate: string,
+  currentSeason: string,
 ): void {
-  const target = new Date(currentDate)
-  target.setUTCFullYear(target.getUTCFullYear() + years)
-  const targetSeason = `${target.getUTCFullYear()}-${String((target.getUTCMonth() + 1)).padStart(2, '0')}`
+  const currentYear = parseSeasonStartYear(currentSeason)
+  const targetYear = currentYear + years
+  const targetSeason = formatSeasonLabel(targetYear)
 
   const pickIds: string[] = []
   for (const pick of league.draftPicks) {
@@ -440,35 +512,42 @@ function freeze1stRoundPicks(
   }
 }
 
-function buildTradeDescription(proposal: TradeProposal): string {
+function formatSeasonLabel(startYear: number): string {
+  const endYear = (startYear + 1) % 100
+  return `${startYear}-${String(endYear).padStart(2, '0')}`
+}
+
+function buildTradeDescription(
+  proposal: TradeProposal,
+  league: LeagueState,
+): string {
   const parts: string[] = []
   for (const side of proposal.sides) {
+    const teamName = league.teams[side.teamId]?.name ?? side.teamId
     const out = side.outgoing
-      .map((a) =>
-        a.type === 'player' && a.playerId ? `player:${a.playerId}` :
-        a.type === 'pick' && a.pickId ? `pick:${a.pickId}` :
-        a.type === 'cash' ? `cash:${a.cashAmount}` :
-        a.type === 'exception' ? `exception:${a.exceptionId}` : 'unknown',
-      )
+      .map((a) => describeAsset(a, league))
       .join(', ')
-    parts.push(`${side.teamId} out: ${out || '—'}`)
+    parts.push(`${teamName} sends: ${out || '—'}`)
   }
   return parts.join(' | ')
 }
 
-function findReceivingTeam(
-  assetId: string,
-  fromTeamId: string,
-  proposal: TradeProposal,
-  kind: 'player' | 'pick',
-): string | null {
-  for (const side of proposal.sides) {
-    if (side.teamId === fromTeamId) continue
-    const hasIncoming = side.incoming.some((a) => {
-      if (kind === 'player') return a.type === 'player' && a.playerId === assetId
-      return a.type === 'pick' && a.pickId === assetId
-    })
-    if (hasIncoming) return side.teamId
+function describeAsset(asset: TradeAsset, league: LeagueState): string {
+  if (asset.type === 'player' && asset.playerId) {
+    const p = league.players[asset.playerId]
+    return p ? `${p.firstName} ${p.lastName}` : 'player'
   }
-  return null
+  if (asset.type === 'pick' && asset.pickId) {
+    const p = league.draftPicks.find((pp) => pp.id === asset.pickId)
+    if (!p) return 'pick'
+    const protectedTag = p.protected ? ` (top-${p.protected} protected)` : ''
+    return `${p.season} Rd${p.round} #${p.pickNumber}${protectedTag}`
+  }
+  if (asset.type === 'cash') {
+    return `$${((asset.cashAmount ?? 0) / 1_000_000).toFixed(1)}M cash`
+  }
+  if (asset.type === 'exception') {
+    return 'TPE'
+  }
+  return 'asset'
 }

@@ -11,6 +11,8 @@ export function TradeCenterPage() {
   const removeAssetFromTrade = useGameStore((s) => s.removeAssetFromTrade)
   const submitTrade = useGameStore((s) => s.submitTrade)
   const cancelTradeProposal = useGameStore((s) => s.cancelTradeProposal)
+  const addTeamToTrade = useGameStore((s) => s.addTeamToTrade)
+  const importProposal = useGameStore((s) => s.importProposal)
 
   const [proposalId, setProposalId] = useState<string | null>(null)
   const [selectedTeam, setSelectedTeam] = useState<string>('')
@@ -33,18 +35,8 @@ export function TradeCenterPage() {
 
   function handleAddTeam() {
     if (!proposal || !selectedTeam) return
-    if (proposal.sides.some((s) => s.teamId === selectedTeam)) return
     if (proposal.sides.length >= 4) return
-    const newSides = [
-      ...proposal.sides,
-      { teamId: selectedTeam, outgoing: [], incoming: [] },
-    ]
-    if (league) {
-      const updated = league.activeProposals.map((p) =>
-        p.id === proposal.id ? { ...p, sides: newSides } : p,
-      )
-      save!.league.activeProposals = updated
-    }
+    addTeamToTrade(proposal.id, selectedTeam)
   }
 
   if (!save || !league) {
@@ -104,7 +96,7 @@ export function TradeCenterPage() {
           <TradeFinder
             league={league}
             onSelect={(p) => {
-              league.activeProposals = [...league.activeProposals, p]
+              importProposal(p)
               setProposalId(p.id)
             }}
           />

@@ -14,6 +14,7 @@ export interface TradeAsset {
   pickId?: string
   cashAmount?: number
   exceptionId?: string
+  toTeamId?: string
 }
 
 export interface TradeSide {

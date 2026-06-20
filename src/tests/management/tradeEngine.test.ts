@@ -328,3 +328,169 @@ describe('executeTrade', () => {
     expect(() => executeTrade(proposal, league, rules)).toThrow()
   })
 })
+
+describe('CRIT fixes', () => {
+  function build3WayRoster(teamId: string, count: number, baseSalary: number): { team: Team; players: Player[] } {
+    const team = t(teamId, 0, [])
+    const players: Player[] = []
+    for (let i = 0; i < count; i++) {
+      players.push(p(`${teamId}-p-${i}`, baseSalary, 1, teamId))
+      team.roster.push(`${teamId}-p-${i}`)
+    }
+    return { team, players }
+  }
+
+  it('per-team salary matching: 3-team trade where each team sends $10M is legal (balanced)', () => {
+    const a = build3WayRoster('a', 13, 1_000_000)
+    const b = build3WayRoster('b', 13, 1_000_000)
+    const c = build3WayRoster('c', 13, 1_000_000)
+    const a1 = p('a1', 10_000_000, 1, 'a')
+    const b1 = p('b1', 10_000_000, 1, 'b')
+    const c1 = p('c1', 10_000_000, 1, 'c')
+    a.team.roster = [...a.team.roster, 'a1']
+    b.team.roster = [...b.team.roster, 'b1']
+    c.team.roster = [...c.team.roster, 'c1']
+    const allPlayers = [...a.players, ...b.players, c1, a1, b1]
+    const league = baseLeague([a.team, b.team, c.team], allPlayers)
+
+    const proposal: TradeProposal = {
+      id: 'p1',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1', toTeamId: 'b' }], incoming: [{ type: 'player', playerId: 'c1', toTeamId: 'a' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1', toTeamId: 'c' }], incoming: [{ type: 'player', playerId: 'a1', toTeamId: 'b' }] },
+        { teamId: 'c', outgoing: [{ type: 'player', playerId: 'c1', toTeamId: 'a' }], incoming: [{ type: 'player', playerId: 'b1', toTeamId: 'c' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    expect(validateTradeLegality(proposal, league, rules).legal).toBe(true)
+  })
+
+  it('per-team salary matching: 3-team trade where one team takes too much is illegal', () => {
+    const a = build3WayRoster('a', 13, 1_000_000)
+    const b = build3WayRoster('b', 13, 1_000_000)
+    const c = build3WayRoster('c', 13, 1_000_000)
+    const a1 = p('a1', 5_000_000, 1, 'a')
+    const b1 = p('b1', 50_000_000, 1, 'b')
+    const c1 = p('c1', 5_000_000, 1, 'c')
+    a.team.roster = [...a.team.roster, 'a1']
+    b.team.roster = [...b.team.roster, 'b1']
+    c.team.roster = [...c.team.roster, 'c1']
+    const league = baseLeague([a.team, b.team, c.team], [...a.players, ...b.players, ...c.players, a1, b1, c1])
+
+    const proposal: TradeProposal = {
+      id: 'p2',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1', toTeamId: 'b' }], incoming: [{ type: 'player', playerId: 'b1', toTeamId: 'a' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1', toTeamId: 'a' }], incoming: [{ type: 'player', playerId: 'a1', toTeamId: 'b' }] },
+        { teamId: 'c', outgoing: [], incoming: [] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = validateTradeLegality(proposal, league, rules)
+    expect(result.legal).toBe(false)
+  })
+
+  it('player ownership check: cannot trade a player not on the side team', () => {
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a1 = p('a1', 10_000_000, 1, 'a')
+    const b1 = p('b1', 10_000_000, 1, 'b')
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'p3',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = validateTradeLegality(proposal, league, rules)
+    expect(result.legal).toBe(false)
+    expect(result.reason).toMatch(/not on/)
+  })
+
+  it('pre-apron era: apron=0 means no 2nd-apron enforcement', () => {
+    const eraRules = { ...rules, apron: 0, secondApron: 0, luxuryTaxLine: 0 }
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a1 = p('a1', 5_000_000, 1, 'a')
+    const b1 = p('b1', 5_000_000, 1, 'b')
+    const a = t('a', 50_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 50_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'p4',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    expect(validateTradeLegality(proposal, league, eraRules).legal).toBe(true)
+  })
+
+  it('executeTrade moves asset to its explicit toTeamId, not the first match', () => {
+    const a = build3WayRoster('a', 13, 1_000_000)
+    const b = build3WayRoster('b', 13, 1_000_000)
+    const c = build3WayRoster('c', 13, 1_000_000)
+    const a1 = p('a1', 5_000_000, 1, 'a')
+    const b1 = p('b1', 5_000_000, 1, 'b')
+    const c1 = p('c1', 5_000_000, 1, 'c')
+    a.team.roster = [...a.team.roster, 'a1']
+    b.team.roster = [...b.team.roster, 'b1']
+    c.team.roster = [...c.team.roster, 'c1']
+    const league = baseLeague([a.team, b.team, c.team], [...a.players, ...b.players, ...c.players, a1, b1, c1])
+    const proposal: TradeProposal = {
+      id: 'p5',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1', toTeamId: 'b' }], incoming: [{ type: 'player', playerId: 'c1', toTeamId: 'a' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1', toTeamId: 'c' }], incoming: [{ type: 'player', playerId: 'a1', toTeamId: 'b' }] },
+        { teamId: 'c', outgoing: [{ type: 'player', playerId: 'c1', toTeamId: 'a' }], incoming: [{ type: 'player', playerId: 'b1', toTeamId: 'c' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = executeTrade(proposal, league, rules)
+    expect(result.league.players.a1!.teamId).toBe('b')
+    expect(result.league.players.b1!.teamId).toBe('c')
+    expect(result.league.players.c1!.teamId).toBe('a')
+  })
+
+  it('executeTrade freezes 1st-round pick in correct YYYY-YY format when crossing 2nd apron', () => {
+    const a = build3WayRoster('a', 13, 1_000_000)
+    const b = build3WayRoster('b', 13, 1_000_000)
+    const a1 = p('a1', 30_000_000, 1, 'a')
+    const b1 = p('b1', 30_000_000, 1, 'b')
+    a.team.roster = [...a.team.roster, 'a1']
+    b.team.roster = [...b.team.roster, 'b1']
+    a.team.finances.payroll = rules.secondApron
+    const pick: DraftPick = {
+      id: 'pick-1',
+      season: '2032-33',
+      round: 1,
+      pickNumber: 10,
+      originalTeamId: 'a',
+      currentTeamId: 'a',
+      prospectId: null,
+    }
+    const league = baseLeague([a.team, b.team], [...a.players, ...b.players, a1, b1], [pick])
+    const proposal: TradeProposal = {
+      id: 'p6',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = executeTrade(proposal, league, rules)
+    const updated = result.league.draftPicks.find((p) => p.id === 'pick-1')
+    expect(updated?.frozenUntilSeason).toBe('2032-33')
+  })
+})

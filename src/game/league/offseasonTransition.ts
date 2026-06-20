@@ -1,6 +1,7 @@
 import type { LeagueState } from '@/game/models/league'
 import { SEASON_PERFORMANCE_BONUS } from '@/game/management/financeConstants'
 import { computeTeamSeasonResults } from './playoffEngine'
+import { updateTeamDirection } from '@/game/management/tradeAI'
 
 export interface OffseasonTransitionResult {
   phase: LeagueState['phase']
@@ -103,6 +104,21 @@ export function transitionToOffseason(
   }
 
   fireOffseasonBeginsNews(league)
+
+  for (const teamId of allTeamIds) {
+    const team = league.teams[teamId]
+    if (!team) continue
+    const standing = league.standings[teamId]
+    const next = updateTeamDirection(
+      team,
+      standing ? { wins: standing.wins, losses: standing.losses } : undefined,
+      league,
+    )
+    if (next !== team.direction) {
+      team.direction = next
+      team.directionAutoUpdatedAt = new Date().toISOString()
+    }
+  }
 
   return {
     phase: 'offseason',

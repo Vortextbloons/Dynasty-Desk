@@ -456,4 +456,25 @@ describe('buildSave', () => {
     expect(save.league.awards).toHaveLength(1)
     expect(save.league.champions).toHaveLength(1)
   })
+
+  it('seeds 3 future seasons of draft picks for every team', () => {
+    const snapshot = makeFakeSnapshot()
+    const save = buildSave({
+      snapshot,
+      teamId: 'team-1',
+      leagueName: 'Test',
+      managerName: 'Coach',
+      settings: defaultSettings,
+    })
+
+    const picks = save.league.draftPicks
+    expect(picks.length).toBe(2 * 2 * 3)
+    const seasons = new Set(picks.map((p) => p.season))
+    expect(seasons).toEqual(new Set(['2026-27', '2027-28', '2028-29']))
+    for (const team of snapshot.teams) {
+      const teamPicks = picks.filter((p) => p.originalTeamId === team.id)
+      expect(teamPicks).toHaveLength(6)
+      expect(teamPicks.every((p) => p.currentTeamId === team.id)).toBe(true)
+    }
+  })
 })

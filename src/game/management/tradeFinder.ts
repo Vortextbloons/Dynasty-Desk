@@ -30,26 +30,46 @@ export function findTrades(
     .filter((p): p is Player => Boolean(p))
 
   const userPicks = league.draftPicks.filter(
-    (p) => p.currentTeamId === userTeam.id,
+    (p) => p.currentTeamId === userTeam.id && !p.stepienBlocked,
   )
 
-  for (const combo of enumerateSubsets(userPlayers, options.maxResults)) {
-    const proposal = build2TeamProposal(userTeam, holdingTeam, combo, userPicks.slice(0, 1), target)
-    const legality = validateTradeLegality(proposal, league, league.rules)
-    if (!legality.legal) continue
+  const projectedWins: Record<string, number> = {}
+  for (const [tid, standing] of Object.entries(league.standings)) {
+    projectedWins[tid] = standing.wins || 41
+  }
+  if (Object.keys(projectedWins).length === 0) {
+    projectedWins[userTeam.id] = 41
+    projectedWins[holdingTeam.id] = 41
+  }
 
-    const { perSideValue } = computeTradeValueDelta(
-      proposal.sides,
-      (teamId) => league.teams[teamId],
-      (playerId) => league.players[playerId],
-      (pickId) => league.draftPicks.find((p) => p.id === pickId),
-      { [userTeam.id]: 41, [holdingTeam.id]: 41 },
-      { teamDirection: 'middle', positionNeed: { PG: 0, SG: 0, SF: 0, PF: 0, C: 0 } },
-    )
-    const userDelta = perSideValue[userTeam.id]?.delta ?? 0
-    proposal.id = crypto.randomUUID()
-    ;(proposal as TradeProposal & { _delta?: number })._delta = Math.abs(userDelta)
-    candidates.push(proposal)
+  const capLoose = options.capFlexibility === 'loose'
+  const maxPlayerSubsets = capLoose ? 64 : 32
+
+  for (const combo of enumerateSubsets(userPlayers, maxPlayerSubsets)) {
+    for (const pickCombo of pickCombinations(userPicks, capLoose ? 2 : 1)) {
+      const proposal = build2TeamProposal(
+        userTeam,
+        holdingTeam,
+        combo,
+        pickCombo,
+        target,
+      )
+      const legality = validateTradeLegality(proposal, league, league.rules)
+      if (!legality.legal) continue
+
+      const { perSideValue } = computeTradeValueDelta(
+        proposal.sides,
+        (teamId) => league.teams[teamId],
+        (playerId) => league.players[playerId],
+        (pickId) => league.draftPicks.find((p) => p.id === pickId),
+        projectedWins,
+        { teamDirection: 'middle', positionNeed: { PG: 0, SG: 0, SF: 0, PF: 0, C: 0 } },
+      )
+      const userDelta = perSideValue[userTeam.id]?.delta ?? 0
+      proposal.id = crypto.randomUUID()
+      ;(proposal as TradeProposal & { _delta?: number })._delta = Math.abs(userDelta)
+      candidates.push(proposal)
+    }
   }
 
   candidates.sort(
@@ -59,6 +79,19 @@ export function findTrades(
   )
 
   return candidates.slice(0, options.maxResults)
+}
+
+function* pickCombinations(
+  picks: DraftPick[],
+  maxPicks: number,
+): Generator<DraftPick[]> {
+  yield []
+  for (let i = 0; i < picks.length && i < maxPicks; i++) {
+    yield [picks[i]!]
+    for (let j = i + 1; j < picks.length && j < maxPicks; j++) {
+      yield [picks[i]!, picks[j]!]
+    }
+  }
 }
 
 function build2TeamProposal(

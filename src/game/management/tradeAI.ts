@@ -115,28 +115,31 @@ function buildCounterOffer(
   const side = proposal.sides.find((s) => s.teamId === aiTeam.id)
   if (!side) return null
 
-  const teamPicks = picks.filter((p) => p.currentTeamId === aiTeam.id)
+  const teamPicks = picks.filter(
+    (p) => p.currentTeamId === aiTeam.id && !side.outgoing.some(
+      (a) => a.type === 'pick' && a.pickId === p.id,
+    ),
+  )
   const futureSecond = teamPicks
-    .filter((p) => p.round === 2)
+    .filter((p) => p.round === 2 && !p.stepienBlocked)
     .sort((a, b) => a.season.localeCompare(b.season))[0]
 
-  if (!futureSecond) {
-    return {
-      ...proposal,
-      id: crypto.randomUUID(),
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-    }
+  if (!futureSecond) return null
+
+  const otherSide = proposal.sides.find((s) => s.teamId !== aiTeam.id)
+  if (!otherSide) return null
+
+  const newAsset: { type: 'pick'; pickId: string; toTeamId: string } = {
+    type: 'pick',
+    pickId: futureSecond.id,
+    toTeamId: otherSide.teamId,
   }
 
   const sides = proposal.sides.map((s) => {
     if (s.teamId !== aiTeam.id) return s
     return {
       ...s,
-      incoming: [
-        ...s.incoming,
-        { type: 'pick' as const, pickId: futureSecond.id },
-      ],
+      outgoing: [...s.outgoing, newAsset],
     }
   })
 
@@ -201,7 +204,7 @@ function checkOwnerVeto(
         const p = players[a.playerId]
         return p && p.ratings.overall >= 80
       })
-      if (starOutgoing && Math.random() < 0.05) {
+      if (starOutgoing && deterministicRoll(proposal.id + ':' + aiTeam.id, 0.05)) {
         return {
           kind: 'vetoed',
           reason: `${owner.name} personally blocked a deal for a star player.`,
@@ -248,4 +251,14 @@ function computeProjectedPayroll(
     }
   }
   return payroll
+}
+
+function deterministicRoll(seed: string, threshold: number): boolean {
+  let hash = 2166136261
+  for (let i = 0; i < seed.length; i++) {
+    hash ^= seed.charCodeAt(i)
+    hash = (hash * 16777619) >>> 0
+  }
+  const value = (hash & 0xfffffff) / 0xfffffff
+  return value < threshold
 }

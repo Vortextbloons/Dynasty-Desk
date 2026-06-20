@@ -91,6 +91,32 @@ export function validateSave(input: unknown): ValidationResult {
     if (!Array.isArray(team.roster)) {
       return { ok: false, reason: `Team "${teamId}" missing roster array.` }
     }
+    if (team.frozenPicks !== undefined && !Array.isArray(team.frozenPicks)) {
+      return { ok: false, reason: `Team "${teamId}" has invalid frozenPicks array.` }
+    }
+    if (team.tradeExceptions !== undefined && !Array.isArray(team.tradeExceptions)) {
+      return { ok: false, reason: `Team "${teamId}" has invalid tradeExceptions array.` }
+    }
+  }
+
+  if (league.draftPicks !== undefined && !Array.isArray(league.draftPicks)) {
+    return { ok: false, reason: 'League draftPicks must be an array.' }
+  }
+  if (Array.isArray(league.draftPicks)) {
+    for (const pickRaw of league.draftPicks) {
+      if (!pickRaw || typeof pickRaw !== 'object') continue
+      const pick = pickRaw as Record<string, unknown>
+      if (typeof pick.id !== 'string' || typeof pick.currentTeamId !== 'string') continue
+      if (!teamIds.has(pick.currentTeamId)) {
+        return {
+          ok: false,
+          reason: `Pick ${pick.id} is owned by unknown team ${pick.currentTeamId}.`,
+        }
+      }
+    }
+  }
+  if (league.activeProposals !== undefined && !Array.isArray(league.activeProposals)) {
+    return { ok: false, reason: 'League activeProposals must be an array.' }
   }
 
   for (const [playerId, playerRaw] of Object.entries(players)) {

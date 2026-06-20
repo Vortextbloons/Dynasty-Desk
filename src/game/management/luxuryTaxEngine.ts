@@ -21,8 +21,9 @@ export function computeFullTaxBill(
   priorTaxpayerYears: number,
   currentYear: number,
 ): LuxuryTaxBreakdown {
+  const hasLuxuryTax = rules.luxuryTaxLine > 0
   const excess = team.finances.payroll - rules.luxuryTaxLine
-  const isTaxpayer = excess > 0
+  const isTaxpayer = hasLuxuryTax && excess > 0
 
   if (!isTaxpayer) {
     return {
@@ -69,7 +70,8 @@ export function computeFullTaxBill(
     )
   }
 
-  const triggersPickFreeze = team.finances.payroll >= rules.secondApron
+  const triggersPickFreeze =
+    rules.secondApron > 0 && team.finances.payroll >= rules.secondApron
   void taxRate
   void currentYear
 

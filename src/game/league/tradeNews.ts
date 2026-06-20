@@ -1,49 +1,56 @@
 import type { NewsEvent, NewsImportance } from '@/game/models/news'
-import type { TradeProposal } from '@/game/models/trade'
+import type { LeagueState } from '@/game/models/league'
+import type { TradeProposal, TradeAsset } from '@/game/models/trade'
 
 export function createTradeCompletedEvent(
   proposal: TradeProposal,
-  date: string,
-  teamIdMap: Record<string, string>,
+  league: LeagueState,
 ): NewsEvent {
   const sides = proposal.sides.map((side) => {
-    const teamName = teamIdMap[side.teamId] ?? side.teamId
-    const incoming = side.incoming
-      .map((a) => {
-        if (a.type === 'player' && a.playerId) return 'player'
-        if (a.type === 'pick' && a.pickId) return 'pick'
-        if (a.type === 'cash') return 'cash'
-        return 'asset'
-      })
+    const teamName = league.teams[side.teamId]?.name ?? side.teamId
+    const incomingNames = side.incoming
+      .map((a) => describeAsset(a, league))
       .join(', ')
-    return `${teamName} gets ${incoming || 'nothing'}`
+    return `${teamName} receives ${incomingNames || 'nothing'}`
   })
   return {
     id: crypto.randomUUID(),
-    date,
+    date: league.currentDate,
     type: 'trade_completed',
     headline: `Trade completed (${proposal.sides.length} teams)`,
     body: sides.join(' • '),
     teamIds: proposal.sides.map((s) => s.teamId),
     playerIds: proposal.sides.flatMap((s) =>
-      s.incoming.filter((a) => a.type === 'player').map((a) => a.playerId!),
+      s.incoming
+        .filter((a) => a.type === 'player' && a.playerId)
+        .map((a) => a.playerId!)
     ),
-    importance: 'medium',
+    importance: proposal.sides.some((s) =>
+      s.incoming.some(
+        (a) =>
+          a.type === 'player' &&
+          a.playerId &&
+          (league.players[a.playerId]?.ratings.overall ?? 0) >= 85,
+      ),
+    )
+      ? 'high'
+      : 'medium',
   }
 }
 
 export function createVetoEvent(
   proposal: TradeProposal,
+  league: LeagueState,
   ownerName: string,
   reason: string,
-  date: string,
 ): NewsEvent {
+  const teamName = league.teams[proposal.sides[0]?.teamId ?? '']?.name ?? 'Team'
   return {
     id: crypto.randomUUID(),
-    date,
+    date: league.currentDate,
     type: 'trade_vetoed',
     headline: `Trade vetoed by ${ownerName}`,
-    body: reason,
+    body: `${ownerName} (${teamName}) blocked the deal: ${reason}`,
     teamIds: proposal.sides.map((s) => s.teamId),
     playerIds: [],
     importance: 'medium',
@@ -80,4 +87,23 @@ export function createTradeLockedEvent(date: string): NewsEvent {
     playerIds: [],
     importance: 'low',
   }
+}
+
+function describeAsset(asset: TradeAsset, league: LeagueState): string {
+  if (asset.type === 'player' && asset.playerId) {
+    const p = league.players[asset.playerId]
+    return p ? `${p.firstName} ${p.lastName}` : 'player'
+  }
+  if (asset.type === 'pick' && asset.pickId) {
+    const p = league.draftPicks.find((pp) => pp.id === asset.pickId)
+    if (!p) return 'pick'
+    return `${p.season} Rd${p.round}`
+  }
+  if (asset.type === 'cash') {
+    return `$${((asset.cashAmount ?? 0) / 1_000_000).toFixed(1)}M`
+  }
+  if (asset.type === 'exception') {
+    return 'TPE'
+  }
+  return 'asset'
 }

@@ -1,4 +1,5 @@
 import type {
+  DraftPick,
   GameSave,
   GameSettings,
   LeagueState,
@@ -265,7 +266,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     transactions: [],
     news: [welcomeNews],
     awardsHistory: [],
-    draftPicks: [],
+    draftPicks: seedDraftPicks(snapshot),
     draftClasses: {},
     champions: snapshot.champions,
     awards: snapshot.awards,
@@ -338,4 +339,40 @@ export function initStanding(
       pointDifferential: 0,
     },
   }
+}
+
+function seedDraftPicks(snapshot: StaticSnapshot): DraftPick[] {
+  const picks: DraftPick[] = []
+  const currentSeason = snapshot.seasonLabel
+  const currentYear = parseSeasonYear(currentSeason)
+  const draftRounds = snapshot.rules.draftRounds
+
+  for (let yearOffset = 1; yearOffset <= 3; yearOffset++) {
+    const seasonYear = currentYear + yearOffset
+    const seasonLabel = formatSeasonLabel(seasonYear)
+    for (const team of snapshot.teams) {
+      for (let round = 1; round <= draftRounds; round++) {
+        picks.push({
+          id: `pick-${team.id}-${seasonYear}-r${round}`,
+          season: seasonLabel,
+          round,
+          pickNumber: 0,
+          originalTeamId: team.id,
+          currentTeamId: team.id,
+          prospectId: null,
+        })
+      }
+    }
+  }
+  return picks
+}
+
+function parseSeasonYear(seasonLabel: string): number {
+  const match = seasonLabel.match(/^(\d{4})/)
+  return match ? Number(match[1]) : new Date().getFullYear()
+}
+
+function formatSeasonLabel(startYear: number): string {
+  const endYear = (startYear + 1) % 100
+  return `${startYear}-${String(endYear).padStart(2, '0')}`
 }

@@ -71,6 +71,7 @@ export function computeApronStatus(
   team: Team,
   rules: LeagueRules,
 ): 'below' | 'first' | 'second' {
+  if (rules.apron <= 0 || rules.secondApron <= 0) return 'below'
   if (team.finances.payroll >= rules.secondApron) return 'second'
   if (team.finances.payroll >= rules.apron) return 'first'
   return 'below'

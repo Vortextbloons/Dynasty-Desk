@@ -46,14 +46,22 @@ export function TradeSideColumn({
   const outgoingSalary = outgoing.reduce((sum, asset) => {
     if (asset.type === 'player' && asset.playerId) {
       const p = playerMap.get(asset.playerId)
-      return sum + (p ? (p.contract.salaryByYear[0] ?? 0) : 0)
+      if (!p) return sum
+      const s = p.contract.salaryByYear[0] ?? 0
+      const sb = p.contract.signingBonusByYear[0] ?? 0
+      const lb = p.contract.likelyBonusesByYear[0] ?? 0
+      return sum + s + sb + lb
     }
     return sum
   }, 0)
   const incomingSalary = incoming.reduce((sum, asset) => {
     if (asset.type === 'player' && asset.playerId) {
       const p = playerMap.get(asset.playerId)
-      return sum + (p ? (p.contract.salaryByYear[0] ?? 0) : 0)
+      if (!p) return sum
+      const s = p.contract.salaryByYear[0] ?? 0
+      const sb = p.contract.signingBonusByYear[0] ?? 0
+      const lb = p.contract.likelyBonusesByYear[0] ?? 0
+      return sum + s + sb + lb
     }
     return sum
   }, 0)
@@ -185,7 +193,11 @@ function AssetRow({
         </div>
         {player.contract.noTradeClause && <Chip label="NTC" variant="warning" size="sm" />}
         <div className="font-mono text-xs">
-          {fmt(player.contract.salaryByYear[0] ?? 0)}
+          {fmt(
+            (player.contract.salaryByYear[0] ?? 0) +
+              (player.contract.signingBonusByYear[0] ?? 0) +
+              (player.contract.likelyBonusesByYear[0] ?? 0),
+          )}
         </div>
         {isUserSide && (
           <button
