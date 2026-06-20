@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
@@ -162,6 +163,55 @@ export function DashboardPage() {
               >
                 Go to contracts
               </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {userTeam && userTeam.lineup.starters.length > 0 && (
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                Starting Lineup
+              </div>
+              <div className="flex items-center gap-2">
+                {userTeam.lineup.lastValidationWarnings &&
+                  userTeam.lineup.lastValidationWarnings.length > 0 && (
+                    <Link
+                      to="/lineup"
+                      className="flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-500 hover:bg-amber-500/20 transition-colors"
+                    >
+                      <AlertTriangle className="size-3" />
+                      {userTeam.lineup.lastValidationWarnings.length} warning(s)
+                    </Link>
+                  )}
+                <Link
+                  to="/lineup"
+                  className="text-xs text-[var(--color-primary)] hover:underline"
+                >
+                  Edit
+                </Link>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {userTeam.lineup.starters.map((pid) => {
+                const player = league.players[pid]
+                if (!player) return null
+                return (
+                  <Link
+                    key={pid}
+                    to={`/player/${pid}`}
+                    className="flex items-center gap-2 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2.5 py-1.5 hover:bg-[var(--color-surface-3)] transition-colors"
+                  >
+                    <PlayerHeadshot player={player} size={24} />
+                    <span className="text-sm font-medium">
+                      {player.firstName} {player.lastName}
+                    </span>
+                    <Chip label={player.position} size="sm" />
+                  </Link>
+                )
+              })}
             </div>
           </CardContent>
         </Card>

@@ -106,7 +106,6 @@ export function validateSave(input: unknown): ValidationResult {
     }
     if (
       typeof player.teamId === 'string' &&
-      player.teamId !== '' &&
       !teamIds.has(player.teamId)
     ) {
       return {

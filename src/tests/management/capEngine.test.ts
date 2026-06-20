@@ -144,6 +144,16 @@ describe('computeCapHit', () => {
     expect(computeCapHit(player, rules, 1)).toBe(35_000_000)
     expect(computeCapHit(player, rules, 2)).toBe(40_000_000)
   })
+
+  it('includes poison pill salary when active', () => {
+    const contract = emptyContract(10_000_000, 3)
+    contract.salaryByYear = [10_000_000, 20_000_000, 30_000_000]
+    contract.poisonPill = true
+    const player = makePlayer(contract)
+
+    expect(computeCapHit(player, rules, 0)).toBe(35_000_000)
+    expect(computeCapHit(player, rules, 1)).toBe(35_000_000)
+  })
 })
 
 describe('computePayroll', () => {
@@ -267,5 +277,11 @@ describe('computeTaxBill', () => {
     const team = makeTeam(176_000_000)
     const tax = computeTaxBill(team, rules, 0)
     expect(tax).toBe(7_029_000)
+  })
+
+  it('handles exact 5M tax bracket boundary', () => {
+    const team = makeTeam(176_314_000)
+    const tax = computeTaxBill(team, rules, 0)
+    expect(tax).toBe(7_500_000)
   })
 })

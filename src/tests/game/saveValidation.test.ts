@@ -362,6 +362,15 @@ describe('validateSave', () => {
     expect(result.ok).toBe(true)
   })
 
+  it('rejects player with empty string teamId', () => {
+    const save = makeValidSave()
+    const player = save.league.players['player-1']
+    if (player) player.teamId = ''
+    const result = validateSave(save)
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason).toContain('non-existent team')
+  })
+
   it('rejects non-array news', () => {
     const raw = asRaw(makeValidSave())
     const league = raw.league as Record<string, unknown> | undefined

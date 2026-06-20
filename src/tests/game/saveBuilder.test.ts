@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { buildSave } from '@/game/core/saveBuilder'
 import type { StaticSnapshot } from '@/game/models'
 import { emptyContract, getLeagueRules } from '@/game/models'
+import { computeOverall } from '@/game/ratings/overallWeights'
 
 function makeFakeSnapshot(): StaticSnapshot {
   return {
@@ -319,6 +320,24 @@ describe('buildSave', () => {
 
     expect(save.league.teams['team-1']?.lineup.starters).toHaveLength(1)
     expect(save.league.teams['team-1']?.lineup.starters).toContain('player-1')
+  })
+
+  it('computes overall when snapshot rating omits it', () => {
+    const snapshot = makeFakeSnapshot()
+    const player = snapshot.players[0] as any
+    delete player.ratings.overall
+
+    const save = buildSave({
+      snapshot,
+      teamId: 'team-1',
+      leagueName: 'Test',
+      managerName: 'Coach',
+      settings: defaultSettings,
+    })
+
+    expect(save.league.players['player-1']?.ratings.overall).toBe(
+      computeOverall(player.ratings, player.position),
+    )
   })
 
   it('zero-initializes standings for all teams', () => {

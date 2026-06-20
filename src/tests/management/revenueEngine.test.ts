@@ -5,7 +5,6 @@ import {
   computeSeasonPerformanceBonus,
   computeTotalRevenue,
 } from '@/game/management/revenueEngine'
-import { SEASON_PERFORMANCE_BONUS } from '@/game/management/financeConstants'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { TeamFinances } from '@/game/models/team'
 
@@ -61,7 +60,7 @@ describe('computeBaseRevenue', () => {
     expect(computeBaseRevenue(rules)).toBe(300_000_000)
   })
 
-  it('rounds down when fractional million is < 0.5', () => {
+  it('rounds up when fractional million is >= 0.5', () => {
     // 135_400_000 / 0.45 = 300,888,888.89 → 301,000,000
     const rules = makeRules({ salaryCap: 135_400_000 })
     expect(computeBaseRevenue(rules)).toBe(301_000_000)
@@ -70,15 +69,15 @@ describe('computeBaseRevenue', () => {
 
 describe('computeLocalRevenue', () => {
   it('scales with market size and prestige', () => {
-    // Large market (1.0), high prestige (100), .500 record
+    // Large market (100), high prestige (100), .500 record
     // attendanceFactor = 0.7 + 0.05 * (0.5 - 0.5) * 100 = 0.7
     const result = computeLocalRevenue(
-      { marketSize: 1.0, prestige: 100 },
+      { marketSize: 100, prestige: 100 },
       41,
       82,
     )
-    // 2_000_000 * 1.0 * (100/100) * 0.7 = 1,400,000
-    expect(result).toBe(1_400_000)
+    // 2_000_000 * 100 * (100/100) * 0.7 = 140,000,000
+    expect(result).toBe(140_000_000)
   })
 
   it('attendance factor scales with win percentage', () => {
@@ -86,12 +85,12 @@ describe('computeLocalRevenue', () => {
     // attendanceFactor = 0.7 + 0.05 * (1.0 - 0.5) * 100 = 0.7 + 2.5 = 3.2
     // clamped to ATTENDANCE_FACTOR_MAX = 1.1
     const result = computeLocalRevenue(
-      { marketSize: 1.0, prestige: 100 },
+      { marketSize: 100, prestige: 100 },
       82,
       82,
     )
-    // 2_000_000 * 1.0 * 1.0 * 1.1 = 2,200,000
-    expect(result).toBe(2_200_000)
+    // 2_000_000 * 100 * 1.0 * 1.1 = 220,000,000
+    expect(result).toBe(220_000_000)
   })
 
   it('minimum attendance factor for winless team', () => {
@@ -99,22 +98,22 @@ describe('computeLocalRevenue', () => {
     // attendanceFactor = 0.7 + 0.05 * (0.0 - 0.5) * 100 = 0.7 - 2.5 = -1.8
     // clamped to ATTENDANCE_FACTOR_MIN = 0.7
     const result = computeLocalRevenue(
-      { marketSize: 1.0, prestige: 100 },
+      { marketSize: 100, prestige: 100 },
       0,
       82,
     )
-    // 2_000_000 * 1.0 * 1.0 * 0.7 = 1,400,000
-    expect(result).toBe(1_400_000)
+    // 2_000_000 * 100 * 1.0 * 0.7 = 140,000,000
+    expect(result).toBe(140_000_000)
   })
 
   it('small market team earns less than large market', () => {
     const large = computeLocalRevenue(
-      { marketSize: 1.0, prestige: 80 },
+      { marketSize: 95, prestige: 80 },
       41,
       82,
     )
     const small = computeLocalRevenue(
-      { marketSize: 0.6, prestige: 80 },
+      { marketSize: 60, prestige: 80 },
       41,
       82,
     )
@@ -124,39 +123,27 @@ describe('computeLocalRevenue', () => {
 
 describe('computeSeasonPerformanceBonus', () => {
   it('returns 0 for missed_playoffs', () => {
-    expect(computeSeasonPerformanceBonus('missed_playoffs')).toBe(
-      SEASON_PERFORMANCE_BONUS.missed_playoffs,
-    )
+    expect(computeSeasonPerformanceBonus('missed_playoffs')).toBe(0)
   })
 
   it('returns 5M for first_round_loss', () => {
-    expect(computeSeasonPerformanceBonus('first_round_loss')).toBe(
-      SEASON_PERFORMANCE_BONUS.first_round_loss,
-    )
+    expect(computeSeasonPerformanceBonus('first_round_loss')).toBe(5_000_000)
   })
 
   it('returns 10M for second_round_loss', () => {
-    expect(computeSeasonPerformanceBonus('second_round_loss')).toBe(
-      SEASON_PERFORMANCE_BONUS.second_round_loss,
-    )
+    expect(computeSeasonPerformanceBonus('second_round_loss')).toBe(10_000_000)
   })
 
   it('returns 15M for conference_finals_loss', () => {
-    expect(computeSeasonPerformanceBonus('conference_finals_loss')).toBe(
-      SEASON_PERFORMANCE_BONUS.conference_finals_loss,
-    )
+    expect(computeSeasonPerformanceBonus('conference_finals_loss')).toBe(15_000_000)
   })
 
   it('returns 25M for finals_loss', () => {
-    expect(computeSeasonPerformanceBonus('finals_loss')).toBe(
-      SEASON_PERFORMANCE_BONUS.finals_loss,
-    )
+    expect(computeSeasonPerformanceBonus('finals_loss')).toBe(25_000_000)
   })
 
   it('returns 40M for champion', () => {
-    expect(computeSeasonPerformanceBonus('champion')).toBe(
-      SEASON_PERFORMANCE_BONUS.champion,
-    )
+    expect(computeSeasonPerformanceBonus('champion')).toBe(40_000_000)
   })
 })
 

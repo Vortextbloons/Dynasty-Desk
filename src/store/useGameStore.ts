@@ -25,6 +25,8 @@ import {
   type FreeAgentOffer,
   type ExceptionType,
 } from '@/game/management/contractActions'
+import { validateRotation } from '@/game/management/rotationValidator'
+import { generateAutoRotation } from '@/game/management/autoRotation'
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -63,6 +65,14 @@ interface GameStore {
     exception: ExceptionType,
   ) => ContractActionResult
   advancePhase: () => void
+  setStarters: (playerIds: string[]) => void
+  setBench: (playerIds: string[]) => void
+  setClosingLineup: (playerIds: string[]) => void
+  setTargetMinutes: (playerId: string, minutes: number) => void
+  forceIncludePlayer: (playerId: string, force: boolean) => void
+  autoRotate: () => void
+  saveLineup: () => void
+  generateRotationIfMissing: () => void
 }
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -364,6 +374,108 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },
+
+  setStarters: (playerIds) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    team.lineup.starters = playerIds
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  setBench: (playerIds) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    team.lineup.bench = playerIds
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  setClosingLineup: (playerIds) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    team.lineup.closingLineup = playerIds
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  setTargetMinutes: (playerId, minutes) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    team.lineup.targetMinutes[playerId] = minutes
+    team.lineup.generatedByAutoRotate = false
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  forceIncludePlayer: (playerId, force) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    team.lineup.forceInclude ??= {}
+    team.lineup.forceInclude[playerId] = force
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  autoRotate: () => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    const players = new Map(
+      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+    )
+    const newLineup = generateAutoRotation(team.roster, players)
+    team.lineup = newLineup
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  saveLineup: () => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  generateRotationIfMissing: () => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    if (team.lineup.starters.length > 0) return
+    const players = new Map(
+      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+    )
+    const newLineup = generateAutoRotation(team.roster, players)
+    team.lineup = newLineup
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
 }))
 
 function applyPatch(
@@ -386,11 +498,27 @@ function applyPatch(
         if (teamPatch.lineup.closingLineup !== undefined) existing.lineup.closingLineup = teamPatch.lineup.closingLineup
       }
       if (teamPatch.finances) {
-        existing.finances = teamPatch.finances as typeof existing.finances
+        existing.finances = teamPatch.finances
         if (existing.owner) {
           existing.owner.cash = existing.finances.ownerCash
         }
       }
     }
   }
+}
+
+function revalidateLineup(save: GameSave, teamId: string) {
+  const team = save.league.teams[teamId]
+  if (!team) return
+  const players = new Map(
+    Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+  )
+  const result = validateRotation(
+    team.roster,
+    team.lineup,
+    players,
+    team.lineup.forceInclude,
+  )
+  team.lineup.lastValidatedAt = new Date().toISOString()
+  team.lineup.lastValidationWarnings = result.warnings.map((w) => w.code)
 }

@@ -230,6 +230,25 @@ describe('cutPlayer', () => {
     expect(deadContract.salaryByYear[0]).toBe(10_000_000)
   })
 
+  it('fully guaranteed contract adds full dead money after cut', () => {
+    const contract = emptyContract(10_000_000, 2)
+    contract.guaranteedByYear = [true, true]
+    contract.guaranteed = true
+    const player = makePlayer({}, contract)
+    const team = makeTeam()
+    team.roster = ['player-1']
+    team.finances.payroll = 10_000_000
+
+    const result = cutPlayer('player-1', player, team, { 'player-1': player }, rules)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    const teamPatch = result.patch.teams['team-1']!
+    const finances = teamPatch.finances!
+    expect(finances.payroll).toBe(20_000_000)
+    expect(finances.capSpace).toBe(rules.salaryCap - 20_000_000)
+  })
+
   it('player removed from roster and set to null teamId', () => {
     const player = makePlayer()
     const team = makeTeam()
@@ -289,6 +308,25 @@ describe('stretchContract', () => {
     for (const salary of newContract.salaryByYear) {
       expect(salary).toBe(5_000_000)
     }
+  })
+
+  it('updates payroll to the stretched dead money amount', () => {
+    const contract = emptyContract(12_000_000, 3)
+    contract.guaranteedByYear = [true, false, false]
+    contract.guaranteed = false
+    const player = makePlayer({}, contract)
+    const team = makeTeam()
+    team.finances.payroll = 12_000_000
+
+    const result = stretchContract('player-1', player, team, rules)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    // 12M guaranteed stretched over 6 years = 2M dead money per year
+    const teamPatch = result.patch.teams['team-1']!
+    const finances = teamPatch.finances!
+    expect(finances.payroll).toBe(2_000_000)
+    expect(finances.capSpace).toBe(rules.salaryCap - 2_000_000)
   })
 
   it('removes player from roster', () => {

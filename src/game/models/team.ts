@@ -67,12 +67,55 @@ export type TeamDirection =
   | 'rebuilding'
   | 'tanking'
 
+export type RotationWarning =
+  | 'not_five_starters'
+  | 'not_five_closing'
+  | 'minutes_not_240'
+  | 'duplicate_player'
+  | 'injured_player_in_rotation'
+  | 'injured_player_force_included'
+  | 'player_not_on_roster'
+  | 'no_ball_handler'
+  | 'no_center'
+  | 'bench_too_large'
+
+export interface RotationValidationWarning {
+  code: RotationWarning
+  playerIds?: string[]
+  message: string
+}
+
+export interface RotationValidation {
+  ok: boolean
+  warnings: RotationValidationWarning[]
+  totalMinutes: number
+}
+
+export interface LineupRating {
+  spacing: number
+  shotCreation: number
+  passing: number
+  rimPressure: number
+  perimeterDefense: number
+  interiorDefense: number
+  rebounding: number
+  transition: number
+  benchBalance: number
+  size: number
+  switchability: number
+  overall: number
+}
+
 export interface LineupSettings {
   starters: string[]
   bench: string[]
   closingLineup: string[]
   targetMinutes: Record<string, number>
   autoRotation: boolean
+  lastValidatedAt?: string
+  lastValidationWarnings?: RotationWarning[]
+  generatedByAutoRotate?: boolean
+  forceInclude?: Record<string, boolean>
 }
 
 export interface Team {
