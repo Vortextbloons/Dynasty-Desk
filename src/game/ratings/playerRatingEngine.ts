@@ -7,6 +7,7 @@ import {
 } from '@/game/models/ratings'
 import { normalizeStats, type EraNormalizedStats } from './eraAdjustment'
 import { blendToMean, ratingScale, sampleWeight } from './ratingScale'
+import { computeOverall } from './overallWeights'
 import type { PlayerSeasonStats } from '@/game/models/playerSeasonStats'
 import type { Position } from '@/game/models/position'
 
@@ -128,7 +129,7 @@ export function generateRatings(
     Math.max(recent.per, insideScoring) + 5,
   )
 
-  return {
+  const ratings: Omit<PlayerRatings, 'overall'> = {
     insideScoring: ratingScale(insideScoring),
     closeShot: ratingScale(closeShot),
     midrange: ratingScale(midrange),
@@ -152,12 +153,13 @@ export function generateRatings(
     clutch: ratingScale(clutch),
     consistency: ratingScale(consistency),
     potential: clampRating(potential),
-    overall: 50,
   }
+
+  return { ...ratings, overall: computeOverall(ratings as PlayerRatings, position) }
 }
 
 function makeDefault(position: Position): PlayerRatings {
-  const baseline: PlayerRatings = {
+  const baseline: Omit<PlayerRatings, 'overall'> = {
     insideScoring: 50,
     closeShot: 50,
     midrange: 50,
@@ -181,7 +183,6 @@ function makeDefault(position: Position): PlayerRatings {
     clutch: 50,
     consistency: 55,
     potential: 60,
-    overall: 50,
   }
   if (position === 'C') {
     baseline.interiorDefense = 60
@@ -192,5 +193,5 @@ function makeDefault(position: Position): PlayerRatings {
     baseline.passing = 60
     baseline.speed = 65
   }
-  return baseline
+  return { ...baseline, overall: computeOverall(baseline as PlayerRatings, position) }
 }

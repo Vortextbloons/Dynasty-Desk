@@ -85,8 +85,8 @@ async function main() {
   let cached = 0
 
   for (const externalId of allExternalIds) {
-    const outPath = join(HEADSHOT_DIR, `${externalId}.jpg`)
-    const cachePath = join(CACHE_DIR, `${externalId}.jpg`)
+    const outPath = join(HEADSHOT_DIR, `${externalId}.png`)
+    const cachePath = join(CACHE_DIR, `${externalId}.png`)
 
     if (existsSync(outPath)) {
       cached++

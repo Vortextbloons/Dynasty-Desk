@@ -224,17 +224,23 @@ describe('buildSave', () => {
       settings: defaultSettings,
     })
 
-    expect(save.metadata.id).toBeTruthy()
-    expect(save.metadata.schemaVersion).toBe(2)
+    expect(save.metadata.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    )
+    expect(save.metadata.schemaVersion).toBe(3)
     expect(save.metadata.name).toBe('Test Dynasty')
     expect(save.metadata.teamId).toBe('team-1')
     expect(save.metadata.snapshotId).toBe('test-snapshot')
 
-    expect(save.league.id).toBeTruthy()
+    expect(save.league.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    )
     expect(save.league.name).toBe('Test Dynasty')
     expect(save.league.userTeamId).toBe('team-1')
     expect(save.league.phase).toBe('regular_season')
     expect(save.league.snapshotId).toBe('test-snapshot')
+    expect(save.user).toEqual({ managerName: 'Coach', teamId: 'team-1' })
+    expect(save.settings).toEqual(defaultSettings)
   })
 
   it('creates teams from snapshot', () => {
@@ -267,6 +273,24 @@ describe('buildSave', () => {
     expect(playerIds).toHaveLength(2)
     expect(playerIds).toContain('player-1')
     expect(playerIds).toContain('player-2')
+  })
+
+  it('handles an empty roster without crashing', () => {
+    const snapshot = makeFakeSnapshot()
+    snapshot.players = []
+    snapshot.seasonStats = []
+
+    const save = buildSave({
+      snapshot,
+      teamId: 'team-1',
+      leagueName: 'Test',
+      managerName: 'Coach',
+      settings: defaultSettings,
+    })
+
+    expect(save.league.teams['team-1']?.roster).toEqual([])
+    expect(save.league.teams['team-1']?.lineup.starters).toEqual([])
+    expect(save.league.teams['team-1']?.lineup.bench).toEqual([])
   })
 
   it('assigns players to correct team rosters', () => {
@@ -362,8 +386,9 @@ describe('buildSave', () => {
       settings: defaultSettings,
     })
 
-    expect(save.rngState.seed).toBeTruthy()
-    expect(typeof save.rngState.seed).toBe('string')
+    expect(save.rngState.seed).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    )
     expect(save.rngState.position).toBe(0)
   })
 

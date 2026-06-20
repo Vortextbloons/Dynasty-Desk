@@ -9,10 +9,86 @@ import {
 import { emptyContract } from '@/game/models/contract'
 import { getLeagueRules } from '@/game/models/leagueRules'
 import type { Player } from '@/game/models/player'
+import type { PlayerSeasonStat } from '@/game/models/player'
+import type { PlayerRatings } from '@/game/models/ratings'
+import { emptyTendencies } from '@/game/models/tendencies'
+import { emptyTraits } from '@/game/models/traits'
 import type { Team } from '@/game/models/team'
+import type { TeamStrategy } from '@/game/models/team'
 import type { TeamExceptionBook } from '@/game/models/team'
+import type { ContractActionResult } from '@/game/management/contractActions'
 
 const rules = getLeagueRules('2025-26')
+
+function makeRatings(): PlayerRatings {
+  return {
+    insideScoring: 50,
+    closeShot: 50,
+    midrange: 50,
+    threePoint: 50,
+    freeThrow: 50,
+    ballHandling: 50,
+    passing: 50,
+    offensiveIq: 50,
+    offensiveRebound: 50,
+    defensiveRebound: 50,
+    perimeterDefense: 50,
+    interiorDefense: 50,
+    steal: 50,
+    block: 50,
+    defensiveIq: 50,
+    speed: 50,
+    strength: 50,
+    vertical: 50,
+    stamina: 50,
+    durability: 50,
+    clutch: 50,
+    consistency: 50,
+    potential: 50,
+    overall: 50,
+  }
+}
+
+function makeSeasonStats(): PlayerSeasonStat {
+  return {
+    season: '2025-26',
+    teamId: 'team-1',
+    gamesPlayed: 0,
+    minutes: 0,
+    points: 0,
+    rebounds: 0,
+    assists: 0,
+    steals: 0,
+    blocks: 0,
+    turnovers: 0,
+    fieldGoalsMade: 0,
+    fieldGoalsAttempted: 0,
+    threePointersMade: 0,
+    threePointersAttempted: 0,
+    freeThrowsMade: 0,
+    freeThrowsAttempted: 0,
+    plusMinus: 0,
+  }
+}
+
+function makeStrategy(): TeamStrategy {
+  return {
+    offense: {
+      pace: 'balanced',
+      shotProfile: 'balanced',
+      primaryAction: 'pick_and_roll',
+      usageDistribution: 'balanced',
+      crashOffensiveGlass: 'medium',
+    },
+    defense: {
+      pickAndRollCoverage: 'drop',
+      helpDefense: 'balanced',
+      pressure: 'medium',
+      reboundingFocus: 'balanced',
+      physicality: 'balanced',
+    },
+  }
+}
 
 function makePlayer(
   overrides: Partial<Player> = {},
@@ -32,14 +108,14 @@ function makePlayer(
     heightInches: 75,
     weightLbs: 190,
     teamId: 'team-1',
-    ratings: {} as any,
-    tendencies: {} as any,
-    traits: {} as any,
+    ratings: makeRatings(),
+    tendencies: emptyTendencies(),
+    traits: emptyTraits(),
     contract,
     morale: { level: 50, happiness: 50, roleSatisfaction: 75, teamSatisfaction: 50, tradeRequest: false, tradeRequestLevel: 0 },
     health: { status: 'healthy', injuryDescription: null, daysRemaining: 0, gamesRemaining: 0 },
     development: { lastTrainedAt: null, focusArea: null, recentForm: 50, ageAtPeak: 27, progressionCurve: 'normal', ratingsDelta: {}, breakoutChance: 0.1, bustRisk: 0.1 },
-    seasonStats: {} as any,
+    seasonStats: makeSeasonStats(),
     careerStats: [],
     historicalSeasons: [],
     ...overrides,
@@ -63,7 +139,7 @@ function makeTeam(overrides: Partial<Team> = {}): Team {
       targetMinutes: {},
       autoRotation: true,
     },
-    strategy: { offense: {} as any, defense: {} as any },
+    strategy: makeStrategy(),
     finances: {
       salaryCap: 140_588_000,
       apron: 178_132_000,
@@ -106,6 +182,14 @@ function makeExceptions(overrides: Partial<TeamExceptionBook> = {}): TeamExcepti
     minimumCount: 0,
     ...overrides,
   }
+}
+
+function expectRejected(result: ContractActionResult, reason: string) {
+  expect(result.ok).toBe(false)
+  if (result.ok) {
+    throw new Error('Expected action to be rejected')
+  }
+  expect(result.reason).toContain(reason)
 }
 
 describe('cutPlayer', () => {
@@ -164,8 +248,7 @@ describe('cutPlayer', () => {
     const team = makeTeam()
 
     const result = cutPlayer('player-1', player, team, {}, rules)
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('not on this team')
+    expectRejected(result, 'not on this team')
   })
 
   it('updates payroll correctly', () => {
@@ -228,7 +311,7 @@ describe('stretchContract', () => {
     const team = makeTeam()
 
     const result = stretchContract('player-1', player, team, rules)
-    expect(result.ok).toBe(false)
+    expectRejected(result, 'not on this team')
   })
 })
 
@@ -280,8 +363,7 @@ describe('buyoutPlayer', () => {
     const team = makeTeam()
 
     const result = buyoutPlayer('player-1', player, -1_000_000, team, rules)
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('negative')
+    expectRejected(result, 'negative')
   })
 
   it('rejects settle exceeding guaranteed', () => {
@@ -293,8 +375,7 @@ describe('buyoutPlayer', () => {
 
     // Guaranteed = 20M, settle at 25M
     const result = buyoutPlayer('player-1', player, 25_000_000, team, rules)
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('exceed guaranteed')
+    expectRejected(result, 'exceed guaranteed')
   })
 
   it('rejects player not on the team', () => {
@@ -302,7 +383,7 @@ describe('buyoutPlayer', () => {
     const team = makeTeam()
 
     const result = buyoutPlayer('player-1', player, 0, team, rules)
-    expect(result.ok).toBe(false)
+    expectRejected(result, 'not on this team')
   })
 })
 
@@ -314,13 +395,17 @@ describe('extendPlayer', () => {
     const result = extendPlayer(
       'player-1',
       player,
-      { years: 6, salaryByYear: Array(6).fill(20_000_000), option: 'none', noTradeClause: false },
+      {
+        years: 6,
+        salaryByYear: Array.from({ length: 6 }, () => 20_000_000),
+        option: 'none',
+        noTradeClause: false,
+      },
       team,
       {},
       rules,
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('Maximum contract length')
+    expectRejected(result, 'Maximum contract length')
   })
 
   it('rejects year/salary length mismatch', () => {
@@ -335,8 +420,7 @@ describe('extendPlayer', () => {
       {},
       rules,
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('Years must match')
+    expectRejected(result, 'Years must match')
   })
 
   it('rejects > 8% annual raises', () => {
@@ -356,8 +440,7 @@ describe('extendPlayer', () => {
       {},
       rules,
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('8%')
+    expectRejected(result, '8%')
   })
 
   it('rejects over-cap extension without bird rights', () => {
@@ -379,8 +462,7 @@ describe('extendPlayer', () => {
       {},
       rules,
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('bird rights')
+    expectRejected(result, 'bird rights')
   })
 
   it('allows over-cap extension with bird rights', () => {
@@ -441,7 +523,7 @@ describe('extendPlayer', () => {
       {},
       rules,
     )
-    expect(result.ok).toBe(false)
+    expectRejected(result, 'not on this team')
   })
 })
 
@@ -479,8 +561,7 @@ describe('signFreeAgent', () => {
       rules,
       exceptions,
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('already used')
+    expectRejected(result, 'already used')
   })
 
   it('MLE rejected when exceeds MLE amount', () => {
@@ -498,8 +579,7 @@ describe('signFreeAgent', () => {
       rules,
       exceptions,
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('exceeds MLE')
+    expectRejected(result, 'exceeds MLE')
   })
 
   it('minimum exception always available', () => {
@@ -538,8 +618,7 @@ describe('signFreeAgent', () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
 
-    const newExceptions =
-      result.patch.teams['team-1']!.finances!.exceptionsUsed!
+    const newExceptions = result.patch.teams['team-1']!.finances!.exceptionsUsed
     expect(newExceptions.minimumCount).toBe(3)
   })
 
@@ -556,8 +635,7 @@ describe('signFreeAgent', () => {
       rules,
       makeExceptions(),
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('not a free agent')
+    expectRejected(result, 'not a free agent')
   })
 
   it('rejects maxContractYears exceeded', () => {
@@ -567,14 +645,16 @@ describe('signFreeAgent', () => {
     const result = signFreeAgent(
       'player-1',
       player,
-      { years: 6, salaryByYear: Array(6).fill(10_000_000) },
+      {
+        years: 6,
+        salaryByYear: Array.from({ length: 6 }, () => 10_000_000),
+      },
       'minimum',
       team,
       rules,
       makeExceptions(),
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toContain('Maximum contract length')
+    expectRejected(result, 'Maximum contract length')
   })
 
   it('player added to roster with new contract', () => {

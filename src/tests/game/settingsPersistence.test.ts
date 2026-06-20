@@ -3,6 +3,7 @@ import {
   defaultSettings,
   parsePersistedSettings,
 } from '@/game/core/settingsPersistence'
+import type { GameSettings } from '@/game/models'
 
 describe('settingsPersistence', () => {
   it('returns defaults when storage is empty', () => {
@@ -17,6 +18,37 @@ describe('settingsPersistence', () => {
     expect(parsePersistedSettings(JSON.stringify({ autoSave: 'yes' }))).toEqual(
       defaultSettings(),
     )
+  })
+
+  it('returns defaults for partial data', () => {
+    expect(
+      parsePersistedSettings(
+        JSON.stringify({ difficulty: 'superstar', autoSave: true }),
+      ),
+    ).toEqual(defaultSettings())
+  })
+
+  it('drops unknown fields from valid payloads', () => {
+    const parsed = parsePersistedSettings(
+      JSON.stringify({
+        ...defaultSettings(),
+        extraFlag: true,
+      }),
+    ) as GameSettings & { extraFlag?: boolean }
+
+    expect(parsed).toEqual(defaultSettings())
+    expect(parsed).not.toHaveProperty('extraFlag')
+  })
+
+  it('rejects type-coerced values', () => {
+    expect(
+      parsePersistedSettings(
+        JSON.stringify({
+          ...defaultSettings(),
+          autoSave: 'true',
+        }),
+      ),
+    ).toEqual(defaultSettings())
   })
 
   it('returns parsed settings when payload is valid', () => {

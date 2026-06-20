@@ -15,9 +15,9 @@ export function PlayerHeadshot({
 }) {
   const [imgError, setImgError] = useState(false)
 
-  const externalId = (player as unknown as { externalId?: string }).externalId
+  const externalId = player.externalId
   const headshotUrl = externalId
-    ? `/data/nba/headshots/${externalId}.jpg`
+    ? `${import.meta.env.BASE_URL}data/nba/headshots/${externalId}.png`
     : undefined
 
   if (headshotUrl && !imgError) {

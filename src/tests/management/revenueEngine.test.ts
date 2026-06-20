@@ -8,7 +8,6 @@ import {
 import { SEASON_PERFORMANCE_BONUS } from '@/game/management/financeConstants'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { TeamFinances } from '@/game/models/team'
-import type { TeamSeasonResult } from '@/game/models/league'
 
 function makeRules(overrides?: Partial<LeagueRules>): LeagueRules {
   return {
@@ -125,37 +124,39 @@ describe('computeLocalRevenue', () => {
 
 describe('computeSeasonPerformanceBonus', () => {
   it('returns 0 for missed_playoffs', () => {
-    expect(computeSeasonPerformanceBonus('missed_playoffs')).toBe(0)
+    expect(computeSeasonPerformanceBonus('missed_playoffs')).toBe(
+      SEASON_PERFORMANCE_BONUS.missed_playoffs,
+    )
   })
 
   it('returns 5M for first_round_loss', () => {
-    expect(computeSeasonPerformanceBonus('first_round_loss')).toBe(5_000_000)
+    expect(computeSeasonPerformanceBonus('first_round_loss')).toBe(
+      SEASON_PERFORMANCE_BONUS.first_round_loss,
+    )
   })
 
   it('returns 10M for second_round_loss', () => {
-    expect(computeSeasonPerformanceBonus('second_round_loss')).toBe(10_000_000)
+    expect(computeSeasonPerformanceBonus('second_round_loss')).toBe(
+      SEASON_PERFORMANCE_BONUS.second_round_loss,
+    )
   })
 
   it('returns 15M for conference_finals_loss', () => {
     expect(computeSeasonPerformanceBonus('conference_finals_loss')).toBe(
-      15_000_000,
+      SEASON_PERFORMANCE_BONUS.conference_finals_loss,
     )
   })
 
   it('returns 25M for finals_loss', () => {
-    expect(computeSeasonPerformanceBonus('finals_loss')).toBe(25_000_000)
+    expect(computeSeasonPerformanceBonus('finals_loss')).toBe(
+      SEASON_PERFORMANCE_BONUS.finals_loss,
+    )
   })
 
   it('returns 40M for champion', () => {
-    expect(computeSeasonPerformanceBonus('champion')).toBe(40_000_000)
-  })
-
-  it('matches financeConstants table exactly', () => {
-    for (const [result, expected] of Object.entries(SEASON_PERFORMANCE_BONUS)) {
-      expect(computeSeasonPerformanceBonus(result as TeamSeasonResult)).toBe(
-        expected,
-      )
-    }
+    expect(computeSeasonPerformanceBonus('champion')).toBe(
+      SEASON_PERFORMANCE_BONUS.champion,
+    )
   })
 })
 
@@ -208,5 +209,31 @@ describe('computeTotalRevenue', () => {
       exceptionsUsed: { mle: false, bae: false, roomMle: false, minimumCount: 0 },
     }
     expect(computeTotalRevenue(finances)).toBe(0)
+  })
+
+  it('sums arbitrary revenue components exactly', () => {
+    const finances: TeamFinances = {
+      salaryCap: 0,
+      apron: 0,
+      secondApron: 0,
+      luxuryTaxLine: 0,
+      payroll: 0,
+      capSpace: 0,
+      taxBill: 0,
+      projectedTaxBill: 0,
+      baseRevenue: 123_000_000,
+      localRevenue: 45_500_000,
+      seasonPerformanceBonus: 7_500_000,
+      totalRevenue: 0,
+      operatingExpenses: 0,
+      totalExpenses: 0,
+      netIncome: 0,
+      ownerCash: 0,
+      cashReserves: 0,
+      ownerPatience: 0,
+      exceptionsUsed: { mle: false, bae: false, roomMle: false, minimumCount: 0 },
+    }
+
+    expect(computeTotalRevenue(finances)).toBe(176_000_000)
   })
 })

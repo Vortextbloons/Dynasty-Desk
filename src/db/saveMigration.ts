@@ -7,6 +7,8 @@ import {
   OWNER_PATIENCE_INITIAL,
 } from '@/game/management/financeConstants'
 import { computeOverall } from '@/game/ratings/overallWeights'
+import { isPosition } from '@/game/models/position'
+import type { PlayerRatings } from '@/game/models/ratings'
 
 interface GameSaveV1 {
   metadata: {
@@ -123,11 +125,11 @@ function hydrateFinances(
 export function migrateToV2(input: unknown): GameSave {
   const v1 = input as GameSaveV1
 
-  const leaguePlayers = v1.league.players as Record<string, Record<string, unknown>>
+  const leaguePlayers = v1.league.players
 
   const teams: GameSave['league']['teams'] = {}
   for (const [teamId, teamRaw] of Object.entries(v1.league.teams)) {
-    const team = teamRaw as Record<string, unknown>
+    const team = teamRaw
     const existing = team.finances as Record<string, unknown> | undefined
     teams[teamId] = {
       ...team,
@@ -165,11 +167,11 @@ export function migrateToV3(input: unknown): GameSave {
   for (const [pid, player] of Object.entries(save.league.players)) {
     const p = player as unknown as Record<string, unknown>
     const ratings = p.ratings as Record<string, unknown>
-    const position = p.position as string
+    const position = isPosition(p.position) ? p.position : 'SF'
 
     const overall = typeof ratings.overall === 'number'
       ? ratings.overall
-      : computeOverall(ratings as any, position as any)
+      : computeOverall(ratings as unknown as PlayerRatings, position)
 
     const morale = (p.morale ?? {}) as Record<string, unknown>
     const health = (p.health ?? {}) as Record<string, unknown>
@@ -220,5 +222,5 @@ export function migrateToV3(input: unknown): GameSave {
       ...save.league,
       players,
     },
-  } as GameSave
+  }
 }

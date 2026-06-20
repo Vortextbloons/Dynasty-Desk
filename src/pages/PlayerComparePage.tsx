@@ -2,7 +2,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { AppShell } from '@/components/layout/AppShell'
 import { usePlayerCompare } from '@/hooks/usePlayerCompare'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
 import { useGameStore } from '@/store/useGameStore'
@@ -33,44 +32,40 @@ export function PlayerComparePage() {
 
   if (!leftId || !rightId) {
     return (
-      <AppShell>
-        <PageHeader
-          eyebrow="Compare"
-          title="Select two players"
-          description="Open a player profile and click Compare to start a side-by-side comparison."
-          actions={
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/roster">
-                <ArrowLeft className="size-4" /> Roster
-              </Link>
-            </Button>
-          }
-        />
-      </AppShell>
+      <PageHeader
+        eyebrow="Compare"
+        title="Select two players"
+        description="Open a player profile and click Compare to start a side-by-side comparison."
+        actions={
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/roster">
+              <ArrowLeft className="size-4" /> Roster
+            </Link>
+          </Button>
+        }
+      />
     )
   }
 
   if (!left || !right) {
     return (
-      <AppShell>
-        <PageHeader
-          eyebrow="Compare"
-          title="Player not found"
-          description="One or both players could not be found. Check the URLs and try again."
-          actions={
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/roster">
-                <ArrowLeft className="size-4" /> Roster
-              </Link>
-            </Button>
-          }
-        />
-      </AppShell>
+      <PageHeader
+        eyebrow="Compare"
+        title="Player not found"
+        description="One or both players could not be found. Check the URLs and try again."
+        actions={
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/roster">
+              <ArrowLeft className="size-4" /> Roster
+            </Link>
+          </Button>
+        }
+      />
     )
   }
 
   return (
-    <AppShell>
+    <div>
       <PageHeader
         eyebrow="Compare"
         title={`${left.firstName} ${left.lastName} vs ${right.firstName} ${right.lastName}`}
@@ -90,6 +85,6 @@ export function PlayerComparePage() {
         leftTeam={getTeam(left.teamId)}
         rightTeam={getTeam(right.teamId)}
       />
-    </AppShell>
+    </div>
   )
 }

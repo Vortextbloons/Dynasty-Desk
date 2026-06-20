@@ -422,3 +422,29 @@ describe('validateSave', () => {
     if (!result.ok) expect(result.reason).toContain('does not match')
   })
 })
+
+describe('schema version acceptance', () => {
+  it('accepts schema version 1', () => {
+    const raw = asRaw(makeValidSave())
+    ;(raw.metadata as Record<string, unknown>).schemaVersion = 1
+    expect(validateSave(raw).ok).toBe(true)
+  })
+
+  it('accepts schema version 2', () => {
+    const raw = asRaw(makeValidSave())
+    ;(raw.metadata as Record<string, unknown>).schemaVersion = 2
+    expect(validateSave(raw).ok).toBe(true)
+  })
+
+  it('accepts schema version 3', () => {
+    const raw = asRaw(makeValidSave())
+    ;(raw.metadata as Record<string, unknown>).schemaVersion = 3
+    expect(validateSave(raw).ok).toBe(true)
+  })
+
+  it('rejects schema version 4', () => {
+    const raw = asRaw(makeValidSave())
+    ;(raw.metadata as Record<string, unknown>).schemaVersion = 4
+    expect(validateSave(raw).ok).toBe(false)
+  })
+})

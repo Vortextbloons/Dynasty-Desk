@@ -153,7 +153,7 @@ describe('PlayerHeadshot', () => {
 
     expect(screen.getByRole('img')).toHaveAttribute(
       'src',
-      '/data/nba/headshots/12345.jpg',
+      '/data/nba/headshots/12345.png',
     )
   })
 })

@@ -61,6 +61,7 @@ export type PlayerCareerStatsEntry = PlayerSeasonStat
 
 export interface Player {
   id: string
+  externalId?: string
   firstName: string
   lastName: string
   age: number

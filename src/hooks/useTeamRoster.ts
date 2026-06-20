@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useGameStore } from '@/store/useGameStore'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
+import { hydrateStaticPlayer } from '@/game/core/hydrateStaticPlayer'
 import type { Player } from '@/game/models'
 import type { Position } from '@/game/models/position'
 
@@ -45,13 +46,12 @@ export function useTeamRoster(filter: RosterFilter = {}): Player[] {
       )
     } else if (snapshot) {
       const targetTeamId = teamId
-      if (targetTeamId) {
-        players = snapshot.players.filter((p) =>
-          p.teamId === targetTeamId,
-        ) as unknown as Player[]
-      } else {
-        players = snapshot.players as unknown as Player[]
-      }
+      const filtered = targetTeamId
+        ? snapshot.players.filter((p) => p.teamId === targetTeamId)
+        : snapshot.players
+      players = filtered.map((sp) =>
+        hydrateStaticPlayer(sp, snapshot.seasonLabel, snapshot.seasonStats),
+      )
     }
 
     const filtered = players.filter((p) => {

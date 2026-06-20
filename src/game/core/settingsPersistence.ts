@@ -46,12 +46,25 @@ function isGameSettings(value: unknown): value is GameSettings {
   )
 }
 
+function normalizeSettings(value: GameSettings): GameSettings {
+  return {
+    difficulty: value.difficulty,
+    simSpeed: value.simSpeed,
+    autoSave: value.autoSave,
+    injuries: value.injuries,
+    fatigue: value.fatigue,
+    salaryCap: value.salaryCap,
+    startSeason: value.startSeason,
+    snapshotId: value.snapshotId,
+  }
+}
+
 export function parsePersistedSettings(raw: string | null): GameSettings {
   if (!raw) return defaultSettings()
 
   try {
     const parsed: unknown = JSON.parse(raw)
-    return isGameSettings(parsed) ? parsed : defaultSettings()
+    return isGameSettings(parsed) ? normalizeSettings(parsed) : defaultSettings()
   } catch {
     return defaultSettings()
   }

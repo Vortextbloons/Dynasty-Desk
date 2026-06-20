@@ -4,7 +4,6 @@ import { ArrowLeft, Trophy, TrendingUp, BarChart3, DollarSign, Activity, FlaskCo
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { AppShell } from '@/components/layout/AppShell'
 import { usePlayerById } from '@/hooks/usePlayerById'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
 import { useGameStore } from '@/store/useGameStore'
@@ -77,20 +76,18 @@ export function PlayerPage() {
 
   if (!player) {
     return (
-      <AppShell>
-        <PageHeader
-          eyebrow="Players"
-          title="Player not found"
-          description="The snapshot might still be loading, or this player isn't in the current dataset."
-          actions={
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/roster">
-                <ArrowLeft className="size-4" /> Roster
-              </Link>
-            </Button>
-          }
-        />
-      </AppShell>
+      <PageHeader
+        eyebrow="Players"
+        title="Player not found"
+        description="The snapshot might still be loading, or this player isn't in the current dataset."
+        actions={
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/roster">
+              <ArrowLeft className="size-4" /> Roster
+            </Link>
+          </Button>
+        }
+      />
     )
   }
 
@@ -102,7 +99,7 @@ export function PlayerPage() {
     : 'Season Ending'
 
   return (
-    <AppShell>
+    <div>
       <PageHeader
         eyebrow="Player"
         title={`${player.firstName} ${player.lastName}`}
@@ -202,7 +199,7 @@ export function PlayerPage() {
       )}
       {tab === 'development' && <DevelopmentChart player={player} />}
       {tab === 'tradeValue' && <TradeValueCard player={player} />}
-    </AppShell>
+    </div>
   )
 }
 

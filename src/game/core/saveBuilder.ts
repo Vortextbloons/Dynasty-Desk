@@ -106,6 +106,7 @@ export function buildSave(input: NewSaveInput): GameSave {
 
     players[sp.id] = {
       id: sp.id,
+      externalId: sp.externalId,
       firstName: sp.firstName,
       lastName: sp.lastName,
       age: sp.age,
@@ -270,7 +271,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     createdAt: now,
     updatedAt: now,
     appVersion: '0.1.0',
-    schemaVersion: 2,
+    schemaVersion: 3,
     teamId,
     teamName:
       snapshot.teams.find((t) => t.id === teamId)?.name ?? teamId,

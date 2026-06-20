@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { migrateToV2 } from '@/db/saveMigration'
+import { migrateToV2, migrateToV3 } from '@/db/saveMigration'
 import type { GameSave } from '@/game/models'
 
 function makeV1Save(): any {
@@ -285,5 +285,86 @@ describe('migrateToV2', () => {
     expect(result.league.teams['team-1']).toBeDefined()
     expect(result.league.teams['team-2']).toBeDefined()
     expect(result.league.teams['team-2']!.finances.payroll).toBe(0)
+  })
+})
+
+function makeV2Save(): any {
+  const v1 = makeV1Save()
+  const v2 = migrateToV2(v1)
+  v2.metadata.schemaVersion = 2
+  const p = v2.league.players['player-1'] as any
+  p.ratings = {
+    insideScoring: 80, closeShot: 75, midrange: 70, threePoint: 74, freeThrow: 75,
+    ballHandling: 80, passing: 90, offensiveIq: 95,
+    offensiveRebound: 45, defensiveRebound: 65,
+    perimeterDefense: 70, interiorDefense: 60, steal: 55, block: 40, defensiveIq: 85,
+    speed: 72, strength: 80, vertical: 65, stamina: 80, durability: 85,
+    clutch: 90, consistency: 88, potential: 40,
+  }
+  p.morale = { level: 70, happiness: 75, tradeRequest: false }
+  p.health = { status: 'healthy', injuryDescription: null, gamesRemaining: 0 }
+  p.development = { lastTrainedAt: null, focusArea: null, recentForm: 50 }
+  return v2
+}
+
+describe('migrateToV3', () => {
+  it('bumps schemaVersion to 3', () => {
+    const v2 = makeV2Save()
+    const result = migrateToV3(v2) as GameSave
+    expect(result.metadata.schemaVersion).toBe(3)
+  })
+
+  it('adds overall to ratings when missing', () => {
+    const v2 = makeV2Save()
+    const result = migrateToV3(v2) as GameSave
+    const player = result.league.players['player-1']
+    expect(typeof player!.ratings.overall).toBe('number')
+    expect(player!.ratings.overall).toBeGreaterThan(0)
+  })
+
+  it('preserves existing overall when present', () => {
+    const v2 = makeV2Save()
+    v2.league.players['player-1'].ratings.overall = 99
+    const result = migrateToV3(v2) as GameSave
+    expect(result.league.players['player-1']!.ratings.overall).toBe(99)
+  })
+
+  it('extends morale with new fields', () => {
+    const v2 = makeV2Save()
+    const result = migrateToV3(v2) as GameSave
+    const morale = result.league.players['player-1']!.morale
+    expect(morale.roleSatisfaction).toBe(75)
+    expect(morale.teamSatisfaction).toBe(75)
+    expect(morale.tradeRequestLevel).toBe(0)
+    expect(morale.happiness).toBe(75)
+  })
+
+  it('extends health with daysRemaining', () => {
+    const v2 = makeV2Save()
+    const result = migrateToV3(v2) as GameSave
+    const health = result.league.players['player-1']!.health
+    expect(health.daysRemaining).toBe(0)
+    expect(health.gamesRemaining).toBe(0)
+  })
+
+  it('extends development with new fields', () => {
+    const v2 = makeV2Save()
+    const result = migrateToV3(v2) as GameSave
+    const dev = result.league.players['player-1']!.development
+    expect(dev.ageAtPeak).toBe(27)
+    expect(dev.progressionCurve).toBe('normal')
+    expect(dev.ratingsDelta).toEqual({})
+    expect(dev.breakoutChance).toBe(0.1)
+    expect(dev.bustRisk).toBe(0.1)
+  })
+
+  it('v3 save roundtrips (re-migration is idempotent)', () => {
+    const v2 = makeV2Save()
+    const v3 = migrateToV3(v2) as GameSave
+    const v3Again = migrateToV3(v3) as GameSave
+    expect(v3Again.metadata.schemaVersion).toBe(3)
+    expect(v3Again.league.players['player-1']!.ratings.overall).toBe(
+      v3.league.players['player-1']!.ratings.overall,
+    )
   })
 })

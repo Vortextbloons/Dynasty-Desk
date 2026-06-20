@@ -50,11 +50,11 @@ export function DevelopmentChart({ player }: { player: Player }) {
             </div>
             <div>
               <div className="text-xs text-[var(--color-muted-foreground)]">Breakout Chance</div>
-              <div className="font-mono text-xl font-bold">{Math.round(dev.breakoutChance)}%</div>
+              <div className="font-mono text-xl font-bold">{Math.round(dev.breakoutChance * 100)}%</div>
             </div>
             <div>
               <div className="text-xs text-[var(--color-muted-foreground)]">Bust Risk</div>
-              <div className="font-mono text-xl font-bold">{Math.round(dev.bustRisk)}%</div>
+              <div className="font-mono text-xl font-bold">{Math.round(dev.bustRisk * 100)}%</div>
             </div>
           </div>
         </CardContent>

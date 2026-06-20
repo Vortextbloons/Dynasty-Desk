@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useGameStore } from '@/store/useGameStore'
 import { useSnapshot, useStaticData } from '@/data/useStaticData'
+import { hydrateStaticPlayer } from '@/game/core/hydrateStaticPlayer'
 import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 
@@ -43,7 +44,9 @@ export function useGlobalSearch(query: string): GlobalSearchResult {
       allPlayers = Object.values(save.league.players)
       allTeams = Object.values(save.league.teams) as unknown as StaticTeam[]
     } else if (snapshot) {
-      allPlayers = snapshot.players as unknown as Player[]
+      allPlayers = snapshot.players.map((sp) =>
+        hydrateStaticPlayer(sp, snapshot.seasonLabel, snapshot.seasonStats),
+      )
       allTeams = snapshot.teams
     } else {
       return { players: [], teams: [] }
