@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateAutoRotation } from '@/game/management/autoRotation'
+import { validateRotation } from '@/game/management/rotationValidator'
 import type { Player } from '@/game/models/player'
 
 function makePlayer(overrides: Partial<Player> = {}): Player {
@@ -210,5 +211,26 @@ describe('generateAutoRotation', () => {
     for (const id of [...lineup.starters, ...lineup.bench]) {
       expect(rosterSet.has(id)).toBe(true)
     }
+  })
+
+  it('produces a rotation that passes validation', () => {
+    const specs: Array<{ id: string; overall: number; position?: Player['position']; ballHandling?: number; passing?: number; interiorDefense?: number; health?: Player['health'] }> = Array.from({ length: 13 }, (_, i) => ({
+      id: `p${i + 1}`,
+      overall: 80 - i * 2,
+      position: (['PG', 'SG', 'SF', 'PF', 'C'] as const)[i % 5],
+    }))
+    // Give one player ball-handler stats
+    specs[0]!.ballHandling = 80
+    specs[0]!.passing = 75
+    // Give one player center stats
+    specs[4]!.position = 'C'
+    specs[4]!.interiorDefense = 80
+
+    const players = makePlayers(specs)
+    const roster = specs.map((s) => s.id)
+
+    const lineup = generateAutoRotation(roster, players)
+    const result = validateRotation(roster, lineup, players)
+    expect(result.ok).toBe(true)
   })
 })

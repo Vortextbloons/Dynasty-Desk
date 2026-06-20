@@ -16,9 +16,8 @@ interface PlayerPickerDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   players: Player[]
-  currentRotationIds: Set<string>
+  disabledIds: Set<string>
   onSelect: (playerId: string) => void
-  excludeIds?: Set<string>
   showAll?: boolean
 }
 
@@ -26,9 +25,8 @@ export function PlayerPickerDialog({
   open,
   onOpenChange,
   players,
-  currentRotationIds,
+  disabledIds,
   onSelect,
-  excludeIds,
   showAll = false,
 }: PlayerPickerDialogProps) {
   const [search, setSearch] = useState('')
@@ -39,9 +37,7 @@ export function PlayerPickerDialog({
   const filtered = useMemo(() => {
     let list = players
     if (filterMode === 'available') {
-      list = list.filter(
-        (p) => !currentRotationIds.has(p.id) && !(excludeIds?.has(p.id)),
-      )
+      list = list.filter((p) => !disabledIds.has(p.id))
     }
     if (search) {
       const q = search.toLowerCase()
@@ -53,7 +49,7 @@ export function PlayerPickerDialog({
       )
     }
     return list.sort((a, b) => b.ratings.overall - a.ratings.overall)
-  }, [players, currentRotationIds, excludeIds, search, filterMode])
+  }, [players, disabledIds, search, filterMode])
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -99,19 +95,19 @@ export function PlayerPickerDialog({
             </div>
           )}
           {filtered.map((p) => {
-            const inRotation = currentRotationIds.has(p.id)
+            const disabled = disabledIds.has(p.id)
             return (
               <button
                 key={p.id}
                 type="button"
-                disabled={inRotation}
+                disabled={disabled}
                 onClick={() => {
                   onSelect(p.id)
                   onOpenChange(false)
                   setSearch('')
                 }}
                 className={`w-full flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
-                  inRotation
+                  disabled
                     ? 'opacity-40 cursor-not-allowed'
                     : 'hover:bg-[var(--color-surface-2)]'
                 }`}

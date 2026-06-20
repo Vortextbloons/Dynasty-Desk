@@ -42,6 +42,16 @@ function hasPlayer(players: Map<string, Player>, id: string): boolean {
   return players.has(id)
 }
 
+function findDuplicates(ids: string[]): string[] {
+  const seen = new Set<string>()
+  const dups: string[] = []
+  for (const id of ids) {
+    if (seen.has(id)) dups.push(id)
+    seen.add(id)
+  }
+  return dups
+}
+
 function addWarning(
   warnings: RotationValidationWarning[],
   code: RotationWarning,
@@ -103,6 +113,16 @@ export function validateRotation(
     if (!hasPlayer(players, id) || !rosterSet.has(id)) {
       addWarning(warnings, 'player_not_on_roster', `Player ${id} is not on the roster.`, [id])
     }
+  }
+
+  const closingDuplicates = findDuplicates(lineup.closingLineup)
+  if (closingDuplicates.length > 0) {
+    addWarning(
+      warnings,
+      'duplicate_player',
+      `Player(s) appear more than once in closing lineup: ${closingDuplicates.join(', ')}.`,
+      closingDuplicates,
+    )
   }
 
   if (duplicates.length > 0) {

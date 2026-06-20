@@ -171,6 +171,84 @@ export function generateAutoRotation(
     )
     lineup.lastValidationWarnings = validation.warnings.map((w) => w.code)
     if (validation.ok) break
+
+    const benchPlayers = lineup.bench
+      .map((id) => players.get(id))
+      .filter((p): p is Player => Boolean(p))
+
+    const hasBH = lineup.starters.some((id) => {
+      const p = players.get(id)
+      return p && isBallHandler(p)
+    })
+    if (!hasBH) {
+      const bestBH = benchPlayers
+        .filter((p) => isBallHandler(p))
+        .sort(sortByOverall)[0]
+      if (bestBH) {
+        const worstNonBH = lineup.starters
+          .map((id) => players.get(id))
+          .filter((p): p is Player => p != null && !isBallHandler(p))
+          .sort((a, b) => sortByOverall(a, b))[0]
+        if (worstNonBH) {
+          const si = lineup.starters.indexOf(worstNonBH.id)
+          const bi = lineup.bench.indexOf(bestBH.id)
+          if (si !== -1 && bi !== -1) {
+            lineup.starters[si] = bestBH.id
+            lineup.bench[bi] = worstNonBH.id
+          }
+        }
+      }
+    }
+
+    const hasCenter = lineup.starters.some((id) => {
+      const p = players.get(id)
+      return p && isCenterOrPF(p)
+    })
+    if (!hasCenter) {
+      const bestC = benchPlayers
+        .filter((p) => isCenterOrPF(p))
+        .sort(sortByOverall)[0]
+      if (bestC) {
+        const worstNonC = lineup.starters
+          .map((id) => players.get(id))
+          .filter((p): p is Player => p != null && !isCenterOrPF(p))
+          .sort((a, b) => sortByOverall(a, b))[0]
+        if (worstNonC) {
+          const si = lineup.starters.indexOf(worstNonC.id)
+          const bi = lineup.bench.indexOf(bestC.id)
+          if (si !== -1 && bi !== -1) {
+            lineup.starters[si] = bestC.id
+            lineup.bench[bi] = worstNonC.id
+          }
+        }
+      }
+    }
+
+    const totalMin = Object.values(lineup.targetMinutes).reduce((a, b) => a + b, 0)
+    if (Math.abs(totalMin - TOTAL_MINUTES) > 2) {
+      const diff = TOTAL_MINUTES - totalMin
+      const ids = [...lineup.starters, ...lineup.bench]
+      const sorted = ids
+        .map((id) => ({ id, minutes: lineup.targetMinutes[id] ?? 0 }))
+        .sort((a, b) => b.minutes - a.minutes)
+      if (diff > 0) {
+        let remaining = diff
+        for (const entry of sorted) {
+          if (remaining <= 0) break
+          const add = Math.min(remaining, 4)
+          lineup.targetMinutes[entry.id] = entry.minutes + add
+          remaining -= add
+        }
+      } else if (diff < 0) {
+        let remaining = -diff
+        for (const entry of sorted) {
+          if (remaining <= 0) break
+          const remove = Math.min(remaining, Math.max(0, entry.minutes - 6))
+          lineup.targetMinutes[entry.id] = entry.minutes - remove
+          remaining -= remove
+        }
+      }
+    }
   }
 
   return lineup

@@ -21,6 +21,10 @@ const WARNING_LABELS: Record<RotationWarning, string> = {
   bench_too_large: 'Bench too large',
 }
 
+export function warningMessage(code: RotationWarning): string {
+  return WARNING_LABELS[code] ?? code
+}
+
 interface ValidationWarningsListProps {
   warnings: WarningEntry[]
   onFix?: (code: RotationWarning) => void
@@ -42,7 +46,9 @@ export function ValidationWarningsList({
           <AlertTriangle className="size-4 shrink-0 text-amber-500" />
           <span className="flex-1 text-amber-500">
             <span className="font-medium">{WARNING_LABELS[w.code] ?? w.code}</span>
-            <span className="ml-1.5 text-amber-500/70">{w.message}</span>
+            {w.message && w.message !== (WARNING_LABELS[w.code] ?? w.code) && (
+              <span className="ml-1.5 text-amber-500/70">{w.message}</span>
+            )}
           </span>
           {onFix && (
             <Button

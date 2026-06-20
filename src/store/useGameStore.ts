@@ -467,7 +467,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const teamId = save.league.userTeamId
     const team = save.league.teams[teamId]
     if (!team) return
-    if (team.lineup.starters.length > 0) return
+    const needsRotation =
+      team.lineup.starters.length === 0 ||
+      Object.keys(team.lineup.targetMinutes).length === 0
+    if (!needsRotation) return
     const players = new Map(
       Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
     )
@@ -496,6 +499,12 @@ function applyPatch(
         if (teamPatch.lineup.starters !== undefined) existing.lineup.starters = teamPatch.lineup.starters
         if (teamPatch.lineup.bench !== undefined) existing.lineup.bench = teamPatch.lineup.bench
         if (teamPatch.lineup.closingLineup !== undefined) existing.lineup.closingLineup = teamPatch.lineup.closingLineup
+        if (teamPatch.lineup.targetMinutes !== undefined) existing.lineup.targetMinutes = teamPatch.lineup.targetMinutes
+        if (teamPatch.lineup.autoRotation !== undefined) existing.lineup.autoRotation = teamPatch.lineup.autoRotation
+        if (teamPatch.lineup.lastValidatedAt !== undefined) existing.lineup.lastValidatedAt = teamPatch.lineup.lastValidatedAt
+        if (teamPatch.lineup.lastValidationWarnings !== undefined) existing.lineup.lastValidationWarnings = teamPatch.lineup.lastValidationWarnings
+        if (teamPatch.lineup.generatedByAutoRotate !== undefined) existing.lineup.generatedByAutoRotate = teamPatch.lineup.generatedByAutoRotate
+        if (teamPatch.lineup.forceInclude !== undefined) existing.lineup.forceInclude = teamPatch.lineup.forceInclude
       }
       if (teamPatch.finances) {
         existing.finances = teamPatch.finances

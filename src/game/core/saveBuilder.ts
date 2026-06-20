@@ -11,6 +11,7 @@ import { seasonOpeningNight } from './seasonCalendar'
 import { createRngState } from './seededRandom'
 import { computeCapHit } from '@/game/management/capEngine'
 import { computeOverall } from '@/game/ratings/overallWeights'
+import { generateAutoRotation } from '@/game/management/autoRotation'
 
 export interface NewSaveInput {
   snapshot: StaticSnapshot
@@ -178,19 +179,14 @@ export function buildSave(input: NewSaveInput): GameSave {
     const team = teams[teamId]
     if (!team) continue
     const roster = team.roster
-    const rosterPlayers = roster
-      .map((pid) => players[pid])
-      .filter((p): p is NonNullable<typeof p> => Boolean(p))
-      .sort((a, b) => {
-        const order = ['PG', 'SG', 'SF', 'PF', 'C']
-        return order.indexOf(a.position) - order.indexOf(b.position)
-      })
 
-    team.lineup.starters = rosterPlayers
-      .slice(0, 5)
-      .map((p) => p.id)
-    team.lineup.bench = rosterPlayers.slice(5).map((p) => p.id)
-    team.lineup.closingLineup = team.lineup.starters.slice()
+    const rosterPlayerMap = new Map(
+      roster
+        .map((pid) => players[pid])
+        .filter((p): p is NonNullable<typeof p> => Boolean(p))
+        .map((p) => [p.id, p]),
+    )
+    team.lineup = generateAutoRotation(roster, rosterPlayerMap)
 
     let payroll = 0
     for (const pid of team.roster) {
