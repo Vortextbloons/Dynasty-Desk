@@ -12,6 +12,10 @@ export type NewsType =
   | 'playoff_upset'
   | 'championship'
   | 'financial_review'
+  | 'series_win'
+  | 'finals_mvp'
+  | 'offseason_begins'
+  | 'play_in_result'
 
 export type NewsImportance = 'low' | 'medium' | 'high'
 

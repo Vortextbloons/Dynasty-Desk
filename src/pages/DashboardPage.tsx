@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AlertTriangle, Play, Calendar, FastForward, ChevronRight } from 'lucide-react'
+import { AlertTriangle, Play, Calendar, FastForward, ChevronRight, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -11,6 +11,7 @@ import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { SimSpeedToggle } from '@/components/sim/SimSpeedToggle'
 import { Button } from '@/components/ui/button'
 import { recomputeStandings, computeGB } from '@/game/league/standingsEngine'
+import { getSeriesRoundLabel } from '@/game/models/playoff'
 
 function fmt(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
@@ -379,6 +380,97 @@ export function DashboardPage() {
           </Card>
         )}
       </div>
+
+      {(league.phase === 'play_in' || league.phase === 'playoffs') && league.playoffBracket && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Link to="/playoffs">
+            <Card className="hover:border-[var(--color-primary)]/30 transition-colors cursor-pointer">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                      Playoff Bracket
+                    </div>
+                    <div className="mt-1 text-sm font-medium">
+                      {league.playoffBracket.status === 'play_in'
+                        ? 'Play-In Tournament'
+                        : league.playoffBracket.status === 'complete'
+                          ? 'Playoffs Complete'
+                          : 'In Progress'}
+                    </div>
+                  </div>
+                  <Trophy className="size-5 text-[var(--color-primary)]" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {league.playoffBracket.status === 'bracket' && (() => {
+            const userSeries = [...(league.playoffBracket.east ?? []), ...(league.playoffBracket.west ?? []), ...(league.playoffBracket.finals ? [league.playoffBracket.finals] : [])]
+              .find((s) =>
+                s.higherSeedTeamId === league.userTeamId ||
+                s.lowerSeedTeamId === league.userTeamId
+              )
+            if (!userSeries) return null
+            const opponentId = userSeries.higherSeedTeamId === league.userTeamId
+              ? userSeries.lowerSeedTeamId
+              : userSeries.higherSeedTeamId
+            const opponent = league.teams[opponentId]
+            return (
+              <Card>
+                <CardContent className="p-5">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+                    Your Series
+                  </div>
+                  <div className="mt-1 text-sm font-medium">
+                    vs {opponent?.abbreviation ?? '???'}
+                  </div>
+                  <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                    {getSeriesRoundLabel(userSeries.round)} — {userSeries.higherSeedWins}-{userSeries.lowerSeedWins}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })()}
+
+          {league.playoffBracket.status === 'complete' && league.playoffBracket.championTeamId && (
+            <Card className="border-[var(--color-primary)]/20">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-3">
+                  <Trophy className="size-6 text-[var(--color-primary)]" />
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-primary)]">
+                      Champion
+                    </div>
+                    <div className="mt-1 text-sm font-medium">
+                      {league.teams[league.playoffBracket.championTeamId]?.city}{' '}
+                      {league.teams[league.playoffBracket.championTeamId]?.name}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {league.phase === 'offseason' && (
+        <Card className="border-[var(--color-primary)]/20">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-primary)]">
+                  Offseason
+                </div>
+                <div className="mt-1 text-sm">
+                  The {league.rules.seasonLabel} offseason is underway. Trades, free agency, and the draft await.
+                </div>
+              </div>
+              <Trophy className="size-5 text-[var(--color-primary)]" />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="p-5">

@@ -1,20 +1,23 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '@/store/useGameStore'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { recomputeStandings, computeGB, formatLast10 } from '@/game/league/standingsEngine'
 import { toast } from 'sonner'
-import { FastForward } from 'lucide-react'
+import { FastForward, Trophy } from 'lucide-react'
 
 type Tab = 'East' | 'West' | 'League'
 
 export function StandingsPage() {
   const save = useGameStore((s) => s.save)
   const simSeason = useGameStore((s) => s.simSeason)
+  const generatePlayoffBracket = useGameStore((s) => s.generatePlayoffBracket)
   const simRunning = useGameStore((s) => s.simRunning)
   const simProgress = useGameStore((s) => s.simProgress)
   const cancelSimulation = useGameStore((s) => s.cancelSimulation)
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<Tab>('East')
 
   const standings = useMemo(() => {
@@ -101,6 +104,24 @@ export function StandingsPage() {
     }
   }
 
+  const handleSimToPlayoffs = async () => {
+    if (!save) return
+    if (!save.league.scheduleGenerated) {
+      toast.error('Generate a schedule first.')
+      return
+    }
+    const result = await simSeason()
+    if (result.phaseTransitioned) {
+      toast.success('Regular season complete! Generating playoff bracket...')
+      generatePlayoffBracket()
+      navigate('/playoffs')
+    } else if (result.cancelled) {
+      toast.info(`Sim cancelled. ${result.gamesSimulated} games simulated.`)
+    } else {
+      toast.success(`Season sim complete. ${result.gamesSimulated} games simulated.`)
+    }
+  }
+
   if (!save) {
     return (
       <div className="space-y-6">
@@ -122,6 +143,29 @@ export function StandingsPage() {
         eyebrow="Season"
         title="Standings"
         description={`${save.league.rules.seasonLabel} regular season`}
+        actions={
+          save.league.phase === 'regular_season' && !save.league.playoffBracket ? (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSimSeason}
+                disabled={simRunning}
+              >
+                <FastForward className="size-3.5 mr-1" />
+                Sim Season
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSimToPlayoffs}
+                disabled={simRunning}
+              >
+                <Trophy className="size-3.5 mr-1" />
+                Sim to Playoffs
+              </Button>
+            </div>
+          ) : undefined
+        }
       />
 
       <Card>

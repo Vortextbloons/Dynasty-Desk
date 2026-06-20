@@ -18,6 +18,7 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { PlayerPage } from '@/pages/PlayerPage'
 import { PlayerComparePage } from '@/pages/PlayerComparePage'
 import { AllTimeLeadersPage } from '@/pages/AllTimeLeadersPage'
+import { PlayoffsPage } from '@/pages/PlayoffsPage'
 import { AppShell } from '@/components/layout/AppShell'
 
 export function AppRouter() {
@@ -152,6 +153,14 @@ export function AppRouter() {
         element={
           <AppShell>
             <AllTimeLeadersPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/playoffs"
+        element={
+          <AppShell>
+            <PlayoffsPage />
           </AppShell>
         }
       />

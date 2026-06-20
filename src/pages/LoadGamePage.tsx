@@ -18,7 +18,6 @@ import type { SaveMetadata } from '@/game/models'
 import { toast } from 'sonner'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -198,6 +197,7 @@ function SaveRow({
   deletingId: string | null
   duplicatingId: string | null
 }) {
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const date = new Date(save.updatedAt)
   const timeAgo = formatTimeAgo(date)
 
@@ -236,7 +236,7 @@ function SaveRow({
               <Copy className="size-3.5" />
             )}
           </Button>
-          <AlertDialog>
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <AlertDialogTrigger asChild>
               <Button
                 size="sm"
@@ -260,9 +260,15 @@ function SaveRow({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(save.id)}>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    onDelete(save.id)
+                    setConfirmOpen(false)
+                  }}
+                >
                   Delete
-                </AlertDialogAction>
+                </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

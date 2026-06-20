@@ -42,3 +42,4 @@ plans/
 # Opencode skills (borrowed from mattpocock/skills)
 .opencode
 opencode.json
+skills/

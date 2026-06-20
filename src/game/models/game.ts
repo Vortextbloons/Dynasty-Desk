@@ -20,6 +20,11 @@ export interface ScheduledGame {
   isUserTeamGame: boolean
   winnerTeamId?: string
   ot?: boolean
+
+  playoffSeriesId?: string
+  playoffRound?: 1 | 2 | 3 | 4
+  playoffGameNumber?: number
+  isPlayIn?: boolean
 }
 
 export interface TeamStanding {

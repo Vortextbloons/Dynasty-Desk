@@ -39,6 +39,7 @@ const navItems: NavItem[] = [
   },
   { to: '/schedule', label: 'Schedule', icon: CalendarDays, group: 'Season' },
   { to: '/standings', label: 'Standings', icon: BarChart3, group: 'Season' },
+  { to: '/playoffs', label: 'Playoffs', icon: Trophy, group: 'Season' },
   { to: '/trades', label: 'Trades', icon: Repeat, group: 'Season' },
   { to: '/free-agency', label: 'Free Agency', icon: Gavel, group: 'Season' },
   { to: '/draft', label: 'Draft', icon: Trophy, group: 'Season' },

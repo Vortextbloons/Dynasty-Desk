@@ -27,6 +27,7 @@ export * from './injury'
 export * from './transaction'
 export * from './news'
 export * from './owner'
+export * from './playoff'
 
 // Persistence and static data
 export * from './save'

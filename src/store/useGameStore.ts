@@ -36,6 +36,13 @@ import {
 import { validateRotation } from '@/game/management/rotationValidator'
 import { generateAutoRotation } from '@/game/management/autoRotation'
 import { addDays } from '@/lib/utils'
+import {
+  generatePlayoffBracket as generateBracket,
+  advancePlayoffSeries,
+  simulateSeries as simSeries,
+} from '@/game/league/playoffEngine'
+import { computeFinalsMvp } from '@/game/league/awardsEngine'
+import { transitionToOffseason as doTransitionToOffseason } from '@/game/league/offseasonTransition'
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 let cancelTokenRef: CancelToken | null = null
@@ -96,6 +103,13 @@ interface GameStore {
   simSeason: () => Promise<{ gamesSimulated: number; cancelled?: boolean; phaseTransitioned?: boolean; nextPhase?: string | null }>
   simUntilUserGame: () => Promise<{ gamesSimulated: number }>
   cancelSimulation: () => void
+
+  generatePlayoffBracket: () => void
+  simNextPlayoffGame: () => Promise<{ gamesSimulated: number; seriesCompleted: string[]; bracketComplete: boolean }>
+  simPlayoffSeries: (seriesId: string) => Promise<{ gamesSimulated: number }>
+  simAllPlayoffGames: () => Promise<{ gamesSimulated: number; bracketComplete: boolean }>
+  simPlayoffsToCompletion: () => Promise<{ gamesSimulated: number; bracketComplete: boolean }>
+  transitionToOffseason: () => void
 }
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -803,6 +817,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           nextPhase = save.league.rules.hasPlayIn ? 'play_in' : 'playoffs'
           save.league.phase = nextPhase as LeaguePhase
           phaseTransitioned = true
+
+          const bracket = generateBracket(save.league, save.league.rules)
+          save.league.playoffBracket = bracket
         }
       }
 
@@ -850,6 +867,148 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (cancelTokenRef) {
       cancelTokenRef.cancelled = true
     }
+  },
+
+  generatePlayoffBracket: () => {
+    const { save } = get()
+    if (!save) return
+
+    const bracket = generateBracket(save.league, save.league.rules)
+    save.league.playoffBracket = bracket
+
+    if (bracket.status === 'bracket') {
+      save.league.phase = 'playoffs'
+    } else if (bracket.status === 'play_in') {
+      save.league.phase = 'play_in'
+    }
+
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  simNextPlayoffGame: async () => {
+    const { save } = get()
+    if (!save || !save.league.playoffBracket) {
+      return { gamesSimulated: 0, seriesCompleted: [], bracketComplete: false }
+    }
+
+    const cancelToken: CancelToken = { cancelled: false }
+    cancelTokenRef = cancelToken
+
+    set({ simRunning: true, simProgress: { current: 0, total: 1, percentage: 0, currentMatchup: 'Playoff game' } })
+
+    const rng = new SeededRandom(save.rngState)
+
+    try {
+      const result = await advancePlayoffSeries(save.league, rng)
+
+      if (result.bracketComplete) {
+        const mvpId = computeFinalsMvp(save.league.playoffBracket, save.league.games)
+        if (mvpId) {
+          save.league.playoffBracket.finalsMvpPlayerId = mvpId
+        }
+      }
+
+      save.rngState = rng.state
+      set({ save: { ...save }, simProgress: null, simRunning: false })
+      get().scheduleAutoSave()
+
+      return {
+        gamesSimulated: result.gamesSimulated,
+        seriesCompleted: result.seriesCompleted,
+        bracketComplete: result.bracketComplete,
+      }
+    } catch {
+      set({ simProgress: null, simRunning: false })
+      return { gamesSimulated: 0, seriesCompleted: [], bracketComplete: false }
+    } finally {
+      cancelTokenRef = null
+    }
+  },
+
+  simPlayoffSeries: async (seriesId: string) => {
+    const { save } = get()
+    if (!save || !save.league.playoffBracket) {
+      return { gamesSimulated: 0 }
+    }
+
+    const rng = new SeededRandom(save.rngState)
+    const results = await simSeries(save.league, seriesId, rng)
+
+    save.rngState = rng.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+
+    return { gamesSimulated: results.length }
+  },
+
+  simAllPlayoffGames: async () => {
+    const { save } = get()
+    if (!save || !save.league.playoffBracket) {
+      return { gamesSimulated: 0, bracketComplete: false }
+    }
+
+    const cancelToken: CancelToken = { cancelled: false }
+    cancelTokenRef = cancelToken
+
+    let totalSimulated = 0
+    let bracketComplete = false
+
+    set({ simRunning: true, simProgress: { current: 0, total: 100, percentage: 0, currentMatchup: 'Playoffs' } })
+
+    const rng = new SeededRandom(save.rngState)
+
+    try {
+      let iterations = 0
+      while (!bracketComplete && iterations < 200) {
+        if (cancelToken.cancelled) break
+
+        const result = await advancePlayoffSeries(save.league, rng)
+        totalSimulated += result.gamesSimulated
+        bracketComplete = result.bracketComplete
+        iterations++
+
+        set({ simProgress: { current: iterations, total: 200, percentage: Math.min(99, Math.round((iterations / 200) * 100)), currentMatchup: 'Simulating playoffs...' } })
+
+        await new Promise<void>((r) => setTimeout(r, 0))
+      }
+
+      if (bracketComplete) {
+        const mvpId = computeFinalsMvp(save.league.playoffBracket, save.league.games)
+        if (mvpId) {
+          save.league.playoffBracket.finalsMvpPlayerId = mvpId
+        }
+      }
+
+      save.rngState = rng.state
+      set({ save: { ...save }, simProgress: null, simRunning: false })
+      get().scheduleAutoSave()
+
+      return { gamesSimulated: totalSimulated, bracketComplete }
+    } catch {
+      set({ simProgress: null, simRunning: false })
+      return { gamesSimulated: 0, bracketComplete: false }
+    } finally {
+      cancelTokenRef = null
+    }
+  },
+
+  simPlayoffsToCompletion: async () => {
+    const { save } = get()
+    if (!save || !save.league.playoffBracket) {
+      return { gamesSimulated: 0, bracketComplete: false }
+    }
+
+    return get().simAllPlayoffGames()
+  },
+
+  transitionToOffseason: () => {
+    const { save } = get()
+    if (!save) return
+
+    doTransitionToOffseason(save.league)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
   },
 }))
 
