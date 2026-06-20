@@ -1,0 +1,270 @@
+import { describe, it, expect } from 'vitest'
+import { transitionToOffseason } from '@/game/league/offseasonTransition'
+import {
+  beginOffseason,
+  advancePhase,
+  canAdvancePhase,
+  mergeCompensationPicksIntoDraftPicks,
+  upcomingDraftYear,
+} from '@/game/league/offseasonEngine'
+import { makeTeam, makeRoster, emptyM10LeagueFields } from '@/tests/fixtures'
+import type { LeagueState } from '@/game/models/league'
+import type { Draft } from '@/game/models/draft'
+import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
+import { SeededRandom } from '@/game/sim/rng'
+
+function makeOffseasonLeague(phase: LeagueState['phase'] = 'offseason'): LeagueState {
+  const teams: LeagueState['teams'] = {}
+  const players: LeagueState['players'] = {}
+  const t1 = makeTeam({ id: 'user', abbreviation: 'USR' })
+  const t2 = makeTeam({ id: 'other', abbreviation: 'OTH' })
+  teams[t1.id] = t1
+  teams[t2.id] = t2
+  for (const t of [t1, t2]) {
+    for (const p of makeRoster(t.id, 5)) {
+      players[p.id] = p
+      t.roster.push(p.id)
+    }
+  }
+
+  return {
+    id: 'league',
+    name: 'Test',
+    currentDate: '2026-07-01',
+    seasonYear: 2026,
+    phase,
+    rules: DEFAULT_LEAGUE_RULES,
+    eraConfig: {
+      season: '2025-26',
+      pace: 100,
+      league3PARate: 0.35,
+      leagueTsPct: 0.57,
+      leaguePpg: 112,
+      possessionCoefficient: 1,
+    },
+    snapshotId: 'snap',
+    teams,
+    players,
+    games: {},
+    standings: {},
+    scheduleGenerated: false,
+    transactions: [],
+    news: [],
+    awardsHistory: [],
+    draftPicks: [],
+    draftClasses: {},
+    ...emptyM10LeagueFields(),
+    champions: [],
+    awards: [],
+    activeProposals: [],
+    userTeamId: 'user',
+  }
+}
+
+describe('offseasonEngine', () => {
+  const rng = new SeededRandom({ seed: 'offseason-test', position: 0 })
+
+  it('beginOffseason prepares draft class and scouting without duplicate championship work', () => {
+    const league = makeOffseasonLeague('playoffs')
+    const bonusBefore = league.teams.user!.finances.seasonPerformanceBonus
+
+    beginOffseason(league, rng)
+
+    expect(league.phase).toBe('offseason')
+    expect(league.rosterSizeCap).toBe(20)
+    const draftClass = league.draftClasses[Object.keys(league.draftClasses)[0]!]
+    expect(draftClass?.prospects.length).toBe(60)
+    expect(league.scoutingState[`user-${draftClass!.id}`]?.pointsRemaining).toBe(100)
+    expect(league.teams.user!.finances.seasonPerformanceBonus).toBe(bonusBefore)
+    expect(league.news.filter((n) => n.type === 'offseason_begins')).toHaveLength(0)
+  })
+
+  it('transition + beginOffseason does not double performance bonuses', () => {
+    const league = makeOffseasonLeague('playoffs')
+    league.playoffBracket = {
+      seasonYear: 2026,
+      format: 'top8',
+      east: [],
+      west: [],
+      finals: {
+        id: 'finals',
+        conference: 'Finals',
+        round: 4,
+        higherSeedTeamId: 'user',
+        lowerSeedTeamId: 'other',
+        higherSeed: 1,
+        lowerSeed: 2,
+        seriesLength: 7,
+        higherSeedWins: 4,
+        lowerSeedWins: 2,
+        status: 'final',
+        games: [],
+        winnerTeamId: 'user',
+        isUpset: false,
+        startDate: '2026-06-01',
+      },
+      status: 'complete',
+      championTeamId: 'user',
+      runnerUpTeamId: 'other',
+      finalsMvpPlayerId: playersFirstId(league),
+    }
+
+    transitionToOffseason(league)
+    const perfAfterTransition = league.teams.user!.finances.seasonPerformanceBonus
+    const cashAfterTransition = league.teams.user!.finances.cashReserves
+    beginOffseason(league, rng)
+    const perfAfterBegin = league.teams.user!.finances.seasonPerformanceBonus
+    const cashAfterBegin = league.teams.user!.finances.cashReserves
+
+    expect(perfAfterBegin).toBe(perfAfterTransition)
+    expect(cashAfterBegin).toBe(cashAfterTransition)
+    expect(league.news.filter((n) => n.type === 'offseason_begins')).toHaveLength(1)
+  })
+
+  it('blocks advancing from draft to free agency until draft is complete', async () => {
+    const league = makeOffseasonLeague('draft')
+    const draftYear = upcomingDraftYear(league)
+    const draft: Draft = {
+      id: `draft-${draftYear}`,
+      seasonYear: draftYear,
+      draftClassId: 'class-1',
+      status: 'in_progress',
+      picks: [],
+      currentPickNumber: 5,
+      startedAt: league.currentDate,
+      orderSource: 'lottery',
+    }
+    league.drafts[draft.id] = draft
+
+    const guard = canAdvancePhase(league)
+    expect(guard.ok).toBe(false)
+
+    const result = await advancePhase(league, 'user', rng)
+    expect(result.blocked).toBe(true)
+    expect(league.phase).toBe('draft')
+  })
+
+  it('signs rookies with matching player ids and updates payroll', async () => {
+    const league = makeOffseasonLeague('draft')
+    const draftYear = upcomingDraftYear(league)
+    const classId = 'draft-class-test'
+    league.draftClasses[classId] = {
+      id: classId,
+      seasonYear: draftYear,
+      season: '2027-28',
+      generatedAt: '',
+      prospects: [
+        {
+          id: 'prospect-1',
+          draftClassId: classId,
+          firstName: 'Test',
+          lastName: 'Rookie',
+          age: 19,
+          position: 'PG',
+          secondaryPositions: [],
+          heightInches: 75,
+          weightLbs: 180,
+          archetype: 'Guard',
+          visibleRatings: {},
+          trueRatings: {
+            insideScoring: 60,
+            closeShot: 60,
+            midrange: 60,
+            threePoint: 60,
+            freeThrow: 60,
+            ballHandling: 60,
+            passing: 60,
+            offensiveIq: 60,
+            offensiveRebound: 50,
+            defensiveRebound: 50,
+            perimeterDefense: 60,
+            interiorDefense: 50,
+            steal: 55,
+            block: 45,
+            defensiveIq: 55,
+            speed: 65,
+            strength: 55,
+            vertical: 60,
+            stamina: 70,
+            durability: 70,
+            clutch: 55,
+            consistency: 55,
+            potential: 75,
+            overall: 60,
+          },
+          visiblePotentialRange: [70, 80],
+          truePotential: 75,
+          projectedRange: [58, 68],
+          scoutingReport: [],
+          riskLevel: 'medium',
+          scoutingPoints: 0,
+          scoutedByTeamId: null,
+          bustRisk: 0.1,
+          breakoutChance: 0.1,
+          source: 'synthetic',
+        },
+      ],
+      generatedBy: 'hybrid',
+      realProspectCount: 0,
+      syntheticProspectCount: 1,
+    }
+
+    const pickId = 'pick-result-1'
+    league.drafts[`draft-${draftYear}`] = {
+      id: `draft-${draftYear}`,
+      seasonYear: draftYear,
+      draftClassId: classId,
+      status: 'complete',
+      picks: [
+        {
+          id: pickId,
+          draftId: `draft-${draftYear}`,
+          pickId: 'asset-1',
+          prospectId: 'prospect-1',
+          pickedByTeamId: 'user',
+          pickNumber: 1,
+          round: 1,
+          isTwoWay: false,
+        },
+      ],
+      currentPickNumber: 61,
+      startedAt: league.currentDate,
+      completedAt: league.currentDate,
+      orderSource: 'lottery',
+    }
+
+    const payrollBefore = league.teams.user!.finances.payroll
+    league.phase = 'draft'
+    const result = await advancePhase(league, 'user', rng)
+    expect(result.blocked).toBeUndefined()
+    expect(league.phase).toBe('free_agency')
+
+    const player = league.players['player-prospect-1']
+    expect(player).toBeDefined()
+    expect(player!.teamId).toBe('user')
+    expect(league.teams.user!.finances.payroll).toBeGreaterThan(payrollBefore)
+  })
+
+  it('merges compensation picks into draftPicks', () => {
+    const league = makeOffseasonLeague()
+    league.compensationPicks = [
+      {
+        id: 'comp-1',
+        seasonYear: 2027,
+        round: 2,
+        originalTeamId: 'user',
+        currentTeamId: 'user',
+        reason: 'outgoing_free_agent',
+        amount: 12_000_000,
+        threshold: 'standard',
+        playerId: 'p1',
+      },
+    ]
+    mergeCompensationPicksIntoDraftPicks(league)
+    expect(league.draftPicks.some((p) => p.id === 'comp-1')).toBe(true)
+  })
+})
+
+function playersFirstId(league: LeagueState): string {
+  return Object.keys(league.players)[0]!
+}

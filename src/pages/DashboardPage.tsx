@@ -14,6 +14,7 @@ import { PhaseTimeline } from '@/components/offseason/PhaseTimeline'
 import { recomputeStandings, computeGB } from '@/game/league/standingsEngine'
 import { getSeriesRoundLabel } from '@/game/models/playoff'
 import type { LeagueState } from '@/game/models/league'
+import { canAdvancePhase } from '@/game/league/offseasonEngine'
 
 function fmt(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
@@ -24,11 +25,16 @@ function fmt(n: number): string {
 function OffseasonDashboardCard({ league }: { league: LeagueState }) {
   const advancePhase = useGameStore((s) => s.advancePhase)
   const [advancing, setAdvancing] = useState(false)
+  const advanceGuard = canAdvancePhase(league)
 
   const handleAdvance = async () => {
     setAdvancing(true)
     try {
       const result = await advancePhase()
+      if (result?.blocked) {
+        toast.error(result.reason ?? 'Cannot advance phase.')
+        return
+      }
       if (result?.newPhase === 'regular_season') {
         toast.success('New season started!')
       } else if (result?.newPhase) {
@@ -57,6 +63,8 @@ function OffseasonDashboardCard({ league }: { league: LeagueState }) {
           currentPhase={league.phase}
           onAdvance={handleAdvance}
           advancing={advancing}
+          canAdvance={advanceGuard.ok}
+          blockReason={advanceGuard.ok ? undefined : advanceGuard.reason}
         />
         <Link
           to="/offseason"

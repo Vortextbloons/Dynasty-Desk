@@ -161,7 +161,9 @@ export function signPlayerFromOffer(
     team.finances.exceptionsUsed.minimumCount += 1
   }
 
-  offer.status = 'accepted'
+  if (offer.status === 'pending') {
+    offer.status = 'accepted'
+  }
 }
 
 export interface DailyBatchResult {

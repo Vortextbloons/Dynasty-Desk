@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { Card, CardContent } from '@/components/ui/card'
 import { PhaseTimeline } from '@/components/offseason/PhaseTimeline'
-import { getNextPhase } from '@/game/league/offseasonEngine'
+import { getNextPhase, canAdvancePhase } from '@/game/league/offseasonEngine'
 import type { LeaguePhase } from '@/game/models/league'
 
 const OFFSEASON_PHASES: LeaguePhase[] = ['offseason', 'draft', 'free_agency', 'preseason']
@@ -22,11 +22,16 @@ export function LeagueNewsPage() {
   const league = save.league
   const news = [...league.news].reverse().slice(0, 40)
   const inOffseasonLoop = OFFSEASON_PHASES.includes(league.phase)
+  const advanceGuard = canAdvancePhase(league)
 
   const handleAdvance = async () => {
     setAdvancing(true)
     try {
       const result = await advancePhase()
+      if (result?.blocked) {
+        toast.error(result.reason ?? 'Cannot advance phase.')
+        return
+      }
       if (result?.newPhase) {
         toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
       }
@@ -51,6 +56,8 @@ export function LeagueNewsPage() {
               currentPhase={league.phase}
               onAdvance={handleAdvance}
               advancing={advancing}
+              canAdvance={advanceGuard.ok}
+              blockReason={advanceGuard.ok ? undefined : advanceGuard.reason}
             />
             <Link to="/offseason" className="text-xs text-[var(--color-primary)] hover:underline">
               Offseason hub →

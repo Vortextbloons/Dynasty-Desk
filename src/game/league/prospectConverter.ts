@@ -11,7 +11,7 @@ export function prospectToPlayer(
   teamId: string,
   rookieContract: RookieContract,
 ): Player {
-  const id = `player-${prospect.id}`
+  const id = rookieContract.playerId
   return {
     id,
     externalId: prospect.externalId,

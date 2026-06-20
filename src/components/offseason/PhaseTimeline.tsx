@@ -15,9 +15,17 @@ interface PhaseTimelineProps {
   currentPhase: LeaguePhase
   onAdvance?: () => void
   advancing?: boolean
+  canAdvance?: boolean
+  blockReason?: string
 }
 
-export function PhaseTimeline({ currentPhase, onAdvance, advancing }: PhaseTimelineProps) {
+export function PhaseTimeline({
+  currentPhase,
+  onAdvance,
+  advancing,
+  canAdvance = true,
+  blockReason,
+}: PhaseTimelineProps) {
   const next = getNextPhase(
     PHASES.some((p) => p.id === currentPhase) ? currentPhase : 'offseason',
   )
@@ -49,9 +57,18 @@ export function PhaseTimeline({ currentPhase, onAdvance, advancing }: PhaseTimel
         })}
       </div>
       {next && onAdvance && (
-        <Button onClick={onAdvance} disabled={advancing} size="sm">
-          Advance to {PHASES.find((p) => p.id === next)?.label ?? next}
-        </Button>
+        <div className="space-y-2">
+          {!canAdvance && blockReason && (
+            <p className="text-xs text-amber-500">{blockReason}</p>
+          )}
+          <Button
+            onClick={onAdvance}
+            disabled={advancing || !canAdvance}
+            size="sm"
+          >
+            Advance to {PHASES.find((p) => p.id === next)?.label ?? next}
+          </Button>
+        </div>
       )}
     </div>
   )

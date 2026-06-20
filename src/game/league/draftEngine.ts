@@ -12,7 +12,6 @@ import {
   pickArchetypeForPosition,
 } from '@/data/draftArchetypes'
 import { pickRandomName } from '@/data/draftNamePools'
-import { initScoutingState } from './scoutingEngine'
 
 const TOTAL_PROSPECTS = 60
 const POSITIONS: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
@@ -358,12 +357,18 @@ export function startDraft(
   league.drafts[draftId] = draft
   league.draftClasses[draftClass.id] = draftClass
 
-  for (const teamId of Object.keys(league.teams)) {
-    const key = `${teamId}-${draftClass.id}`
-    league.scoutingState[key] = initScoutingState(teamId, draftClass.id)
-  }
-
   return draft
+}
+
+export function getDraftClassForYear(
+  league: LeagueState,
+  seasonYear: number,
+): DraftClass | undefined {
+  return Object.values(league.draftClasses).find((c) => c?.seasonYear === seasonYear)
+}
+
+export function getDraftForYear(league: LeagueState, seasonYear: number): Draft | undefined {
+  return Object.values(league.drafts).find((d) => d?.seasonYear === seasonYear)
 }
 
 export function getCurrentPickOwner(

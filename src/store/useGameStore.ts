@@ -44,17 +44,19 @@ import {
 } from '@/game/league/playoffEngine'
 import { computeFinalsMvp } from '@/game/league/awardsEngine'
 import { transitionToOffseason as doTransitionToOffseason } from '@/game/league/offseasonTransition'
-import { beginOffseason, advancePhase as advanceOffseasonPhase, decideOption } from '@/game/league/offseasonEngine'
+import { beginOffseason, advancePhase as advanceOffseasonPhase, decideOption, upcomingDraftYear } from '@/game/league/offseasonEngine'
 import {
   simulateDraftPick,
   autoDraftOffClock,
   autoPickForTeam,
   getCurrentPickOwner,
+  getDraftClassForYear,
 } from '@/game/league/draftEngine'
-import { allocateScoutingPoints as allocateScouting } from '@/game/league/scoutingEngine'
+import { allocateScoutingPoints as allocateScouting, getScoutingStateForClass } from '@/game/league/scoutingEngine'
 import {
   submitOffer as submitFAOffer,
   matchOfferSheet,
+  signPlayerFromOffer,
 } from '@/game/management/freeAgencyEngine'
 import type { FreeAgentOfferInput } from '@/game/models/freeAgent'
 import { canSignTwoWay, addTwoWayPlayer } from '@/game/management/twoWayEngine'
@@ -107,7 +109,7 @@ interface GameStore {
     offer: FreeAgentOffer,
     exception: ExceptionType,
   ) => ContractActionResult
-  advancePhase: () => Promise<{ newPhase: LeaguePhase } | void>
+  advancePhase: () => Promise<{ newPhase: LeaguePhase; blocked?: boolean; reason?: string } | void>
   beginOffseason: () => void
   allocateScoutingPoints: (prospectId: string, points: number) => { ok: boolean; reason?: string }
   makeDraftPick: (prospectId: string, isTwoWay?: boolean) => { ok: boolean; reason?: string }
@@ -438,18 +440,25 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       save.league.userTeamId,
       rng,
     )
-    save.league.news.push(...result.newsEvents)
+    if (!result.blocked) {
+      save.league.news.push(...result.newsEvents)
+    }
     save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
-    return { newPhase: result.newPhase }
+    return {
+      newPhase: result.newPhase,
+      blocked: result.blocked,
+      reason: result.reason,
+    }
   },
 
   beginOffseason: () => {
     const { save } = get()
     if (!save) return
-    doTransitionToOffseason(save.league)
-    beginOffseason(save.league)
+    const rng = new SeededRandom(save.rngState)
+    beginOffseason(save.league, rng)
+    save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },
@@ -458,17 +467,15 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
     const teamId = save.league.userTeamId
-    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
-    if (!draft) return { ok: false, reason: 'No draft in progress.' }
-    const key = `${teamId}-${draft.draftClassId}`
-    const state = save.league.scoutingState[key]
+    const draftClass = getDraftClassForYear(save.league, upcomingDraftYear(save.league))
+    if (!draftClass) return { ok: false, reason: 'Draft class not available yet.' }
+    const state = getScoutingStateForClass(save.league, teamId, draftClass)
     if (!state) return { ok: false, reason: 'Scouting state not found.' }
-    const draftClass = save.league.draftClasses[draft.draftClassId]
-    const prospect = draftClass?.prospects.find((p) => p.id === prospectId)
+    const prospect = draftClass.prospects.find((p) => p.id === prospectId)
     if (!prospect) return { ok: false, reason: 'Prospect not found.' }
     const result = allocateScouting(state, prospect, points)
     if ('error' in result) return { ok: false, reason: result.error }
-    save.league.scoutingState[key] = result.state
+    save.league.scoutingState[`${teamId}-${draftClass.id}`] = result.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
     return { ok: true }
@@ -577,6 +584,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!player || !team) return { matched: false, reason: 'Invalid state.' }
     const result = matchOfferSheet(offer, team, save.league.userTeamId, save.league.currentDate, player)
     if (result.matched) {
+      const matchedOffer = { ...offer, teamId: save.league.userTeamId }
+      signPlayerFromOffer(save.league, matchedOffer, player)
       offer.status = 'matched'
       offer.matchedByTeamId = save.league.userTeamId
     }
@@ -1202,7 +1211,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!save) return
 
     doTransitionToOffseason(save.league)
-    beginOffseason(save.league)
+    const rng = new SeededRandom(save.rngState)
+    beginOffseason(save.league, rng)
+    save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },

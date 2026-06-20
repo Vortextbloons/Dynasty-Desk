@@ -1,10 +1,9 @@
 import type { LeagueState, LeaguePhase } from '@/game/models/league'
 import type { StaticSnapshot } from '@/game/models/static'
+import type { Player } from '@/game/models/player'
 import type { NewsEvent } from '@/game/models/news'
 import type { OffseasonEvent } from '@/game/models/offseason'
-import { SEASON_PERFORMANCE_BONUS } from '@/game/management/financeConstants'
-import { computeTeamSeasonResults } from './playoffEngine'
-import { updateTeamDirection } from '@/game/management/tradeAI'
+import type { DraftPick } from '@/game/models/draft'
 import {
   isModernLotteryEra,
   runLottery,
@@ -15,6 +14,8 @@ import {
   startDraft,
   autoDraftOffClock,
   formatSeasonLabel,
+  getDraftClassForYear,
+  getDraftForYear,
 } from './draftEngine'
 import {
   expireContracts,
@@ -26,6 +27,7 @@ import {
 } from '@/game/management/freeAgencyEngine'
 import { generateRookieContract } from '@/game/management/rookieContractEngine'
 import { prospectToPlayer } from './prospectConverter'
+import { initScoutingForDraftClass } from './scoutingEngine'
 import { generateSchedule } from './scheduleGenerator'
 import { initializeStandings } from './standingsEngine'
 import { getLeagueRules } from '@/game/models/leagueRules'
@@ -44,38 +46,20 @@ const PHASE_ORDER: LeaguePhase[] = [
   'regular_season',
 ]
 
-export function beginOffseason(league: LeagueState): void {
+export function upcomingDraftYear(league: LeagueState): number {
+  return league.seasonYear + 1
+}
+
+/** Contract expiry, QOs, comp picks, draft class + scouting — not championship/bonus work. */
+export function beginOffseason(league: LeagueState, rng: SeededRandom): void {
   league.phase = 'offseason'
   league.rosterSizeCap = OFFSEASON_ROSTER_CAP
 
-  const bracket = league.playoffBracket
-  if (bracket?.status === 'complete') {
-    const allTeamIds = Object.keys(league.teams)
-    const teamResults = computeTeamSeasonResults(bracket, allTeamIds)
-
-    for (const [teamId, result] of Object.entries(teamResults)) {
-      const team = league.teams[teamId]
-      if (!team) continue
-      const bonus = SEASON_PERFORMANCE_BONUS[result] ?? 0
-      team.finances.seasonPerformanceBonus += bonus
-      team.finances.totalRevenue += bonus
-      team.finances.cashReserves += bonus
-    }
-
-    for (const teamId of allTeamIds) {
-      const team = league.teams[teamId]
-      if (!team) continue
-      const standing = league.standings[teamId]
-      const next = updateTeamDirection(
-        team,
-        standing ? { wins: standing.wins, losses: standing.losses } : undefined,
-        league,
-      )
-      if (next !== team.direction) {
-        team.direction = next
-        team.directionAutoUpdatedAt = new Date().toISOString()
-      }
-    }
+  const draftYear = upcomingDraftYear(league)
+  if (!getDraftClassForYear(league, draftYear)) {
+    const draftClass = generateDraftClass(draftYear, league.rules, [], rng)
+    league.draftClasses[draftClass.id] = draftClass
+    initScoutingForDraftClass(league, draftClass.id)
   }
 
   const expired = expireContracts(league)
@@ -98,6 +82,7 @@ export function beginOffseason(league: LeagueState): void {
     outgoingFAs.filter((f) => f.teamId),
     league.seasonYear,
   )
+  mergeCompensationPicksIntoDraftPicks(league)
 
   const rfaCandidates = expired
     .map((pid) => {
@@ -121,22 +106,68 @@ export function beginOffseason(league: LeagueState): void {
       }
     }
   }
+}
 
-  league.news.push({
-    id: `news-offseason-${league.seasonYear}`,
-    date: league.currentDate,
-    type: 'offseason_begins',
-    headline: 'Offseason begins',
-    body: `The ${league.rules.seasonLabel} offseason has begun.`,
-    teamIds: [],
-    playerIds: [],
-    importance: 'medium',
-  })
+export function mergeCompensationPicksIntoDraftPicks(league: LeagueState): void {
+  for (const comp of league.compensationPicks) {
+    if (league.draftPicks.some((p) => p.id === comp.id)) continue
+
+    const seasonLabel = formatSeasonLabel(comp.seasonYear)
+    const round2ForSeason = league.draftPicks.filter(
+      (p) => p.season === seasonLabel && p.round === 2,
+    )
+    const maxSlot = round2ForSeason.reduce((max, p) => Math.max(max, p.pickNumber), 0)
+    const teamCount = Object.keys(league.teams).length
+
+    const pick: DraftPick = {
+      id: comp.id,
+      season: seasonLabel,
+      round: 2,
+      pickNumber: maxSlot > 0 ? maxSlot + 1 : teamCount + 1,
+      originalTeamId: comp.originalTeamId,
+      currentTeamId: comp.currentTeamId,
+      prospectId: null,
+    }
+    league.draftPicks.push(pick)
+  }
+}
+
+export function canAdvancePhase(
+  league: LeagueState,
+): { ok: true } | { ok: false; reason: string } {
+  const next = getNextPhase(league.phase)
+  if (!next) {
+    return { ok: false, reason: 'No further offseason phases to advance.' }
+  }
+
+  if (league.phase === 'draft' && next === 'free_agency') {
+    const draft = getDraftForYear(league, upcomingDraftYear(league))
+    if (!draft) {
+      return { ok: false, reason: 'Draft has not started.' }
+    }
+    if (draft.status !== 'complete') {
+      return {
+        ok: false,
+        reason: 'Complete all draft picks before advancing to free agency.',
+      }
+    }
+  }
+
+  return { ok: true }
+}
+
+export function freeAgencyStillActive(league: LeagueState, currentDate: string): boolean {
+  if (identifyFreeAgents(league).length > 0) return true
+  return league.freeAgentOffers.some(
+    (o) => o.status === 'pending' && currentDate <= o.matchDeadline,
+  )
 }
 
 export interface AdvancePhaseResult {
   newPhase: LeaguePhase
   newsEvents: NewsEvent[]
+  blocked?: boolean
+  reason?: string
 }
 
 export async function advancePhase(
@@ -145,6 +176,16 @@ export async function advancePhase(
   rng: SeededRandom,
   snapshot?: StaticSnapshot,
 ): Promise<AdvancePhaseResult> {
+  const guard = canAdvancePhase(league)
+  if (!guard.ok) {
+    return {
+      newPhase: league.phase,
+      newsEvents: [],
+      blocked: true,
+      reason: guard.reason,
+    }
+  }
+
   const currentIdx = PHASE_ORDER.indexOf(league.phase as typeof PHASE_ORDER[number])
   if (currentIdx < 0 || currentIdx >= PHASE_ORDER.length - 1) {
     return { newPhase: league.phase, newsEvents: [] }
@@ -154,9 +195,14 @@ export async function advancePhase(
   const newsEvents: NewsEvent[] = []
 
   if (nextPhase === 'draft') {
-    const draftYear = league.seasonYear + 1
-    const realData = await loadRealDraftData(draftYear)
-    const draftClass = generateDraftClass(draftYear, league.rules, realData, rng)
+    const draftYear = upcomingDraftYear(league)
+    let draftClass = getDraftClassForYear(league, draftYear)
+    if (!draftClass) {
+      const realData = await loadRealDraftData(draftYear)
+      draftClass = generateDraftClass(draftYear, league.rules, realData, rng)
+      league.draftClasses[draftClass.id] = draftClass
+      initScoutingForDraftClass(league, draftClass.id)
+    }
     const seasonLabel = formatSeasonLabel(draftYear)
     const orderSource = isModernLotteryEra(league.rules.seasonLabel) ? 'lottery' : 'inverse_record'
     const order =
@@ -170,28 +216,14 @@ export async function advancePhase(
   }
 
   if (nextPhase === 'free_agency') {
-    signUnsignedRookies(league, rng)
+    signUnsignedRookies(league)
     const faIds = identifyFreeAgents(league)
     const aiOffers = submitAIOffers(league, faIds, league.currentDate, rng)
     league.freeAgentOffers.push(...aiOffers)
   }
 
   if (nextPhase === 'preseason') {
-    const batch = resolveDailyBatches(league, league.currentDate)
-    newsEvents.push(...batch.newsEvents)
-    while (identifyFreeAgents(league).length > 0) {
-      league.currentDate = addDays(league.currentDate, 1)
-      const moreOffers = submitAIOffers(
-        league,
-        identifyFreeAgents(league),
-        league.currentDate,
-        rng,
-      )
-      league.freeAgentOffers.push(...moreOffers)
-      const dayBatch = resolveDailyBatches(league, league.currentDate)
-      newsEvents.push(...dayBatch.newsEvents)
-      if (dayBatch.resolvedOffers.length === 0) break
-    }
+    resolvePreseasonFreeAgency(league, rng, newsEvents)
   }
 
   if (nextPhase === 'regular_season') {
@@ -217,7 +249,31 @@ export async function advancePhase(
   return { newPhase: nextPhase, newsEvents }
 }
 
-function signUnsignedRookies(league: LeagueState, _rng: SeededRandom): void {
+function resolvePreseasonFreeAgency(
+  league: LeagueState,
+  rng: SeededRandom,
+  newsEvents: NewsEvent[],
+): void {
+  const maxDays = 60
+  for (let day = 0; day < maxDays; day++) {
+    if (!freeAgencyStillActive(league, league.currentDate)) break
+
+    if (day > 0) {
+      league.currentDate = addDays(league.currentDate, 1)
+    }
+
+    const faIds = identifyFreeAgents(league)
+    if (faIds.length > 0) {
+      const moreOffers = submitAIOffers(league, faIds, league.currentDate, rng)
+      league.freeAgentOffers.push(...moreOffers)
+    }
+
+    const dayBatch = resolveDailyBatches(league, league.currentDate)
+    newsEvents.push(...dayBatch.newsEvents)
+  }
+}
+
+function signUnsignedRookies(league: LeagueState): void {
   for (const draft of Object.values(league.drafts)) {
     if (!draft || draft.status !== 'complete') continue
     for (const pick of draft.picks) {
@@ -228,10 +284,11 @@ function signUnsignedRookies(league: LeagueState, _rng: SeededRandom): void {
       const prospect = draftClass?.prospects.find((p) => p.id === pick.prospectId)
       if (!prospect) continue
 
+      const playerId = `player-${prospect.id}`
       const rookieContract = generateRookieContract(
         pick.pickNumber,
         pick.id,
-        `player-${pick.id}`,
+        playerId,
         team.id,
         league.rules,
         pick.isTwoWay,
@@ -242,6 +299,11 @@ function signUnsignedRookies(league: LeagueState, _rng: SeededRandom): void {
       const player = prospectToPlayer(prospect, team.id, rookieContract)
       league.players[player.id] = player
       if (!team.roster.includes(player.id)) team.roster.push(player.id)
+
+      const salary = rookieContract.salaryByYear[0] ?? 0
+      team.finances.payroll += salary
+      team.finances.capSpace = league.rules.salaryCap - team.finances.payroll
+
       if (pick.isTwoWay) {
         if (!team.twoWayPlayers) team.twoWayPlayers = []
         team.twoWayPlayers.push(player.id)
@@ -311,13 +373,47 @@ function trimRostersToHardCap(league: LeagueState): void {
   for (const team of Object.values(league.teams)) {
     if (!team) continue
     while (team.roster.length > REGULAR_SEASON_ROSTER_CAP) {
-      const removed = team.roster.pop()
-      if (removed) {
-        const p = league.players[removed]
-        if (p) p.teamId = null
-      }
+      const cutCandidate = pickRosterCutCandidate(league, team)
+      if (!cutCandidate) break
+      releasePlayerFromTeam(league, team, cutCandidate)
     }
   }
+}
+
+function pickRosterCutCandidate(
+  league: LeagueState,
+  team: NonNullable<LeagueState['teams'][string]>,
+): Player | null {
+  const players = team.roster
+    .map((id) => league.players[id])
+    .filter((p): p is Player => !!p)
+
+  if (players.length === 0) return null
+
+  players.sort((a, b) => {
+    const aTwoWay = team.twoWayPlayers?.includes(a.id) ? 0 : 1
+    const bTwoWay = team.twoWayPlayers?.includes(b.id) ? 0 : 1
+    if (aTwoWay !== bTwoWay) return aTwoWay - bTwoWay
+    return a.ratings.overall - b.ratings.overall
+  })
+
+  return players[0] ?? null
+}
+
+function releasePlayerFromTeam(
+  league: LeagueState,
+  team: NonNullable<LeagueState['teams'][string]>,
+  player: Player,
+): void {
+  team.roster = team.roster.filter((id) => id !== player.id)
+  if (team.twoWayPlayers) {
+    team.twoWayPlayers = team.twoWayPlayers.filter((id) => id !== player.id)
+  }
+  player.teamId = null
+
+  const salary = player.contract.salaryByYear[0] ?? 0
+  team.finances.payroll = Math.max(0, team.finances.payroll - salary)
+  team.finances.capSpace = league.rules.salaryCap - team.finances.payroll
 }
 
 export function decideOption(

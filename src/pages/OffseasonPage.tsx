@@ -8,6 +8,7 @@ import { OffseasonLog } from '@/components/offseason/OffseasonLog'
 import {
   getExpiringContractCount,
   getPendingOptionCount,
+  canAdvancePhase,
 } from '@/game/league/offseasonEngine'
 
 const OFFSEASON_PHASES = ['offseason', 'draft', 'free_agency', 'preseason'] as const
@@ -35,10 +36,16 @@ export function OffseasonPage() {
     )
   }
 
+  const advanceGuard = canAdvancePhase(league)
+
   const handleAdvance = async () => {
     setAdvancing(true)
     try {
       const result = await advancePhase()
+      if (result?.blocked) {
+        toast.error(result.reason ?? 'Cannot advance phase.')
+        return
+      }
       if (result?.newPhase) {
         toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
       }
@@ -61,6 +68,8 @@ export function OffseasonPage() {
         currentPhase={league.phase}
         onAdvance={handleAdvance}
         advancing={advancing}
+        canAdvance={advanceGuard.ok}
+        blockReason={advanceGuard.ok ? undefined : advanceGuard.reason}
       />
 
       <div className="grid gap-4 md:grid-cols-2">

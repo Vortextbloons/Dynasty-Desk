@@ -1,9 +1,30 @@
-import type { DraftProspect } from '@/game/models/draft'
+import type { DraftProspect, DraftClass } from '@/game/models/draft'
 import type { TeamScoutingState } from '@/game/models/draft'
+import type { LeagueState } from '@/game/models/league'
 import type { PlayerRatings } from '@/game/models/ratings'
 import { clampRating } from '@/game/models/ratings'
 
 export const SCOUTING_POINTS_PER_TEAM = 100
+
+export function initScoutingForDraftClass(
+  league: LeagueState,
+  draftClassId: string,
+): void {
+  for (const teamId of Object.keys(league.teams)) {
+    const key = `${teamId}-${draftClassId}`
+    if (!league.scoutingState[key]) {
+      league.scoutingState[key] = initScoutingState(teamId, draftClassId)
+    }
+  }
+}
+
+export function getScoutingStateForClass(
+  league: LeagueState,
+  teamId: string,
+  draftClass: DraftClass,
+): TeamScoutingState | null {
+  return league.scoutingState[`${teamId}-${draftClass.id}`] ?? null
+}
 
 export function initScoutingState(
   teamId: string,

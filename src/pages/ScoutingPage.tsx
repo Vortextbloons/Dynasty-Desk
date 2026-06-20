@@ -5,6 +5,11 @@ import { useGameStore } from '@/store/useGameStore'
 import { ProspectCard } from '@/components/draft/ProspectCard'
 import { Button } from '@/components/ui/button'
 import { SCOUTING_POINTS_PER_TEAM } from '@/game/league/scoutingEngine'
+import { getDraftClassForYear } from '@/game/league/draftEngine'
+import { upcomingDraftYear } from '@/game/league/offseasonEngine'
+import { getScoutingStateForClass } from '@/game/league/scoutingEngine'
+
+const SCOUTING_PHASES = ['offseason', 'draft'] as const
 
 export function ScoutingPage() {
   const save = useGameStore((s) => s.save)
@@ -15,17 +20,22 @@ export function ScoutingPage() {
     return <div className="p-6 text-sm text-[var(--color-muted-foreground)]">No active save.</div>
   }
 
-  const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
-  const draftClass = draft ? save.league.draftClasses[draft.draftClassId] : null
-  const key = draft ? `${save.league.userTeamId}-${draft.draftClassId}` : ''
-  const scouting = key ? save.league.scoutingState[key] : null
+  const league = save.league
+  const draftClass = getDraftClassForYear(league, upcomingDraftYear(league))
+  const scouting = draftClass
+    ? getScoutingStateForClass(league, league.userTeamId, draftClass)
+    : null
 
-  if (!draft || !draftClass || !scouting) {
+  if (
+    !SCOUTING_PHASES.includes(league.phase as (typeof SCOUTING_PHASES)[number]) ||
+    !draftClass ||
+    !scouting
+  ) {
     return (
       <div>
         <PageHeader title="Scouting" description="Allocate scouting points" />
         <p className="text-sm text-[var(--color-muted-foreground)]">
-          Scouting opens when the draft begins.
+          Scouting opens when the offseason begins.
         </p>
       </div>
     )
