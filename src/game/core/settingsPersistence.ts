@@ -1,4 +1,4 @@
-import type { GameSettings } from '@/game/models'
+import type { GameSettings, SimSpeed } from '@/game/models'
 
 const validDifficulties = new Set<GameSettings['difficulty']>([
   'rookie',
@@ -8,16 +8,33 @@ const validDifficulties = new Set<GameSettings['difficulty']>([
   'hall_of_fame',
 ])
 
-const validSimSpeeds = new Set<GameSettings['simSpeed']>([
+const validSimSpeeds = new Set<SimSpeed>([
+  'instant',
+  'normal',
   'slow',
   'balanced',
   'fast',
 ])
 
+const legacySimSpeedMap: Record<string, SimSpeed> = {
+  slow: 'normal',
+  balanced: 'normal',
+  fast: 'instant',
+}
+
+export function migrateSimSpeed(value: unknown): SimSpeed {
+  if (typeof value === 'string') {
+    if (validSimSpeeds.has(value as SimSpeed)) return value as SimSpeed
+    const mapped = legacySimSpeedMap[value]
+    if (mapped) return mapped
+  }
+  return 'normal'
+}
+
 export function defaultSettings(): GameSettings {
   return {
     difficulty: 'pro',
-    simSpeed: 'balanced',
+    simSpeed: 'normal',
     autoSave: true,
     injuries: true,
     fatigue: true,
@@ -36,7 +53,7 @@ function isGameSettings(value: unknown): value is GameSettings {
 
   return (
     validDifficulties.has(value.difficulty as GameSettings['difficulty']) &&
-    validSimSpeeds.has(value.simSpeed as GameSettings['simSpeed']) &&
+    validSimSpeeds.has(value.simSpeed as SimSpeed) &&
     typeof value.autoSave === 'boolean' &&
     typeof value.injuries === 'boolean' &&
     typeof value.fatigue === 'boolean' &&
@@ -49,7 +66,7 @@ function isGameSettings(value: unknown): value is GameSettings {
 function normalizeSettings(value: GameSettings): GameSettings {
   return {
     difficulty: value.difficulty,
-    simSpeed: value.simSpeed,
+    simSpeed: migrateSimSpeed(value.simSpeed),
     autoSave: value.autoSave,
     injuries: value.injuries,
     fatigue: value.fatigue,
@@ -64,8 +81,13 @@ export function parsePersistedSettings(raw: string | null): GameSettings {
 
   try {
     const parsed: unknown = JSON.parse(raw)
-    return isGameSettings(parsed) ? normalizeSettings(parsed) : defaultSettings()
+    const normalized: GameSettings = isGameSettings(parsed)
+      ? normalizeSettings(parsed)
+      : defaultSettings()
+    return normalized
   } catch {
     return defaultSettings()
   }
 }
+
+export { validSimSpeeds }

@@ -1,3 +1,5 @@
+import type { BoxScoreResult } from '@/game/sim/gameState'
+
 export type GameStatus = 'scheduled' | 'in_progress' | 'final' | 'postponed'
 
 export interface ScheduledGame {
@@ -10,6 +12,7 @@ export interface ScheduledGame {
   homeScore: number | null
   awayScore: number | null
   boxScoreId: string | null
+  boxScore?: BoxScoreResult | null
 }
 
 export interface TeamStanding {

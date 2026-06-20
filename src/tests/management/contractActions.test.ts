@@ -374,6 +374,22 @@ describe('buyoutPlayer', () => {
     expect(newContract.yearsRemaining).toBe(1)
   })
 
+  it('settle amount 0 still leaves half the guaranteed money on the books', () => {
+    const contract = emptyContract(10_000_000, 2)
+    contract.guaranteedByYear = [true, false]
+    contract.guaranteed = false
+    const player = makePlayer({}, contract)
+    const team = makeTeam()
+    team.finances.payroll = 10_000_000
+
+    const result = buyoutPlayer('player-1', player, 0, team, rules)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.patch.players['player-1']!.contract!.salaryByYear[0]).toBe(5_000_000)
+    expect(result.patch.teams['team-1']!.finances!.payroll).toBe(5_000_000)
+  })
+
   it('settle >= guaranteed: player becomes free agent with cleared cap', () => {
     const contract = emptyContract(30_000_000, 2)
     contract.guaranteedByYear = [true, true]
@@ -526,6 +542,29 @@ describe('extendPlayer', () => {
     expect(result.ok).toBe(true)
   })
 
+  it('allows over-cap extension with early bird rights', () => {
+    const contract = emptyContract(10_000_000, 1)
+    contract.earlyBird = true
+    const player = makePlayer({}, contract)
+    const team = makeTeam()
+    team.finances.payroll = 139_000_000
+
+    const result = extendPlayer(
+      'player-1',
+      player,
+      {
+        years: 2,
+        salaryByYear: [15_000_000, 16_000_000],
+        option: 'none',
+        noTradeClause: false,
+      },
+      team,
+      {},
+      rules,
+    )
+    expect(result.ok).toBe(true)
+  })
+
   it('accepts valid extension within raises limit', () => {
     const contract = emptyContract(10_000_000, 1)
     const player = makePlayer({}, contract)
@@ -636,6 +675,27 @@ describe('signFreeAgent', () => {
       exceptions,
     )
     expect(result.ok).toBe(true)
+  })
+
+  it('room MLE is allowed when under the room MLE cap', () => {
+    const player = makePlayer({ teamId: null })
+    const team = makeTeam()
+    team.finances.payroll = 130_000_000
+
+    const result = signFreeAgent(
+      'player-1',
+      player,
+      { years: 1, salaryByYear: [7_000_000] },
+      'room_mle',
+      team,
+      rules,
+      makeExceptions(),
+    )
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.patch.teams['team-1']!.finances!.exceptionsUsed.roomMle).toBe(true)
   })
 
   it('minimum increments minimumCount', () => {

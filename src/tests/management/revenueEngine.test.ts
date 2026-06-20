@@ -106,6 +106,15 @@ describe('computeLocalRevenue', () => {
     expect(result).toBe(140_000_000)
   })
 
+  it('defaults to baseline attendance when total games is 0', () => {
+    const result = computeLocalRevenue(
+      { marketSize: 100, prestige: 100 },
+      0,
+      0,
+    )
+    expect(result).toBe(140_000_000)
+  })
+
   it('small market team earns less than large market', () => {
     const large = computeLocalRevenue(
       { marketSize: 95, prestige: 80 },

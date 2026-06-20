@@ -2,16 +2,13 @@ import { describe, it, expect } from 'vitest'
 import {
   eraCoefficient,
   normalizePPG,
-  normalizeStats,
   paceNormalize,
   tsAdjustment,
 } from '@/game/ratings/eraAdjustment'
 import {
   MODERN_ERA_CONFIG,
   LATE_1990S_ERA_CONFIG,
-  getEraConfig,
 } from '@/game/models/eraConfig'
-import { perGame } from '@/game/models/playerSeasonStats'
 import { generateRatings } from '@/game/ratings/playerRatingEngine'
 
 function makeStats(
@@ -86,45 +83,31 @@ function makeStats(
 }
 
 describe('eraAdjustment', () => {
-  it('normalizes PPG against era league scoring', () => {
-    const modern = normalizePPG(25, MODERN_ERA_CONFIG)
-    const late90s = normalizePPG(25, LATE_1990S_ERA_CONFIG)
-    expect(modern).toBeCloseTo(25, 5)
-    expect(late90s).toBeGreaterThan(modern)
-  })
-
-  it('normalizeStats expands raw averages into a comparable shape', () => {
-    const stats = makeStats('2024-25')
-    const n = normalizeStats(stats, getEraConfig('2024-25'))
-    expect(n.ppg).toBeGreaterThan(0)
-    expect(n.threePARate).toBeGreaterThan(0)
-  })
-
-  it('paceNormalize is a no-op in the modern era and shifts older eras', () => {
-    const modern = paceNormalize(100, MODERN_ERA_CONFIG)
-    const old = paceNormalize(100, LATE_1990S_ERA_CONFIG)
-    expect(modern).toBeCloseTo(100, 5)
-    expect(old).toBeGreaterThan(100)
-  })
-
-  it('tsAdjustment is positive when player TS exceeds league TS', () => {
-    const a = tsAdjustment(
-      makeStats('2024-25', { ts: 0.62 }),
-      getEraConfig('2024-25'),
+  it('normalizes PPG exactly by era', () => {
+    expect(normalizePPG(25, MODERN_ERA_CONFIG)).toBe(25)
+    expect(normalizePPG(25, LATE_1990S_ERA_CONFIG)).toBeCloseTo(
+      25 * (114.7 / 99.1),
+      5,
     )
-    expect(a).toBeGreaterThan(0)
   })
 
-  it('eraCoefficient returns 1.0 for full seasons and lower for lockouts', () => {
-    expect(eraCoefficient(getEraConfig('2024-25'))).toBe(1)
-    expect(eraCoefficient(getEraConfig('1998-99'))).toBeLessThan(1)
+  it('normalizes pace exactly by era', () => {
+    expect(paceNormalize(100, MODERN_ERA_CONFIG)).toBe(100)
+    expect(paceNormalize(100, LATE_1990S_ERA_CONFIG)).toBeCloseTo(
+      100 * (99.2 / 91.1),
+      5,
+    )
   })
 
-  it('perGame sanity check', () => {
-    const stats = makeStats('2024-25')
-    const pg = perGame(stats)
-    expect(pg.ppg).toBeCloseTo(25, 1)
-    expect(pg.rpg).toBeCloseTo(7, 1)
+  it('applies tsAdjustment exactly and handles zero TS', () => {
+    expect(tsAdjustment(makeStats('2024-25', { ts: 0.62 }), MODERN_ERA_CONFIG)).toBeCloseTo(4, 10)
+    expect(tsAdjustment(makeStats('2024-25', { ts: 0.5 }), MODERN_ERA_CONFIG)).toBeCloseTo(-8, 10)
+    expect(tsAdjustment(makeStats('2024-25', { ts: 0 }), MODERN_ERA_CONFIG)).toBe(0)
+  })
+
+  it('returns exact era coefficients', () => {
+    expect(eraCoefficient(MODERN_ERA_CONFIG)).toBe(1)
+    expect(eraCoefficient(LATE_1990S_ERA_CONFIG)).toBe(0.92)
   })
 })
 

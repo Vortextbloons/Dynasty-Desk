@@ -5,6 +5,7 @@ import {
   computeCapSpace,
   computeApronStatus,
   computeTaxBill,
+  computeProjectedTaxBill,
 } from '@/game/management/capEngine'
 import { emptyContract } from '@/game/models/contract'
 import { getLeagueRules } from '@/game/models/leagueRules'
@@ -277,6 +278,11 @@ describe('computeTaxBill', () => {
     const team = makeTeam(176_000_000)
     const tax = computeTaxBill(team, rules, 0)
     expect(tax).toBe(7_029_000)
+  })
+
+  it('computeProjectedTaxBill delegates to computeTaxBill', () => {
+    const team = makeTeam(200_000_000)
+    expect(computeProjectedTaxBill(team, rules, 0)).toBe(computeTaxBill(team, rules, 0))
   })
 
   it('handles exact 5M tax bracket boundary', () => {

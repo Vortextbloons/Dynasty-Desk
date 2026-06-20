@@ -451,9 +451,9 @@ describe('schema version acceptance', () => {
     expect(validateSave(raw).ok).toBe(true)
   })
 
-  it('rejects schema version 4', () => {
+  it('accepts schema version 4', () => {
     const raw = asRaw(makeValidSave())
     ;(raw.metadata as Record<string, unknown>).schemaVersion = 4
-    expect(validateSave(raw).ok).toBe(false)
+    expect(validateSave(raw).ok).toBe(true)
   })
 })

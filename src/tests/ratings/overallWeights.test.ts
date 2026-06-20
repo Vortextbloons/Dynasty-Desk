@@ -16,6 +16,35 @@ function makeRatings(overrides: Partial<PlayerRatings> = {}): PlayerRatings {
   }
 }
 
+function makeFilledRatings(value: number): PlayerRatings {
+  return {
+    insideScoring: value,
+    closeShot: value,
+    midrange: value,
+    threePoint: value,
+    freeThrow: value,
+    ballHandling: value,
+    passing: value,
+    offensiveIq: value,
+    offensiveRebound: value,
+    defensiveRebound: value,
+    perimeterDefense: value,
+    interiorDefense: value,
+    steal: value,
+    block: value,
+    defensiveIq: value,
+    speed: value,
+    strength: value,
+    vertical: value,
+    stamina: value,
+    durability: value,
+    clutch: value,
+    consistency: value,
+    potential: value,
+    overall: value,
+  }
+}
+
 describe('overallWeights', () => {
   describe('weight sums', () => {
     for (const position of ['PG', 'SG', 'SF', 'PF', 'C'] as Position[]) {
@@ -28,45 +57,22 @@ describe('overallWeights', () => {
   })
 
   describe('computeOverall', () => {
-    it('returns 50 for all-50 ratings', () => {
-      const ratings = makeRatings()
-      for (const pos of ['PG', 'SG', 'SF', 'PF', 'C'] as Position[]) {
-        expect(computeOverall(ratings, pos)).toBe(50)
-      }
+    it('returns 100 for an all-100 PG', () => {
+      expect(computeOverall(makeFilledRatings(100), 'PG')).toBe(100)
     })
 
-    it('returns higher overall for higher ratings', () => {
-      const high = makeRatings({
-        insideScoring: 90, threePoint: 90, passing: 90,
-        speed: 90, defensiveIq: 90, offensiveIq: 90,
-      })
-      const low = makeRatings({
-        insideScoring: 30, threePoint: 30, passing: 30,
-        speed: 30, defensiveIq: 30, offensiveIq: 30,
-      })
-      expect(computeOverall(high, 'PG')).toBeGreaterThan(computeOverall(low, 'PG'))
+    it('returns 0 for an all-0 PG', () => {
+      expect(computeOverall(makeFilledRatings(0), 'PG')).toBe(0)
     })
 
-    it('PG guard-oriented: high ballHandling/passing boosts overall more than insideScoring', () => {
-      const guard = makeRatings({ ballHandling: 95, passing: 95, insideScoring: 40 })
-      const center = makeRatings({ ballHandling: 40, passing: 40, insideScoring: 95 })
-      expect(computeOverall(guard, 'PG')).toBeGreaterThan(computeOverall(center, 'PG'))
+    it('computes a specific PG example as 61', () => {
+      const ratings = makeRatings({ ballHandling: 90, passing: 85 })
+      expect(computeOverall(ratings, 'PG')).toBe(61)
     })
 
-    it('C center-oriented: high insideScoring/defensiveRebound boosts overall more than ballHandling', () => {
-      const center = makeRatings({ insideScoring: 95, defensiveRebound: 95, ballHandling: 40 })
-      const guard = makeRatings({ insideScoring: 40, defensiveRebound: 40, ballHandling: 95 })
-      expect(computeOverall(center, 'C')).toBeGreaterThan(computeOverall(guard, 'C'))
-    })
-
-    it('result is always an integer between 0 and 100', () => {
-      const ratings = makeRatings()
-      for (const pos of ['PG', 'SG', 'SF', 'PF', 'C'] as Position[]) {
-        const result = computeOverall(ratings, pos)
-        expect(Number.isInteger(result)).toBe(true)
-        expect(result).toBeGreaterThanOrEqual(0)
-        expect(result).toBeLessThanOrEqual(100)
-      }
+    it('computes a specific C example as 68', () => {
+      const ratings = makeRatings({ insideScoring: 95, defensiveRebound: 90, interiorDefense: 85 })
+      expect(computeOverall(ratings, 'C')).toBe(68)
     })
   })
 

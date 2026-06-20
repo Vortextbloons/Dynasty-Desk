@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { migrateToV2, migrateToV3 } from '@/db/saveMigration'
+import { migrateToV2, migrateToV3, migrateToV4 } from '@/db/saveMigration'
 import type { GameSave } from '@/game/models'
 
 function makeV1Save(): any {
@@ -366,5 +366,39 @@ describe('migrateToV3', () => {
     expect(v3Again.league.players['player-1']!.ratings.overall).toBe(
       v3.league.players['player-1']!.ratings.overall,
     )
+  })
+})
+
+describe('migrateToV4', () => {
+  it('bumps schemaVersion to 4', () => {
+    const v2 = makeV2Save()
+    const v3 = migrateToV3(v2) as GameSave
+    const result = migrateToV4(v3) as GameSave
+
+    expect(result.metadata.schemaVersion).toBe(4)
+  })
+
+  it('migrates simSpeed to balanced from legacy normal', () => {
+    const v2 = makeV2Save()
+    const v3 = migrateToV3(v2) as GameSave
+    v3.settings.simSpeed = 'normal'
+
+    const result = migrateToV4(v3) as GameSave
+
+    expect(result.settings.simSpeed).toBe('balanced')
+  })
+
+  it('is idempotent when re-migrating v4 saves', () => {
+    const v2 = makeV2Save()
+    const v3 = migrateToV3(v2) as GameSave
+    const v4 = migrateToV4({
+      ...v3,
+      metadata: { ...v3.metadata, schemaVersion: 4 },
+      settings: { ...v3.settings, simSpeed: 'balanced' },
+    }) as GameSave
+    const v4Again = migrateToV4(v4) as GameSave
+
+    expect(v4Again.metadata.schemaVersion).toBe(4)
+    expect(v4Again.settings.simSpeed).toBe('balanced')
   })
 })

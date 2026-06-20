@@ -6,6 +6,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { RosterPage } from '@/pages/RosterPage'
 import { LineupPage } from '@/pages/LineupPage'
 import { SchedulePage } from '@/pages/SchedulePage'
+import { BoxScorePage } from '@/pages/BoxScorePage'
 import { StandingsPage } from '@/pages/StandingsPage'
 import { TradeCenterPage } from '@/pages/TradeCenterPage'
 import { FreeAgencyPage } from '@/pages/FreeAgencyPage'
@@ -50,14 +51,22 @@ export function AppRouter() {
           </AppShell>
         }
       />
-      <Route
-        path="/schedule"
-        element={
-          <AppShell>
-            <SchedulePage />
-          </AppShell>
-        }
-      />
+  <Route
+    path="/schedule"
+    element={
+      <AppShell>
+        <SchedulePage />
+      </AppShell>
+    }
+  />
+  <Route
+    path="/game/:id"
+    element={
+      <AppShell>
+        <BoxScorePage />
+      </AppShell>
+    }
+  />
       <Route
         path="/standings"
         element={

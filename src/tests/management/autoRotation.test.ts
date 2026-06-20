@@ -86,7 +86,7 @@ describe('generateAutoRotation', () => {
     expect(total).toBe(240)
   })
 
-  it('top 2 overall players get at least 34 minutes each', () => {
+  it('top 2 overall players get exactly 36 minutes each', () => {
     const specs = Array.from({ length: 13 }, (_, i) => ({
       id: `p${i + 1}`,
       overall: 90 - i * 3,
@@ -98,8 +98,30 @@ describe('generateAutoRotation', () => {
     const lineup = generateAutoRotation(roster, players)
     const p1Minutes = lineup.targetMinutes['p1'] ?? 0
     const p2Minutes = lineup.targetMinutes['p2'] ?? 0
-    expect(p1Minutes).toBeGreaterThanOrEqual(34)
-    expect(p2Minutes).toBeGreaterThanOrEqual(34)
+    expect(p1Minutes).toBe(36)
+    expect(p2Minutes).toBe(36)
+  })
+
+  it('swaps a bench ball handler into the starters', () => {
+    const specs = [
+      { id: 'p1', overall: 95, position: 'PG' as const },
+      { id: 'p2', overall: 94, position: 'SG' as const },
+      { id: 'p3', overall: 93, position: 'SF' as const },
+      { id: 'p4', overall: 92, position: 'PF' as const },
+      { id: 'p5', overall: 91, position: 'C' as const, interiorDefense: 80 },
+      { id: 'bh', overall: 60, position: 'PG' as const, ballHandling: 80, passing: 75 },
+      ...Array.from({ length: 7 }, (_, i) => ({
+        id: `bench${i}`,
+        overall: 59 - i,
+        position: (['PG', 'SG', 'SF', 'PF', 'C'] as const)[i % 5],
+      })),
+    ]
+    const players = makePlayers(specs)
+    const roster = specs.map((s) => s.id)
+
+    const lineup = generateAutoRotation(roster, players)
+    expect(lineup.starters).toContain('bh')
+    expect(lineup.starters.filter((id) => id.startsWith('p'))).toHaveLength(4)
   })
 
   it('includes a center in starters when one is available', () => {

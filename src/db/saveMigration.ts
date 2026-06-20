@@ -9,6 +9,7 @@ import {
 import { computeOverall } from '@/game/ratings/overallWeights'
 import { isPosition } from '@/game/models/position'
 import type { PlayerRatings } from '@/game/models/ratings'
+import { migrateSimSpeed } from '@/game/core/settingsPersistence'
 
 interface GameSaveV1 {
   metadata: {
@@ -221,6 +222,27 @@ export function migrateToV3(input: unknown): GameSave {
     league: {
       ...save.league,
       players,
+    },
+  }
+}
+
+export function migrateToV4(input: unknown): GameSave {
+  const save = input as GameSave
+
+  const settings = save.settings as unknown as Record<string, unknown>
+  const speed = migrateSimSpeed(settings.simSpeed)
+  const migratedSpeed: GameSave['settings']['simSpeed'] =
+    speed === 'instant' ? 'instant' : 'balanced'
+
+  return {
+    ...save,
+    metadata: {
+      ...save.metadata,
+      schemaVersion: 4,
+    },
+    settings: {
+      ...save.settings,
+      simSpeed: migratedSpeed,
     },
   }
 }

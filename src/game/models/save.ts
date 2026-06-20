@@ -13,9 +13,11 @@ export interface SaveMetadata {
   snapshotId: string
 }
 
+export type SimSpeed = 'instant' | 'normal' | 'slow' | 'balanced' | 'fast'
+
 export interface GameSettings {
   difficulty: 'rookie' | 'pro' | 'all_star' | 'superstar' | 'hall_of_fame'
-  simSpeed: 'slow' | 'balanced' | 'fast'
+  simSpeed: SimSpeed
   autoSave: boolean
   injuries: boolean
   fatigue: boolean

@@ -1,16 +1,90 @@
-import { Link } from 'react-router-dom'
-import { AlertTriangle } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AlertTriangle, Play, Calendar, FastForward } from 'lucide-react'
+import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { FaceIndicator } from '@/components/shared/FaceIndicator'
 import { Chip } from '@/components/shared/Chip'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { SimSpeedToggle } from '@/components/sim/SimSpeedToggle'
+import { Button } from '@/components/ui/button'
 
 function fmt(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
   if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
   return `$${n}`
+}
+
+function DashboardSimControls() {
+  const navigate = useNavigate()
+  const simNextGame = useGameStore((s) => s.simNextGame)
+  const simDay = useGameStore((s) => s.simDay)
+  const simWeek = useGameStore((s) => s.simWeek)
+  const getNext = useGameStore((s) => s.getNextScheduledGameForUser)
+  const ensureSchedule = useGameStore((s) => s.ensureSchedule)
+  const hasNext = Boolean(getNext() ?? ensureSchedule(1))
+
+  const handleSimNext = async () => {
+    const result = await simNextGame()
+    if ('error' in result) {
+      toast.error(result.error)
+      return
+    }
+    void navigate(`/game/${result.gameId}`)
+  }
+  const handleSimDay = async () => {
+    const r = await simDay()
+    toast.success(`Simulated ${r.gamesSimulated} game${r.gamesSimulated === 1 ? '' : 's'}.`)
+  }
+  const handleSimWeek = async () => {
+    const r = await simWeek()
+    toast.success(`Simulated ${r.gamesSimulated} game${r.gamesSimulated === 1 ? '' : 's'}.`)
+  }
+
+  return (
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+              Sim controls
+            </div>
+            <div className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+              Play the next matchup or batch through a day or week.
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="sm"
+              onClick={handleSimNext}
+              disabled={!hasNext}
+              title={hasNext ? 'Sim the next game' : 'No upcoming games'}
+            >
+              <Play className="mr-1 size-3.5" /> Sim next game
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleSimDay}
+              disabled={!hasNext}
+            >
+              <Calendar className="mr-1 size-3.5" /> Sim day
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleSimWeek}
+              disabled={!hasNext}
+            >
+              <FastForward className="mr-1 size-3.5" /> Sim week
+            </Button>
+            <SimSpeedToggle />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
 export function DashboardPage() {
@@ -79,6 +153,8 @@ export function DashboardPage() {
         title="Dashboard"
         description={`${metadata.name} — ${league.currentDate}`}
       />
+
+      <DashboardSimControls />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>

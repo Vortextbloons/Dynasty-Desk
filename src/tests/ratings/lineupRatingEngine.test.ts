@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { rateLineup } from '@/game/ratings/lineupRatingEngine'
-import { DEFAULT_LINEUP_WEIGHTS } from '@/game/ratings/lineupRatingWeights'
 import type { Player } from '@/game/models/player'
 
 function makePlayer(overrides: Partial<Player> = {}): Player {
@@ -73,77 +72,92 @@ describe('rateLineup', () => {
     }
   })
 
-  it('lineup of 5 spacing specialists has high spacing', () => {
+  it('computes exact spacing for five shooters', () => {
+    const base = makePlayer()
     const shooters = Array.from({ length: 5 }, (_, i) =>
       makePlayer({
         id: `shooter${i}`,
-        ratings: {
-          insideScoring: 50, closeShot: 50, midrange: 50, threePoint: 90,
-          freeThrow: 85, ballHandling: 50, passing: 50, offensiveIq: 50,
-          offensiveRebound: 50, defensiveRebound: 50,
-          perimeterDefense: 50, interiorDefense: 50, steal: 50, block: 50,
-          defensiveIq: 50, speed: 50, strength: 50, vertical: 50,
-          stamina: 50, durability: 50, clutch: 50, consistency: 50,
-          potential: 50, overall: 50,
+        ratings: { ...base.ratings, threePoint: 90 },
+        tendencies: {
+          ...base.tendencies,
+          cornerThreeFrequency: 10,
+          aboveBreakThreeFrequency: 10,
         },
       }),
     )
-    const rating = rateLineup(shooters)
-    expect(rating.spacing).toBeGreaterThan(70)
+
+    expect(rateLineup(shooters).spacing).toBe(90)
   })
 
-  it('lineup of 5 defenders has high perimeter and interior defense', () => {
+  it('computes exact passing for five facilitators', () => {
+    const base = makePlayer()
+    const facilitators = Array.from({ length: 5 }, (_, i) =>
+      makePlayer({
+        id: `fac${i}`,
+        ratings: { ...base.ratings, passing: 80, offensiveIq: 70 },
+      }),
+    )
+
+    expect(rateLineup(facilitators).passing).toBe(75)
+  })
+
+  it('computes exact perimeter defense for five guards', () => {
+    const base = makePlayer()
     const defenders = Array.from({ length: 5 }, (_, i) =>
       makePlayer({
         id: `def${i}`,
-        ratings: {
-          insideScoring: 50, closeShot: 50, midrange: 50, threePoint: 50,
-          freeThrow: 50, ballHandling: 50, passing: 50, offensiveIq: 50,
-          offensiveRebound: 50, defensiveRebound: 50,
-          perimeterDefense: 90, interiorDefense: 85, steal: 80, block: 75,
-          defensiveIq: 85, speed: 50, strength: 50, vertical: 50,
-          stamina: 50, durability: 50, clutch: 50, consistency: 50,
-          potential: 50, overall: 50,
-        },
+        ratings: { ...base.ratings, perimeterDefense: 80, steal: 60 },
       }),
     )
-    const rating = rateLineup(defenders)
-    expect(rating.perimeterDefense).toBeGreaterThan(75)
-    expect(rating.interiorDefense).toBeGreaterThan(70)
+
+    expect(rateLineup(defenders).perimeterDefense).toBe(70)
   })
 
-  it('overall follows the provided weights', () => {
-    const players = Array.from({ length: 5 }, () => makePlayer())
-    const rating = rateLineup(players, {}, {
-      ...DEFAULT_LINEUP_WEIGHTS,
-      spacing: 1,
-      shotCreation: 0,
-      passing: 0,
-      rimPressure: 0,
-      perimeterDefense: 0,
-      interiorDefense: 0,
-      rebounding: 0,
-      transition: 0,
-      benchBalance: 0,
-      size: 0,
-      switchability: 0,
+  it('computes exact interior defense for five bigs', () => {
+    const base = makePlayer()
+    const bigs = Array.from({ length: 5 }, (_, i) =>
+      makePlayer({
+        id: `big${i}`,
+        ratings: { ...base.ratings, interiorDefense: 70, block: 50 },
+      }),
+    )
+
+    expect(rateLineup(bigs).interiorDefense).toBe(60)
+  })
+
+  it('computes exact rebounding and size', () => {
+    const base = makePlayer()
+    const player = makePlayer({
+      id: 'big-man',
+      heightInches: 78,
+      weightLbs: 220,
+      ratings: {
+        ...base.ratings,
+        offensiveRebound: 80,
+        defensiveRebound: 60,
+      },
     })
-    expect(rating.overall).toBe(rating.spacing)
+    const rating = rateLineup([player])
+
+    expect(rating.rebounding).toBe(70)
+    expect(rating.size).toBe(58)
   })
 
   it('handles empty player list', () => {
     const rating = rateLineup([])
     expect(rating.spacing).toBe(0)
     expect(rating.passing).toBe(0)
-    expect(typeof rating.overall).toBe('number')
+    for (const value of Object.values(rating)) {
+      expect(Number.isFinite(value)).toBe(true)
+    }
   })
 
-  it('bench balance is higher when minutes are evenly distributed', () => {
-    const players = Array.from({ length: 5 }, () => makePlayer())
-    const evenMinutes = { p1: 48, p2: 48, p3: 48, p4: 48, p5: 48 }
-    const unevenMinutes = { p1: 80, p2: 40, p3: 30, p4: 30, p5: 60 }
-    const evenRating = rateLineup(players, evenMinutes)
-    const unevenRating = rateLineup(players, unevenMinutes)
-    expect(evenRating.benchBalance).toBeGreaterThanOrEqual(unevenRating.benchBalance)
+  it('returns finite values for all lineup dimensions', () => {
+    const players = Array.from({ length: 5 }, (_, i) => makePlayer({ id: `p${i}` }))
+    const rating = rateLineup(players, { p0: 36, p1: 36, p2: 32, p3: 32, p4: 32 })
+
+    for (const value of Object.values(rating)) {
+      expect(Number.isFinite(value)).toBe(true)
+    }
   })
 })

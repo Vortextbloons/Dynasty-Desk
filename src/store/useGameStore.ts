@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { GameSave, GameSettings } from '@/game/models'
+import type { GameSave, GameSettings, SimSpeed } from '@/game/models'
 import type { SaveMetadata } from '@/game/models'
 import type { LeaguePhase } from '@/game/models/league'
 import {
@@ -13,6 +13,11 @@ import {
   importSaveFromFile as dbImportSaveFromFile,
 } from '@/db/saveRepository'
 import { buildSave } from '@/game/core/saveBuilder'
+import { createSeededRandom } from '@/game/core/seededRandom'
+import { SeededRandom } from '@/game/sim/rng'
+import { simulateGame } from '@/game/sim/gameSimulator'
+import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
+import { generateStubSchedule } from '@/game/sim/stubSchedule'
 import type { StaticSnapshot } from '@/game/models'
 import {
   cutPlayer as cutPlayerAction,
@@ -27,6 +32,7 @@ import {
 } from '@/game/management/contractActions'
 import { validateRotation } from '@/game/management/rotationValidator'
 import { generateAutoRotation } from '@/game/management/autoRotation'
+import { addDays } from '@/lib/utils'
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -73,6 +79,13 @@ interface GameStore {
   autoRotate: () => void
   saveLineup: () => void
   generateRotationIfMissing: () => void
+  simOneGame: (gameId: string) => Promise<{ gameId: string; boxScore: ReturnType<typeof buildBoxScore> } | { error: string }>
+  simNextGame: () => Promise<{ gameId: string } | { error: string }>
+  simDay: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
+  simWeek: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
+  setSimSpeed: (speed: SimSpeed) => void
+  getNextScheduledGameForUser: () => string | null
+  ensureSchedule: (count?: number) => string[]
 }
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -476,6 +489,170 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     )
     const newLineup = generateAutoRotation(team.roster, players)
     team.lineup = newLineup
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  ensureSchedule: (count) => {
+    const { save } = get()
+    if (!save) return []
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return []
+    const players = new Map(
+      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+    )
+    if (
+      team.lineup.starters.length === 0 ||
+      Object.keys(team.lineup.targetMinutes).length === 0
+    ) {
+      team.lineup = generateAutoRotation(team.roster, players)
+    }
+    const allTeams = Object.values(save.league.teams).filter((t): t is NonNullable<typeof t> => Boolean(t))
+    const stub = generateStubSchedule({
+      startDate: save.league.currentDate,
+      userTeamId: teamId,
+      teams: allTeams,
+      count: count ?? 3,
+    })
+    return stub.map((g) => g.id)
+  },
+
+  getNextScheduledGameForUser: () => {
+    const { save } = get()
+    if (!save) return null
+    const teamId = save.league.userTeamId
+    const today = save.league.currentDate
+    const games = Object.values(save.league.games)
+      .filter(
+        (g): g is NonNullable<typeof g> =>
+          g?.status === 'scheduled' &&
+          (g.homeTeamId === teamId || g.awayTeamId === teamId) &&
+          g.date >= today,
+      )
+      .sort((a, b) => a.date.localeCompare(b.date))
+    return games[0]?.id ?? null
+  },
+
+  simOneGame: async (gameId) => {
+    const { save } = get()
+    if (!save) return { error: 'No active save.' }
+    const game = save.league.games[gameId]
+    if (!game) return { error: 'Game not found.' }
+    if (game.status === 'final' && game.boxScore) {
+      return { gameId, boxScore: game.boxScore }
+    }
+
+    const home = save.league.teams[game.homeTeamId]
+    const away = save.league.teams[game.awayTeamId]
+    if (!home || !away) return { error: 'Teams not found.' }
+
+    const players = new Map(Object.entries(save.league.players))
+    const homePlayers = home.roster
+      .map((id) => players.get(id))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    const awayPlayers = away.roster
+      .map((id) => players.get(id))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    if (homePlayers.length < 5 || awayPlayers.length < 5) {
+      return { error: 'Both teams need at least 5 players.' }
+    }
+
+    const seedRng = createSeededRandom(save.rngState)
+    const seededRng = new SeededRandom(save.rngState)
+
+    const { gameState, keyPlays } = await simulateGame({
+      id: gameId,
+      home,
+      away,
+      homeLineup: home.lineup,
+      awayLineup: away.lineup,
+      homePlayers,
+      awayPlayers,
+      rules: save.league.rules,
+      era: save.league.eraConfig,
+      rng: seededRng,
+      date: game.date,
+      injuriesEnabled: save.settings.injuries,
+      simSpeed: save.settings.simSpeed === 'slow' || save.settings.simSpeed === 'balanced' || save.settings.simSpeed === 'fast' ? 'normal' : save.settings.simSpeed,
+    })
+
+    const boxScore = buildBoxScore({ gameState, keyPlays })
+
+    game.status = 'final'
+    game.homeScore = boxScore.homeScore
+    game.awayScore = boxScore.awayScore
+    game.boxScore = boxScore
+
+    save.rngState = seedRng.getState()
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return { gameId, boxScore }
+  },
+
+  simNextGame: async () => {
+    const { save } = get()
+    if (!save) return { error: 'No active save.' }
+    let nextId = get().getNextScheduledGameForUser()
+    if (!nextId) {
+      get().ensureSchedule(3)
+      nextId = get().getNextScheduledGameForUser()
+    }
+    if (!nextId) return { error: 'No upcoming games to simulate.' }
+    const result = await get().simOneGame(nextId)
+    if ('error' in result) return { error: result.error }
+    return { gameId: result.gameId }
+  },
+
+  simDay: async () => {
+    const { save } = get()
+    if (!save) return { gamesSimulated: 0, gameIds: [] }
+    if (Object.keys(save.league.games).length === 0) {
+      get().ensureSchedule(3)
+    }
+    const today = save.league.currentDate
+    const todays = Object.values(save.league.games)
+      .filter((g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === today)
+    if (todays.length === 0) {
+      get().ensureSchedule(1)
+    }
+    const simIds: string[] = []
+    for (const game of todays) {
+      if (!game) continue
+      const result = await get().simOneGame(game.id)
+      if (!('error' in result)) simIds.push(result.gameId)
+    }
+    return { gamesSimulated: simIds.length, gameIds: simIds }
+  },
+
+  simWeek: async () => {
+    const { save } = get()
+    if (!save) return { gamesSimulated: 0, gameIds: [] }
+    if (Object.keys(save.league.games).length === 0) {
+      get().ensureSchedule(3)
+    }
+    const simIds: string[] = []
+    for (let day = 0; day < 7; day++) {
+      const targetDate = addDays(save.league.currentDate, day)
+      const dayGames = Object.values(save.league.games).filter(
+        (g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === targetDate,
+      )
+      for (const game of dayGames) {
+        if (!game) continue
+        const result = await get().simOneGame(game.id)
+        if (!('error' in result)) simIds.push(result.gameId)
+      }
+    }
+    if (simIds.length === 0) {
+      get().ensureSchedule(3)
+    }
+    return { gamesSimulated: simIds.length, gameIds: simIds }
+  },
+
+  setSimSpeed: (speed) => {
+    const { save } = get()
+    if (!save) return
+    save.settings.simSpeed = speed
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },

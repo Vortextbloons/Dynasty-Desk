@@ -267,7 +267,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     createdAt: now,
     updatedAt: now,
     appVersion: '0.1.0',
-    schemaVersion: 3,
+    schemaVersion: 4,
     teamId,
     teamName:
       snapshot.teams.find((t) => t.id === teamId)?.name ?? teamId,
