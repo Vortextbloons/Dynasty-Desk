@@ -15,7 +15,6 @@
     "test": "vitest",
     "test:run": "vitest run",
     "data:build": "go run -C scripts/generate .",
-    "data:build:ts": "tsx scripts/generate/run.ts",
     "data:build:python": "py scripts/import_nba/run_all.py"
   },
   "dependencies": {
@@ -57,7 +56,6 @@
     "postcss": "^8.5.15",
     "prettier": "^3.8.4",
     "tailwindcss": "^4.3.1",
-    "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1",
     "vite": "^8.0.16",
