@@ -65,7 +65,9 @@ export function HomePage() {
                 <div className="font-mono text-xs text-[var(--color-primary)]">
                   Step {String(i + 1).padStart(2, '0')}
                 </div>
-                <div className="mt-2 font-display text-lg leading-tight">{step.label}</div>
+                <div className="mt-2 font-display text-lg leading-tight">
+                  {step.label}
+                </div>
                 <div className="mt-2 text-xs text-[var(--color-muted-foreground)] leading-relaxed">
                   {step.body}
                 </div>
@@ -82,7 +84,13 @@ export function HomePage() {
           />
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {milestones.map((m) => (
-              <Card key={m.id} className={cn(m.status === 'in_progress' && 'border-[var(--color-primary)]/50')}>
+              <Card
+                key={m.id}
+                className={cn(
+                  m.status === 'in_progress' &&
+                    'border-[var(--color-primary)]/50',
+                )}
+              >
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between">
                     <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
@@ -91,7 +99,9 @@ export function HomePage() {
                     <Badge status={m.status} />
                   </div>
                   <div className="mt-2 font-display text-base">{m.title}</div>
-                  <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">{m.summary}</div>
+                  <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                    {m.summary}
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -115,9 +125,15 @@ function TopNav() {
           <div className="font-display text-sm tracking-wide">DYNASTY DESK</div>
         </div>
         <nav className="ml-8 hidden md:flex items-center gap-5 text-sm text-[var(--color-muted-foreground)]">
-          <a href="#features" className="hover:text-[var(--color-foreground)]">Features</a>
-          <a href="#loop" className="hover:text-[var(--color-foreground)]">The loop</a>
-          <a href="#roadmap" className="hover:text-[var(--color-foreground)]">Roadmap</a>
+          <a href="#features" className="hover:text-[var(--color-foreground)]">
+            Features
+          </a>
+          <a href="#loop" className="hover:text-[var(--color-foreground)]">
+            The loop
+          </a>
+          <a href="#roadmap" className="hover:text-[var(--color-foreground)]">
+            Roadmap
+          </a>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <a
@@ -142,7 +158,8 @@ function Hero() {
           Phase 1 · App Shell
         </div>
         <h1 className="mt-5 font-display text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
-          Run a franchise.<br />
+          Run a franchise.
+          <br />
           <span className="text-[var(--color-primary)]">Build a dynasty.</span>
         </h1>
         <p className="mt-5 max-w-xl text-base text-[var(--color-muted-foreground)] leading-relaxed">
@@ -204,7 +221,9 @@ function ScoreboardMock() {
         <CardContent className="p-5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
             <TeamBlock abbr="LAL" name="Lakers" score={112} accent />
-            <div className="font-mono text-sm text-[var(--color-muted-foreground)]">VS</div>
+            <div className="font-mono text-sm text-[var(--color-muted-foreground)]">
+              VS
+            </div>
             <TeamBlock abbr="BOS" name="Celtics" score={108} align="right" />
           </div>
 
@@ -219,7 +238,9 @@ function ScoreboardMock() {
                 </span>
                 <span className="font-mono">
                   {row.left}
-                  <span className="text-[var(--color-muted-foreground)] mx-1">·</span>
+                  <span className="text-[var(--color-muted-foreground)] mx-1">
+                    ·
+                  </span>
                   {row.right}
                 </span>
               </div>
@@ -227,8 +248,11 @@ function ScoreboardMock() {
           </div>
 
           <div className="mt-5 text-[11px] text-[var(--color-muted-foreground)] leading-relaxed">
-            <span className="text-[var(--color-primary)] font-mono mr-2">04:12</span>
-            Doncic P&amp;R with AD, kicks to Reaves in the corner — three is good.
+            <span className="text-[var(--color-primary)] font-mono mr-2">
+              04:12
+            </span>
+            Doncic P&amp;R with AD, kicks to Reaves in the corner — three is
+            good.
           </div>
         </CardContent>
       </Card>
@@ -339,10 +363,22 @@ function Divider() {
 
 function Badge({ status }: { status: Milestone['status'] }) {
   const map = {
-    done: { label: 'Done', cls: 'bg-[var(--color-positive)]/15 text-[var(--color-positive)] border-[var(--color-positive)]/30' },
-    in_progress: { label: 'In Progress', cls: 'bg-[var(--color-primary)]/15 text-[var(--color-primary)] border-[var(--color-primary)]/30' },
-    next: { label: 'Next', cls: 'bg-[var(--color-surface-3)] text-[var(--color-muted-foreground)] border-[var(--color-line-soft)]' },
-    later: { label: 'Later', cls: 'bg-[var(--color-surface-2)] text-[var(--color-muted-foreground)] border-[var(--color-line-soft)]' },
+    done: {
+      label: 'Done',
+      cls: 'bg-[var(--color-positive)]/15 text-[var(--color-positive)] border-[var(--color-positive)]/30',
+    },
+    in_progress: {
+      label: 'In Progress',
+      cls: 'bg-[var(--color-primary)]/15 text-[var(--color-primary)] border-[var(--color-primary)]/30',
+    },
+    next: {
+      label: 'Next',
+      cls: 'bg-[var(--color-surface-3)] text-[var(--color-muted-foreground)] border-[var(--color-line-soft)]',
+    },
+    later: {
+      label: 'Later',
+      cls: 'bg-[var(--color-surface-2)] text-[var(--color-muted-foreground)] border-[var(--color-line-soft)]',
+    },
   } as const
   const m = map[status]
   return (
@@ -362,20 +398,27 @@ function Footer() {
     <footer className="mt-20 border-t border-[var(--color-line-soft)] pt-8 text-xs text-[var(--color-muted-foreground)]">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          © {new Date().getFullYear()} Dynasty Desk · Fan project. Not affiliated with the NBA.
-          Real player and team names used for identification and simulation purposes only.
+          © {new Date().getFullYear()} Dynasty Desk · Fan project. Not
+          affiliated with the NBA. Real player and team names used for
+          identification and simulation purposes only.
         </div>
         <div className="flex items-center gap-4">
-          <a href="#features" className="hover:text-[var(--color-foreground)]">Features</a>
-          <a href="#loop" className="hover:text-[var(--color-foreground)]">The loop</a>
-          <a href="#roadmap" className="hover:text-[var(--color-foreground)]">Roadmap</a>
+          <a href="#features" className="hover:text-[var(--color-foreground)]">
+            Features
+          </a>
+          <a href="#loop" className="hover:text-[var(--color-foreground)]">
+            The loop
+          </a>
+          <a href="#roadmap" className="hover:text-[var(--color-foreground)]">
+            Roadmap
+          </a>
         </div>
       </div>
     </footer>
   )
 }
 
-type Milestone = {
+interface Milestone {
   id: string
   title: string
   summary: string
@@ -383,18 +426,78 @@ type Milestone = {
 }
 
 const milestones: Milestone[] = [
-  { id: 'M0', title: 'App shell', summary: 'Vite + React + Tailwind + routing + dark theme.', status: 'in_progress' },
-  { id: 'M1', title: 'Real NBA data', summary: 'Static snapshot, ~450 players, 30 teams.', status: 'next' },
-  { id: 'M2', title: 'New league & saves', summary: 'Dexie storage, export/import JSON.', status: 'later' },
-  { id: 'M3', title: 'Roster & player UI', summary: 'Sortable roster + detailed player page.', status: 'later' },
-  { id: 'M4', title: 'Lineups & rotation', summary: 'Starters, bench, target minutes, closing lineup.', status: 'later' },
-  { id: 'M5', title: 'Single-game sim', summary: 'Possession engine, shot/turnover/foul/rebound models.', status: 'later' },
-  { id: 'M6', title: 'Schedule & standings', summary: 'Season sim end-to-end with dashboard updates.', status: 'later' },
-  { id: 'M7', title: 'Playoffs', summary: 'Bracket, best-of-7 series, champion history.', status: 'later' },
-  { id: 'M8', title: 'Trades & contracts', summary: 'Trade builder, AI accept/reject, payroll ledger.', status: 'later' },
-  { id: 'M9', title: 'Draft & free agency', summary: 'Prospects, scouting, multi-year offers.', status: 'later' },
-  { id: 'M10', title: 'Realism expansion', summary: 'Injuries, fatigue, morale, awards, news.', status: 'later' },
-  { id: 'M11', title: 'Polish & calibration', summary: 'Tune sim distributions, charts, accessibility.', status: 'later' },
+  {
+    id: 'M0',
+    title: 'App shell',
+    summary: 'Vite + React + Tailwind + routing + dark theme.',
+    status: 'in_progress',
+  },
+  {
+    id: 'M1',
+    title: 'Real NBA data',
+    summary: 'Static snapshot, ~450 players, 30 teams.',
+    status: 'next',
+  },
+  {
+    id: 'M2',
+    title: 'New league & saves',
+    summary: 'Dexie storage, export/import JSON.',
+    status: 'later',
+  },
+  {
+    id: 'M3',
+    title: 'Roster & player UI',
+    summary: 'Sortable roster + detailed player page.',
+    status: 'later',
+  },
+  {
+    id: 'M4',
+    title: 'Lineups & rotation',
+    summary: 'Starters, bench, target minutes, closing lineup.',
+    status: 'later',
+  },
+  {
+    id: 'M5',
+    title: 'Single-game sim',
+    summary: 'Possession engine, shot/turnover/foul/rebound models.',
+    status: 'later',
+  },
+  {
+    id: 'M6',
+    title: 'Schedule & standings',
+    summary: 'Season sim end-to-end with dashboard updates.',
+    status: 'later',
+  },
+  {
+    id: 'M7',
+    title: 'Playoffs',
+    summary: 'Bracket, best-of-7 series, champion history.',
+    status: 'later',
+  },
+  {
+    id: 'M8',
+    title: 'Trades & contracts',
+    summary: 'Trade builder, AI accept/reject, payroll ledger.',
+    status: 'later',
+  },
+  {
+    id: 'M9',
+    title: 'Draft & free agency',
+    summary: 'Prospects, scouting, multi-year offers.',
+    status: 'later',
+  },
+  {
+    id: 'M10',
+    title: 'Realism expansion',
+    summary: 'Injuries, fatigue, morale, awards, news.',
+    status: 'later',
+  },
+  {
+    id: 'M11',
+    title: 'Polish & calibration',
+    summary: 'Tune sim distributions, charts, accessibility.',
+    status: 'later',
+  },
 ]
 
 const loop = [

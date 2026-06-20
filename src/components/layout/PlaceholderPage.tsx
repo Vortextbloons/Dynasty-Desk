@@ -1,6 +1,12 @@
 import { type ReactNode } from 'react'
 import { Construction } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 interface PlaceholderPageProps {
   title: string
@@ -25,14 +31,20 @@ export function PlaceholderPage({
             <Construction className="size-5" />
           </div>
           <div className="flex-1">
-            <CardTitle className="text-2xl font-display tracking-tight">{title}</CardTitle>
-            <CardDescription className="mt-2 max-w-2xl">{description}</CardDescription>
+            <CardTitle className="text-2xl font-display tracking-tight">
+              {title}
+            </CardTitle>
+            <CardDescription className="mt-2 max-w-2xl">
+              {description}
+            </CardDescription>
           </div>
           <div className="hidden md:block text-right">
             <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
               Targeted
             </div>
-            <div className="text-sm font-mono text-[var(--color-foreground)]">{milestone}</div>
+            <div className="text-sm font-mono text-[var(--color-foreground)]">
+              {milestone}
+            </div>
           </div>
         </CardHeader>
         {features.length > 0 ? (

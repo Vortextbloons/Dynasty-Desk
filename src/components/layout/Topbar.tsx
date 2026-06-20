@@ -65,7 +65,11 @@ export function Topbar() {
             className="size-9 grid place-items-center rounded-md text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface-2)]"
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            {theme === 'dark' ? (
+              <Sun className="size-4" />
+            ) : (
+              <Moon className="size-4" />
+            )}
           </button>
           <button
             className="size-9 grid place-items-center rounded-md text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface-2)] relative"
@@ -80,7 +84,9 @@ export function Topbar() {
             </div>
             <div className="hidden md:block leading-tight">
               <div className="text-xs font-medium">No active save</div>
-              <div className="text-[10px] text-[var(--color-muted-foreground)]">Start a new league</div>
+              <div className="text-[10px] text-[var(--color-muted-foreground)]">
+                Start a new league
+              </div>
             </div>
           </div>
         </div>

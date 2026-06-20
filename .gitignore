@@ -32,6 +32,13 @@ Thumbs.db
 # Vitest
 coverage/
 
+# TypeScript build info
+*.tsbuildinfo
+
 # Project docs
 AGENTS.md
 plans/
+
+# Opencode skills (borrowed from mattpocock/skills)
+.opencode
+opencode.json

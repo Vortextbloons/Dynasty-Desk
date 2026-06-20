@@ -1,32 +1,32 @@
-export type PlayerTendencies = {
-  usageRate: number;
-  passRate: number;
-  shotRate: number;
-  driveRate: number;
-  postUpRate: number;
+export interface PlayerTendencies {
+  usageRate: number
+  passRate: number
+  shotRate: number
+  driveRate: number
+  postUpRate: number
 
-  rimFrequency: number;
-  shortMidFrequency: number;
-  longMidFrequency: number;
-  cornerThreeFrequency: number;
-  aboveBreakThreeFrequency: number;
+  rimFrequency: number
+  shortMidFrequency: number
+  longMidFrequency: number
+  cornerThreeFrequency: number
+  aboveBreakThreeFrequency: number
 
-  threePointRate: number;
-  freeThrowRate: number;
-  turnoverRate: number;
+  threePointRate: number
+  freeThrowRate: number
+  turnoverRate: number
 
-  isolationRate: number;
-  pickAndRollBallHandlerRate: number;
-  pickAndRollRollManRate: number;
-  spotUpRate: number;
-  transitionRate: number;
-  cutRate: number;
+  isolationRate: number
+  pickAndRollBallHandlerRate: number
+  pickAndRollRollManRate: number
+  spotUpRate: number
+  transitionRate: number
+  cutRate: number
 
-  foulRate: number;
-  stealAttemptRate: number;
-  blockAttemptRate: number;
-  crashOffensiveGlassRate: number;
-};
+  foulRate: number
+  stealAttemptRate: number
+  blockAttemptRate: number
+  crashOffensiveGlassRate: number
+}
 
 export function emptyTendencies(): PlayerTendencies {
   return {
@@ -57,5 +57,5 @@ export function emptyTendencies(): PlayerTendencies {
     stealAttemptRate: 5,
     blockAttemptRate: 5,
     crashOffensiveGlassRate: 10,
-  };
+  }
 }

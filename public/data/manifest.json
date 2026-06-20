@@ -1,28 +1,366 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "defaultSnapshotId": "nba-2025-26",
   "snapshots": [
     {
-      "id": "nba-2025-26",
-      "name": "NBA 2025-26 Season",
+      "id": "nba-1990-91",
+      "name": "NBA 1990-91",
       "type": "nba",
-      "seasonLabel": "2025-26",
-      "teamsFile": "/data/nba/teams-nba-2025-26.json",
-      "rosterFile": "/data/nba/roster-nba-2025-26.json",
-      "rulesFile": "/data/shared/league-rules.json",
-      "playerCount": 450,
-      "teamCount": 30
+      "seasonLabel": "1990-91",
+      "startYear": 1990,
+      "basePath": "/data/nba/1990-91",
+      "teamCount": 8,
+      "playerCount": 40
     },
     {
-      "id": "fictional-base",
-      "name": "Fictional League",
-      "type": "fictional",
+      "id": "nba-1991-92",
+      "name": "NBA 1991-92",
+      "type": "nba",
+      "seasonLabel": "1991-92",
+      "startYear": 1991,
+      "basePath": "/data/nba/1991-92",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1992-93",
+      "name": "NBA 1992-93",
+      "type": "nba",
+      "seasonLabel": "1992-93",
+      "startYear": 1992,
+      "basePath": "/data/nba/1992-93",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1993-94",
+      "name": "NBA 1993-94",
+      "type": "nba",
+      "seasonLabel": "1993-94",
+      "startYear": 1993,
+      "basePath": "/data/nba/1993-94",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1994-95",
+      "name": "NBA 1994-95",
+      "type": "nba",
+      "seasonLabel": "1994-95",
+      "startYear": 1994,
+      "basePath": "/data/nba/1994-95",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1995-96",
+      "name": "NBA 1995-96",
+      "type": "nba",
+      "seasonLabel": "1995-96",
+      "startYear": 1995,
+      "basePath": "/data/nba/1995-96",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1996-97",
+      "name": "NBA 1996-97",
+      "type": "nba",
+      "seasonLabel": "1996-97",
+      "startYear": 1996,
+      "basePath": "/data/nba/1996-97",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1997-98",
+      "name": "NBA 1997-98",
+      "type": "nba",
+      "seasonLabel": "1997-98",
+      "startYear": 1997,
+      "basePath": "/data/nba/1997-98",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1998-99",
+      "name": "NBA 1998-99",
+      "type": "nba",
+      "seasonLabel": "1998-99",
+      "startYear": 1998,
+      "basePath": "/data/nba/1998-99",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-1999-00",
+      "name": "NBA 1999-00",
+      "type": "nba",
+      "seasonLabel": "1999-00",
+      "startYear": 1999,
+      "basePath": "/data/nba/1999-00",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2000-01",
+      "name": "NBA 2000-01",
+      "type": "nba",
+      "seasonLabel": "2000-01",
+      "startYear": 2000,
+      "basePath": "/data/nba/2000-01",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2001-02",
+      "name": "NBA 2001-02",
+      "type": "nba",
+      "seasonLabel": "2001-02",
+      "startYear": 2001,
+      "basePath": "/data/nba/2001-02",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2002-03",
+      "name": "NBA 2002-03",
+      "type": "nba",
+      "seasonLabel": "2002-03",
+      "startYear": 2002,
+      "basePath": "/data/nba/2002-03",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2003-04",
+      "name": "NBA 2003-04",
+      "type": "nba",
+      "seasonLabel": "2003-04",
+      "startYear": 2003,
+      "basePath": "/data/nba/2003-04",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2004-05",
+      "name": "NBA 2004-05",
+      "type": "nba",
+      "seasonLabel": "2004-05",
+      "startYear": 2004,
+      "basePath": "/data/nba/2004-05",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2005-06",
+      "name": "NBA 2005-06",
+      "type": "nba",
+      "seasonLabel": "2005-06",
+      "startYear": 2005,
+      "basePath": "/data/nba/2005-06",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2006-07",
+      "name": "NBA 2006-07",
+      "type": "nba",
+      "seasonLabel": "2006-07",
+      "startYear": 2006,
+      "basePath": "/data/nba/2006-07",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2007-08",
+      "name": "NBA 2007-08",
+      "type": "nba",
+      "seasonLabel": "2007-08",
+      "startYear": 2007,
+      "basePath": "/data/nba/2007-08",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2008-09",
+      "name": "NBA 2008-09",
+      "type": "nba",
+      "seasonLabel": "2008-09",
+      "startYear": 2008,
+      "basePath": "/data/nba/2008-09",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2009-10",
+      "name": "NBA 2009-10",
+      "type": "nba",
+      "seasonLabel": "2009-10",
+      "startYear": 2009,
+      "basePath": "/data/nba/2009-10",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2010-11",
+      "name": "NBA 2010-11",
+      "type": "nba",
+      "seasonLabel": "2010-11",
+      "startYear": 2010,
+      "basePath": "/data/nba/2010-11",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2011-12",
+      "name": "NBA 2011-12",
+      "type": "nba",
+      "seasonLabel": "2011-12",
+      "startYear": 2011,
+      "basePath": "/data/nba/2011-12",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2012-13",
+      "name": "NBA 2012-13",
+      "type": "nba",
+      "seasonLabel": "2012-13",
+      "startYear": 2012,
+      "basePath": "/data/nba/2012-13",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2013-14",
+      "name": "NBA 2013-14",
+      "type": "nba",
+      "seasonLabel": "2013-14",
+      "startYear": 2013,
+      "basePath": "/data/nba/2013-14",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2014-15",
+      "name": "NBA 2014-15",
+      "type": "nba",
+      "seasonLabel": "2014-15",
+      "startYear": 2014,
+      "basePath": "/data/nba/2014-15",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2015-16",
+      "name": "NBA 2015-16",
+      "type": "nba",
+      "seasonLabel": "2015-16",
+      "startYear": 2015,
+      "basePath": "/data/nba/2015-16",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2016-17",
+      "name": "NBA 2016-17",
+      "type": "nba",
+      "seasonLabel": "2016-17",
+      "startYear": 2016,
+      "basePath": "/data/nba/2016-17",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2017-18",
+      "name": "NBA 2017-18",
+      "type": "nba",
+      "seasonLabel": "2017-18",
+      "startYear": 2017,
+      "basePath": "/data/nba/2017-18",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2018-19",
+      "name": "NBA 2018-19",
+      "type": "nba",
+      "seasonLabel": "2018-19",
+      "startYear": 2018,
+      "basePath": "/data/nba/2018-19",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2019-20",
+      "name": "NBA 2019-20",
+      "type": "nba",
+      "seasonLabel": "2019-20",
+      "startYear": 2019,
+      "basePath": "/data/nba/2019-20",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2020-21",
+      "name": "NBA 2020-21",
+      "type": "nba",
+      "seasonLabel": "2020-21",
+      "startYear": 2020,
+      "basePath": "/data/nba/2020-21",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2021-22",
+      "name": "NBA 2021-22",
+      "type": "nba",
+      "seasonLabel": "2021-22",
+      "startYear": 2021,
+      "basePath": "/data/nba/2021-22",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2022-23",
+      "name": "NBA 2022-23",
+      "type": "nba",
+      "seasonLabel": "2022-23",
+      "startYear": 2022,
+      "basePath": "/data/nba/2022-23",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2023-24",
+      "name": "NBA 2023-24",
+      "type": "nba",
+      "seasonLabel": "2023-24",
+      "startYear": 2023,
+      "basePath": "/data/nba/2023-24",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2024-25",
+      "name": "NBA 2024-25",
+      "type": "nba",
+      "seasonLabel": "2024-25",
+      "startYear": 2024,
+      "basePath": "/data/nba/2024-25",
+      "teamCount": 8,
+      "playerCount": 40
+    },
+    {
+      "id": "nba-2025-26",
+      "name": "NBA 2025-26",
+      "type": "nba",
       "seasonLabel": "2025-26",
-      "teamsFile": "/data/fictional/teams-base.json",
-      "rosterFile": "/data/fictional/roster-base.json",
-      "rulesFile": "/data/shared/league-rules.json",
-      "playerCount": 450,
-      "teamCount": 30
+      "startYear": 2025,
+      "basePath": "/data/nba/2025-26",
+      "teamCount": 8,
+      "playerCount": 40
     }
   ]
 }

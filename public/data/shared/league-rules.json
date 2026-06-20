@@ -1,27 +1,17 @@
 {
-  "seasonLength": {
-    "regularSeasonGames": 82,
-    "playoffRounds": 4,
-    "gamesPerRound": [7, 7, 7, 7]
-  },
-  "roster": {
-    "activeRosterSize": 15,
-    "inactiveRosterSize": 3,
-    "twoWayContracts": 2
-  },
-  "salary": {
-    "salaryCap": 140588000,
-    "luxuryTax": 170814000,
-    "minimumSalary": 1119563,
-    "maxSalary": 47607350
-  },
-  "draft": {
-    "rounds": 2,
-    "picksPerRound": 30,
-    "lotteryTeams": 14
-  },
-  "playoffs": {
-    "teamsPerConference": 8,
-    "seedingType": "record"
-  }
+  "seasonLabel": "2025-26",
+  "teamCount": 30,
+  "regularSeasonGames": 82,
+  "playoffTeamsPerConference": 8,
+  "playoffSeriesLength": 7,
+  "salaryCapEnabled": true,
+  "salaryCap": 140588000,
+  "luxuryTaxEnabled": true,
+  "maxRosterSize": 15,
+  "minRosterSize": 13,
+  "maxContractYears": 5,
+  "draftRounds": 2,
+  "threePointLineDistance": 23.75,
+  "playoffFormat": "playin_then_top8",
+  "hasPlayIn": true
 }

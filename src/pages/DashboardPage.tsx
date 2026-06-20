@@ -49,11 +49,21 @@ export function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2 text-sm text-[var(--color-muted-foreground)]">
-            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">Sim next game</span>
-            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">Sim day</span>
-            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">Sim week</span>
-            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">Sim to playoffs</span>
-            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">Sim season</span>
+            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">
+              Sim next game
+            </span>
+            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">
+              Sim day
+            </span>
+            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">
+              Sim week
+            </span>
+            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">
+              Sim to playoffs
+            </span>
+            <span className="px-3 py-1.5 rounded-md border border-[var(--color-line-soft)]">
+              Sim season
+            </span>
           </div>
         </CardContent>
       </Card>

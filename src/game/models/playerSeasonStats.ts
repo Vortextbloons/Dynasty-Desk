@@ -1,37 +1,42 @@
-export type PlayerSeasonStats = {
-  playerId: string;
-  season: string;
-  teamId: string | null;
+export interface PlayerSeasonStats {
+  playerId: string
+  season: string
+  teamId: string | null
 
-  gamesPlayed: number;
-  minutes: number;
-  starts: number;
+  gamesPlayed: number
+  minutes: number
+  starts: number
 
-  points: number;
-  rebounds: number;
-  offensiveRebounds: number;
-  defensiveRebounds: number;
-  assists: number;
-  steals: number;
-  blocks: number;
-  turnovers: number;
-  fouls: number;
+  points: number
+  rebounds: number
+  offensiveRebounds: number
+  defensiveRebounds: number
+  assists: number
+  steals: number
+  blocks: number
+  turnovers: number
+  fouls: number
 
-  fgm: number;
-  fga: number;
-  tpm: number;
-  tpa: number;
-  ftm: number;
-  fta: number;
+  fgm: number
+  fga: number
+  tpm: number
+  tpa: number
+  ftm: number
+  fta: number
 
-  tsPct: number;
-  efgPct: number;
-  per: number;
-  usageRate: number;
-  winShares: number;
-  boxPlusMinus: number;
-  vorp: number;
-};
+  tsPct: number
+  efgPct: number
+  per: number
+  usageRate: number
+  winShares: number
+  boxPlusMinus: number
+  vorp: number
+}
+
+export type RawPlayerSeasonStats = Omit<PlayerSeasonStats, 'playerId'> & {
+  playerExternalId?: string
+  playerId?: string
+}
 
 export function emptySeasonStats(
   playerId: string,
@@ -67,19 +72,19 @@ export function emptySeasonStats(
     winShares: 0,
     boxPlusMinus: 0,
     vorp: 0,
-  };
+  }
 }
 
 export function perGame(stats: PlayerSeasonStats): {
-  ppg: number;
-  rpg: number;
-  apg: number;
-  spg: number;
-  bpg: number;
-  mpg: number;
-  topg: number;
+  ppg: number
+  rpg: number
+  apg: number
+  spg: number
+  bpg: number
+  mpg: number
+  topg: number
 } {
-  const gp = Math.max(1, stats.gamesPlayed);
+  const gp = Math.max(1, stats.gamesPlayed)
   return {
     ppg: stats.points / gp,
     rpg: stats.rebounds / gp,
@@ -88,14 +93,17 @@ export function perGame(stats: PlayerSeasonStats): {
     bpg: stats.blocks / gp,
     mpg: stats.minutes / gp,
     topg: stats.turnovers / gp,
-  };
+  }
 }
 
-export function per36(stats: PlayerSeasonStats, kind: "raw" | "totals" = "raw"): number {
-  const minutes = Math.max(1, stats.minutes);
-  const factor = 36 / minutes;
-  if (kind === "totals") {
-    return factor;
+export function per36(
+  stats: PlayerSeasonStats,
+  kind: 'raw' | 'totals' = 'raw',
+): number {
+  const minutes = Math.max(1, stats.minutes)
+  const factor = 36 / minutes
+  if (kind === 'totals') {
+    return factor
   }
-  return factor;
+  return factor
 }

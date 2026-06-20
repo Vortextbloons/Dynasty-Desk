@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ----------------------------------------------------------------------------
    Dynasty Desk — Theme tokens
@@ -52,9 +52,9 @@
   --color-negative: hsl(0 72% 58%);
 
   /* Fonts (loaded via index.html <link>) */
-  --font-display: "Archivo Black", system-ui, sans-serif;
-  --font-sans: "Inter Tight", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: 'Archivo Black', system-ui, sans-serif;
+  --font-sans: 'Inter Tight', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .light {

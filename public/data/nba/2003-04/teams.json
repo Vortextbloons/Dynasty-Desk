@@ -1,0 +1,162 @@
+[
+  {
+    "id": "team-bos",
+    "city": "Boston",
+    "name": "Celtics",
+    "abbreviation": "BOS",
+    "conference": "East",
+    "division": "Atlantic",
+    "colors": {
+      "primary": "#007a33",
+      "secondary": "#ba9653"
+    },
+    "marketSize": 7,
+    "prestige": 90,
+    "fanPatience": 75,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  },
+  {
+    "id": "team-lal",
+    "city": "Los Angeles",
+    "name": "Lakers",
+    "abbreviation": "LAL",
+    "conference": "West",
+    "division": "Pacific",
+    "colors": {
+      "primary": "#552583",
+      "secondary": "#fdb927"
+    },
+    "marketSize": 10,
+    "prestige": 95,
+    "fanPatience": 60,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  },
+  {
+    "id": "team-gsw",
+    "city": "Golden State",
+    "name": "Warriors",
+    "abbreviation": "GSW",
+    "conference": "West",
+    "division": "Pacific",
+    "colors": {
+      "primary": "#1d428a",
+      "secondary": "#ffc72c"
+    },
+    "marketSize": 8,
+    "prestige": 88,
+    "fanPatience": 70,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  },
+  {
+    "id": "team-mil",
+    "city": "Milwaukee",
+    "name": "Bucks",
+    "abbreviation": "MIL",
+    "conference": "East",
+    "division": "Central",
+    "colors": {
+      "primary": "#00471b",
+      "secondary": "#eee1c6"
+    },
+    "marketSize": 5,
+    "prestige": 75,
+    "fanPatience": 70,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  },
+  {
+    "id": "team-den",
+    "city": "Denver",
+    "name": "Nuggets",
+    "abbreviation": "DEN",
+    "conference": "West",
+    "division": "Northwest",
+    "colors": {
+      "primary": "#0e2240",
+      "secondary": "#fec524"
+    },
+    "marketSize": 6,
+    "prestige": 80,
+    "fanPatience": 75,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  },
+  {
+    "id": "team-okc",
+    "city": "Oklahoma City",
+    "name": "Thunder",
+    "abbreviation": "OKC",
+    "conference": "West",
+    "division": "Northwest",
+    "colors": {
+      "primary": "#007ac1",
+      "secondary": "#ef3b24"
+    },
+    "marketSize": 5,
+    "prestige": 82,
+    "fanPatience": 80,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  },
+  {
+    "id": "team-mia",
+    "city": "Miami",
+    "name": "Heat",
+    "abbreviation": "MIA",
+    "conference": "East",
+    "division": "Southeast",
+    "colors": {
+      "primary": "#98002e",
+      "secondary": "#f9a01b"
+    },
+    "marketSize": 7,
+    "prestige": 85,
+    "fanPatience": 65,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  },
+  {
+    "id": "team-phi",
+    "city": "Philadelphia",
+    "name": "76ers",
+    "abbreviation": "PHI",
+    "conference": "East",
+    "division": "Atlantic",
+    "colors": {
+      "primary": "#006bb6",
+      "secondary": "#ed174c"
+    },
+    "marketSize": 7,
+    "prestige": 78,
+    "fanPatience": 60,
+    "importMeta": {
+      "snapshotSeason": "2003-04",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-06-20T02:21:07.520Z"
+    }
+  }
+]

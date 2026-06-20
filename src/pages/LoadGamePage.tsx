@@ -14,7 +14,9 @@ export function LoadGamePage() {
         description="Pick up a saved league, or import a save file from another device."
         actions={
           <Button asChild variant="ghost" size="sm">
-            <Link to="/"><ArrowLeft className="size-4" /> Home</Link>
+            <Link to="/">
+              <ArrowLeft className="size-4" /> Home
+            </Link>
           </Button>
         }
       />
@@ -26,7 +28,8 @@ export function LoadGamePage() {
           <div className="mt-4 font-display text-2xl">No saves yet</div>
           <p className="mt-2 text-sm text-[var(--color-muted-foreground)] max-w-md mx-auto">
             Saves live in IndexedDB once the save system ships. You can also
-            import a <code className="font-mono">.dynasty-desk-save.json</code> file.
+            import a <code className="font-mono">.dynasty-desk-save.json</code>{' '}
+            file.
           </p>
           <div className="mt-6 flex justify-center gap-2">
             <Button variant="outline" disabled>

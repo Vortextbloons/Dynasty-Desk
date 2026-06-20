@@ -9,9 +9,20 @@ interface PageHeaderProps {
   className?: string
 }
 
-export function PageHeader({ eyebrow, title, description, actions, className }: PageHeaderProps) {
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  actions,
+  className,
+}: PageHeaderProps) {
   return (
-    <div className={cn('flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6', className)}>
+    <div
+      className={cn(
+        'flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6',
+        className,
+      )}
+    >
       <div className="min-w-0">
         {eyebrow ? (
           <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-primary)] mb-2">
@@ -27,7 +38,9 @@ export function PageHeader({ eyebrow, title, description, actions, className }: 
           </p>
         ) : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? (
+        <div className="flex flex-wrap items-center gap-2">{actions}</div>
+      ) : null}
     </div>
   )
 }
