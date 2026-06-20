@@ -147,6 +147,29 @@ export function prepareDraftClass(
   return draftClass
 }
 
+/** Pad the class so every draft slot (including comp picks) has a prospect. */
+export function extendDraftClassToSlotCount(
+  league: LeagueState,
+  draftClass: DraftClass,
+  seasonYear: number,
+  rng: SeededRandom,
+): void {
+  const target = Math.max(BASE_DRAFT_PROSPECTS, countDraftSlots(league, seasonYear))
+  const usedNames = new Set(
+    draftClass.prospects.map((p) => `${p.firstName} ${p.lastName}`),
+  )
+
+  while (draftClass.prospects.length < target) {
+    const position = POSITIONS[draftClass.prospects.length % POSITIONS.length]!
+    draftClass.prospects.push(
+      buildSyntheticProspect(draftClass.id, position, usedNames, rng),
+    )
+  }
+
+  draftClass.syntheticProspectCount =
+    draftClass.prospects.length - draftClass.realProspectCount
+}
+
 export function isCompensationDraftPick(pick: DraftPick): boolean {
   return pick.id.startsWith('comp-')
 }
@@ -526,6 +549,37 @@ export function simulateDraftPick(
   return result
 }
 
+export function forfeitDraftPick(league: LeagueState, draft: Draft): boolean {
+  const owner = getCurrentPickOwner(league, draft)
+  if (!owner) return false
+
+  const pickAsset = league.draftPicks.find((p) => p.id === owner.pickId)
+  if (!pickAsset) return false
+
+  pickAsset.prospectId = '__forfeited__'
+
+  draft.picks.push({
+    id: `pick-result-${draft.id}-${draft.currentPickNumber}-forfeit`,
+    draftId: draft.id,
+    pickId: owner.pickId,
+    prospectId: '__forfeited__',
+    pickedByTeamId: owner.teamId,
+    pickNumber: draft.currentPickNumber,
+    round: draft.currentPickNumber <= 30 ? 1 : 2,
+    isTwoWay: false,
+  })
+
+  draft.currentPickNumber++
+
+  const totalSlots = countDraftSlots(league, draft.seasonYear)
+  if (draft.currentPickNumber > totalSlots) {
+    draft.status = 'complete'
+    draft.completedAt = league.currentDate
+  }
+
+  return true
+}
+
 export function autoPickForTeam(
   league: LeagueState,
   draft: Draft,
@@ -555,6 +609,10 @@ export function autoDraftOffClock(
     const owner = getCurrentPickOwner(league, draft)
     if (!owner) break
     if (owner.teamId === userTeamId) break
-    autoPickForTeam(league, draft, owner.teamId, rng)
+
+    const result = autoPickForTeam(league, draft, owner.teamId, rng)
+    if (result && 'error' in result) {
+      if (!forfeitDraftPick(league, draft)) break
+    }
   }
 }

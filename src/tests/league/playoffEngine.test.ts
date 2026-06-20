@@ -185,6 +185,22 @@ describe('generatePlayoffBracket', () => {
     expect(bracket.status).toBe('play_in')
   })
 
+  it('falls back to a normal bracket when play-in teams are unavailable', () => {
+    const league = makeLeague({ rules: { hasPlayIn: true, playoffFormat: 'playin_then_top8' } })
+
+    for (const teamId of ['east-5', 'east-6', 'east-7', 'east-8', 'east-9', 'east-10', 'west-5', 'west-6', 'west-7', 'west-8', 'west-9', 'west-10']) {
+      delete league.teams[teamId]
+      delete league.standings[teamId]
+    }
+
+    const bracket = generatePlayoffBracket(league, league.rules)
+
+    expect(bracket.playIn).toBeUndefined()
+    expect(bracket.status).toBe('bracket')
+    expect(bracket.east.length).toBeGreaterThan(0)
+    expect(bracket.west.length).toBeGreaterThan(0)
+  })
+
   it('no play-in when hasPlayIn is false', () => {
     const league = makeLeague({ rules: { hasPlayIn: false, playoffFormat: 'top8' } })
     const bracket = generatePlayoffBracket(league, league.rules)

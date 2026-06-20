@@ -27,7 +27,7 @@ export function FreeAgencyPage() {
   }
 
   const league = save.league
-  const isFA = league.phase === 'free_agency'
+  const isFA = league.phase === 'free_agency' || league.phase === 'preseason'
 
   const ufaIds = identifyFreeAgents(league).filter(
     (id) => !identifyRestrictedFreeAgents(league, league.qualifyingOffers).includes(id),

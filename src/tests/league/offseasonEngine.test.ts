@@ -11,7 +11,14 @@ import {
   prepareDraftClass,
   getDraftClassForYear,
   assignPickNumbers,
+  extendDraftClassToSlotCount,
+  countDraftSlots,
+  autoDraftOffClock,
+  startDraft,
+  forfeitDraftPick,
+  formatSeasonLabel,
 } from '@/game/league/draftEngine'
+import { finalizeStrandedFreeAgents, identifyFreeAgents } from '@/game/management/freeAgencyEngine'
 import { makeTeam, makeRoster, emptyM10LeagueFields } from '@/tests/fixtures'
 import type { LeagueState } from '@/game/models/league'
 import type { Draft } from '@/game/models/draft'
@@ -348,6 +355,104 @@ describe('offseasonEngine', () => {
     if (!guard.ok) {
       expect(guard.reason).toContain('unsigned')
     }
+  })
+
+  it('finalizeStrandedFreeAgents clears preseason advance block', () => {
+    const league = makeOffseasonLeague('preseason')
+    const fa = makeRoster('other', 1)[0]!
+    fa.teamId = null
+    fa.contract.yearsRemaining = 0
+    league.players[fa.id] = fa
+
+    finalizeStrandedFreeAgents(league, rng)
+    expect(identifyFreeAgents(league).length).toBe(0)
+    expect(canAdvancePhase(league).ok).toBe(true)
+  })
+
+  it('extends draft class when compensation picks add extra slots beyond 60', () => {
+    const league = makeOffseasonLeague()
+    beginOffseason(league, rng)
+    const draftYear = upcomingDraftYear(league)
+    const draftClass = getDraftClassForYear(league, draftYear)!
+    expect(draftClass.prospects.length).toBe(60)
+
+    const seasonLabel = formatSeasonLabel(draftYear)
+    league.draftPicks = Array.from({ length: 61 }, (_, i) => ({
+      id: `pick-${i + 1}`,
+      season: seasonLabel,
+      round: i < 30 ? 1 : 2,
+      pickNumber: i + 1,
+      originalTeamId: i % 2 === 0 ? 'user' : 'other',
+      currentTeamId: i % 2 === 0 ? 'user' : 'other',
+      prospectId: null,
+    }))
+
+    extendDraftClassToSlotCount(league, draftClass, draftYear, rng)
+    expect(draftClass.prospects.length).toBe(61)
+    expect(countDraftSlots(league, draftYear)).toBe(61)
+  })
+
+  it('autoDraftOffClock forfeit completes draft when prospects are exhausted', () => {
+    const league = makeOffseasonLeague('draft')
+    const draftYear = upcomingDraftYear(league)
+    const classId = `draft-class-${draftYear}`
+    const prospect = {
+      id: 'prospect-only',
+      draftClassId: classId,
+      firstName: 'Only',
+      lastName: 'Pick',
+      age: 19,
+      position: 'PG' as const,
+      secondaryPositions: [] as import('@/game/models/position').Position[],
+      heightInches: 75,
+      weightLbs: 180,
+      archetype: 'Guard',
+      visibleRatings: {},
+      trueRatings: makeRoster('other', 1)[0]!.ratings,
+      visiblePotentialRange: [70, 80] as [number, number],
+      truePotential: 75,
+      projectedRange: [58, 68] as [number, number],
+      scoutingReport: [],
+      riskLevel: 'medium' as const,
+      scoutingPoints: 0,
+      scoutedByTeamId: null,
+      bustRisk: 0.1,
+      breakoutChance: 0.1,
+      source: 'synthetic' as const,
+    }
+    league.draftClasses[classId] = {
+      id: classId,
+      seasonYear: draftYear,
+      season: formatSeasonLabel(draftYear),
+      generatedAt: '',
+      prospects: [prospect],
+      generatedBy: 'hybrid',
+      realProspectCount: 0,
+      syntheticProspectCount: 1,
+    }
+    const seasonLabel = formatSeasonLabel(draftYear)
+    league.draftPicks = [
+      { id: 'p1', season: seasonLabel, round: 1, pickNumber: 1, originalTeamId: 'other', currentTeamId: 'other', prospectId: null },
+      { id: 'p2', season: seasonLabel, round: 1, pickNumber: 2, originalTeamId: 'user', currentTeamId: 'user', prospectId: null },
+    ]
+    const draft = startDraft(
+      league,
+      league.draftClasses[classId]!,
+      [
+        { teamId: 'other', pickNumber: 1 },
+        { teamId: 'user', pickNumber: 2 },
+      ],
+      'lottery',
+    )
+
+    autoDraftOffClock(league, draft, 'user', rng)
+    expect(draft.picks.length).toBe(1)
+    expect(draft.currentPickNumber).toBe(2)
+    expect(draft.status).toBe('in_progress')
+
+    forfeitDraftPick(league, draft)
+    expect(draft.status).toBe('complete')
+    expect(draft.picks.some((p) => p.prospectId === '__forfeited__')).toBe(true)
   })
 })
 

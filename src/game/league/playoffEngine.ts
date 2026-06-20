@@ -150,16 +150,17 @@ export function generatePlayoffBracket(
 
   const eastSeeds = getSeedsByConference(standings, teams, 'East', seedCount)
   const westSeeds = getSeedsByConference(standings, teams, 'West', seedCount)
+  const usePlayIn = rules.hasPlayIn && eastSeeds.length >= 10 && westSeeds.length >= 10
 
   const bracket: PlayoffBracket = {
     seasonYear,
     format: rules.playoffFormat,
     east: [],
     west: [],
-    status: rules.hasPlayIn ? 'play_in' : 'bracket',
+    status: usePlayIn ? 'play_in' : 'bracket',
   }
 
-  if (rules.hasPlayIn) {
+  if (usePlayIn) {
     const eastPlayIn = eastSeeds.slice(6)
     const westPlayIn = westSeeds.slice(6)
 
@@ -178,7 +179,7 @@ export function generatePlayoffBracket(
     bracket.west = createBracketRounds(westSeeds, 'West', seriesLength, false)
   }
 
-  const finalsStartDate = rules.hasPlayIn ? '2026-06-05' : '2026-05-25'
+  const finalsStartDate = usePlayIn ? '2026-06-05' : '2026-05-25'
   bracket.finals = {
     id: 'finals-r4-1',
     conference: 'Finals',
@@ -196,7 +197,7 @@ export function generatePlayoffBracket(
     startDate: finalsStartDate,
   }
 
-  if (!rules.hasPlayIn) {
+  if (!usePlayIn) {
     resolveBracketByes(bracket, 'East')
     resolveBracketByes(bracket, 'West')
   }

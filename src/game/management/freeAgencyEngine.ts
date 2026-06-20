@@ -399,3 +399,78 @@ export function submitAIOffers(
   }
   return offers
 }
+
+/** After preseason FA sim: sign stragglers at minimum or mark as sat out for the season. */
+export function finalizeStrandedFreeAgents(
+  league: LeagueState,
+  rng: { nextInt: (min: number, max: number) => number },
+): void {
+  for (const offer of league.freeAgentOffers) {
+    if (offer.status === 'pending') {
+      offer.status = 'expired'
+    }
+  }
+
+  const minSalary = league.rules.minimumPlayerSalary
+  const rosterCap = league.rosterSizeCap ?? 20
+
+  let faIds = identifyFreeAgents(league)
+  while (faIds.length > 0) {
+    let placedAny = false
+
+    for (const playerId of faIds) {
+      const player = league.players[playerId]
+      if (!player || player.teamId !== null) continue
+
+      const candidates = Object.values(league.teams)
+        .filter(
+          (t): t is Team =>
+            !!t &&
+            t.roster.length < rosterCap &&
+            t.finances.capSpace >= minSalary,
+        )
+        .sort((a, b) => b.finances.capSpace - a.finances.capSpace)
+
+      const team = candidates[rng.nextInt(0, Math.max(0, candidates.length - 1))]
+      if (!team) {
+        markPlayerSatOutForSeason(player)
+        placedAny = true
+        continue
+      }
+
+      const offer = submitOffer(
+        { years: 1, salaryByYear: [minSalary] },
+        playerId,
+        team.id,
+        player,
+        league.currentDate,
+        false,
+      )
+      signPlayerFromOffer(league, offer, player)
+      placedAny = true
+    }
+
+    const remaining = identifyFreeAgents(league)
+    if (!placedAny && remaining.length === faIds.length) {
+      for (const playerId of remaining) {
+        const player = league.players[playerId]
+        if (player) markPlayerSatOutForSeason(player)
+      }
+      break
+    }
+    faIds = remaining
+  }
+}
+
+function markPlayerSatOutForSeason(player: Player): void {
+  player.contract = createContract({
+    salaryByYear: [0],
+    yearsRemaining: 1,
+    birdRights: false,
+    earlyBird: false,
+    guaranteed: true,
+    guaranteedByYear: [true],
+    option: 'none',
+    optionYear: null,
+  })
+}

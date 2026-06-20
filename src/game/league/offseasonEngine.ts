@@ -17,6 +17,7 @@ import {
   getDraftClassForYear,
   getDraftForYear,
   prepareDraftClass,
+  extendDraftClassToSlotCount,
 } from './draftEngine'
 import {
   expireContracts,
@@ -25,6 +26,7 @@ import {
   resolveDailyBatches,
   submitAIOffers,
   identifyFreeAgents,
+  finalizeStrandedFreeAgents,
 } from '@/game/management/freeAgencyEngine'
 import { generateRookieContract } from '@/game/management/rookieContractEngine'
 import { prospectToPlayer } from './prospectConverter'
@@ -214,6 +216,7 @@ export async function advancePhase(
         ? runLottery(league, rng)
         : runInverseWLDraftOrder(league)
     assignPickNumbers(league, order, seasonLabel)
+    extendDraftClassToSlotCount(league, draftClass, draftYear, rng)
     const draft = startDraft(league, draftClass, order, orderSource)
     newsEvents.push(createLotteryNews(league, order))
     autoDraftOffClock(league, draft, userTeamId, rng)
@@ -276,15 +279,19 @@ function resolvePreseasonFreeAgency(
     newsEvents.push(...dayBatch.newsEvents)
   }
 
-  finalizePreseasonFreeAgency(league)
+  finalizePreseasonFreeAgency(league, rng)
 }
 
-function finalizePreseasonFreeAgency(league: LeagueState): void {
+function finalizePreseasonFreeAgency(
+  league: LeagueState,
+  rng: SeededRandom,
+): void {
   for (const offer of league.freeAgentOffers) {
     if (offer.status === 'pending' && league.currentDate > offer.matchDeadline) {
       offer.status = 'expired'
     }
   }
+  finalizeStrandedFreeAgents(league, rng)
 }
 
 function signUnsignedRookies(league: LeagueState): void {

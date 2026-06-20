@@ -531,8 +531,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   makeFreeAgentOffer: (playerId, offer) => {
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
-    if (save.league.phase !== 'free_agency') {
-      return { ok: false, reason: 'Not in free agency phase.' }
+    if (save.league.phase !== 'free_agency' && save.league.phase !== 'preseason') {
+      return { ok: false, reason: 'Not in free agency or preseason.' }
     }
     const player = save.league.players[playerId]
     if (!player || player.teamId !== null) {
