@@ -20,7 +20,8 @@ export function transitionToOffseason(
     return { phase: 'offseason', revenueAwarded: 0 }
   }
 
-  const teamResults = computeTeamSeasonResults(bracket)
+  const allTeamIds = Object.keys(league.teams)
+  const teamResults = computeTeamSeasonResults(bracket, allTeamIds)
 
   let totalRevenueAwarded = 0
   for (const [teamId, result] of Object.entries(teamResults)) {
@@ -34,27 +35,45 @@ export function transitionToOffseason(
     totalRevenueAwarded += bonus
   }
 
-  if (bracket.championTeamId && bracket.finalsMvpPlayerId) {
+  if (bracket.championTeamId) {
     const seasonLabel = league.rules.seasonLabel
 
-    const existingSeason = league.awardsHistory.find((a) => a.season === seasonLabel)
-    if (existingSeason) {
-      existingSeason.awards.push({
-        season: seasonLabel,
-        award: 'finals_mvp',
-        playerId: bracket.finalsMvpPlayerId,
-        teamId: bracket.championTeamId,
-      })
-    } else {
-      league.awardsHistory.push({
-        season: seasonLabel,
-        awards: [{
+    if (bracket.finalsMvpPlayerId) {
+      const existingSeason = league.awardsHistory.find((a) => a.season === seasonLabel)
+      if (existingSeason) {
+        existingSeason.awards.push({
           season: seasonLabel,
           award: 'finals_mvp',
           playerId: bracket.finalsMvpPlayerId,
           teamId: bracket.championTeamId,
-        }],
-        champions: [],
+        })
+      } else {
+        league.awardsHistory.push({
+          season: seasonLabel,
+          awards: [{
+            season: seasonLabel,
+            award: 'finals_mvp',
+            playerId: bracket.finalsMvpPlayerId,
+            teamId: bracket.championTeamId,
+          }],
+          champions: [],
+        })
+      }
+
+      const mvpPlayer = league.players[bracket.finalsMvpPlayerId]
+      const mvpName = mvpPlayer
+        ? `${mvpPlayer.firstName} ${mvpPlayer.lastName}`
+        : 'Player'
+
+      league.news.push({
+        id: `news-finals-mvp-${league.seasonYear}`,
+        date: league.currentDate,
+        type: 'finals_mvp',
+        headline: `${mvpName} wins Finals MVP`,
+        body: `${mvpName} has been named Finals MVP for the ${seasonLabel} season.`,
+        teamIds: [bracket.championTeamId],
+        playerIds: [bracket.finalsMvpPlayerId],
+        importance: 'high',
       })
     }
 
@@ -62,7 +81,7 @@ export function transitionToOffseason(
       season: seasonLabel,
       championTeamId: bracket.championTeamId,
       runnerUpTeamId: bracket.runnerUpTeamId ?? '',
-      finalsMvpPlayerId: bracket.finalsMvpPlayerId,
+      finalsMvpPlayerId: bracket.finalsMvpPlayerId ?? '',
       seriesResult: `${bracket.finals?.higherSeedWins ?? 0}-${bracket.finals?.lowerSeedWins ?? 0}`,
     })
 
@@ -78,23 +97,7 @@ export function transitionToOffseason(
       headline: `${championName} win the championship!`,
       body: `${championName} have won the ${seasonLabel} NBA championship.`,
       teamIds: [bracket.championTeamId],
-      playerIds: [bracket.finalsMvpPlayerId],
-      importance: 'high',
-    })
-
-    const mvpPlayer = league.players[bracket.finalsMvpPlayerId]
-    const mvpName = mvpPlayer
-      ? `${mvpPlayer.firstName} ${mvpPlayer.lastName}`
-      : 'Player'
-
-    league.news.push({
-      id: `news-finals-mvp-${league.seasonYear}`,
-      date: league.currentDate,
-      type: 'finals_mvp',
-      headline: `${mvpName} wins Finals MVP`,
-      body: `${mvpName} has been named Finals MVP for the ${seasonLabel} season.`,
-      teamIds: [bracket.championTeamId],
-      playerIds: [bracket.finalsMvpPlayerId],
+      playerIds: bracket.finalsMvpPlayerId ? [bracket.finalsMvpPlayerId] : [],
       importance: 'high',
     })
   }

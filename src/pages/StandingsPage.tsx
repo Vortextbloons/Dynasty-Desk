@@ -13,7 +13,6 @@ type Tab = 'East' | 'West' | 'League'
 export function StandingsPage() {
   const save = useGameStore((s) => s.save)
   const simSeason = useGameStore((s) => s.simSeason)
-  const generatePlayoffBracket = useGameStore((s) => s.generatePlayoffBracket)
   const simRunning = useGameStore((s) => s.simRunning)
   const simProgress = useGameStore((s) => s.simProgress)
   const cancelSimulation = useGameStore((s) => s.cancelSimulation)
@@ -112,8 +111,7 @@ export function StandingsPage() {
     }
     const result = await simSeason()
     if (result.phaseTransitioned) {
-      toast.success('Regular season complete! Generating playoff bracket...')
-      generatePlayoffBracket()
+      toast.success('Regular season complete! Moving to playoffs...')
       navigate('/playoffs')
     } else if (result.cancelled) {
       toast.info(`Sim cancelled. ${result.gamesSimulated} games simulated.`)

@@ -108,7 +108,6 @@ interface GameStore {
   simNextPlayoffGame: () => Promise<{ gamesSimulated: number; seriesCompleted: string[]; bracketComplete: boolean }>
   simPlayoffSeries: (seriesId: string) => Promise<{ gamesSimulated: number }>
   simAllPlayoffGames: () => Promise<{ gamesSimulated: number; bracketComplete: boolean }>
-  simPlayoffsToCompletion: () => Promise<{ gamesSimulated: number; bracketComplete: boolean }>
   transitionToOffseason: () => void
 }
 
@@ -900,7 +899,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const rng = new SeededRandom(save.rngState)
 
     try {
-      const result = await advancePlayoffSeries(save.league, rng)
+      const result = await advancePlayoffSeries(save.league, rng, { injuriesEnabled: save.settings.injuries })
 
       if (result.bracketComplete) {
         const mvpId = computeFinalsMvp(save.league.playoffBracket, save.league.games)
@@ -933,7 +932,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
 
     const rng = new SeededRandom(save.rngState)
-    const results = await simSeries(save.league, seriesId, rng)
+    const results = await simSeries(save.league, seriesId, rng, { injuriesEnabled: save.settings.injuries })
 
     save.rngState = rng.state
     set({ save: { ...save } })
@@ -954,21 +953,22 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     let totalSimulated = 0
     let bracketComplete = false
 
-    set({ simRunning: true, simProgress: { current: 0, total: 100, percentage: 0, currentMatchup: 'Playoffs' } })
+    const totalGames = countRemainingPlayoffGames(save.league.playoffBracket)
+    set({ simRunning: true, simProgress: { current: 0, total: totalGames || 100, percentage: 0, currentMatchup: 'Playoffs' } })
 
     const rng = new SeededRandom(save.rngState)
 
     try {
-      let iterations = 0
-      while (!bracketComplete && iterations < 200) {
+      while (!bracketComplete) {
         if (cancelToken.cancelled) break
 
-        const result = await advancePlayoffSeries(save.league, rng)
+        const result = await advancePlayoffSeries(save.league, rng, { injuriesEnabled: save.settings.injuries })
         totalSimulated += result.gamesSimulated
         bracketComplete = result.bracketComplete
-        iterations++
 
-        set({ simProgress: { current: iterations, total: 200, percentage: Math.min(99, Math.round((iterations / 200) * 100)), currentMatchup: 'Simulating playoffs...' } })
+        const remaining = countRemainingPlayoffGames(save.league.playoffBracket)
+        const progress = totalGames > 0 ? Math.min(99, Math.round(((totalGames - remaining) / totalGames) * 100)) : 0
+        set({ simProgress: { current: totalSimulated, total: totalGames, percentage: progress, currentMatchup: 'Simulating playoffs...' } })
 
         await new Promise<void>((r) => setTimeout(r, 0))
       }
@@ -993,15 +993,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
   },
 
-  simPlayoffsToCompletion: async () => {
-    const { save } = get()
-    if (!save || !save.league.playoffBracket) {
-      return { gamesSimulated: 0, bracketComplete: false }
-    }
-
-    return get().simAllPlayoffGames()
-  },
-
   transitionToOffseason: () => {
     const { save } = get()
     if (!save) return
@@ -1011,6 +1002,21 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     get().scheduleAutoSave()
   },
 }))
+
+function countRemainingPlayoffGames(bracket: import('@/game/models/playoff').PlayoffBracket): number {
+  let count = 0
+  const allSeries = [...bracket.east, ...bracket.west]
+  if (bracket.finals) allSeries.push(bracket.finals)
+
+  for (const s of allSeries) {
+    if (s.status === 'final') continue
+    if (!s.higherSeedTeamId || !s.lowerSeedTeamId) continue
+    const required = Math.ceil(s.seriesLength / 2)
+    const remaining = required * 2 - s.higherSeedWins - s.lowerSeedWins
+    count += Math.max(0, remaining)
+  }
+  return count
+}
 
 function applyPatch(
   save: GameSave,

@@ -103,13 +103,15 @@ function makeLeague(overrides: Record<string, any> = {}): LeagueState {
 
   const standings = { ...eastStandings, ...westStandings }
 
+  const { rules: rulesOverrides, ...restOverrides } = overrides
+
   return {
     id: 'test',
     name: 'Test League',
     currentDate: '2026-04-10',
     seasonYear: 2026,
     phase: 'playoffs',
-    rules: { ...DEFAULT_LEAGUE_RULES, ...(overrides.rules ?? {}) },
+    rules: { ...DEFAULT_LEAGUE_RULES, ...(rulesOverrides ?? {}) },
     eraConfig: { season: '2025-26', pace: 100, league3PARate: 0.35, leagueTsPct: 0.57, leaguePpg: 112, possessionCoefficient: 1.0 },
     snapshotId: 'test',
     teams,
@@ -125,7 +127,7 @@ function makeLeague(overrides: Record<string, any> = {}): LeagueState {
     champions: [],
     awards: [],
     userTeamId: 'east-1',
-    ...overrides,
+    ...restOverrides,
   } as LeagueState
 }
 
@@ -276,7 +278,7 @@ describe('computeTeamSeasonResults', () => {
       runnerUpTeamId: 'west-1',
     }
 
-    const results = computeTeamSeasonResults(bracket)
+    const results = computeTeamSeasonResults(bracket, ['east-1', 'west-1', 'east-2', 'west-2'])
     expect(results['east-1']).toBe('champion')
     expect(results['west-1']).toBe('finals_loss')
   })
@@ -316,4 +318,71 @@ describe('getSeriesById', () => {
 
     expect(getSeriesById(bracket, 'nonexistent')).toBeUndefined()
   })
+})
+
+describe('full bracket simulation', () => {
+  it('simulates entire bracket to champion', async () => {
+    const league = makeLeague({ rules: { hasPlayIn: false, playoffFormat: 'top8' } })
+    const bracket = generatePlayoffBracket(league, league.rules)
+    league.playoffBracket = bracket
+
+    const rng = new SeededRandom({ seed: 'full-bracket-test', position: 0 })
+
+    let iterations = 0
+    while (bracket.status !== 'complete' && iterations < 200) {
+      const result = await advancePlayoffSeries(league, rng)
+      if (result.bracketComplete) break
+      iterations++
+    }
+
+    expect(bracket.status).toBe('complete')
+    expect(bracket.championTeamId).toBeDefined()
+    expect(bracket.runnerUpTeamId).toBeDefined()
+    expect(bracket.finals?.winnerTeamId).toBeDefined()
+    expect(bracket.finals?.status).toBe('final')
+
+    const eastCF = bracket.east.find((s) => s.round === 3)
+    const westCF = bracket.west.find((s) => s.round === 3)
+    expect(eastCF?.status).toBe('final')
+    expect(westCF?.status).toBe('final')
+    expect(eastCF?.winnerTeamId).toBeDefined()
+    expect(westCF?.winnerTeamId).toBeDefined()
+
+    expect(bracket.finals!.higherSeedTeamId).toBe(eastCF!.winnerTeamId)
+    expect(bracket.finals!.lowerSeedTeamId).toBe(westCF!.winnerTeamId)
+
+    const required = Math.ceil(bracket.finals!.seriesLength / 2)
+    const finalsWins = bracket.finals!.higherSeedWins + bracket.finals!.lowerSeedWins
+    expect(finalsWins).toBeGreaterThanOrEqual(required)
+  }, 30000)
+
+  it('assigns missed_playoffs to non-playoff teams', async () => {
+    const league = makeLeague({ rules: { hasPlayIn: false, playoffFormat: 'top8' } })
+    const bracket = generatePlayoffBracket(league, league.rules)
+    league.playoffBracket = bracket
+
+    const rng = new SeededRandom({ seed: 'missed-test', position: 0 })
+
+    let iterations = 0
+    while (bracket.status !== 'complete' && iterations < 200) {
+      const result = await advancePlayoffSeries(league, rng)
+      if (result.bracketComplete) break
+      iterations++
+    }
+
+    const allTeamIds = Object.keys(league.teams)
+    const results = computeTeamSeasonResults(bracket, allTeamIds)
+
+    const nonPlayoffTeams = allTeamIds.filter((id) => {
+      const inBracket = bracket.east.some((s) => s.higherSeedTeamId === id || s.lowerSeedTeamId === id)
+        || bracket.west.some((s) => s.higherSeedTeamId === id || s.lowerSeedTeamId === id)
+      return !inBracket
+    })
+
+    for (const id of nonPlayoffTeams) {
+      expect(results[id]).toBe('missed_playoffs')
+    }
+
+    expect(results[bracket.championTeamId!]).toBe('champion')
+  }, 30000)
 })

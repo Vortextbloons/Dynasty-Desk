@@ -18,7 +18,7 @@ export function PlayoffsPage() {
   const generatePlayoffBracket = useGameStore((s) => s.generatePlayoffBracket)
   const simNextPlayoffGame = useGameStore((s) => s.simNextPlayoffGame)
   const simPlayoffSeries = useGameStore((s) => s.simPlayoffSeries)
-  const simPlayoffsToCompletion = useGameStore((s) => s.simPlayoffsToCompletion)
+  const simAllPlayoffGames = useGameStore((s) => s.simAllPlayoffGames)
   const transitionToOffseason = useGameStore((s) => s.transitionToOffseason)
   const simRunning = useGameStore((s) => s.simRunning)
   const simProgress = useGameStore((s) => s.simProgress)
@@ -60,7 +60,7 @@ export function PlayoffsPage() {
   }
 
   const handleSimAll = async () => {
-    await simPlayoffsToCompletion()
+    await simAllPlayoffGames()
   }
 
   const handleTransition = () => {
