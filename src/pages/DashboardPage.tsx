@@ -217,7 +217,15 @@ export function DashboardPage() {
     if (save.settings.simSpeed === 'normal') {
       toast.info('Tip: Switch to instant speed for faster bulk sim.', { duration: 5000 })
     }
-    await simSeason()
+    const result = await simSeason()
+    if (result.cancelled) {
+      toast.info(`Sim cancelled. ${result.gamesSimulated} games simulated.`)
+    } else if (result.phaseTransitioned) {
+      const label = result.nextPhase === 'play_in' ? 'Play-In' : 'Playoffs'
+      toast.success(`Regular season complete! ${result.gamesSimulated} games simulated. Moving to ${label}.`)
+    } else if (result.gamesSimulated > 0) {
+      toast.success(`Season sim complete. ${result.gamesSimulated} games simulated.`)
+    }
   }
 
   return (
