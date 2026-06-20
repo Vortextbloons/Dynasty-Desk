@@ -1,6 +1,6 @@
-# CourtForge GM — Spec-Driven Implementation Plan
+# Dynasty Desk — Spec-Driven Implementation Plan
 
-**Project name:** CourtForge GM  
+**Project name:** Dynasty Desk  
 **Project type:** Static web basketball franchise/team manager game  
 **Deployment target:** GitHub Pages  
 **Primary architecture:** Local-first browser game with pre-pulled/static data and IndexedDB saves  
@@ -10,7 +10,7 @@
 
 ## 1. Product Vision
 
-CourtForge GM is a realistic basketball team manager game where the player controls a franchise over multiple seasons. The player manages roster construction, lineups, rotations, trades, contracts, draft picks, player development, injuries, team chemistry, free agency, playoffs, awards, and long-term dynasty building.
+Dynasty Desk is a realistic basketball team manager game where the player controls a franchise over multiple seasons. The player manages roster construction, lineups, rotations, trades, contracts, draft picks, player development, injuries, team chemistry, free agency, playoffs, awards, and long-term dynasty building.
 
 The game should feel like a deep basketball front-office simulator, not an arcade game. The core fun comes from making decisions, watching the simulated league react, and seeing whether the team-building strategy works over time.
 
@@ -95,7 +95,7 @@ Do not build random UI screens before the underlying game rules are specified.
 ### 3.3 Save portability flow
 
 1. User clicks **Export Save**.
-2. App downloads a `.courtforge-save.json` file.
+2. App downloads a `.dynasty-desk-save.json` file.
 3. User can later click **Import Save**.
 4. App validates the save version and schema.
 5. App imports the save into IndexedDB.
@@ -151,7 +151,7 @@ These scripts run locally or in CI, not in the user's browser.
 ## 5. Repository Structure
 
 ```txt
-courtforge-gm/
+dynasty-desk/
   .github/
     workflows/
       deploy.yml
@@ -540,7 +540,7 @@ Use IndexedDB through Dexie.
 Database name:
 
 ```txt
-courtforge_gm
+dynasty_desk
 ```
 
 Tables:
@@ -1882,7 +1882,7 @@ Track:
 
 ### 22.1 Visual style
 
-CourtForge GM should feel like a clean front-office dashboard.
+Dynasty Desk should feel like a clean front-office dashboard.
 
 Recommended style:
 
@@ -2241,14 +2241,14 @@ Useful for:
 If deployed to:
 
 ```txt
-https://username.github.io/courtforge-gm/
+https://username.github.io/dynasty-desk/
 ```
 
 Set:
 
 ```ts
 export default defineConfig({
-  base: "/courtforge-gm/",
+  base: "/dynasty-desk/",
   plugins: [react()]
 });
 ```
@@ -2317,7 +2317,7 @@ HashRouter
 Example URL:
 
 ```txt
-https://username.github.io/courtforge-gm/#/dashboard
+https://username.github.io/dynasty-desk/#/dashboard
 ```
 
 This avoids refresh issues with static hosting.
@@ -2986,9 +2986,9 @@ Do not build trades, draft, or free agency before the game can already simulate 
 Use this prompt when asking a coding agent to implement the project:
 
 ```txt
-You are building CourtForge GM, a static GitHub Pages basketball franchise manager game.
+You are building Dynasty Desk, a static GitHub Pages basketball franchise manager game.
 
-Follow the spec in COURTFORGE_IMPLEMENTATION_PLAN.md exactly.
+Follow the spec in DYNASTY_DESK_IMPLEMENTATION_PLAN.md exactly.
 
 Hard constraints:
 - React + TypeScript + Vite.
@@ -3048,4 +3048,4 @@ Once that loop is fun, add the dynasty systems:
 Contracts → Trades → Draft → Free agency → Development → Injuries → Morale → News → Awards
 ```
 
-The strongest version of CourtForge GM will come from managing **real NBA rosters** with a realistic possession-based simulation, stat-derived player ratings, believable player development, and a league that diverges from real history based on the user's front-office decisions.
+The strongest version of Dynasty Desk will come from managing **real NBA rosters** with a realistic possession-based simulation, stat-derived player ratings, believable player development, and a league that diverges from real history based on the user's front-office decisions.

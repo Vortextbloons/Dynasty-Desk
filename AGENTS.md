@@ -1,8 +1,8 @@
-# CourtForge GM — Agent Guide
+# Dynasty Desk — Agent Guide
 
 Static browser basketball franchise sim. React + TypeScript + Vite, deployed to GitHub Pages. No runtime backend.
 
-Full spec: `courtforge_gm_implementation_plan.md`
+Full spec: `dynasty_desk_implementation_plan.md`
 
 ## Core Principles
 
@@ -121,4 +121,4 @@ Home → New League → Dashboard → Roster → Player → Lineup → Schedule 
 
 ## Agent Prompt Summary
 
-Build CourtForge GM per `courtforge_gm_implementation_plan.md`. Static GitHub Pages app. Real NBA players from build-time JSON. Zustand + Dexie. Pure testable sim logic. Milestone order matters. No runtime APIs. No NBA logos.
+Build Dynasty Desk per `dynasty_desk_implementation_plan.md`. Static GitHub Pages app. Real NBA players from build-time JSON. Zustand + Dexie. Pure testable sim logic. Milestone order matters. No runtime APIs. No NBA logos.
