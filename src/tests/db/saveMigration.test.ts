@@ -378,14 +378,14 @@ describe('migrateToV4', () => {
     expect(result.metadata.schemaVersion).toBe(4)
   })
 
-  it('migrates simSpeed to normal from legacy non-instant values', () => {
+  it('migrates simSpeed to normal for legacy non-modern values', () => {
     const v2 = makeV2Save()
     const v3 = migrateToV3(v2) as GameSave
     v3.settings.simSpeed = 'fast'
 
     const result = migrateToV4(v3) as GameSave
 
-    expect(result.settings.simSpeed).toBe('instant')
+    expect(result.settings.simSpeed).toBe('normal')
   })
 
   it('preserves instant simSpeed through migration', () => {

@@ -21,11 +21,14 @@ function DashboardSimControls() {
   const simNextGame = useGameStore((s) => s.simNextGame)
   const simDay = useGameStore((s) => s.simDay)
   const simWeek = useGameStore((s) => s.simWeek)
-  const nextGameId = useGameStore((s) => {
-    const id = s.getNextScheduledGameForUser()
-    return id
+  const hasOpponents = useGameStore((s) => {
+    if (!s.save) return false
+    const teamId = s.save.league.userTeamId
+    return Object.values(s.save.league.teams).some(
+      (t) => t !== undefined && t.id !== teamId,
+    )
   })
-  const hasNext = Boolean(nextGameId)
+  const hasNext = hasOpponents
 
   const handleSimNext = async () => {
     const result = await simNextGame()

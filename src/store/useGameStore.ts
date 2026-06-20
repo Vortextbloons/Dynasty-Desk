@@ -521,7 +521,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       createdIds.push(game.id)
     }
     if (createdIds.length > 0) {
-      save.league.currentDate = save.league.currentDate
       set({ save: { ...save } })
       get().scheduleAutoSave()
     }
@@ -596,9 +595,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     save.rngState = seededRng.state
     applyGameResultToStandings(save, gameId, boxScore)
-    if (save.metadata.currentDate < game.date) {
-      save.metadata.currentDate = game.date
-    }
+    advanceLeagueDate(save, game.date)
     set({ save: { ...save } })
     get().scheduleAutoSave()
     return { gameId, boxScore }
@@ -662,6 +659,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
     if (simIds.length === 0) {
       get().ensureSchedule(3)
+      const start = save.league.currentDate
+      for (let day = 0; day < 3; day++) {
+        const targetDate = addDays(start, day)
+        const dayGames = Object.values(save.league.games).filter(
+          (g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === targetDate,
+        )
+        for (const game of dayGames) {
+          if (!game) continue
+          const result = await get().simOneGame(game.id)
+          if (!('error' in result)) simIds.push(result.gameId)
+        }
+      }
     }
     return { gamesSimulated: simIds.length, gameIds: simIds }
   },
@@ -728,16 +737,12 @@ function revalidateLineup(save: GameSave, teamId: string) {
 
 function applyGameResultToStandings(
   save: GameSave,
-  gameId: string,
+  _gameId: string,
   box: import('@/game/models').BoxScoreResult,
 ) {
   const home = save.league.standings[box.homeTeamId]
   const away = save.league.standings[box.awayTeamId]
   if (!home || !away) return
-  const homeWin = box.homeWin
-  for (const s of [home, away]) {
-    s.gamesPlayed += 0
-  }
   home.gamesPlayed += 1
   away.gamesPlayed += 1
   home.pointsFor += box.homeScore
@@ -746,23 +751,34 @@ function applyGameResultToStandings(
   away.pointsAgainst += box.homeScore
   home.pointDifferential = home.pointsFor - home.pointsAgainst
   away.pointDifferential = away.pointsFor - away.pointsAgainst
+  const homeWin = box.homeWin
   if (homeWin) {
     home.wins += 1
     home.homeWins += 1
+    home.streak = home.streak >= 0 ? home.streak + 1 : 1
     away.losses += 1
     away.awayLosses += 1
-  } else if (box.homeScore < box.awayScore) {
+    away.streak = away.streak <= 0 ? away.streak - 1 : -1
+  } else {
     home.losses += 1
     home.homeLosses += 1
+    home.streak = home.streak <= 0 ? home.streak - 1 : -1
     away.wins += 1
     away.awayWins += 1
-  } else {
-    home.wins += 1
-    home.homeWins += 1
-    away.losses += 1
-    away.awayLosses += 1
+    away.streak = away.streak >= 0 ? away.streak + 1 : 1
   }
   home.winPct = home.wins / Math.max(1, home.gamesPlayed)
   away.winPct = away.wins / Math.max(1, away.gamesPlayed)
-  void gameId
+  const winChar = homeWin ? 'W' : 'L'
+  home.last10 = (home.last10 + winChar).slice(-10)
+  away.last10 = (away.last10 + (homeWin ? 'L' : 'W')).slice(-10)
+}
+
+function advanceLeagueDate(save: GameSave, gameDate: string): void {
+  if (save.league.currentDate < gameDate) {
+    save.league.currentDate = gameDate
+  }
+  if (save.metadata.currentDate < gameDate) {
+    save.metadata.currentDate = gameDate
+  }
 }

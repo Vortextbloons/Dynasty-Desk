@@ -108,14 +108,26 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
   }
 
   let otPeriod = 5 as 5 | 6 | 7
-  while (state.score.home === state.score.away) {
-    if (otPeriod > 7) break
+  while (state.score.home === state.score.away && otPeriod <= 7) {
+    if (!state.overtimeOccurred) {
+      state.ot5PercentRollTriggered = true
+    }
     state.overtimeOccurred = true
-    state.ot5PercentRollTriggered = true
     state.clock = { period: otPeriod, timeRemainingSeconds: OT_SECONDS }
     state.events.push({ type: 'endOfPeriod', period: otPeriod - 1 })
     playPeriod(state, input, homeById, awayById, otPeriod)
     otPeriod = (otPeriod + 1) as 5 | 6 | 7
+  }
+
+  if (state.score.home === state.score.away) {
+    state.ot5PercentRollTriggered = true
+    const homeWinsTiebreaker = input.rng.chance(0.5)
+    if (homeWinsTiebreaker) {
+      state.score.home += 1
+    } else {
+      state.score.away += 1
+    }
+    state.events.push({ type: 'endOfPeriod', period: 7 })
   }
 
   state.clock.timeRemainingSeconds = 0

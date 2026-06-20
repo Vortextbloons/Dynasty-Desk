@@ -231,15 +231,9 @@ export function migrateToV4(input: unknown): GameSave {
 
   const settings = save.settings as unknown as Record<string, unknown>
   const raw = settings.simSpeed
-  let migratedSpeed: GameSave['settings']['simSpeed']
-  if (raw === 'instant' || raw === 'normal') {
-    migratedSpeed = raw
-  } else if (raw === 'fast') {
-    migratedSpeed = 'instant'
-  } else {
-    migratedSpeed = 'normal'
-  }
-  void migrateSimSpeed
+  const speed = migrateSimSpeed(raw)
+  const migratedSpeed: GameSave['settings']['simSpeed'] =
+    speed === 'instant' || speed === 'normal' ? speed : 'normal'
 
   return {
     ...save,
