@@ -29,6 +29,8 @@ export interface LeagueRules {
   minimumTeamSalary: number
   tradeExceptionYears: number
   allowCashInTrades: boolean
+  maxCashPerSide: number
+  pickFreezeYears: number
 
   twoWaySlots: number
   rookieScale: 'real' | 'flat'
@@ -67,6 +69,8 @@ export const DEFAULT_LEAGUE_RULES: LeagueRules = {
   minimumTeamSalary: 126_529_200,
   tradeExceptionYears: 1,
   allowCashInTrades: true,
+  maxCashPerSide: 1_000_000,
+  pickFreezeYears: 7,
 
   twoWaySlots: 2,
   rookieScale: 'real',

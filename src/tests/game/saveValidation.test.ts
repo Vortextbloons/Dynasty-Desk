@@ -98,6 +98,10 @@ function makeValidSave(): GameSave {
           chemistry: 75,
           morale: 65,
           prestige: 80,
+          tradeExceptions: [],
+          frozenPicks: [],
+          priorTaxpayerYears: 0,
+          taxpayerHistory: [],
         },
       },
       players: {
@@ -224,6 +228,7 @@ function makeValidSave(): GameSave {
       draftClasses: {},
       champions: [],
       awards: [],
+      activeProposals: [],
       userTeamId: 'team-1',
     },
     user: { managerName: 'Coach', teamId: 'team-1' },

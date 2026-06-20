@@ -145,7 +145,11 @@ export function makeTeam(overrides: Partial<Team> = {}): Team {
     morale: overrides.morale ?? 50,
     prestige: overrides.prestige ?? 75,
     owner: overrides.owner,
-  }
+    tradeExceptions: overrides.tradeExceptions ?? [],
+    frozenPicks: overrides.frozenPicks ?? [],
+    priorTaxpayerYears: overrides.priorTaxpayerYears ?? 0,
+    taxpayerHistory: overrides.taxpayerHistory ?? [],
+  } as Team
 }
 
 export function defaultLineup(): LineupSettings {

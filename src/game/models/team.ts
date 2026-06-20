@@ -1,4 +1,5 @@
 import type { OwnerProfile } from './owner'
+import type { TradeException } from './trade'
 
 export interface OffensiveStrategy {
   pace: 'slow' | 'balanced' | 'fast'
@@ -132,10 +133,16 @@ export interface Team {
   strategy: TeamStrategy
   finances: TeamFinances
   direction: TeamDirection
+  directionAutoUpdatedAt?: string
 
   chemistry: number
   morale: number
   prestige: number
 
   owner?: OwnerProfile
+
+  tradeExceptions: TradeException[]
+  frozenPicks: string[]
+  priorTaxpayerYears: number
+  taxpayerHistory: number[]
 }

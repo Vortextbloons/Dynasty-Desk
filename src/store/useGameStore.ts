@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { GameSave, GameSettings, SimSpeed } from '@/game/models'
 import type { SaveMetadata } from '@/game/models'
 import type { LeaguePhase } from '@/game/models/league'
+import type { TradeAsset, TradeProposal } from '@/game/models/trade'
 import {
   createSave as dbCreateSave,
   loadSave as dbLoadSave,
@@ -43,6 +44,15 @@ import {
 } from '@/game/league/playoffEngine'
 import { computeFinalsMvp } from '@/game/league/awardsEngine'
 import { transitionToOffseason as doTransitionToOffseason } from '@/game/league/offseasonTransition'
+import { evaluateTradeForAI } from '@/game/management/tradeAI'
+import { validateTradeLegality, executeTrade as executeTradeEngine } from '@/game/management/tradeEngine'
+import { findTrades as findTradesEngine } from '@/game/management/tradeFinder'
+import {
+  createTradeCompletedEvent,
+  createVetoEvent,
+  createTradeRumorEvent,
+  createTradeLockedEvent,
+} from '@/game/league/tradeNews'
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 let cancelTokenRef: CancelToken | null = null
@@ -109,6 +119,19 @@ interface GameStore {
   simPlayoffSeries: (seriesId: string) => Promise<{ gamesSimulated: number }>
   simAllPlayoffGames: () => Promise<{ gamesSimulated: number; bracketComplete: boolean }>
   transitionToOffseason: () => void
+
+  createTradeProposal: (teamIds: string[]) => TradeProposal | null
+  addAssetToTrade: (proposalId: string, teamId: string, asset: TradeAsset) => void
+  removeAssetFromTrade: (proposalId: string, teamId: string, assetIndex: number) => void
+  cancelTradeProposal: (proposalId: string) => void
+  submitTrade: (proposalId: string) => {
+    accepted: boolean
+    counterOffer?: TradeProposal
+    rejectionReason?: string
+    vetoReason?: string
+    vetoingOwnerName?: string
+  }
+  findTradesForPlayer: (playerId: string) => TradeProposal[]
 }
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -1009,7 +1032,210 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     set({ save: { ...save } })
     get().scheduleAutoSave()
   },
+
+  createTradeProposal: (teamIds) => {
+    const { save } = get()
+    if (!save) return null
+    if (save.league.phase === 'playoffs' || save.league.phase === 'play_in') {
+      save.league.news = [
+        ...save.league.news,
+        createTradeLockedEvent(save.league.currentDate),
+      ]
+      set({ save: { ...save } })
+      return null
+    }
+    if (teamIds.length < 2 || teamIds.length > 4) return null
+    const proposal: TradeProposal = {
+      id: crypto.randomUUID(),
+      sides: teamIds.map((teamId) => ({ teamId, outgoing: [], incoming: [] })),
+      createdAt: new Date().toISOString(),
+      status: 'draft',
+    }
+    save.league.activeProposals = [...save.league.activeProposals, proposal]
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return proposal
+  },
+
+  addAssetToTrade: (proposalId, teamId, asset) => {
+    const { save } = get()
+    if (!save) return
+    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    if (!proposal) return
+    const side = proposal.sides.find((s) => s.teamId === teamId)
+    if (!side) return
+    side.outgoing = [...side.outgoing, asset]
+    distributeIncoming(proposal)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  removeAssetFromTrade: (proposalId, teamId, assetIndex) => {
+    const { save } = get()
+    if (!save) return
+    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    if (!proposal) return
+    const side = proposal.sides.find((s) => s.teamId === teamId)
+    if (!side) return
+    side.outgoing = side.outgoing.filter((_, i) => i !== assetIndex)
+    distributeIncoming(proposal)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  cancelTradeProposal: (proposalId) => {
+    const { save } = get()
+    if (!save) return
+    save.league.activeProposals = save.league.activeProposals.filter(
+      (p) => p.id !== proposalId,
+    )
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  submitTrade: (proposalId) => {
+    const { save } = get()
+    if (!save) {
+      return { accepted: false, rejectionReason: 'No active save.' }
+    }
+    if (save.league.phase === 'playoffs' || save.league.phase === 'play_in') {
+      save.league.news = [
+        ...save.league.news,
+        createTradeLockedEvent(save.league.currentDate),
+      ]
+      set({ save: { ...save } })
+      return { accepted: false, rejectionReason: 'Trade market closed during playoffs' }
+    }
+    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    if (!proposal) {
+      return { accepted: false, rejectionReason: 'Trade not found.' }
+    }
+    const legality = validateTradeLegality(proposal, save.league, save.league.rules)
+    if (!legality.legal) {
+      return { accepted: false, rejectionReason: legality.reason ?? 'Trade is illegal.' }
+    }
+
+    const projectedWins: Record<string, number> = {}
+    for (const [tid, standing] of Object.entries(save.league.standings)) {
+      projectedWins[tid] = standing.wins || 41
+    }
+
+    for (const side of proposal.sides) {
+      if (side.teamId === save.league.userTeamId) continue
+      const aiTeam = save.league.teams[side.teamId]
+      if (!aiTeam) continue
+      const response = evaluateTradeForAI(proposal, aiTeam, {
+        projectedWins,
+        userTeamId: save.league.userTeamId,
+        league: save.league,
+      })
+      if (response.kind === 'rejected') {
+        proposal.status = 'rejected'
+        proposal.rejectionReason = response.reason
+        set({ save: { ...save } })
+        get().scheduleAutoSave()
+        return { accepted: false, rejectionReason: response.reason }
+      }
+      if (response.kind === 'counter') {
+        save.league.activeProposals = [
+          ...save.league.activeProposals.filter((p) => p.id !== proposalId),
+          response.counterOffer,
+        ]
+        set({ save: { ...save } })
+        get().scheduleAutoSave()
+        return {
+          accepted: false,
+          counterOffer: response.counterOffer,
+          rejectionReason: 'AI proposed a counter-offer.',
+        }
+      }
+      if (response.kind === 'vetoed') {
+        proposal.status = 'vetoed'
+        proposal.vetoReason = response.reason
+        proposal.vetoingOwnerName = response.vetoingOwnerName
+        proposal.vetoingTeamId = response.vetoingTeamId
+        save.league.news = [
+          ...save.league.news,
+          createVetoEvent(
+            proposal,
+            response.vetoingOwnerName,
+            response.reason,
+            save.league.currentDate,
+          ),
+        ]
+        set({ save: { ...save } })
+        get().scheduleAutoSave()
+        return {
+          accepted: false,
+          vetoReason: response.reason,
+          vetoingOwnerName: response.vetoingOwnerName,
+        }
+      }
+    }
+
+    const result = executeTradeEngine(proposal, save.league, save.league.rules)
+    save.league = result.league
+    save.league.activeProposals = save.league.activeProposals.filter(
+      (p) => p.id !== proposalId,
+    )
+
+    const teamIdMap: Record<string, string> = {}
+    for (const side of proposal.sides) {
+      teamIdMap[side.teamId] = save.league.teams[side.teamId]?.name ?? side.teamId
+    }
+    save.league.news = [
+      ...save.league.news,
+      createTradeCompletedEvent(proposal, save.league.currentDate, teamIdMap),
+    ]
+
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return { accepted: true }
+  },
+
+  findTradesForPlayer: (playerId) => {
+    const { save } = get()
+    if (!save) return []
+    const userTeam = save.league.teams[save.league.userTeamId]
+    if (!userTeam) return []
+    const target = save.league.players[playerId]
+    if (!target || !target.teamId) return []
+    const targetTeam = save.league.teams[target.teamId]
+    if (!targetTeam) return []
+    const teamIdMap: Record<string, string> = {}
+    teamIdMap[userTeam.id] = userTeam.name
+    teamIdMap[targetTeam.id] = targetTeam.name
+    save.league.news = [
+      ...save.league.news,
+      createTradeRumorEvent(
+        userTeam.name,
+        playerId,
+        `${target.firstName} ${target.lastName}`,
+        save.league.currentDate,
+      ),
+    ]
+    const proposals = findTradesEngine(userTeam, playerId, save.league, {
+      maxResults: 8,
+      capFlexibility: 'loose',
+    })
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    return proposals
+  },
 }))
+
+function distributeIncoming(proposal: TradeProposal): void {
+  for (const side of proposal.sides) {
+    const incoming: TradeAsset[] = []
+    for (const other of proposal.sides) {
+      if (other.teamId === side.teamId) continue
+      for (const asset of other.outgoing) {
+        incoming.push({ ...asset })
+      }
+    }
+    side.incoming = incoming
+  }
+}
 
 function countRemainingPlayoffGames(bracket: import('@/game/models/playoff').PlayoffBracket): number {
   let count = 0

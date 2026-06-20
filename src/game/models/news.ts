@@ -3,6 +3,8 @@ export type NewsType =
   | 'player_injury'
   | 'trade_rumor'
   | 'trade_completed'
+  | 'trade_vetoed'
+  | 'trade_locked'
   | 'signing'
   | 'draft_pick'
   | 'award_race'

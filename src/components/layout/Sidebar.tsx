@@ -5,7 +5,6 @@ import {
   ClipboardList,
   CalendarDays,
   BarChart3,
-  Repeat,
   Gavel,
   Trophy,
   FileSignature,
@@ -15,6 +14,8 @@ import {
   Shield,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useGameStore } from '@/store/useGameStore'
+import { TradeNavItem } from '@/components/nav/TradeNavItem'
 
 interface NavItem {
   to: string
@@ -40,7 +41,6 @@ const navItems: NavItem[] = [
   { to: '/schedule', label: 'Schedule', icon: CalendarDays, group: 'Season' },
   { to: '/standings', label: 'Standings', icon: BarChart3, group: 'Season' },
   { to: '/playoffs', label: 'Playoffs', icon: Trophy, group: 'Season' },
-  { to: '/trades', label: 'Trades', icon: Repeat, group: 'Season' },
   { to: '/free-agency', label: 'Free Agency', icon: Gavel, group: 'Season' },
   { to: '/draft', label: 'Draft', icon: Trophy, group: 'Season' },
   {
@@ -58,6 +58,7 @@ const navItems: NavItem[] = [
 export function Sidebar() {
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const phase = useGameStore((s) => s.save?.league.phase) ?? 'regular_season'
 
   const groups: NavItem['group'][] = ['Front Office', 'Season', 'League']
   const grouped = groups.map((g) => ({
@@ -91,6 +92,15 @@ export function Sidebar() {
             </div>
             <ul className="space-y-0.5">
               {items.map((item) => {
+                if (item.to === '/trades') {
+                  return (
+                    <TradeNavItem
+                      key={item.to}
+                      phase={phase}
+                      label={item.label}
+                    />
+                  )
+                }
                 const Icon = item.icon
                 return (
                   <li key={item.to}>

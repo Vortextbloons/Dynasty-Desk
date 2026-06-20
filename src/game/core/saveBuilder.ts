@@ -89,6 +89,10 @@ export function buildSave(input: NewSaveInput): GameSave {
       morale: 50,
       prestige: st.prestige,
       owner: st.owner,
+      tradeExceptions: [],
+      frozenPicks: [],
+      priorTaxpayerYears: 0,
+      taxpayerHistory: [],
     }
   }
 
@@ -265,6 +269,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     draftClasses: {},
     champions: snapshot.champions,
     awards: snapshot.awards,
+    activeProposals: [],
     userTeamId: teamId,
   }
 
@@ -274,7 +279,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     createdAt: now,
     updatedAt: now,
     appVersion: '0.1.0',
-    schemaVersion: 5,
+    schemaVersion: 6,
     teamId,
     teamName:
       snapshot.teams.find((t) => t.id === teamId)?.name ?? teamId,

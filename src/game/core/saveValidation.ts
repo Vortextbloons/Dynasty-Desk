@@ -4,7 +4,7 @@ export type ValidationResult =
   | { ok: true; save: GameSave }
   | { ok: false; reason: string }
 
-const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3, 4, 5]
+const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3, 4, 5, 6]
 
 export function validateSave(input: unknown): ValidationResult {
   if (!input || typeof input !== 'object') {

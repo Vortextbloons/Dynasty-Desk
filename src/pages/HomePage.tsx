@@ -9,32 +9,42 @@ import {
   Trophy,
   Activity,
   CircleDot,
+  ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useGameStore } from '@/store/useGameStore'
 import { cn } from '@/lib/utils'
 
-const features = [
+const features: Array<{
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  body: string
+  accent: 'amber' | 'teal'
+}> = [
   {
     icon: Database,
     title: 'Real NBA rosters',
     body: 'Every franchise ships with stat-derived ratings and tendencies for ~450 NBA players.',
+    accent: 'amber',
   },
   {
     icon: Brain,
     title: 'Possession sim',
     body: 'Layer 2 sim — every possession resolved through ratings, tendencies, fatigue, and matchups.',
+    accent: 'teal',
   },
   {
     icon: Trophy,
     title: 'Full dynasty loop',
     body: 'Draft, develop, trade, sign, and shape the league across multiple seasons.',
+    accent: 'amber',
   },
   {
     icon: Activity,
     title: 'Local-first',
     body: 'Static build, IndexedDB saves, exportable to JSON. No accounts, no tracking, no backend.',
+    accent: 'teal',
   },
 ]
 
@@ -54,13 +64,13 @@ export function HomePage() {
       <main className="mx-auto max-w-7xl px-5 lg:px-8 pt-10 pb-20">
         <Hero hasSaves={hasSaves} />
 
-        <section className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {features.map((f) => (
-            <FeatureCard key={f.title} {...f} />
+        <section id="features" className="mt-16 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {features.map((f, i) => (
+            <FeatureCard key={f.title} {...f} index={i} />
           ))}
         </section>
 
-        <section className="mt-16">
+        <section id="loop" className="mt-20">
           <SectionHeader
             eyebrow="The loop"
             title="From the draft room to the championship podium"
@@ -70,12 +80,17 @@ export function HomePage() {
             {loop.map((step, i) => (
               <li
                 key={step.label}
-                className="relative rounded-lg border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] p-4"
+                className="group relative rounded-xl border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] p-4 transition-all duration-300 hover:border-[var(--color-primary)]/30 hover:shadow-[0_0_20px_rgba(255,190,50,0.05)]"
               >
-                <div className="font-mono text-xs text-[var(--color-primary)]">
-                  Step {String(i + 1).padStart(2, '0')}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="font-mono text-[10px] text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-1.5 py-0.5 rounded">
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                  {i < loop.length - 1 && (
+                    <ArrowRight className="size-3 text-[var(--color-line-strong)] hidden lg:block" />
+                  )}
                 </div>
-                <div className="mt-2 font-display text-lg leading-tight">
+                <div className="font-display text-base leading-tight">
                   {step.label}
                 </div>
                 <div className="mt-2 text-xs text-[var(--color-muted-foreground)] leading-relaxed">
@@ -86,19 +101,22 @@ export function HomePage() {
           </ol>
         </section>
 
-        <section className="mt-16">
+        <section id="roadmap" className="mt-20">
           <SectionHeader
             eyebrow="Roadmap"
-            title="From the draft room to the championship podium"
-            description="Build your roster, set the rotation, and let the sim run. The league diverges from real history based on your decisions."
+            title="Built in public, milestone by milestone"
+            description="Each milestone ships a complete, testable feature set. No stubs, no placeholder screens."
           />
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {milestones.map((m) => (
               <Card
                 key={m.id}
                 className={cn(
+                  'transition-all duration-200',
                   m.status === 'in_progress' &&
-                    'border-[var(--color-primary)]/50',
+                    'border-[var(--color-primary)]/50 shadow-[0_0_15px_rgba(255,190,50,0.08)]',
+                  m.status === 'done' &&
+                    'opacity-80 hover:opacity-100',
                 )}
               >
                 <CardContent className="p-5">
@@ -126,29 +144,29 @@ export function HomePage() {
 
 function TopNav() {
   return (
-    <header className="border-b border-[var(--color-line-soft)]/60">
+    <header className="border-b border-[var(--color-line-soft)]/60 backdrop-blur-sm sticky top-0 z-50 bg-[var(--color-background)]/80">
       <div className="mx-auto max-w-7xl px-5 lg:px-8 h-14 flex items-center">
         <div className="flex items-center gap-3">
-          <div className="size-8 rounded-md bg-[var(--color-primary)] text-[var(--color-primary-foreground)] grid place-items-center font-display text-sm">
+          <div className="size-8 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary)]/70 text-[var(--color-primary-foreground)] grid place-items-center font-display text-sm shadow-[0_2px_8px_rgba(255,190,50,0.3)]">
             DD
           </div>
           <div className="font-display text-sm tracking-wide">DYNASTY DESK</div>
         </div>
         <nav className="ml-8 hidden md:flex items-center gap-5 text-sm text-[var(--color-muted-foreground)]">
-          <a href="#features" className="hover:text-[var(--color-foreground)]">
+          <a href="#features" className="hover:text-[var(--color-foreground)] transition-colors">
             Features
           </a>
-          <a href="#loop" className="hover:text-[var(--color-foreground)]">
+          <a href="#loop" className="hover:text-[var(--color-foreground)] transition-colors">
             The loop
           </a>
-          <a href="#roadmap" className="hover:text-[var(--color-foreground)]">
+          <a href="#roadmap" className="hover:text-[var(--color-foreground)] transition-colors">
             Roadmap
           </a>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <a
             href="https://github.com"
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors"
             aria-label="GitHub"
           >
             <CircleDot className="size-3.5" /> v0.1.0
@@ -163,9 +181,9 @@ function Hero({ hasSaves }: { hasSaves: boolean }) {
   return (
     <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
       <div>
-        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
-          <span className="size-1.5 rounded-full bg-[var(--color-positive)]" />
-          M5 Complete · M6 Next
+        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-positive)]/30 bg-[var(--color-positive)]/10 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--color-positive)]">
+          <span className="size-1.5 rounded-full bg-[var(--color-positive)] animate-pulse" />
+          M8 Complete · M9 Next
         </div>
         <h1 className="mt-5 font-display text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
           Run a franchise.
@@ -179,7 +197,7 @@ function Hero({ hasSaves }: { hasSaves: boolean }) {
           browser, all on your machine.
         </p>
         <div className="mt-7 flex flex-wrap items-center gap-2">
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="shadow-[0_2px_12px_rgba(255,190,50,0.25)] hover:shadow-[0_4px_20px_rgba(255,190,50,0.35)] transition-shadow">
             <Link to="/new-league">
               <PlayCircle className="size-4" /> New League
             </Link>
@@ -224,55 +242,60 @@ function ScoreboardMock() {
     <div className="relative">
       <div
         aria-hidden
-        className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-[var(--color-primary)]/20 via-transparent to-[var(--color-accent)]/20 blur-2xl"
+        className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-[var(--color-primary)]/20 via-transparent to-[var(--color-accent)]/20 blur-3xl"
       />
-      <Card className="relative overflow-hidden">
-        <div className="px-5 py-3 border-b border-[var(--color-line-soft)] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-            <span className="size-1.5 rounded-full bg-[var(--color-positive)]" />
-            Live sim · Q4 02:41
-          </div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-            Home
-          </div>
-        </div>
-        <CardContent className="p-5">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-            <TeamBlock abbr="LAL" name="Lakers" score={112} accent />
-            <div className="font-mono text-sm text-[var(--color-muted-foreground)]">
-              VS
+      <Card className="relative overflow-hidden border-[var(--color-line-soft)]/80">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-surface-1)] to-[var(--color-surface-2)]" />
+        <div className="relative">
+          <div className="px-5 py-3 border-b border-[var(--color-line-soft)] flex items-center justify-between">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+              <span className="size-1.5 rounded-full bg-[var(--color-positive)] animate-pulse" />
+              Live sim · Q4 02:41
             </div>
-            <TeamBlock abbr="BOS" name="Celtics" score={108} align="right" />
+            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
+              Home
+            </div>
           </div>
-
-          <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
-            {statRows.map((row) => (
-              <div
-                key={row.label}
-                className="flex items-center justify-between border border-[var(--color-line-soft)] rounded-md px-3 py-2"
-              >
-                <span className="text-[var(--color-muted-foreground)] uppercase tracking-wider text-[10px]">
-                  {row.label}
-                </span>
-                <span className="font-mono">
-                  {row.left}
-                  <span className="text-[var(--color-muted-foreground)] mx-1">
-                    ·
-                  </span>
-                  {row.right}
-                </span>
+          <CardContent className="p-5 relative">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+              <TeamBlock abbr="LAL" name="Lakers" score={112} accent />
+              <div className="font-mono text-sm text-[var(--color-muted-foreground)]">
+                VS
               </div>
-            ))}
-          </div>
+              <TeamBlock abbr="BOS" name="Celtics" score={108} align="right" />
+            </div>
 
-          <div className="mt-5 text-[11px] text-[var(--color-muted-foreground)] leading-relaxed">
-            <span className="text-[var(--color-primary)] font-mono mr-2">
-              04:12
-            </span>
-            Doncic P&amp;R with AD, kicks to Reaves in the corner — three is
-            good.
-          </div>
-        </CardContent>
+            <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
+              {statRows.map((row) => (
+                <div
+                  key={row.label}
+                  className="flex items-center justify-between border border-[var(--color-line-soft)] rounded-lg px-3 py-2.5 bg-[var(--color-surface-1)]/50"
+                >
+                  <span className="text-[var(--color-muted-foreground)] uppercase tracking-wider text-[10px]">
+                    {row.label}
+                  </span>
+                  <span className="font-mono">
+                    {row.left}
+                    <span className="text-[var(--color-muted-foreground)] mx-1">
+                      ·
+                    </span>
+                    {row.right}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 p-3 rounded-lg bg-[var(--color-surface-2)]/50 border border-[var(--color-line-soft)]/50">
+              <div className="text-[11px] text-[var(--color-muted-foreground)] leading-relaxed">
+                <span className="text-[var(--color-primary)] font-mono mr-2">
+                  04:12
+                </span>
+                Doncic P&amp;R with AD, kicks to Reaves in the corner — three is
+                good.
+              </div>
+            </div>
+          </CardContent>
+        </div>
       </Card>
     </div>
   )
@@ -300,9 +323,9 @@ function TeamBlock({
     >
       <div
         className={cn(
-          'size-12 rounded-md grid place-items-center font-display text-sm border',
+          'size-12 rounded-lg grid place-items-center font-display text-sm border transition-all duration-300',
           accent
-            ? 'bg-[var(--color-primary)]/15 border-[var(--color-primary)]/40 text-[var(--color-primary)]'
+            ? 'bg-[var(--color-primary)]/15 border-[var(--color-primary)]/40 text-[var(--color-primary)] shadow-[0_0_12px_rgba(255,190,50,0.15)]'
             : 'bg-[var(--color-surface-3)] border-[var(--color-line-soft)] text-[var(--color-foreground)]',
         )}
       >
@@ -322,15 +345,29 @@ function FeatureCard({
   icon: Icon,
   title,
   body,
+  accent,
+  index,
 }: {
   icon: React.ComponentType<{ className?: string }>
   title: string
   body: string
+  accent: 'amber' | 'teal'
+  index: number
 }) {
   return (
-    <Card>
+    <Card
+      className="group transition-all duration-300 hover:border-[var(--color-primary)]/20 hover:shadow-[0_0_20px_rgba(255,190,50,0.04)]"
+      style={{ animationDelay: `${index * 75}ms` }}
+    >
       <CardContent className="p-5">
-        <div className="size-9 rounded-md bg-[var(--color-surface-3)] grid place-items-center text-[var(--color-primary)]">
+        <div
+          className={cn(
+            'size-9 rounded-lg grid place-items-center transition-colors duration-300',
+            accent === 'amber'
+              ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] group-hover:bg-[var(--color-primary)]/15'
+              : 'bg-[var(--color-accent)]/10 text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/15',
+          )}
+        >
           <Icon className="size-4" />
         </div>
         <div className="mt-4 font-display text-base">{title}</div>
@@ -421,13 +458,13 @@ function Footer() {
           identification and simulation purposes only.
         </div>
         <div className="flex items-center gap-4">
-          <a href="#features" className="hover:text-[var(--color-foreground)]">
+          <a href="#features" className="hover:text-[var(--color-foreground)] transition-colors">
             Features
           </a>
-          <a href="#loop" className="hover:text-[var(--color-foreground)]">
+          <a href="#loop" className="hover:text-[var(--color-foreground)] transition-colors">
             The loop
           </a>
-          <a href="#roadmap" className="hover:text-[var(--color-foreground)]">
+          <a href="#roadmap" className="hover:text-[var(--color-foreground)] transition-colors">
             Roadmap
           </a>
         </div>
@@ -484,31 +521,31 @@ const milestones: Milestone[] = [
     id: 'M6',
     title: 'Single-game sim',
     summary: 'Possession engine, shot/turnover/foul/rebound models.',
-    status: 'next',
+    status: 'done',
   },
   {
     id: 'M7',
     title: 'Schedule & standings',
     summary: 'Season sim end-to-end with dashboard updates.',
-    status: 'later',
+    status: 'done',
   },
   {
     id: 'M8',
     title: 'Playoffs',
     summary: 'Bracket, best-of-7 series, champion history.',
-    status: 'later',
+    status: 'done',
   },
   {
     id: 'M9',
     title: 'Trades & contracts',
     summary: 'Trade builder, AI accept/reject, payroll ledger.',
-    status: 'later',
+    status: 'in_progress',
   },
   {
     id: 'M10',
     title: 'Draft & free agency',
     summary: 'Prospects, scouting, multi-year offers.',
-    status: 'later',
+    status: 'next',
   },
   {
     id: 'M11',

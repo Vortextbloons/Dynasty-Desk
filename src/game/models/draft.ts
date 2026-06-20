@@ -32,4 +32,7 @@ export interface DraftPick {
   originalTeamId: string
   currentTeamId: string
   prospectId: string | null
+  protected?: string
+  frozenUntilSeason?: string
+  stepienBlocked?: boolean
 }

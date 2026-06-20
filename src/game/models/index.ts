@@ -18,6 +18,7 @@ export * from './league'
 export * from './team'
 export * from './game'
 export * from './sim'
+export * from './trade'
 
 // Season outcomes and history
 export * from './award'

@@ -298,3 +298,60 @@ export function migrateToV5(input: unknown): GameSave {
     },
   }
 }
+
+export function migrateToV6(input: unknown): GameSave {
+  const save = input as GameSave
+
+  const league = save.league as unknown as Record<string, unknown>
+  const rules = save.league.rules as unknown as Record<string, unknown>
+
+  const mergedRules: GameSave['league']['rules'] = {
+    ...save.league.rules,
+    maxCashPerSide: typeof rules.maxCashPerSide === 'number' ? rules.maxCashPerSide : 1_000_000,
+    pickFreezeYears: typeof rules.pickFreezeYears === 'number' ? rules.pickFreezeYears : 7,
+  } as GameSave['league']['rules']
+
+  const teamsRaw = (league.teams as Record<string, Record<string, unknown>>) ?? {}
+  const teams: GameSave['league']['teams'] = {}
+  for (const [tid, t] of Object.entries(teamsRaw)) {
+    teams[tid] = {
+      ...t,
+      tradeExceptions: Array.isArray(t.tradeExceptions) ? t.tradeExceptions : [],
+      frozenPicks: Array.isArray(t.frozenPicks) ? t.frozenPicks : [],
+      directionAutoUpdatedAt:
+        typeof t.directionAutoUpdatedAt === 'string' ? t.directionAutoUpdatedAt : undefined,
+      priorTaxpayerYears:
+        typeof t.priorTaxpayerYears === 'number' ? t.priorTaxpayerYears : 0,
+      taxpayerHistory: Array.isArray(t.taxpayerHistory) ? t.taxpayerHistory : [],
+    } as GameSave['league']['teams'][string]
+  }
+
+  const picksRaw = (league.draftPicks as Array<Record<string, unknown>>) ?? []
+  const draftPicks: GameSave['league']['draftPicks'] = picksRaw.map((p) => ({
+    ...p,
+    protected: typeof p.protected === 'string' ? p.protected : undefined,
+    frozenUntilSeason:
+      typeof p.frozenUntilSeason === 'string' ? p.frozenUntilSeason : undefined,
+    stepienBlocked:
+      typeof p.stepienBlocked === 'boolean' ? p.stepienBlocked : false,
+  })) as GameSave['league']['draftPicks']
+
+  const activeProposals = Array.isArray(league.activeProposals)
+    ? (league.activeProposals as unknown as GameSave['league']['activeProposals'])
+    : []
+
+  return {
+    ...save,
+    metadata: {
+      ...save.metadata,
+      schemaVersion: 6,
+    },
+    league: {
+      ...save.league,
+      rules: mergedRules,
+      teams,
+      draftPicks,
+      activeProposals,
+    } as unknown as GameSave['league'],
+  }
+}

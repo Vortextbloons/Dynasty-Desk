@@ -4,6 +4,8 @@ import { useGameStore } from '@/store/useGameStore'
 import { PayrollSummaryCard } from '@/components/contracts/PayrollSummaryCard'
 import { OwnerCard } from '@/components/contracts/OwnerCard'
 import { ExceptionsCard } from '@/components/contracts/ExceptionsCard'
+import { TaxBreakdownCard } from '@/components/contracts/TaxBreakdownCard'
+import { FrozenPicksWarning } from '@/components/contracts/FrozenPicksWarning'
 import { ContractTable } from '@/components/contracts/ContractTable'
 import { ContractActionDialog } from '@/components/contracts/ContractActionDialog'
 import { SignFreeAgentDialog } from '@/components/contracts/SignFreeAgentDialog'
@@ -162,6 +164,15 @@ export function ContractsPage() {
         <ExceptionsCard
           exceptions={userTeam.finances.exceptionsUsed}
           rules={league.rules}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <TaxBreakdownCard team={userTeam} rules={league.rules} />
+        <FrozenPicksWarning
+          picks={userTeam.frozenPicks
+            .map((id) => league.draftPicks.find((p) => p.id === id))
+            .filter((p): p is NonNullable<typeof p> => Boolean(p))}
         />
       </div>
 

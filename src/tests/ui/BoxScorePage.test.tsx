@@ -70,6 +70,10 @@ function makeSave(): GameSave {
           chemistry: 50,
           morale: 50,
           prestige: 80,
+          tradeExceptions: [],
+          frozenPicks: [],
+          priorTaxpayerYears: 0,
+          taxpayerHistory: [],
         },
         't-away': {
           id: 't-away',
@@ -93,6 +97,10 @@ function makeSave(): GameSave {
           chemistry: 50,
           morale: 50,
           prestige: 80,
+          tradeExceptions: [],
+          frozenPicks: [],
+          priorTaxpayerYears: 0,
+          taxpayerHistory: [],
         },
       },
       players: {
@@ -186,6 +194,7 @@ function makeSave(): GameSave {
       draftClasses: {},
       champions: [],
       awards: [],
+      activeProposals: [],
     },
   }
 }

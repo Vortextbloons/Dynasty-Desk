@@ -83,7 +83,11 @@ function makeTeam(payroll: number): Team {
     chemistry: 50,
     morale: 50,
     prestige: 75,
-  }
+    tradeExceptions: [],
+    frozenPicks: [],
+    priorTaxpayerYears: 0,
+    taxpayerHistory: [],
+  } as Team
 }
 
 const rules = getLeagueRules('2025-26')

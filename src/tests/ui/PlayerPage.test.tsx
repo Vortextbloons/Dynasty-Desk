@@ -159,34 +159,34 @@ describe('PlayerHeadshot', () => {
 })
 
 describe('TradeValueCard', () => {
-  it('renders letter grade A+ for overall 95', () => {
+  it('renders numeric trade value score for overall 95', () => {
     render(
       <MemoryRouter>
         <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 95 } as any })} />
       </MemoryRouter>,
     )
 
-    expect(screen.getByText('A+')).toBeInTheDocument()
+    expect(screen.getByText(/Trade value score/)).toBeInTheDocument()
   })
 
-  it('renders letter grade B for overall 72', () => {
+  it('renders overall factor for overall 72', () => {
     render(
       <MemoryRouter>
         <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 72 } as any })} />
       </MemoryRouter>,
     )
 
-    expect(screen.getByText('B')).toBeInTheDocument()
+    expect(screen.getByText(/36.0/)).toBeInTheDocument()
   })
 
-  it('renders letter grade F for overall 30', () => {
+  it('renders low score for overall 30', () => {
     render(
       <MemoryRouter>
         <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 30 } as any })} />
       </MemoryRouter>,
     )
 
-    expect(screen.getByText('F')).toBeInTheDocument()
+    expect(screen.getByText(/15.0/)).toBeInTheDocument()
   })
 })
 

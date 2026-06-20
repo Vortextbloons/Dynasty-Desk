@@ -10,6 +10,7 @@ import type { DraftPick, DraftClass } from './draft'
 import type { EraConfig } from './eraConfig'
 import type { LeagueRules } from './leagueRules'
 import type { PlayoffBracket } from './playoff'
+import type { TradeProposal } from './trade'
 
 export type TeamSeasonResult =
   | 'missed_playoffs'
@@ -50,6 +51,8 @@ export interface LeagueState {
   draftClasses: Record<string, DraftClass>
   champions: Champion[]
   awards: AwardWinner[]
+
+  activeProposals: TradeProposal[]
 
   playoffBracket?: PlayoffBracket
 

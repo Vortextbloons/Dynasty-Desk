@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
@@ -14,6 +14,13 @@ function fmtCapHit(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
   if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
   return `$${n}`
+}
+
+function computeTradeValue(overall: number, age: number): number {
+  let value = overall * 0.5
+  if (age < 25) value += 6
+  if (age > 28) value -= 4
+  return Math.round(value * 10) / 10
 }
 
 function defenseAvg(r: {
@@ -46,6 +53,8 @@ function statusLabel(status: Player['health']['status']): string {
 export function RosterRow({ player, team }: RosterRowProps) {
   const capHit = player.contract.salaryByYear[0] ?? 0
   const isOverCap = capHit > 14_058_800
+  const tradeValue = computeTradeValue(player.ratings.overall, player.age)
+  const navigate = useNavigate()
 
   return (
     <tr className="border-b border-[var(--color-line-soft)] last:border-b-0 hover:bg-[var(--color-surface-2)]/60">
@@ -89,6 +98,9 @@ export function RosterRow({ player, team }: RosterRowProps) {
         {fmtCapHit(capHit)}
       </td>
       <td className="px-3 py-2 font-mono text-center text-sm">
+        {tradeValue.toFixed(1)}
+      </td>
+      <td className="px-3 py-2 font-mono text-center text-sm">
         {player.contract.yearsRemaining}
       </td>
       <td className="px-3 py-2 text-center">
@@ -120,12 +132,20 @@ export function RosterRow({ player, team }: RosterRowProps) {
         <FaceIndicator value={player.morale.happiness} />
       </td>
       <td className="px-3 py-2 text-right">
-        <Link
-          to={`/player/${player.id}`}
-          className="text-xs text-[var(--color-primary)] hover:underline"
-        >
-          View
-        </Link>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => navigate(`/trades?player=${player.id}`)}
+            className="text-xs text-[var(--color-primary)] hover:underline"
+          >
+            Trade
+          </button>
+          <Link
+            to={`/player/${player.id}`}
+            className="text-xs text-[var(--color-primary)] hover:underline"
+          >
+            View
+          </Link>
+        </div>
       </td>
     </tr>
   )

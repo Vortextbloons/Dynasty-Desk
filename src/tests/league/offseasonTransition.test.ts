@@ -71,9 +71,10 @@ function makeTestLeague(): LeagueState {
     draftClasses: {},
     champions: [],
     awards: [],
+    activeProposals: [],
     userTeamId: 'champ',
     playoffBracket: bracket,
-  } as LeagueState
+  } as unknown as LeagueState
 }
 
 describe('transitionToOffseason', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { migrateToV2, migrateToV3, migrateToV4, migrateToV5 } from '@/db/saveMigration'
+import { migrateToV2, migrateToV3, migrateToV4, migrateToV5, migrateToV6 } from '@/db/saveMigration'
 import type { GameSave } from '@/game/models'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
@@ -547,5 +547,144 @@ describe('migrateToV5', () => {
     expect(v5Again.metadata.schemaVersion).toBe(5)
     expect(v5Again.league.scheduleGenerated).toBe(false)
     expect((v5Again.league.standings['team-1'] as any).conferenceWins).toBe(0)
+  })
+})
+
+function makeV5SaveForV6(): any {
+  const v1 = makeV1Save()
+  const v2 = migrateToV2(v1)
+  const v3 = migrateToV3(v2)
+  const v4 = migrateToV4({
+    ...v3,
+    metadata: { ...v3.metadata, schemaVersion: 4 },
+    settings: { ...v3.settings, simSpeed: 'normal' },
+  })
+  const v5 = migrateToV5({
+    ...v4,
+    metadata: { ...v4.metadata, schemaVersion: 4 },
+  })
+  v5.metadata.schemaVersion = 5
+  v5.league.draftPicks = [
+    {
+      id: 'pick-1',
+      season: '2025-26',
+      round: 1,
+      pickNumber: 5,
+      originalTeamId: 'team-1',
+      currentTeamId: 'team-1',
+      prospectId: null,
+    },
+  ]
+  return v5
+}
+
+describe('migrateToV6', () => {
+  it('bumps schemaVersion to 6', () => {
+    const v5 = makeV5SaveForV6()
+    const result = migrateToV6(v5) as GameSave
+    expect(result.metadata.schemaVersion).toBe(6)
+  })
+
+  it('adds tradeExceptions and frozenPicks to each team', () => {
+    const v5 = makeV5SaveForV6()
+    const result = migrateToV6(v5) as GameSave
+    const team = result.league.teams['team-1']!
+    expect(Array.isArray(team.tradeExceptions)).toBe(true)
+    expect(team.tradeExceptions).toEqual([])
+    expect(Array.isArray(team.frozenPicks)).toBe(true)
+    expect(team.frozenPicks).toEqual([])
+  })
+
+  it('preserves existing tradeExceptions and frozenPicks', () => {
+    const v5 = makeV5SaveForV6()
+    v5.league.teams['team-1'].tradeExceptions = [
+      { id: 'te-1', teamId: 'team-1', amount: 5_000_000, expiresAt: '2026-10-21', source: 'outgoing_salary' },
+    ]
+    v5.league.teams['team-1'].frozenPicks = ['pick-1']
+    const result = migrateToV6(v5) as GameSave
+    const team = result.league.teams['team-1']!
+    expect(team.tradeExceptions).toHaveLength(1)
+    expect(team.frozenPicks).toContain('pick-1')
+  })
+
+  it('adds protected, frozenUntilSeason, stepienBlocked to draft picks', () => {
+    const v5 = makeV5SaveForV6()
+    const result = migrateToV6(v5) as GameSave
+    const pick = result.league.draftPicks[0]!
+    expect(pick.stepienBlocked).toBe(false)
+    expect(pick.frozenUntilSeason).toBeUndefined()
+  })
+
+  it('preserves existing pick fields', () => {
+    const v5 = makeV5SaveForV6()
+    v5.league.draftPicks[0].stepienBlocked = true
+    v5.league.draftPicks[0].protected = '1-10'
+    v5.league.draftPicks[0].frozenUntilSeason = '2032-26'
+    const result = migrateToV6(v5) as GameSave
+    const pick = result.league.draftPicks[0]!
+    expect(pick.stepienBlocked).toBe(true)
+    expect(pick.protected).toBe('1-10')
+    expect(pick.frozenUntilSeason).toBe('2032-26')
+  })
+
+  it('adds maxCashPerSide and pickFreezeYears to rules', () => {
+    const v5 = makeV5SaveForV6()
+    const result = migrateToV6(v5) as GameSave
+    expect(result.league.rules.maxCashPerSide).toBe(1_000_000)
+    expect(result.league.rules.pickFreezeYears).toBe(7)
+  })
+
+  it('preserves existing rule values', () => {
+    const v5 = makeV5SaveForV6()
+    v5.league.rules.maxCashPerSide = 2_000_000
+    v5.league.rules.pickFreezeYears = 10
+    const result = migrateToV6(v5) as GameSave
+    expect(result.league.rules.maxCashPerSide).toBe(2_000_000)
+    expect(result.league.rules.pickFreezeYears).toBe(10)
+  })
+
+  it('initializes activeProposals to empty array', () => {
+    const v5 = makeV5SaveForV6()
+    const result = migrateToV6(v5) as GameSave
+    expect(result.league.activeProposals).toEqual([])
+  })
+
+  it('hydrates priorTaxpayerYears and taxpayerHistory', () => {
+    const v5 = makeV5SaveForV6()
+    const result = migrateToV6(v5) as GameSave
+    const team = result.league.teams['team-1']!
+    expect(team.priorTaxpayerYears).toBe(0)
+    expect(team.taxpayerHistory).toEqual([])
+  })
+
+  it('is idempotent when re-migrating v6 saves', () => {
+    const v5 = makeV5SaveForV6()
+    const v6 = migrateToV6(v5) as GameSave
+    const v6Again = migrateToV6(v6) as GameSave
+    expect(v6Again.metadata.schemaVersion).toBe(6)
+    expect(v6Again.league.rules.maxCashPerSide).toBe(1_000_000)
+  })
+
+  it('v1 save migrates through v2/v3/v4/v5/v6 chain', () => {
+    const v1 = makeV1Save()
+    const v2 = migrateToV2(v1)
+    const v3 = migrateToV3(v2)
+    const v4 = migrateToV4({
+      ...v3,
+      metadata: { ...v3.metadata, schemaVersion: 3 },
+      settings: { ...v3.settings, simSpeed: 'normal' },
+    })
+    const v5 = migrateToV5({
+      ...v4,
+      metadata: { ...v4.metadata, schemaVersion: 4 },
+    })
+    const v6 = migrateToV6({
+      ...v5,
+      metadata: { ...v5.metadata, schemaVersion: 5 },
+    })
+    expect(v6.metadata.schemaVersion).toBe(6)
+    const team = v6.league.teams['team-1']!
+    expect(team.tradeExceptions).toEqual([])
+    expect(team.frozenPicks).toEqual([])
   })
 })

@@ -155,8 +155,12 @@ function makeTeam(overrides: Partial<Team> = {}): Team {
     chemistry: 50,
     morale: 50,
     prestige: 75,
+    tradeExceptions: [],
+    frozenPicks: [],
+    priorTaxpayerYears: 0,
+    taxpayerHistory: [],
     ...overrides,
-  }
+  } as Team
 }
 
 function makeExceptions(overrides: Partial<TeamExceptionBook> = {}): TeamExceptionBook {
