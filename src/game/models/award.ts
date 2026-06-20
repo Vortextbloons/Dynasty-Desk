@@ -54,3 +54,9 @@ export interface AwardSeason {
   awards: AwardWinner[]
   champions: import('./champion').Champion[]
 }
+
+export interface AwardsFile {
+  version: string
+  updatedAt: string
+  awards: AwardWinner[]
+}

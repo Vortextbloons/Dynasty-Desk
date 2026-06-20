@@ -131,5 +131,18 @@ export function validateSave(input: unknown): ValidationResult {
     return { ok: false, reason: 'User missing teamId.' }
   }
 
+  if (user.teamId !== meta.teamId) {
+    return {
+      ok: false,
+      reason: `User teamId "${user.teamId}" does not match metadata teamId "${meta.teamId}".`,
+    }
+  }
+  if (user.teamId !== league.userTeamId) {
+    return {
+      ok: false,
+      reason: `User teamId "${user.teamId}" does not match league userTeamId "${league.userTeamId}".`,
+    }
+  }
+
   return { ok: true, save: input as GameSave }
 }

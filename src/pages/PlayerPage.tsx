@@ -43,34 +43,33 @@ export function PlayerPage() {
   )
   const [tab, setTab] = useState<Tab>('career')
 
-  const allPlayers = save
-    ? Object.values(save.league.players)
-    : snapshot?.players ?? []
-  const allTeams = save
-    ? Object.values(save.league.teams)
-    : snapshot?.teams ?? []
-  const allAwards = save
-    ? save.league.awards
-    : snapshot?.awards ?? []
-  const allSeasonStats = save
-    ? Object.values(save.league.players).flatMap((p) => p.historicalSeasons)
-    : snapshot?.seasonStats ?? []
-
   const player = useMemo(
-    () => allPlayers.find((p) => p.id === id),
-    [allPlayers, id],
+    () => {
+      const list = save
+        ? Object.values(save.league.players)
+        : snapshot?.players ?? []
+      return list.find((p) => p.id === id)
+    },
+    [save, snapshot, id],
   )
   const team = useMemo(
-    () =>
-      player?.teamId
-        ? allTeams.find((t) => t.id === player.teamId)
-        : null,
-    [allTeams, player],
+    () => {
+      if (!player?.teamId) return null
+      const teams = save
+        ? Object.values(save.league.teams)
+        : snapshot?.teams ?? []
+      return teams.find((t) => t.id === player.teamId) ?? null
+    },
+    [save, snapshot, player],
   )
 
   const historicalSeasons = useMemo<PlayerSeasonStats[]>(() => {
-    return allSeasonStats.filter((s) => s.playerId === player?.id)
-  }, [allSeasonStats, player])
+    if (!player) return []
+    const allSeasonStats = save
+      ? Object.values(save.league.players).flatMap((p) => p.historicalSeasons)
+      : snapshot?.seasonStats ?? []
+    return allSeasonStats.filter((s) => s.playerId === player.id)
+  }, [save, snapshot, player])
 
   const career = useMemo<PlayerCareerStats | null>(() => {
     if (!player) return null
@@ -78,8 +77,12 @@ export function PlayerPage() {
   }, [player, historicalSeasons])
 
   const awards = useMemo<AwardWinner[]>(() => {
-    return allAwards.filter((a) => a.playerId === player?.id)
-  }, [allAwards, player])
+    if (!player) return []
+    const allAwards = save
+      ? save.league.awards
+      : snapshot?.awards ?? []
+    return allAwards.filter((a) => a.playerId === player.id)
+  }, [save, snapshot, player])
 
   if (!player) {
     return (

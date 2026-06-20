@@ -1,27 +1,15 @@
 import type {
-  AwardWinner,
-  Champion,
+  AwardsFile,
   DataManifest,
   PlayerSeasonStats,
   StaticPlayer,
   StaticSnapshot,
   StaticTeam,
 } from '@/game/models'
+import type { ChampionsFile } from '@/game/models/champion'
 import { computeCareerStats } from '@/game/models/playerCareerStats'
 import { getEraConfig } from '@/game/models/eraConfig'
 import { getLeagueRules } from '@/game/models/leagueRules'
-
-interface AwardsFile {
-  version: string
-  updatedAt: string
-  awards: AwardWinner[]
-}
-
-interface ChampionsFile {
-  version: string
-  updatedAt: string
-  champions: Champion[]
-}
 
 export interface StaticDataLoader {
   loadManifest(): Promise<DataManifest>
@@ -79,11 +67,11 @@ export function createStaticDataLoader(
           fetchJson<AwardsFile>(
             `${baseUrl}/data/shared/awards-history.json`,
             fetcher,
-          ).catch(() => ({ version: '0', updatedAt: '', awards: [] } as AwardsFile)),
+          ).catch((): AwardsFile => ({ version: '0', updatedAt: '', awards: [] })),
           fetchJson<ChampionsFile>(
             `${baseUrl}/data/shared/champions.json`,
             fetcher,
-          ).catch(() => ({ version: '0', updatedAt: '', champions: [] } as ChampionsFile)),
+          ).catch((): ChampionsFile => ({ version: '0', updatedAt: '', champions: [] })),
         ])
 
       const awards = awardsFile.awards ?? []

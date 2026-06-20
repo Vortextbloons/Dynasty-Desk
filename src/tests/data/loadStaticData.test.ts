@@ -274,4 +274,45 @@ describe('static data loader', () => {
     expect(snap.awards).toEqual([])
     expect(snap.champions).toEqual([])
   })
+
+  it('unwraps awards and champions from wrapped JSON format', async () => {
+    const loader = createStaticDataLoader({
+      fetcher: fakeFetcher({
+        '/data/manifest.json': manifest,
+        '/data/nba/2025-26/teams.json': teams,
+        '/data/nba/2025-26/roster.json': players,
+        '/data/nba/2025-26/season-stats.json': seasonStats,
+        '/data/shared/awards-history.json': {
+          version: '0.2.0',
+          updatedAt: '2025-01-01',
+          awards: [
+            {
+              season: '2025-26',
+              award: 'mvp',
+              playerId: 'p1',
+              teamId: 't1',
+            },
+          ],
+        },
+        '/data/shared/champions.json': {
+          version: '0.2.0',
+          updatedAt: '2025-01-01',
+          champions: [
+            {
+              season: '2025-26',
+              championTeamId: 't1',
+              runnerUpTeamId: 't2',
+              finalsMvpPlayerId: 'p1',
+              seriesResult: '4-2',
+            },
+          ],
+        },
+      }),
+    })
+    const snap = await loader.loadSnapshot('nba-2025-26')
+    expect(snap.awards).toHaveLength(1)
+    expect(snap.awards[0]?.award).toBe('mvp')
+    expect(snap.champions).toHaveLength(1)
+    expect(snap.champions[0]?.championTeamId).toBe('t1')
+  })
 })

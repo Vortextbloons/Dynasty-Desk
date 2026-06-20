@@ -16,6 +16,17 @@ import { AppShell } from '@/components/layout/AppShell'
 import { useGameStore } from '@/store/useGameStore'
 import type { SaveMetadata } from '@/game/models'
 import { toast } from 'sonner'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 export function LoadGamePage() {
   const navigate = useNavigate()
@@ -37,12 +48,16 @@ export function LoadGamePage() {
   }, [loadSavesList])
 
   async function handleLoad(id: string) {
-    await loadSaveFromDb(id)
-    void navigate('/dashboard')
+    try {
+      await loadSaveFromDb(id)
+      void navigate('/dashboard')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to load save.'
+      toast.error(msg)
+    }
   }
 
-  async function handleDelete(id: string, name: string) {
-    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return
+  async function handleDelete(id: string) {
     setDeletingId(id)
     try {
       await deleteSave(id)
@@ -177,7 +192,7 @@ function SaveRow({
 }: {
   save: SaveMetadata
   onLoad: (id: string) => void
-  onDelete: (id: string, name: string) => void
+  onDelete: (id: string) => void
   onDuplicate: (id: string, name: string) => void
   onExport: (id: string) => void
   deletingId: string | null
@@ -221,18 +236,36 @@ function SaveRow({
               <Copy className="size-3.5" />
             )}
           </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={deletingId === save.id}
-            onClick={() => onDelete(save.id, save.name)}
-          >
-            {deletingId === save.id ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Trash2 className="size-3.5" />
-            )}
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={deletingId === save.id}
+                aria-label={`Delete ${save.name}`}
+              >
+                {deletingId === save.id ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="size-3.5" />
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete save?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Delete &quot;{save.name}&quot;? This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(save.id)}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>

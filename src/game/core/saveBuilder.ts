@@ -125,8 +125,9 @@ export function buildSave(input: NewSaveInput): GameSave {
       ),
     }
 
-    if (sp.teamId && teams[sp.teamId]) {
-      teams[sp.teamId]!.roster.push(sp.id)
+    const team = sp.teamId ? teams[sp.teamId] : undefined
+    if (team) {
+      team.roster.push(sp.id)
     }
   }
 

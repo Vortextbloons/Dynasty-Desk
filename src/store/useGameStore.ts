@@ -82,8 +82,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     try {
       const save = await dbLoadSave(id)
       if (!save) {
-        set({ saveStatus: 'error', error: 'Save not found.' })
-        return
+        throw new Error('Save not found.')
       }
       set({
         save,
@@ -93,15 +92,17 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to load save'
       set({ saveStatus: 'error', error: msg })
+      throw err instanceof Error ? err : new Error(msg)
     }
   },
 
   loadSavesList: async () => {
     try {
       const saves = await dbListSaves()
-      set({ saves })
-    } catch {
-      set({ saves: [] })
+      set({ saves, error: null })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to load saves'
+      set({ error: msg })
     }
   },
 
@@ -154,6 +155,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (autoSaveTimer) {
       clearTimeout(autoSaveTimer)
     }
+    set({ saveStatus: 'saving' })
     autoSaveTimer = setTimeout(() => {
       const { save } = get()
       if (!save) return

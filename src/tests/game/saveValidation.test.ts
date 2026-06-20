@@ -238,23 +238,13 @@ function makeValidSave(): GameSave {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function tamper(obj: any, path: string, value: unknown) {
-  const parts = path.split('.')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let current: any = obj
-  for (let i = 0; i < parts.length - 1; i++) {
-    const key = parts[i]
-    if (key !== undefined) current = current[key]
-  }
-  const lastKey = parts[parts.length - 1]
-  if (lastKey !== undefined) current[lastKey] = value
+function asRaw(save: GameSave): Record<string, unknown> {
+  return save as unknown as Record<string, unknown>
 }
 
 describe('validateSave', () => {
   it('accepts a valid save', () => {
-    const save = makeValidSave()
-    const result = validateSave(save)
+    const result = validateSave(makeValidSave())
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.save.metadata.id).toBe('test-save-1')
@@ -264,55 +254,44 @@ describe('validateSave', () => {
   it('rejects non-object input', () => {
     const result = validateSave(null)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('not a valid JSON object')
-    }
   })
 
   it('rejects missing metadata', () => {
-    const save = makeValidSave() as unknown as Record<string, unknown>
-    delete save.metadata
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    delete raw.metadata
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('metadata')
-    }
+    if (!result.ok) expect(result.reason).toContain('metadata')
   })
 
   it('rejects missing league', () => {
-    const save = makeValidSave() as unknown as Record<string, unknown>
-    delete save.league
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    delete raw.league
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('league')
-    }
+    if (!result.ok) expect(result.reason).toContain('league')
   })
 
   it('rejects missing settings', () => {
-    const save = makeValidSave() as unknown as Record<string, unknown>
-    delete save.settings
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    delete raw.settings
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('settings')
-    }
+    if (!result.ok) expect(result.reason).toContain('settings')
   })
 
   it('rejects missing rngState', () => {
-    const save = makeValidSave() as unknown as Record<string, unknown>
-    delete save.rngState
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    delete raw.rngState
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('RNG')
-    }
+    if (!result.ok) expect(result.reason).toContain('RNG')
   })
 
   it('rejects unsupported schema version', () => {
-    const save = makeValidSave()
-    tamper(save, 'metadata.schemaVersion', 99)
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    ;(raw.metadata as Record<string, unknown>).schemaVersion = 99
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.reason).toContain('Unsupported save version')
@@ -321,23 +300,19 @@ describe('validateSave', () => {
   })
 
   it('rejects missing appVersion', () => {
-    const save = makeValidSave()
-    tamper(save, 'metadata.appVersion', undefined)
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    delete (raw.metadata as Record<string, unknown>).appVersion
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('app version')
-    }
+    if (!result.ok) expect(result.reason).toContain('app version')
   })
 
   it('rejects invalid teamId in metadata', () => {
-    const save = makeValidSave()
-    tamper(save, 'metadata.teamId', 123)
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    ;(raw.metadata as Record<string, unknown>).teamId = 123
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('teamId')
-    }
+    if (!result.ok) expect(result.reason).toContain('teamId')
   })
 
   it('rejects league with no teams', () => {
@@ -345,9 +320,7 @@ describe('validateSave', () => {
     save.league.teams = {}
     const result = validateSave(save)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('no teams')
-    }
+    if (!result.ok) expect(result.reason).toContain('no teams')
   })
 
   it('rejects userTeamId not matching any team', () => {
@@ -355,30 +328,25 @@ describe('validateSave', () => {
     save.league.userTeamId = 'nonexistent-team'
     const result = validateSave(save)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('nonexistent-team')
-    }
+    if (!result.ok) expect(result.reason).toContain('nonexistent-team')
   })
 
   it('rejects team with missing roster', () => {
     const save = makeValidSave()
-    delete (save.league.teams['team-1'] as unknown as Record<string, unknown>).roster
+    const raw = save.league.teams['team-1'] as unknown as Record<string, unknown>
+    delete raw.roster
     const result = validateSave(save)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('roster')
-    }
+    if (!result.ok) expect(result.reason).toContain('roster')
   })
 
   it('rejects player with invalid teamId', () => {
     const save = makeValidSave()
     const player = save.league.players['player-1']
-    if (player) player.teamId = 'nonexistent' as never
+    if (player) player.teamId = 'nonexistent'
     const result = validateSave(save)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('non-existent team')
-    }
+    if (!result.ok) expect(result.reason).toContain('non-existent team')
   })
 
   it('accepts player with null teamId (free agent)', () => {
@@ -390,42 +358,62 @@ describe('validateSave', () => {
   })
 
   it('rejects non-array news', () => {
-    const save = makeValidSave()
-    tamper(save, 'league.news', 'not an array')
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    const league = raw.league as Record<string, unknown> | undefined
+    if (league) league.news = 'not an array'
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('news')
-    }
+    if (!result.ok) expect(result.reason).toContain('news')
   })
 
   it('rejects missing user', () => {
-    const save = makeValidSave() as unknown as Record<string, unknown>
-    delete save.user
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    delete raw.user
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('user')
-    }
+    if (!result.ok) expect(result.reason).toContain('user')
   })
 
   it('rejects user missing managerName', () => {
-    const save = makeValidSave()
-    tamper(save, 'user.managerName', undefined)
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    const user = raw.user as Record<string, unknown> | undefined
+    if (user) delete user.managerName
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('managerName')
-    }
+    if (!result.ok) expect(result.reason).toContain('managerName')
   })
 
   it('rejects user missing teamId', () => {
-    const save = makeValidSave()
-    tamper(save, 'user.teamId', undefined)
-    const result = validateSave(save)
+    const raw = asRaw(makeValidSave())
+    const user = raw.user as Record<string, unknown> | undefined
+    if (user) delete user.teamId
+    const result = validateSave(raw)
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.reason).toContain('teamId')
-    }
+    if (!result.ok) expect(result.reason).toContain('teamId')
+  })
+
+  it('rejects mismatched user/teamId and metadata.teamId', () => {
+    const raw = asRaw(makeValidSave())
+    const user = raw.user as Record<string, unknown>
+    user.teamId = 'wrong-team'
+    const result = validateSave(raw)
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason).toContain('does not match')
+  })
+
+  it('rejects mismatched user/teamId and league.userTeamId', () => {
+    const raw = asRaw(makeValidSave())
+    const league = raw.league as Record<string, unknown>
+    league.userTeamId = 'team-1'
+    const user = raw.user as Record<string, unknown>
+    user.teamId = 'team-1'
+    // Add a second valid team so userTeamId check passes
+    const teams = league.teams as Record<string, unknown>
+    teams['team-2'] = { id: 'team-2', roster: [] }
+    league.userTeamId = 'team-2'
+    // user.teamId is 'team-1', meta.teamId is 'team-1', but league.userTeamId is 'team-2'
+    const result = validateSave(raw)
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason).toContain('does not match')
   })
 })

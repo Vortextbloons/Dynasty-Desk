@@ -2,6 +2,7 @@ import { db, type SaveRow } from './dexie'
 import type { GameSave, SaveMetadata } from '@/game/models'
 import { validateSave } from '@/game/core/saveValidation'
 import { initDB } from './dexie'
+import { downloadTextFile } from '@/lib/download'
 
 let dbInitialized = false
 
@@ -98,16 +99,11 @@ export async function exportSaveToFile(id: string): Promise<void> {
   if (!save) throw new Error(`Save not found: ${id}`)
 
   const json = JSON.stringify(save, null, 2)
-  const blob = new Blob([json], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${save.metadata.name.replace(/[^a-z0-9]/gi, '_')}.dynasty-desk-save.json`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  downloadTextFile(
+    `${save.metadata.name.replace(/[^a-z0-9]/gi, '_')}.dynasty-desk-save.json`,
+    json,
+    'application/json',
+  )
 }
 
 export async function importSaveFromFile(file: File): Promise<GameSave> {

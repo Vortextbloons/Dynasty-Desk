@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { GameSettings } from '@/game/models'
+import { parsePersistedSettings } from '@/game/core/settingsPersistence'
 
 interface SettingsStore {
   settings: GameSettings
@@ -9,28 +10,7 @@ interface SettingsStore {
 const STORAGE_KEY = 'dd-settings'
 
 function loadPersistedSettings(): GameSettings {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      return JSON.parse(raw) as GameSettings
-    }
-  } catch {
-    // ignore
-  }
-  return defaultSettings()
-}
-
-function defaultSettings(): GameSettings {
-  return {
-    difficulty: 'pro',
-    simSpeed: 'balanced',
-    autoSave: true,
-    injuries: true,
-    fatigue: true,
-    salaryCap: true,
-    startSeason: '2025-26',
-    snapshotId: 'nba-2025-26',
-  }
+  return parsePersistedSettings(localStorage.getItem(STORAGE_KEY))
 }
 
 function persistSettings(settings: GameSettings) {

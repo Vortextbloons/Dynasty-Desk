@@ -25,12 +25,6 @@ export function RosterPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
 
   const userTeamId = save?.league.userTeamId
-  const allTeams = save
-    ? Object.values(save.league.teams)
-    : snapshot?.teams ?? []
-  const allPlayers = save
-    ? Object.values(save.league.players)
-    : snapshot?.players ?? []
   const seasonLabel = save
     ? save.metadata.snapshotId
     : snapshot?.seasonLabel ?? null
@@ -38,11 +32,14 @@ export function RosterPage() {
   const players = useMemo(() => {
     if (save && userTeamId) {
       const rosterIds = new Set(save.league.teams[userTeamId]?.roster ?? [])
-      return allPlayers.filter((p) => rosterIds.has(p.id))
+      return Object.values(save.league.players).filter((p) => rosterIds.has(p.id))
     }
-    return allPlayers
-  }, [save, userTeamId, allPlayers])
-  const teams = allTeams
+    return snapshot?.players ?? []
+  }, [save, userTeamId, snapshot])
+  const teams = useMemo(
+    () => (save ? Object.values(save.league.teams) : snapshot?.teams ?? []),
+    [save, snapshot],
+  )
 
   const rows = useMemo(() => {
     const filtered = players.filter((p) => {
