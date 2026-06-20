@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { validateSave } from '@/game/core/saveValidation'
 import type { GameSave } from '@/game/models'
-import { emptyContract, getLeagueRules } from '@/game/models'
+import { emptyContract, getLeagueRules, DEFAULT_LEAGUE_RULES } from '@/game/models'
 
 function makeValidSave(): GameSave {
   return {
@@ -69,10 +69,10 @@ function makeValidSave(): GameSave {
             },
           },
           finances: {
-            salaryCap: 140_588_000,
-            apron: 178_132_000,
-            secondApron: 189_502_000,
-            luxuryTaxLine: 171_314_000,
+            salaryCap: DEFAULT_LEAGUE_RULES.salaryCap,
+            apron: DEFAULT_LEAGUE_RULES.apron,
+            secondApron: DEFAULT_LEAGUE_RULES.secondApron,
+            luxuryTaxLine: DEFAULT_LEAGUE_RULES.luxuryTaxLine,
             payroll: 120_000_000,
             capSpace: 20_588_000,
             taxBill: 0,

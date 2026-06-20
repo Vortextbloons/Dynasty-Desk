@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { migrateToV2, migrateToV3, migrateToV4 } from '@/db/saveMigration'
 import type { GameSave } from '@/game/models'
+import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
 function makeV1Save(): any {
   return {
@@ -25,10 +26,10 @@ function makeV1Save(): any {
       seasonYear: 2025,
       phase: 'regular_season',
       rules: {
-        salaryCap: 140_588_000,
-        apron: 178_132_000,
-        secondApron: 189_502_000,
-        luxuryTaxLine: 171_314_000,
+        salaryCap: DEFAULT_LEAGUE_RULES.salaryCap,
+        apron: DEFAULT_LEAGUE_RULES.apron,
+        secondApron: DEFAULT_LEAGUE_RULES.secondApron,
+        luxuryTaxLine: DEFAULT_LEAGUE_RULES.luxuryTaxLine,
       },
       eraConfig: { season: '2025-26' },
       snapshotId: 'nba-2025-26',
@@ -173,9 +174,9 @@ describe('migrateToV2', () => {
     const team = result.league.teams['team-1']
     expect(team).toBeDefined()
     expect(team!.finances).toBeDefined()
-    expect(team!.finances.salaryCap).toBe(140_588_000)
-    expect(team!.finances.apron).toBe(178_132_000)
-    expect(team!.finances.secondApron).toBe(189_502_000)
+    expect(team!.finances.salaryCap).toBe(DEFAULT_LEAGUE_RULES.salaryCap)
+    expect(team!.finances.apron).toBe(DEFAULT_LEAGUE_RULES.apron)
+    expect(team!.finances.secondApron).toBe(DEFAULT_LEAGUE_RULES.secondApron)
     expect(team!.finances.luxuryTaxLine).toBe(171_314_000)
   })
 
@@ -193,7 +194,7 @@ describe('migrateToV2', () => {
     const result = migrateToV2(v1) as GameSave
 
     const team = result.league.teams['team-1']
-    expect(team!.finances.capSpace).toBe(140_588_000 - 50_000_000)
+    expect(team!.finances.capSpace).toBe(DEFAULT_LEAGUE_RULES.salaryCap - 50_000_000)
   })
 
   it('initializes default financial fields', () => {
@@ -267,7 +268,7 @@ describe('migrateToV2', () => {
 
     const team = result.league.teams['team-1']
     expect(team!.finances.payroll).toBe(0)
-    expect(team!.finances.capSpace).toBe(140_588_000)
+    expect(team!.finances.capSpace).toBe(DEFAULT_LEAGUE_RULES.salaryCap)
   })
 
   it('handles multiple teams', () => {
@@ -378,10 +379,20 @@ describe('migrateToV4', () => {
     expect(result.metadata.schemaVersion).toBe(4)
   })
 
-  it('migrates simSpeed to normal for legacy non-modern values', () => {
+  it('migrates legacy fast simSpeed to instant', () => {
     const v2 = makeV2Save()
     const v3 = migrateToV3(v2) as GameSave
     v3.settings.simSpeed = 'fast'
+
+    const result = migrateToV4(v3) as GameSave
+
+    expect(result.settings.simSpeed).toBe('instant')
+  })
+
+  it('migrates legacy slow simSpeed to normal', () => {
+    const v2 = makeV2Save()
+    const v3 = migrateToV3(v2) as GameSave
+    v3.settings.simSpeed = 'slow'
 
     const result = migrateToV4(v3) as GameSave
 

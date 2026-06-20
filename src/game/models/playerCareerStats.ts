@@ -104,7 +104,7 @@ export function computeCareerStats(
   const sortedSeasons = [...seasons].sort((a, b) =>
     a.season.localeCompare(b.season),
   )
-  const blended = computeBlendedPerGame(totals)
+  const blended = perGame(careerTotalsToSeasonStats(totals))
 
   return {
     playerId,
@@ -115,38 +115,37 @@ export function computeCareerStats(
   }
 }
 
-function computeBlendedPerGame(
+function careerTotalsToSeasonStats(
   totals: PlayerCareerStats['totals'],
-): PlayerCareerStats['averages'] {
-  const gp = Math.max(1, totals.gamesPlayed)
+): PlayerSeasonStats {
   return {
-    ppg: totals.points / gp,
-    rpg: totals.rebounds / gp,
-    apg: totals.assists / gp,
-    spg: totals.steals / gp,
-    bpg: totals.blocks / gp,
-    mpg: totals.minutes / gp,
-    topg: totals.turnovers / gp,
+    playerId: '',
+    season: '',
+    teamId: null,
+    gamesPlayed: totals.gamesPlayed,
+    minutes: totals.minutes,
+    starts: 0,
+    points: totals.points,
+    rebounds: totals.rebounds,
+    offensiveRebounds: totals.offensiveRebounds,
+    defensiveRebounds: totals.defensiveRebounds,
+    assists: totals.assists,
+    steals: totals.steals,
+    blocks: totals.blocks,
+    turnovers: totals.turnovers,
+    fouls: totals.fouls,
+    fgm: totals.fgm,
+    fga: totals.fga,
+    tpm: totals.tpm,
+    tpa: totals.tpa,
+    ftm: totals.ftm,
+    fta: totals.fta,
+    tsPct: 0,
+    efgPct: 0,
+    per: 0,
+    usageRate: 0,
+    winShares: 0,
+    boxPlusMinus: 0,
+    vorp: 0,
   }
-}
-
-export function getSeason(
-  career: PlayerCareerStats,
-  season: string,
-): PlayerSeasonStats | undefined {
-  return career.seasons.find((s) => s.season === season)
-}
-
-export function lastSeason(
-  career: PlayerCareerStats,
-): PlayerSeasonStats | undefined {
-  return career.seasons[career.seasons.length - 1]
-}
-
-export function perGameForSeason(
-  career: PlayerCareerStats,
-  season: string,
-): ReturnType<typeof perGame> | undefined {
-  const s = getSeason(career, season)
-  return s ? perGame(s) : undefined
 }

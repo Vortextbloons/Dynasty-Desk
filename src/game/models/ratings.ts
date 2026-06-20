@@ -34,10 +34,6 @@ export interface PlayerRatings {
 export const RATING_MIN = 0
 export const RATING_MAX = 100
 export const RATING_REPLACEMENT = 50
-export const RATING_BENCH = 60
-export const RATING_STARTER = 70
-export const RATING_ALL_STAR = 80
-export const RATING_ELITE = 90
 
 export function clampRating(value: number): number {
   if (!Number.isFinite(value)) return RATING_REPLACEMENT

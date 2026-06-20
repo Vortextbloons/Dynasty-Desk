@@ -12,6 +12,13 @@ import { createRngState } from './seededRandom'
 import { computeCapHit } from '@/game/management/capEngine'
 import { computeOverall } from '@/game/ratings/overallWeights'
 import { generateAutoRotation } from '@/game/management/autoRotation'
+import { defaultStrategy } from '@/game/models/defaults'
+import {
+  OPERATING_EXPENSES_BASELINE,
+  OWNER_CASH_INITIAL,
+  CASH_RESERVES_INITIAL,
+  OWNER_PATIENCE_INITIAL,
+} from '@/game/management/financeConstants'
 
 export interface NewSaveInput {
   snapshot: StaticSnapshot
@@ -46,22 +53,7 @@ export function buildSave(input: NewSaveInput): GameSave {
         targetMinutes: {},
         autoRotation: true,
       },
-      strategy: {
-        offense: {
-          pace: 'balanced',
-          shotProfile: 'balanced',
-          primaryAction: 'pick_and_roll',
-          usageDistribution: 'balanced',
-          crashOffensiveGlass: 'medium',
-        },
-        defense: {
-          pickAndRollCoverage: 'drop',
-          helpDefense: 'balanced',
-          pressure: 'medium',
-          reboundingFocus: 'balanced',
-          physicality: 'balanced',
-        },
-      },
+      strategy: defaultStrategy(),
       finances: {
         salaryCap: snapshot.rules.salaryCap,
         apron: snapshot.rules.apron,
@@ -77,13 +69,13 @@ export function buildSave(input: NewSaveInput): GameSave {
         seasonPerformanceBonus: 0,
         totalRevenue: 0,
 
-        operatingExpenses: 10_000_000,
-        totalExpenses: 10_000_000,
+        operatingExpenses: OPERATING_EXPENSES_BASELINE,
+        totalExpenses: OPERATING_EXPENSES_BASELINE,
         netIncome: 0,
 
-        ownerCash: st.owner?.cash ?? 50_000_000,
-        cashReserves: 100_000_000,
-        ownerPatience: 70,
+        ownerCash: st.owner?.cash ?? OWNER_CASH_INITIAL,
+        cashReserves: CASH_RESERVES_INITIAL,
+        ownerPatience: OWNER_PATIENCE_INITIAL,
 
         exceptionsUsed: {
           mle: false,

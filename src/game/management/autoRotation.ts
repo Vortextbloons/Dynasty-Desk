@@ -74,6 +74,36 @@ function pickClosingLineup(
   return pool.sort((a, b) => twoWayScore(b) - twoWayScore(a)).slice(0, 5)
 }
 
+function swapStarterWithBench(
+  lineup: LineupSettings,
+  benchPlayers: Player[],
+  hasRole: (p: Player) => boolean,
+  lacksRole: (p: Player) => boolean,
+  players: Map<string, Player>,
+): void {
+  const rolePresent = lineup.starters.some((id) => {
+    const p = players.get(id)
+    return p && hasRole(p)
+  })
+  if (rolePresent) return
+
+  const best = benchPlayers.filter(hasRole).sort(sortByOverall)[0]
+  if (!best) return
+
+  const worst = lineup.starters
+    .map((id) => players.get(id))
+    .filter((p): p is Player => p != null && lacksRole(p))
+    .sort((a, b) => sortByOverall(a, b))[0]
+  if (!worst) return
+
+  const starterIndex = lineup.starters.indexOf(worst.id)
+  const benchIndex = lineup.bench.indexOf(best.id)
+  if (starterIndex === -1 || benchIndex === -1) return
+
+  lineup.starters[starterIndex] = best.id
+  lineup.bench[benchIndex] = worst.id
+}
+
 function assignMinutes(
   starters: Player[],
   bench: Player[],
@@ -176,53 +206,8 @@ export function generateAutoRotation(
       .map((id) => players.get(id))
       .filter((p): p is Player => Boolean(p))
 
-    const hasBH = lineup.starters.some((id) => {
-      const p = players.get(id)
-      return p && isBallHandler(p)
-    })
-    if (!hasBH) {
-      const bestBH = benchPlayers
-        .filter((p) => isBallHandler(p))
-        .sort(sortByOverall)[0]
-      if (bestBH) {
-        const worstNonBH = lineup.starters
-          .map((id) => players.get(id))
-          .filter((p): p is Player => p != null && !isBallHandler(p))
-          .sort((a, b) => sortByOverall(a, b))[0]
-        if (worstNonBH) {
-          const si = lineup.starters.indexOf(worstNonBH.id)
-          const bi = lineup.bench.indexOf(bestBH.id)
-          if (si !== -1 && bi !== -1) {
-            lineup.starters[si] = bestBH.id
-            lineup.bench[bi] = worstNonBH.id
-          }
-        }
-      }
-    }
-
-    const hasCenter = lineup.starters.some((id) => {
-      const p = players.get(id)
-      return p && isCenterOrPF(p)
-    })
-    if (!hasCenter) {
-      const bestC = benchPlayers
-        .filter((p) => isCenterOrPF(p))
-        .sort(sortByOverall)[0]
-      if (bestC) {
-        const worstNonC = lineup.starters
-          .map((id) => players.get(id))
-          .filter((p): p is Player => p != null && !isCenterOrPF(p))
-          .sort((a, b) => sortByOverall(a, b))[0]
-        if (worstNonC) {
-          const si = lineup.starters.indexOf(worstNonC.id)
-          const bi = lineup.bench.indexOf(bestC.id)
-          if (si !== -1 && bi !== -1) {
-            lineup.starters[si] = bestC.id
-            lineup.bench[bi] = worstNonC.id
-          }
-        }
-      }
-    }
+    swapStarterWithBench(lineup, benchPlayers, isBallHandler, (p) => !isBallHandler(p), players)
+    swapStarterWithBench(lineup, benchPlayers, isCenterOrPF, (p) => !isCenterOrPF(p), players)
 
     const totalMin = Object.values(lineup.targetMinutes).reduce((a, b) => a + b, 0)
     if (Math.abs(totalMin - TOTAL_MINUTES) > 2) {

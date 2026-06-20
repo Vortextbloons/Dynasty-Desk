@@ -1,49 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { rateLineup } from '@/game/ratings/lineupRatingEngine'
-import type { Player } from '@/game/models/player'
-
-function makePlayer(overrides: Partial<Player> = {}): Player {
-  return {
-    id: 'test',
-    firstName: 'Test',
-    lastName: 'Player',
-    age: 25,
-    position: 'SF',
-    secondaryPositions: [],
-    heightInches: 78,
-    weightLbs: 220,
-    teamId: 'team-1',
-    ratings: {
-      insideScoring: 50, closeShot: 50, midrange: 50, threePoint: 50,
-      freeThrow: 50, ballHandling: 50, passing: 50, offensiveIq: 50,
-      offensiveRebound: 50, defensiveRebound: 50,
-      perimeterDefense: 50, interiorDefense: 50, steal: 50, block: 50,
-      defensiveIq: 50, speed: 50, strength: 50, vertical: 50,
-      stamina: 50, durability: 50, clutch: 50, consistency: 50,
-      potential: 50, overall: 50,
-    },
-    tendencies: {
-      usageRate: 20, passRate: 20, shotRate: 20, driveRate: 10,
-      postUpRate: 5, rimFrequency: 10, shortMidFrequency: 5,
-      longMidFrequency: 5, cornerThreeFrequency: 5,
-      aboveBreakThreeFrequency: 10, threePointRate: 10,
-      freeThrowRate: 5, turnoverRate: 10, isolationRate: 5,
-      pickAndRollBallHandlerRate: 5, pickAndRollRollManRate: 5,
-      spotUpRate: 10, transitionRate: 10, cutRate: 5,
-      foulRate: 5, stealAttemptRate: 5, blockAttemptRate: 5,
-      crashOffensiveGlassRate: 5,
-    },
-    traits: {} as any,
-    contract: {} as any,
-    morale: { level: 50, happiness: 50, roleSatisfaction: 75, teamSatisfaction: 50, tradeRequest: false, tradeRequestLevel: 0 },
-    health: { status: 'healthy', injuryDescription: null, daysRemaining: 0, gamesRemaining: 0 },
-    development: { lastTrainedAt: null, focusArea: null, recentForm: 50, ageAtPeak: 27, progressionCurve: 'normal', ratingsDelta: {}, breakoutChance: 0.1, bustRisk: 0.1 },
-    seasonStats: {} as any,
-    careerStats: [],
-    historicalSeasons: [],
-    ...overrides,
-  }
-}
+import { makePlayer } from '@/tests/fixtures'
 
 describe('rateLineup', () => {
   it('returns all 12 dimensions (11 + overall)', () => {

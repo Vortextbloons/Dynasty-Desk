@@ -13,6 +13,7 @@ import {
   importSaveFromFile as dbImportSaveFromFile,
 } from '@/db/saveRepository'
 import { buildSave } from '@/game/core/saveBuilder'
+import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import { SeededRandom } from '@/game/sim/rng'
 import { simulateGame } from '@/game/sim/gameSimulator'
 import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
@@ -582,7 +583,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       rng: seededRng,
       date: game.date,
       injuriesEnabled: save.settings.injuries,
-      simSpeed: save.settings.simSpeed === 'slow' || save.settings.simSpeed === 'balanced' || save.settings.simSpeed === 'fast' ? 'normal' : save.settings.simSpeed,
+      simSpeed: normalizeModernSimSpeed(save.settings.simSpeed),
     })
 
     const boxScore = buildBoxScore({ gameState, keyPlays })

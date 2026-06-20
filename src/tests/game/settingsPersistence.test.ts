@@ -57,6 +57,14 @@ describe('settingsPersistence', () => {
     settings.simSpeed = 'fast'
     settings.autoSave = false
 
-    expect(parsePersistedSettings(JSON.stringify(settings))).toEqual(settings)
+    expect(parsePersistedSettings(JSON.stringify(settings))).toEqual({
+      ...settings,
+      simSpeed: 'instant',
+    })
+  })
+
+  it('normalizes legacy slow simSpeed to normal on parse', () => {
+    const settings = { ...defaultSettings(), simSpeed: 'slow' as const }
+    expect(parsePersistedSettings(JSON.stringify(settings)).simSpeed).toBe('normal')
   })
 })

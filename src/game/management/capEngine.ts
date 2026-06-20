@@ -106,11 +106,3 @@ export function computeTaxBill(
 
   return Math.round(tax)
 }
-
-export function computeProjectedTaxBill(
-  team: Team,
-  rules: LeagueRules,
-  priorTaxpayerYears: number,
-): number {
-  return computeTaxBill(team, rules, priorTaxpayerYears)
-}

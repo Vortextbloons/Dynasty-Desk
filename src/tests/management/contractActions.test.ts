@@ -7,15 +7,15 @@ import {
   signFreeAgent,
 } from '@/game/management/contractActions'
 import { emptyContract } from '@/game/models/contract'
-import { getLeagueRules } from '@/game/models/leagueRules'
+import { DEFAULT_LEAGUE_RULES, getLeagueRules } from '@/game/models/leagueRules'
 import type { Player } from '@/game/models/player'
 import type { PlayerSeasonStat } from '@/game/models/player'
 import type { PlayerRatings } from '@/game/models/ratings'
 import { emptyTendencies } from '@/game/models/tendencies'
 import { emptyTraits } from '@/game/models/traits'
 import type { Team } from '@/game/models/team'
-import type { TeamStrategy } from '@/game/models/team'
 import type { TeamExceptionBook } from '@/game/models/team'
+import { defaultStrategy } from '@/game/models/defaults'
 import type { ContractActionResult } from '@/game/management/contractActions'
 
 const rules = getLeagueRules('2025-26')
@@ -71,23 +71,8 @@ function makeSeasonStats(): PlayerSeasonStat {
   }
 }
 
-function makeStrategy(): TeamStrategy {
-  return {
-    offense: {
-      pace: 'balanced',
-      shotProfile: 'balanced',
-      primaryAction: 'pick_and_roll',
-      usageDistribution: 'balanced',
-      crashOffensiveGlass: 'medium',
-    },
-    defense: {
-      pickAndRollCoverage: 'drop',
-      helpDefense: 'balanced',
-      pressure: 'medium',
-      reboundingFocus: 'balanced',
-      physicality: 'balanced',
-    },
-  }
+function makeStrategy() {
+  return defaultStrategy()
 }
 
 function makePlayer(
@@ -141,12 +126,12 @@ function makeTeam(overrides: Partial<Team> = {}): Team {
     },
     strategy: makeStrategy(),
     finances: {
-      salaryCap: 140_588_000,
-      apron: 178_132_000,
-      secondApron: 189_502_000,
-      luxuryTaxLine: 171_314_000,
+      salaryCap: DEFAULT_LEAGUE_RULES.salaryCap,
+      apron: DEFAULT_LEAGUE_RULES.apron,
+      secondApron: DEFAULT_LEAGUE_RULES.secondApron,
+      luxuryTaxLine: DEFAULT_LEAGUE_RULES.luxuryTaxLine,
       payroll: 10_000_000,
-      capSpace: 130_588_000,
+      capSpace: DEFAULT_LEAGUE_RULES.salaryCap - 10_000_000,
       taxBill: 0,
       projectedTaxBill: 0,
       baseRevenue: 0,

@@ -36,27 +36,46 @@ export interface Contract {
 }
 
 export function emptyContract(salary = 0, years = 1): Contract {
-  return {
+  return createContract({
     salaryByYear: Array.from({ length: years }, () => salary),
     yearsRemaining: years,
-    option: 'none',
-    optionYear: null,
-    noTradeClause: false,
+  })
+}
 
-    signingBonusByYear: Array.from({ length: years }, () => 0),
-    likelyBonusesByYear: Array.from({ length: years }, () => 0),
-    unlikelyBonusesByYear: Array.from({ length: years }, () => 0),
+export function createContract(overrides: Partial<Contract> = {}): Contract {
+  const years = overrides.yearsRemaining ?? overrides.salaryByYear?.length ?? 1
+  const salaryByYear =
+    overrides.salaryByYear ?? Array.from({ length: years }, () => 0)
 
-    guaranteed: false,
-    guaranteedByYear: Array.from({ length: years }, () => false),
+  return {
+    salaryByYear,
+    yearsRemaining: overrides.yearsRemaining ?? years,
+    option: overrides.option ?? 'none',
+    optionYear: overrides.optionYear ?? null,
+    noTradeClause: overrides.noTradeClause ?? false,
 
-    tradeKickers: [],
-    poisonPill: false,
+    signingBonusByYear:
+      overrides.signingBonusByYear ??
+      Array.from({ length: salaryByYear.length }, () => 0),
+    likelyBonusesByYear:
+      overrides.likelyBonusesByYear ??
+      Array.from({ length: salaryByYear.length }, () => 0),
+    unlikelyBonusesByYear:
+      overrides.unlikelyBonusesByYear ??
+      Array.from({ length: salaryByYear.length }, () => 0),
 
-    birdRights: false,
-    earlyBird: false,
-    baseYearCompensation: false,
+    guaranteed: overrides.guaranteed ?? false,
+    guaranteedByYear:
+      overrides.guaranteedByYear ??
+      Array.from({ length: salaryByYear.length }, () => false),
 
-    deferredMoney: [],
+    tradeKickers: overrides.tradeKickers ?? [],
+    poisonPill: overrides.poisonPill ?? false,
+
+    birdRights: overrides.birdRights ?? false,
+    earlyBird: overrides.earlyBird ?? false,
+    baseYearCompensation: overrides.baseYearCompensation ?? false,
+
+    deferredMoney: overrides.deferredMoney ?? [],
   }
 }

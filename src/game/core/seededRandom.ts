@@ -7,10 +7,6 @@ export function createRngState(seed?: string): RngState {
   }
 }
 
-export function cloneRngState(state: RngState): RngState {
-  return { ...state }
-}
-
 function mulberry32(seed: number): () => number {
   let a = seed | 0
   return () => {

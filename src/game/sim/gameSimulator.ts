@@ -7,7 +7,7 @@ import type {
 import {
   emptyPlayerGameStats,
   emptyTeamGameStats,
-} from '@/game/sim/gameState'
+} from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
 import type { EraConfig } from '@/game/models/eraConfig'
 import type { LeagueRules } from '@/game/models/leagueRules'
@@ -95,7 +95,7 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
     events: [],
     injuriesEnabled: input.injuriesEnabled,
     overtimeOccurred: false,
-    ot5PercentRollTriggered: false,
+    overtimeTiebreakerUsed: false,
     homeWin: null,
   }
 
@@ -109,9 +109,6 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
 
   let otPeriod = 5 as 5 | 6 | 7
   while (state.score.home === state.score.away && otPeriod <= 7) {
-    if (!state.overtimeOccurred) {
-      state.ot5PercentRollTriggered = true
-    }
     state.overtimeOccurred = true
     state.clock = { period: otPeriod, timeRemainingSeconds: OT_SECONDS }
     state.events.push({ type: 'endOfPeriod', period: otPeriod - 1 })
@@ -120,13 +117,9 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
   }
 
   if (state.score.home === state.score.away) {
-    state.ot5PercentRollTriggered = true
+    state.overtimeTiebreakerUsed = true
     const homeWinsTiebreaker = input.rng.chance(0.5)
-    if (homeWinsTiebreaker) {
-      state.score.home += 1
-    } else {
-      state.score.away += 1
-    }
+    recordTiebreakerPoint(state, homeWinsTiebreaker ? 'home' : 'away')
     state.events.push({ type: 'endOfPeriod', period: 7 })
   }
 
@@ -213,12 +206,12 @@ function playPeriod(
     const elapsed = periodSeconds - secondsRemaining
     if (elapsed - lastSubHome >= SUB_INTERVAL_SECONDS) {
       const subs = planSubstitutionsFor(state, input, 'home', period, secondsRemaining, homeById)
-      applySubs(state, subs, homeById, awayById)
+      applySubs(state, subs)
       lastSubHome = elapsed
     }
     if (elapsed - lastSubAway >= SUB_INTERVAL_SECONDS) {
       const subs = planSubstitutionsFor(state, input, 'away', period, secondsRemaining, awayById)
-      applySubs(state, subs, homeById, awayById)
+      applySubs(state, subs)
       lastSubAway = elapsed
     }
 
@@ -232,7 +225,6 @@ function playPeriod(
   }
 
   state.clock.timeRemainingSeconds = secondsRemaining
-  void period
 }
 
 function swapToClosing(
@@ -292,8 +284,6 @@ function planSubstitutionsFor(
 function applySubs(
   state: GameState,
   subs: PlannedSub[],
-  homeById: Map<string, Player>,
-  awayById: Map<string, Player>,
 ): void {
   for (const sub of subs) {
     const isHome = sub.teamId === state.homeTeamId
@@ -319,8 +309,6 @@ function applySubs(
       period: sub.period,
       timeRemainingSeconds: sub.timeRemainingSeconds,
     })
-    void homeById
-    void awayById
   }
 }
 
@@ -363,4 +351,29 @@ async function yieldIfNormal(
   if (speed === 'normal' && count % 5 === 0) {
     await new Promise<void>((resolve) => setTimeout(resolve, 0))
   }
+}
+
+function recordTiebreakerPoint(
+  state: GameState,
+  winningSide: 'home' | 'away',
+): void {
+  const teamId = winningSide === 'home' ? state.homeTeamId : state.awayTeamId
+  const playerId = state.lineupOnCourt[winningSide][0]
+  if (!playerId) return
+
+  if (winningSide === 'home') {
+    state.score.home += 1
+  } else {
+    state.score.away += 1
+  }
+
+  state.events.push({
+    type: 'freeThrow',
+    playerId,
+    teamId,
+    attempt: 1,
+    made: true,
+    period: 7,
+    timeRemainingSeconds: 0,
+  })
 }

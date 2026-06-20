@@ -33,48 +33,6 @@ export interface PlayerSeasonStats {
   vorp: number
 }
 
-export type RawPlayerSeasonStats = Omit<PlayerSeasonStats, 'playerId'> & {
-  playerExternalId?: string
-  playerId?: string
-}
-
-export function emptySeasonStats(
-  playerId: string,
-  season: string,
-  teamId: string | null = null,
-): PlayerSeasonStats {
-  return {
-    playerId,
-    season,
-    teamId,
-    gamesPlayed: 0,
-    minutes: 0,
-    starts: 0,
-    points: 0,
-    rebounds: 0,
-    offensiveRebounds: 0,
-    defensiveRebounds: 0,
-    assists: 0,
-    steals: 0,
-    blocks: 0,
-    turnovers: 0,
-    fouls: 0,
-    fgm: 0,
-    fga: 0,
-    tpm: 0,
-    tpa: 0,
-    ftm: 0,
-    fta: 0,
-    tsPct: 0,
-    efgPct: 0,
-    per: 0,
-    usageRate: 0,
-    winShares: 0,
-    boxPlusMinus: 0,
-    vorp: 0,
-  }
-}
-
 export function perGame(stats: PlayerSeasonStats): {
   ppg: number
   rpg: number
@@ -94,16 +52,4 @@ export function perGame(stats: PlayerSeasonStats): {
     mpg: stats.minutes / gp,
     topg: stats.turnovers / gp,
   }
-}
-
-export function per36(
-  stats: PlayerSeasonStats,
-  kind: 'raw' | 'totals' = 'raw',
-): number {
-  const minutes = Math.max(1, stats.minutes)
-  const factor = 36 / minutes
-  if (kind === 'totals') {
-    return factor
-  }
-  return factor
 }

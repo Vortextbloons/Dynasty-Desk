@@ -24,11 +24,18 @@ const legacySimSpeedMap: Record<string, SimSpeed> = {
 
 export function migrateSimSpeed(value: unknown): SimSpeed {
   if (typeof value === 'string') {
+    const legacy = legacySimSpeedMap[value]
+    if (legacy) return legacy
     if (validSimSpeeds.has(value as SimSpeed)) return value as SimSpeed
-    const mapped = legacySimSpeedMap[value]
-    if (mapped) return mapped
   }
   return 'normal'
+}
+
+export type ModernSimSpeed = 'instant' | 'normal'
+
+export function normalizeModernSimSpeed(value: unknown): ModernSimSpeed {
+  const migrated = migrateSimSpeed(value)
+  return migrated === 'instant' ? 'instant' : 'normal'
 }
 
 export function defaultSettings(): GameSettings {
@@ -89,5 +96,3 @@ export function parsePersistedSettings(raw: string | null): GameSettings {
     return defaultSettings()
   }
 }
-
-export { validSimSpeeds }

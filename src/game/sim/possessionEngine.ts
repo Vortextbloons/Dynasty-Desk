@@ -106,7 +106,6 @@ function pickAssister(
 
 function pickBlocker(
   defense: readonly Player[],
-  shooterId: string,
   zone: ShotZone,
   rng: SeededRandom,
 ): string | undefined {
@@ -117,7 +116,6 @@ function pickBlocker(
   })
   if (candidates.length === 0) return undefined
   if (!rng.chance(0.05)) return undefined
-  void shooterId
   const weights = candidates.map((d) => Math.max(1, d.ratings.block))
   return rng.weightedPick(candidates, weights).id
 }
@@ -218,7 +216,7 @@ export function resolvePossession(
   }
   const shot = resolveShot(shotCtx, rng)
   const assister = shot.made ? pickAssister(input.offense, primary.id, shotType, rng) : undefined
-  const blocker = !shot.made ? pickBlocker(input.defense, primary.id, zone, rng) : undefined
+  const blocker = !shot.made ? pickBlocker(input.defense, zone, rng) : undefined
 
   const shotEvent: SimEvent = {
     type: 'shot',

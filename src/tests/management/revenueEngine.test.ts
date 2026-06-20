@@ -6,33 +6,12 @@ import {
   computeTotalRevenue,
 } from '@/game/management/revenueEngine'
 import type { LeagueRules } from '@/game/models/leagueRules'
+import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 import type { TeamFinances } from '@/game/models/team'
 
 function makeRules(overrides?: Partial<LeagueRules>): LeagueRules {
   return {
-    seasonLabel: '2025-26',
-    teamCount: 30,
-    regularSeasonGames: 82,
-    playoffTeamsPerConference: 8,
-    playoffSeriesLength: 7,
-    salaryCapEnabled: true,
-    salaryCap: 140_588_000,
-    luxuryTaxEnabled: true,
-    maxRosterSize: 15,
-    minRosterSize: 13,
-    maxContractYears: 5,
-    draftRounds: 2,
-    threePointLineDistance: 23.75,
-    playoffFormat: 'playin_then_top8',
-    hasPlayIn: true,
-    apron: 178_132_000,
-    secondApron: 189_502_000,
-    luxuryTaxLine: 171_314_000,
-    luxuryTaxRates: { nonTaxpayer: 1.5, taxpayer: 1.75, repeater: 2.5 },
-    secondApronTaxRate: 3.75,
-    apronPenaltyPerMillion: 1_000_000,
-    midLevelException: 12_800_000,
-    biAnnualException: 4_600_000,
+    ...DEFAULT_LEAGUE_RULES,
     roomMle: 7_700_000,
     minimumPlayerSalary: 1_100_000,
     minimumTeamSalary: 126_529_200,

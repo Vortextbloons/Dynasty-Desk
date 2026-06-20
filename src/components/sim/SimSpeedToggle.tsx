@@ -2,6 +2,7 @@ import { Zap, Clock } from 'lucide-react'
 import { useGameStore } from '@/store/useGameStore'
 import { cn } from '@/lib/utils'
 import type { SimSpeed } from '@/game/models'
+import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 
 const OPTIONS: { value: SimSpeed; label: string; icon: typeof Zap }[] = [
   { value: 'instant', label: 'Instant', icon: Zap },
@@ -12,12 +13,7 @@ export function SimSpeedToggle() {
   const save = useGameStore((s) => s.save)
   const setSimSpeed = useGameStore((s) => s.setSimSpeed)
   if (!save) return null
-  const current =
-    save.settings.simSpeed === 'slow' ||
-    save.settings.simSpeed === 'balanced' ||
-    save.settings.simSpeed === 'fast'
-      ? 'normal'
-      : save.settings.simSpeed
+  const current = normalizeModernSimSpeed(save.settings.simSpeed)
 
   return (
     <div className="inline-flex items-center rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] p-0.5">

@@ -45,7 +45,7 @@ function makeGameState(events: SimEvent[]): GameState {
     events,
     injuriesEnabled: false,
     overtimeOccurred: false,
-    ot5PercentRollTriggered: false,
+    overtimeTiebreakerUsed: false,
     homeWin: true,
   }
 }

@@ -6,10 +6,16 @@ import {
   type PlayerRatings,
 } from '@/game/models/ratings'
 import { normalizeStats, type EraNormalizedStats } from './eraAdjustment'
-import { blendToMean, ratingScale, sampleWeight } from './ratingScale'
+import { blendToMean, sampleWeight } from './ratingScale'
+import { clamp } from '@/lib/utils'
 import { computeOverall } from './overallWeights'
 import type { PlayerSeasonStats } from '@/game/models/playerSeasonStats'
 import type { Position } from '@/game/models/position'
+
+function scaleRating(value: number): number {
+  if (!Number.isFinite(value)) return RATING_REPLACEMENT
+  return clamp(value, 0, 100)
+}
 
 const STARTER_BASELINE: EraNormalizedStats = {
   ppg: 14,
@@ -130,28 +136,28 @@ export function generateRatings(
   )
 
   const ratings: Omit<PlayerRatings, 'overall'> = {
-    insideScoring: ratingScale(insideScoring),
-    closeShot: ratingScale(closeShot),
-    midrange: ratingScale(midrange),
-    threePoint: ratingScale(threePoint),
-    freeThrow: ratingScale(freeThrow),
-    ballHandling: ratingScale(ballHandling),
-    passing: ratingScale(passing),
-    offensiveIq: ratingScale(offensiveIq),
-    offensiveRebound: ratingScale(offensiveRebound),
-    defensiveRebound: ratingScale(defensiveRebound),
-    perimeterDefense: ratingScale(perimeterDefense),
-    interiorDefense: ratingScale(interiorDefense),
-    steal: ratingScale(steal),
-    block: ratingScale(block),
-    defensiveIq: ratingScale(defensiveIq),
-    speed: ratingScale(speed),
-    strength: ratingScale(strength),
-    vertical: ratingScale(vertical),
-    stamina: ratingScale(stamina),
-    durability: ratingScale(durability),
-    clutch: ratingScale(clutch),
-    consistency: ratingScale(consistency),
+    insideScoring: scaleRating(insideScoring),
+    closeShot: scaleRating(closeShot),
+    midrange: scaleRating(midrange),
+    threePoint: scaleRating(threePoint),
+    freeThrow: scaleRating(freeThrow),
+    ballHandling: scaleRating(ballHandling),
+    passing: scaleRating(passing),
+    offensiveIq: scaleRating(offensiveIq),
+    offensiveRebound: scaleRating(offensiveRebound),
+    defensiveRebound: scaleRating(defensiveRebound),
+    perimeterDefense: scaleRating(perimeterDefense),
+    interiorDefense: scaleRating(interiorDefense),
+    steal: scaleRating(steal),
+    block: scaleRating(block),
+    defensiveIq: scaleRating(defensiveIq),
+    speed: scaleRating(speed),
+    strength: scaleRating(strength),
+    vertical: scaleRating(vertical),
+    stamina: scaleRating(stamina),
+    durability: scaleRating(durability),
+    clutch: scaleRating(clutch),
+    consistency: scaleRating(consistency),
     potential: clampRating(potential),
   }
 

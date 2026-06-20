@@ -5,6 +5,7 @@ import {
 } from '@/game/management/ownerEngine'
 import type { OwnerProfile } from '@/game/models/owner'
 import type { TeamFinances } from '@/game/models/team'
+import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
 function makeOwner(
   overrides: Partial<OwnerProfile> = {},
@@ -24,10 +25,10 @@ function makeFinances(
   overrides: Partial<TeamFinances> = {},
 ): TeamFinances {
   return {
-    salaryCap: 140_588_000,
-    apron: 178_132_000,
-    secondApron: 189_502_000,
-    luxuryTaxLine: 171_314_000,
+    salaryCap: DEFAULT_LEAGUE_RULES.salaryCap,
+    apron: DEFAULT_LEAGUE_RULES.apron,
+    secondApron: DEFAULT_LEAGUE_RULES.secondApron,
+    luxuryTaxLine: DEFAULT_LEAGUE_RULES.luxuryTaxLine,
     payroll: 120_000_000,
     capSpace: 20_588_000,
     taxBill: 0,

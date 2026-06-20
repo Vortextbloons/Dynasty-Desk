@@ -9,7 +9,7 @@ import {
 import { computeOverall } from '@/game/ratings/overallWeights'
 import { isPosition } from '@/game/models/position'
 import type { PlayerRatings } from '@/game/models/ratings'
-import { migrateSimSpeed } from '@/game/core/settingsPersistence'
+import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 
 interface GameSaveV1 {
   metadata: {
@@ -230,10 +230,7 @@ export function migrateToV4(input: unknown): GameSave {
   const save = input as GameSave
 
   const settings = save.settings as unknown as Record<string, unknown>
-  const raw = settings.simSpeed
-  const speed = migrateSimSpeed(raw)
-  const migratedSpeed: GameSave['settings']['simSpeed'] =
-    speed === 'instant' || speed === 'normal' ? speed : 'normal'
+  const migratedSpeed = normalizeModernSimSpeed(settings.simSpeed)
 
   return {
     ...save,

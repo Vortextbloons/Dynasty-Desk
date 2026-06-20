@@ -2,14 +2,7 @@ import type { ShotZone, Position } from '@/game/models'
 import type { PlayerTendencies } from '@/game/models/tendencies'
 import type { EraConfig } from '@/game/models/eraConfig'
 import type { Player } from '@/game/models/player'
-
-export const SHOT_ZONES: readonly ShotZone[] = [
-  'at_rim',
-  'short_mid',
-  'long_mid',
-  'corner_three',
-  'above_break_three',
-] as const
+import { clamp } from '@/lib/utils'
 
 export const BASE_ZONE_PCT: Record<ShotZone, number> = {
   at_rim: 0.65,
@@ -88,5 +81,5 @@ export function threePointRateForTeam(
   for (const p of teamPlayers) sum += p.tendencies.threePointRate
   const tendencyAvg = sum / teamPlayers.length
   const blended = tendencyAvg * 0.6 + era.league3PARate * 0.4
-  return Math.max(0.2, Math.min(0.55, blended))
+  return clamp(blended, 0.2, 0.55)
 }

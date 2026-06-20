@@ -38,14 +38,6 @@ export function evaluateBudgetTolerance(
   }
 }
 
-export function maybeVetoTrade(
-  _owner: OwnerProfile,
-  _trade: unknown,
-  _finances: TeamFinances,
-): { vetoed: boolean; reason?: string } {
-  return { vetoed: false }
-}
-
 export interface SoftCashPressureResult {
   triggered: boolean
   newSeasons: number

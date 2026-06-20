@@ -240,7 +240,7 @@ export interface GameState {
 
   injuriesEnabled: boolean
   overtimeOccurred: boolean
-  ot5PercentRollTriggered: boolean
+  overtimeTiebreakerUsed: boolean
   homeWin: boolean | null
 }
 

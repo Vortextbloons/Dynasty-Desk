@@ -2,39 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { validateRotation } from '@/game/management/rotationValidator'
 import type { Player } from '@/game/models/player'
 import type { LineupSettings } from '@/game/models/team'
-
-function makePlayer(overrides: Partial<Player> = {}): Player {
-  return {
-    id: 'test',
-    firstName: 'Test',
-    lastName: 'Player',
-    age: 25,
-    position: 'PG',
-    secondaryPositions: [],
-    heightInches: 75,
-    weightLbs: 190,
-    teamId: 'team-1',
-    ratings: {
-      insideScoring: 50, closeShot: 50, midrange: 50, threePoint: 50,
-      freeThrow: 50, ballHandling: 50, passing: 50, offensiveIq: 50,
-      offensiveRebound: 50, defensiveRebound: 50,
-      perimeterDefense: 50, interiorDefense: 50, steal: 50, block: 50,
-      defensiveIq: 50, speed: 50, strength: 50, vertical: 50,
-      stamina: 50, durability: 50, clutch: 50, consistency: 50,
-      potential: 50, overall: 50,
-    },
-    tendencies: {} as any,
-    traits: {} as any,
-    contract: {} as any,
-    morale: { level: 50, happiness: 50, roleSatisfaction: 75, teamSatisfaction: 50, tradeRequest: false, tradeRequestLevel: 0 },
-    health: { status: 'healthy', injuryDescription: null, daysRemaining: 0, gamesRemaining: 0 },
-    development: { lastTrainedAt: null, focusArea: null, recentForm: 50, ageAtPeak: 27, progressionCurve: 'normal', ratingsDelta: {}, breakoutChance: 0.1, bustRisk: 0.1 },
-    seasonStats: {} as any,
-    careerStats: [],
-    historicalSeasons: [],
-    ...overrides,
-  }
-}
+import { makePlayer } from '@/tests/fixtures'
 
 function makeLineup(overrides: Partial<LineupSettings> = {}): LineupSettings {
   return {
@@ -254,8 +222,13 @@ describe('validateRotation', () => {
   describe('ball handler', () => {
     it('warns when no ball handler in starters', () => {
       const ids = ['p1', 'p2', 'p3', 'p4', 'p5']
-      const players = makePlayers(ids)
-      // All players have ballHandling=50, passing=50 (below thresholds)
+      const players = makePlayers(ids, {
+        ratings: {
+          ...makePlayer().ratings,
+          ballHandling: 50,
+          passing: 50,
+        },
+      })
       const lineup = makeLineup({
         starters: ids,
         closingLineup: ids,

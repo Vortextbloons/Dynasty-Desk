@@ -5,6 +5,7 @@ import {
   BASE_ZONE_PCT,
   ZONE_POINTS,
   zoneRatingFor,
+  zoneFrequencyFor,
   isThreePointZone,
 } from '@/game/sim/shotZones'
 import { clamp } from '@/lib/utils'
@@ -173,7 +174,7 @@ export function selectZone(
     ? ['at_rim', 'corner_three', 'above_break_three', 'at_rim', 'at_rim']
     : ['at_rim', 'short_mid', 'long_mid', 'corner_three', 'above_break_three']
   const weights: number[] = zones.map((z) => {
-    const freq = zoneFrequency(shooter, z)
+    const freq = zoneFrequencyFor(shooter, z)
     if (z === 'at_rim' && isTransition) return freq * 1.8
     if (isThreePointZone(z)) {
       return freq * (0.6 + threePointRate)
@@ -181,19 +182,4 @@ export function selectZone(
     return freq
   })
   return rng.weightedPick(zones, weights)
-}
-
-function zoneFrequency(player: Player, zone: ShotZone): number {
-  switch (zone) {
-    case 'at_rim':
-      return player.tendencies.rimFrequency
-    case 'short_mid':
-      return player.tendencies.shortMidFrequency
-    case 'long_mid':
-      return player.tendencies.longMidFrequency
-    case 'corner_three':
-      return player.tendencies.cornerThreeFrequency
-    case 'above_break_three':
-      return player.tendencies.aboveBreakThreeFrequency
-  }
 }

@@ -5,10 +5,9 @@ import {
   computeCapSpace,
   computeApronStatus,
   computeTaxBill,
-  computeProjectedTaxBill,
 } from '@/game/management/capEngine'
 import { emptyContract } from '@/game/models/contract'
-import { getLeagueRules } from '@/game/models/leagueRules'
+import { DEFAULT_LEAGUE_RULES, getLeagueRules } from '@/game/models/leagueRules'
 import type { Player } from '@/game/models/player'
 import type { Team } from '@/game/models/team'
 
@@ -55,12 +54,12 @@ function makeTeam(payroll: number): Team {
     },
     strategy: { offense: {} as any, defense: {} as any },
     finances: {
-      salaryCap: 140_588_000,
-      apron: 178_132_000,
-      secondApron: 189_502_000,
-      luxuryTaxLine: 171_314_000,
+      salaryCap: DEFAULT_LEAGUE_RULES.salaryCap,
+      apron: DEFAULT_LEAGUE_RULES.apron,
+      secondApron: DEFAULT_LEAGUE_RULES.secondApron,
+      luxuryTaxLine: DEFAULT_LEAGUE_RULES.luxuryTaxLine,
       payroll,
-      capSpace: 140_588_000 - payroll,
+      capSpace: DEFAULT_LEAGUE_RULES.salaryCap - payroll,
       taxBill: 0,
       projectedTaxBill: 0,
       baseRevenue: 0,
@@ -196,7 +195,7 @@ describe('computeCapSpace', () => {
   })
 
   it('returns 0 when payroll equals cap', () => {
-    const team = makeTeam(140_588_000)
+    const team = makeTeam(DEFAULT_LEAGUE_RULES.salaryCap)
     expect(computeCapSpace(team, rules)).toBe(0)
   })
 
@@ -213,7 +212,7 @@ describe('computeApronStatus', () => {
   })
 
   it('returns first when payroll is at first apron', () => {
-    const team = makeTeam(178_132_000)
+    const team = makeTeam(DEFAULT_LEAGUE_RULES.apron)
     expect(computeApronStatus(team, rules)).toBe('first')
   })
 
@@ -278,11 +277,6 @@ describe('computeTaxBill', () => {
     const team = makeTeam(176_000_000)
     const tax = computeTaxBill(team, rules, 0)
     expect(tax).toBe(7_029_000)
-  })
-
-  it('computeProjectedTaxBill delegates to computeTaxBill', () => {
-    const team = makeTeam(200_000_000)
-    expect(computeProjectedTaxBill(team, rules, 0)).toBe(computeTaxBill(team, rules, 0))
   })
 
   it('handles exact 5M tax bracket boundary', () => {
