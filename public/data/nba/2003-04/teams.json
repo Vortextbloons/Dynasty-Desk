@@ -13,10 +13,18 @@
     "marketSize": 7,
     "prestige": 90,
     "fanPatience": 75,
+    "owner": {
+      "teamId": "team-bos",
+      "name": "Riley Sterling",
+      "personality": "win_now",
+      "netWorth": 19358449238,
+      "cash": 57687566,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   },
   {
@@ -33,10 +41,18 @@
     "marketSize": 10,
     "prestige": 95,
     "fanPatience": 60,
+    "owner": {
+      "teamId": "team-lal",
+      "name": "Marcus Chen",
+      "personality": "win_now",
+      "netWorth": 19020636883,
+      "cash": 60390149,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   },
   {
@@ -53,10 +69,18 @@
     "marketSize": 8,
     "prestige": 88,
     "fanPatience": 70,
+    "owner": {
+      "teamId": "team-gsw",
+      "name": "Victoria Ashford",
+      "personality": "win_now",
+      "netWorth": 20755112662,
+      "cash": 52098182,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   },
   {
@@ -73,10 +97,18 @@
     "marketSize": 5,
     "prestige": 75,
     "fanPatience": 70,
+    "owner": {
+      "teamId": "team-mil",
+      "name": "James Whitfield",
+      "personality": "meddler",
+      "netWorth": 22280188221,
+      "cash": 47002439,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   },
   {
@@ -93,10 +125,18 @@
     "marketSize": 6,
     "prestige": 80,
     "fanPatience": 75,
+    "owner": {
+      "teamId": "team-den",
+      "name": "Sofia Ramirez",
+      "personality": "patient",
+      "netWorth": 17456128374,
+      "cash": 44860447,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   },
   {
@@ -113,10 +153,18 @@
     "marketSize": 5,
     "prestige": 82,
     "fanPatience": 80,
+    "owner": {
+      "teamId": "team-okc",
+      "name": "Robert Thornton",
+      "personality": "hands_off",
+      "netWorth": 19247382469,
+      "cash": 43285327,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   },
   {
@@ -133,10 +181,18 @@
     "marketSize": 7,
     "prestige": 85,
     "fanPatience": 65,
+    "owner": {
+      "teamId": "team-mia",
+      "name": "Elena Vasquez",
+      "personality": "spendthrift",
+      "netWorth": 19538835932,
+      "cash": 63074960,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   },
   {
@@ -153,10 +209,18 @@
     "marketSize": 7,
     "prestige": 78,
     "fanPatience": 60,
+    "owner": {
+      "teamId": "team-phi",
+      "name": "William Drake",
+      "personality": "frugal",
+      "netWorth": 16235717994,
+      "cash": 63075758,
+      "softCashPressureSeasons": 0
+    },
     "importMeta": {
       "snapshotSeason": "2003-04",
       "statsSource": "synthetic",
-      "lastUpdated": "2026-06-20T02:21:07.520Z"
+      "lastUpdated": "2026-06-20T05:08:15.727Z"
     }
   }
 ]

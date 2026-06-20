@@ -27,8 +27,27 @@ export function ContractsPage() {
     'cut' | 'stretch' | 'buyout' | 'extend' | null
   >(null)
   const [selectedFreeAgent, setSelectedFreeAgent] = useState<Player | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
 
-  if (!save) {
+  const league = save?.league ?? null
+  const teamId = league?.userTeamId ?? null
+  const userTeam = teamId && league ? league.teams[teamId] ?? null : null
+
+  const rosterPlayers = useMemo(() => {
+    if (!userTeam || !league) return []
+    return userTeam.roster
+      .map((pid) => league.players[pid])
+      .filter((p): p is Player => Boolean(p))
+  }, [userTeam, league])
+
+  const freeAgents = useMemo(() => {
+    if (!league) return []
+    return Object.values(league.players).filter(
+      (p): p is Player => p.teamId === null,
+    )
+  }, [league])
+
+  if (!save || !league || !userTeam) {
     return (
       <div>
         <PageHeader
@@ -43,24 +62,6 @@ export function ContractsPage() {
     )
   }
 
-  const { league } = save
-  const teamId = league.userTeamId
-  const team = league.teams[teamId]
-  const userTeam = team
-
-  const rosterPlayers = useMemo(() => {
-    if (!userTeam) return []
-    return userTeam.roster
-      .map((pid) => league.players[pid])
-      .filter((p): p is Player => Boolean(p))
-  }, [userTeam, league.players])
-
-  const freeAgents = useMemo(() => {
-    return Object.values(league.players).filter(
-      (p): p is Player => p.teamId === null,
-    )
-  }, [league.players])
-
   const softCashWarning = userTeam
     ? userTeam.finances.totalExpenses > 0 &&
       userTeam.finances.ownerCash / userTeam.finances.totalExpenses <
@@ -68,7 +69,7 @@ export function ContractsPage() {
     : false
 
   function handleAction(playerId: string, action: 'cut' | 'stretch' | 'buyout' | 'extend') {
-    const player = league.players[playerId]
+    const player = league!.players[playerId]
     if (!player) return
     setSelectedPlayer(player)
     setSelectedAction(action)
@@ -76,23 +77,35 @@ export function ContractsPage() {
   }
 
   function handleConfirmAction(playerId: string, amount?: number) {
+    setActionError(null)
+    let result
     if (selectedAction === 'cut') {
-      cutPlayer(playerId)
+      result = cutPlayer(playerId)
     } else if (selectedAction === 'stretch') {
-      stretchContract(playerId)
+      result = stretchContract(playerId)
     } else if (selectedAction === 'buyout') {
-      buyoutPlayer(playerId, amount ?? 0)
-    } else if (selectedAction === 'extend') {
-      if (amount !== undefined && selectedPlayer) {
-        const years = Math.min(5, Math.max(1, Math.round(amount / 25_000_000)))
-        const avgSalary = amount / years
-        extendPlayer(playerId, {
-          years,
-          salaryByYear: Array.from({ length: years }, () => avgSalary),
-          option: 'none',
-          noTradeClause: false,
-        })
-      }
+      result = buyoutPlayer(playerId, amount ?? 0)
+    }
+    if (result && !result.ok) {
+      setActionError(result.reason)
+      return
+    }
+    setDialogOpen(false)
+    setSelectedPlayer(null)
+    setSelectedAction(null)
+  }
+
+  function handleConfirmExtend(playerId: string, years: number, avgSalary: number) {
+    setActionError(null)
+    const result = extendPlayer(playerId, {
+      years,
+      salaryByYear: Array.from({ length: years }, () => avgSalary),
+      option: 'none',
+      noTradeClause: false,
+    })
+    if (!result.ok) {
+      setActionError(result.reason)
+      return
     }
     setDialogOpen(false)
     setSelectedPlayer(null)
@@ -100,7 +113,8 @@ export function ContractsPage() {
   }
 
   function handleSignFreeAgent(playerId: string) {
-    const player = league.players[playerId]
+    setActionError(null)
+    const player = league!.players[playerId]
     if (!player) return
     setSelectedFreeAgent(player)
     setSignDialogOpen(true)
@@ -111,7 +125,12 @@ export function ContractsPage() {
     offer: { years: number; salaryByYear: number[] },
     exception: ExceptionType,
   ) {
-    signFreeAgent(playerId, offer, exception)
+    setActionError(null)
+    const result = signFreeAgent(playerId, offer, exception)
+    if (!result.ok) {
+      setActionError(result.reason)
+      return
+    }
     setSignDialogOpen(false)
     setSelectedFreeAgent(null)
   }
@@ -124,23 +143,27 @@ export function ContractsPage() {
         description="Payroll, cap space, expiring deals, and option flags."
       />
 
-      {userTeam && (
-        <>
-          <PayrollSummaryCard
-            finances={userTeam.finances}
-            rules={league.rules}
-          />
+      {actionError && (
+        <div className="rounded-md border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+          {actionError}
+        </div>
+      )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <OwnerCard
-            owner={userTeam.owner}
-            softCashWarning={softCashWarning}
-          />
-            <ExceptionsCard
-              exceptions={userTeam.finances.exceptionsUsed}
-              rules={league.rules}
-            />
-          </div>
+      <PayrollSummaryCard
+        finances={userTeam.finances}
+        rules={league.rules}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <OwnerCard
+        owner={userTeam.owner}
+        softCashWarning={softCashWarning}
+      />
+        <ExceptionsCard
+          exceptions={userTeam.finances.exceptionsUsed}
+          rules={league.rules}
+        />
+      </div>
 
           <div className="border-b border-[var(--color-line-soft)] flex gap-4">
             <button
@@ -195,8 +218,6 @@ export function ContractsPage() {
               )}
             </div>
           )}
-        </>
-      )}
 
       <ContractActionDialog
         open={dialogOpen}
@@ -205,6 +226,7 @@ export function ContractsPage() {
         action={selectedAction}
         rules={league.rules}
         onConfirm={handleConfirmAction}
+        onConfirmExtend={handleConfirmExtend}
       />
 
       <SignFreeAgentDialog

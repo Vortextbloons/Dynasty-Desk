@@ -26,6 +26,7 @@ interface ContractActionDialogProps {
   action: 'cut' | 'stretch' | 'buyout' | 'extend' | null
   rules: LeagueRules
   onConfirm: (playerId: string, amount?: number) => void
+  onConfirmExtend?: (playerId: string, years: number, avgSalary: number) => void
 }
 
 function computeGuaranteedRemaining(contract: Player['contract']): number {
@@ -45,6 +46,7 @@ export function ContractActionDialog({
   action,
   rules,
   onConfirm,
+  onConfirmExtend,
 }: ContractActionDialogProps) {
   const [settleAmount, setSettleAmount] = useState('')
   const [extensionYears, setExtensionYears] = useState('2')
@@ -62,7 +64,11 @@ export function ContractActionDialog({
     } else if (action === 'extend') {
       const years = Number(extensionYears) || 2
       const salary = Number(extensionSalary) || 0
-      onConfirm(player.id, years * salary)
+      if (onConfirmExtend) {
+        onConfirmExtend(player.id, years, salary)
+      } else {
+        onConfirm(player.id, years * salary)
+      }
     } else {
       onConfirm(player.id)
     }

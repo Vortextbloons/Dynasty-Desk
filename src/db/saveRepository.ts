@@ -39,6 +39,7 @@ export async function loadSave(id: string): Promise<GameSave | null> {
   let save = result.save
   if (save.metadata.schemaVersion === 1) {
     save = migrateToV2(save)
+    await db.saves.update(id, { data: save, metadata: save.metadata })
   }
 
   return save
@@ -133,7 +134,11 @@ export async function importSaveFromFile(file: File): Promise<GameSave> {
     throw new Error(result.reason)
   }
 
-  const save = result.save
+  let save = result.save
+  if (save.metadata.schemaVersion === 1) {
+    save = migrateToV2(save)
+  }
+
   save.metadata.id = crypto.randomUUID()
   save.league.id = crypto.randomUUID()
   save.metadata.createdAt = new Date().toISOString()

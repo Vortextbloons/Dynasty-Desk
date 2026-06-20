@@ -9,6 +9,7 @@ import type {
 } from '@/game/models'
 import { seasonOpeningNight } from './seasonCalendar'
 import { createRngState } from './seededRandom'
+import { computeCapHit } from '@/game/management/capEngine'
 
 export interface NewSaveInput {
   snapshot: StaticSnapshot
@@ -78,7 +79,7 @@ export function buildSave(input: NewSaveInput): GameSave {
         totalExpenses: 10_000_000,
         netIncome: 0,
 
-        ownerCash: 50_000_000,
+        ownerCash: st.owner?.cash ?? 50_000_000,
         cashReserves: 100_000_000,
         ownerPatience: 70,
 
@@ -172,6 +173,16 @@ export function buildSave(input: NewSaveInput): GameSave {
       .map((p) => p.id)
     team.lineup.bench = rosterPlayers.slice(5).map((p) => p.id)
     team.lineup.closingLineup = team.lineup.starters.slice()
+
+    let payroll = 0
+    for (const pid of team.roster) {
+      const player = players[pid]
+      if (player) {
+        payroll += computeCapHit(player, snapshot.rules)
+      }
+    }
+    team.finances.payroll = payroll
+    team.finances.capSpace = snapshot.rules.salaryCap - payroll
   }
 
   const standings: LeagueState['standings'] = {}
@@ -242,7 +253,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     createdAt: now,
     updatedAt: now,
     appVersion: '0.1.0',
-    schemaVersion: 1,
+    schemaVersion: 2,
     teamId,
     teamName:
       snapshot.teams.find((t) => t.id === teamId)?.name ?? teamId,

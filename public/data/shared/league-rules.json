@@ -13,5 +13,26 @@
   "draftRounds": 2,
   "threePointLineDistance": 23.75,
   "playoffFormat": "playin_then_top8",
-  "hasPlayIn": true
+  "hasPlayIn": true,
+  "apron": 178132000,
+  "secondApron": 189502000,
+  "luxuryTaxLine": 171314000,
+  "luxuryTaxRates": {
+    "nonTaxpayer": 1.5,
+    "taxpayer": 1.75,
+    "repeater": 2.5
+  },
+  "secondApronTaxRate": 3.75,
+  "apronPenaltyPerMillion": 1000000,
+  "midLevelException": 12800000,
+  "biAnnualException": 4600000,
+  "roomMle": 7700000,
+  "minimumPlayerSalary": 1100000,
+  "minimumTeamSalary": 126529200,
+  "tradeExceptionYears": 1,
+  "allowCashInTrades": true,
+  "twoWaySlots": 2,
+  "rookieScale": "real",
+  "rookieDealYears": 4,
+  "rookieOptionYears": 2
 }

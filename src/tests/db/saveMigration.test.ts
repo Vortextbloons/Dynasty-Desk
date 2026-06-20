@@ -179,24 +179,17 @@ describe('migrateToV2', () => {
     expect(team!.finances.luxuryTaxLine).toBe(171_314_000)
   })
 
-  it('computes payroll from roster when team has embedded players', () => {
+  it('computes payroll from league.players via roster', () => {
     const v1 = makeV1Save()
-    // v1 saves can embed players on team for migration
-    v1.league.teams['team-1'].players = {
-      'player-1': v1.league.players['player-1'],
-    }
     const result = migrateToV2(v1) as GameSave
 
     const team = result.league.teams['team-1']
-    // Player has $50M salary in year 0
+    // Player has $50M salary in year 0, lives in league.players
     expect(team!.finances.payroll).toBe(50_000_000)
   })
 
   it('sets capSpace = salaryCap - payroll', () => {
     const v1 = makeV1Save()
-    v1.league.teams['team-1'].players = {
-      'player-1': v1.league.players['player-1'],
-    }
     const result = migrateToV2(v1) as GameSave
 
     const team = result.league.teams['team-1']

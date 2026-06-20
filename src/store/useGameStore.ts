@@ -380,8 +380,17 @@ function applyPatch(
     const existing = save.league.teams[teamId]
     if (existing) {
       if (teamPatch.roster !== undefined) existing.roster = teamPatch.roster
-      if (teamPatch.finances)
+      if (teamPatch.lineup) {
+        if (teamPatch.lineup.starters !== undefined) existing.lineup.starters = teamPatch.lineup.starters
+        if (teamPatch.lineup.bench !== undefined) existing.lineup.bench = teamPatch.lineup.bench
+        if (teamPatch.lineup.closingLineup !== undefined) existing.lineup.closingLineup = teamPatch.lineup.closingLineup
+      }
+      if (teamPatch.finances) {
         existing.finances = teamPatch.finances as typeof existing.finances
+        if (existing.owner) {
+          existing.owner.cash = existing.finances.ownerCash
+        }
+      }
     }
   }
 }

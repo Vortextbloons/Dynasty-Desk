@@ -223,7 +223,7 @@ describe('buildSave', () => {
     })
 
     expect(save.metadata.id).toBeTruthy()
-    expect(save.metadata.schemaVersion).toBe(1)
+    expect(save.metadata.schemaVersion).toBe(2)
     expect(save.metadata.name).toBe('Test Dynasty')
     expect(save.metadata.teamId).toBe('team-1')
     expect(save.metadata.snapshotId).toBe('test-snapshot')

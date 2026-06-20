@@ -52,6 +52,7 @@ interface GameSaveV1 {
 function hydrateFinances(
   team: Record<string, unknown>,
   rules: Record<string, unknown>,
+  leaguePlayers: Record<string, Record<string, unknown>>,
 ): TeamFinances {
   const salaryCap = (rules.salaryCap as number) ?? 140_588_000
   const apron = (rules.apron as number) ?? 178_132_000
@@ -59,28 +60,23 @@ function hydrateFinances(
   const luxuryTaxLine = (rules.luxuryTaxLine as number) ?? 171_314_000
 
   const roster = (team.roster as string[]) ?? []
-  const players = (team as Record<string, unknown>).players as
-    | Record<string, Record<string, unknown>>
-    | undefined
 
   let payroll = 0
-  if (players) {
-    for (const pid of roster) {
-      const player = players[pid]
-      if (player?.contract) {
-        const c = player.contract as Record<string, unknown>
-        const salaryByYear = c.salaryByYear as number[] | undefined
-        const salary = salaryByYear?.[0] ?? 0
-        const signingBonusByYear = c.signingBonusByYear as
-          | number[]
-          | undefined
-        const signingBonus = signingBonusByYear?.[0] ?? 0
-        const likelyBonusesByYear = c.likelyBonusesByYear as
-          | number[]
-          | undefined
-        const likelyBonus = likelyBonusesByYear?.[0] ?? 0
-        payroll += salary + signingBonus + likelyBonus
-      }
+  for (const pid of roster) {
+    const player = leaguePlayers[pid]
+    if (player?.contract) {
+      const c = player.contract as Record<string, unknown>
+      const salaryByYear = c.salaryByYear as number[] | undefined
+      const salary = salaryByYear?.[0] ?? 0
+      const signingBonusByYear = c.signingBonusByYear as
+        | number[]
+        | undefined
+      const signingBonus = signingBonusByYear?.[0] ?? 0
+      const likelyBonusesByYear = c.likelyBonusesByYear as
+        | number[]
+        | undefined
+      const likelyBonus = likelyBonusesByYear?.[0] ?? 0
+      payroll += salary + signingBonus + likelyBonus
     }
   }
 
@@ -126,12 +122,23 @@ function hydrateFinances(
 export function migrateToV2(input: unknown): GameSave {
   const v1 = input as GameSaveV1
 
+  const leaguePlayers = v1.league.players as Record<string, Record<string, unknown>>
+
   const teams: GameSave['league']['teams'] = {}
   for (const [teamId, teamRaw] of Object.entries(v1.league.teams)) {
     const team = teamRaw as Record<string, unknown>
+    const existing = team.finances as Record<string, unknown> | undefined
     teams[teamId] = {
       ...team,
-      finances: hydrateFinances(team, v1.league.rules),
+      finances: hydrateFinances(team, v1.league.rules, leaguePlayers),
+      owner: team.owner ?? {
+        teamId,
+        name: 'Unknown Owner',
+        personality: 'hands_off' as const,
+        netWorth: 15_000_000_000,
+        cash: (existing?.ownerCash as number) ?? 50_000_000,
+        softCashPressureSeasons: 0,
+      },
     } as GameSave['league']['teams'][string]
   }
 

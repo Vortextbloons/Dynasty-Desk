@@ -72,6 +72,8 @@ export function cutPlayer(
 
   const newPayroll = team.finances.payroll - freed
 
+  const cleanLineup = (ids: string[]) => ids.filter((id) => id !== playerId)
+
   return {
     ok: true,
     patch: {
@@ -84,6 +86,12 @@ export function cutPlayer(
       teams: {
         [team.id]: {
           roster: team.roster.filter((id) => id !== playerId),
+          lineup: {
+            ...team.lineup,
+            starters: cleanLineup(team.lineup.starters),
+            bench: cleanLineup(team.lineup.bench),
+            closingLineup: cleanLineup(team.lineup.closingLineup),
+          },
           finances: {
             ...team.finances,
             payroll: newPayroll,
@@ -141,6 +149,8 @@ export function stretchContract(
   const currentCapHit = computeCapHit(player, rules)
   const newPayroll = team.finances.payroll - currentCapHit + deadPerYear
 
+  const cleanLineup = (ids: string[]) => ids.filter((id) => id !== playerId)
+
   return {
     ok: true,
     patch: {
@@ -153,6 +163,12 @@ export function stretchContract(
       teams: {
         [team.id]: {
           roster: team.roster.filter((id) => id !== playerId),
+          lineup: {
+            ...team.lineup,
+            starters: cleanLineup(team.lineup.starters),
+            bench: cleanLineup(team.lineup.bench),
+            closingLineup: cleanLineup(team.lineup.closingLineup),
+          },
           finances: {
             ...team.finances,
             payroll: newPayroll,
@@ -191,6 +207,7 @@ export function buyoutPlayer(
   if (settleAmount >= guaranteedRemaining) {
     const currentCapHit = computeCapHit(player, rules)
     const newPayroll = team.finances.payroll - currentCapHit
+    const cleanLineup = (ids: string[]) => ids.filter((id) => id !== playerId)
 
     return {
       ok: true,
@@ -221,6 +238,12 @@ export function buyoutPlayer(
         teams: {
           [team.id]: {
             roster: team.roster.filter((id) => id !== playerId),
+            lineup: {
+              ...team.lineup,
+              starters: cleanLineup(team.lineup.starters),
+              bench: cleanLineup(team.lineup.bench),
+              closingLineup: cleanLineup(team.lineup.closingLineup),
+            },
             finances: {
               ...team.finances,
               payroll: newPayroll,
@@ -258,6 +281,7 @@ export function buyoutPlayer(
 
   const currentCapHit = computeCapHit(player, rules)
   const newPayroll = team.finances.payroll - currentCapHit + capHitPost
+  const cleanLineup = (ids: string[]) => ids.filter((id) => id !== playerId)
 
   return {
     ok: true,
@@ -271,6 +295,12 @@ export function buyoutPlayer(
       teams: {
         [team.id]: {
           roster: team.roster.filter((id) => id !== playerId),
+          lineup: {
+            ...team.lineup,
+            starters: cleanLineup(team.lineup.starters),
+            bench: cleanLineup(team.lineup.bench),
+            closingLineup: cleanLineup(team.lineup.closingLineup),
+          },
           finances: {
             ...team.finances,
             payroll: newPayroll,
@@ -318,19 +348,6 @@ export function extendPlayer(
     }
   }
 
-  const newCapHit = offer.salaryByYear.reduce((sum, s) => sum + s, 0) / offer.years
-  const currentPayroll = team.finances.payroll
-  const currentCapHit = computeCapHit(player, rules)
-
-  if (currentPayroll - currentCapHit + newCapHit > rules.salaryCap) {
-    if (!player.contract.birdRights && !player.contract.earlyBird) {
-      return {
-        ok: false,
-        reason: 'Over the cap without bird rights or early bird rights.',
-      }
-    }
-  }
-
   const newContract: Contract = {
     salaryByYear: offer.salaryByYear,
     yearsRemaining: offer.years,
@@ -348,6 +365,20 @@ export function extendPlayer(
     earlyBird: player.contract.earlyBird,
     baseYearCompensation: false,
     deferredMoney: [],
+  }
+
+  const tempPlayer: Player = { ...player, contract: newContract }
+  const newCapHit = computeCapHit(tempPlayer, rules)
+  const currentPayroll = team.finances.payroll
+  const currentCapHit = computeCapHit(player, rules)
+
+  if (currentPayroll - currentCapHit + newCapHit > rules.salaryCap) {
+    if (!player.contract.birdRights && !player.contract.earlyBird) {
+      return {
+        ok: false,
+        reason: 'Over the cap without bird rights or early bird rights.',
+      }
+    }
   }
 
   const newPayroll = currentPayroll - currentCapHit + newCapHit
@@ -396,8 +427,27 @@ export function signFreeAgent(
     }
   }
 
-  const newCapHit =
-    offer.salaryByYear.reduce((sum, s) => sum + s, 0) / offer.years
+  const newContract: Contract = {
+    salaryByYear: offer.salaryByYear,
+    yearsRemaining: offer.years,
+    option: 'none',
+    optionYear: null,
+    noTradeClause: false,
+    signingBonusByYear: Array.from({ length: offer.years }, () => 0),
+    likelyBonusesByYear: Array.from({ length: offer.years }, () => 0),
+    unlikelyBonusesByYear: Array.from({ length: offer.years }, () => 0),
+    guaranteed: true,
+    guaranteedByYear: Array.from({ length: offer.years }, () => true),
+    tradeKickers: [],
+    poisonPill: false,
+    birdRights: false,
+    earlyBird: false,
+    baseYearCompensation: false,
+    deferredMoney: [],
+  }
+
+  const tempPlayer: Player = { ...player, contract: newContract }
+  const newCapHit = computeCapHit(tempPlayer, rules)
 
   switch (exception) {
     case 'minimum':
@@ -444,25 +494,6 @@ export function signFreeAgent(
         }
       }
       break
-  }
-
-  const newContract: Contract = {
-    salaryByYear: offer.salaryByYear,
-    yearsRemaining: offer.years,
-    option: 'none',
-    optionYear: null,
-    noTradeClause: false,
-    signingBonusByYear: Array.from({ length: offer.years }, () => 0),
-    likelyBonusesByYear: Array.from({ length: offer.years }, () => 0),
-    unlikelyBonusesByYear: Array.from({ length: offer.years }, () => 0),
-    guaranteed: true,
-    guaranteedByYear: Array.from({ length: offer.years }, () => true),
-    tradeKickers: [],
-    poisonPill: false,
-    birdRights: false,
-    earlyBird: false,
-    baseYearCompensation: false,
-    deferredMoney: [],
   }
 
   const newPayroll = team.finances.payroll + newCapHit
