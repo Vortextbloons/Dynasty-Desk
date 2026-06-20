@@ -164,6 +164,13 @@ export function recomputeStandings(
     s.winPct = s.gamesPlayed > 0 ? s.wins / s.gamesPlayed : 0
     s.gamesRemaining = totalGamesPerTeam - s.gamesPlayed
     s.last10 = data.results.slice(-10).join('')
+
+    const confGames = s.conferenceWins + s.conferenceLosses
+    s.tiebreaker = {
+      headToHeadWins: 0,
+      conferenceWinPct: confGames > 0 ? s.conferenceWins / confGames : 0,
+      pointDifferential: s.pointDifferential,
+    }
   }
 
   assignConferenceRanks(standings, teams)
@@ -184,6 +191,9 @@ function sortAndRank(
     if (!sa || !sb) return 0
     if (sb.wins !== sa.wins) return sb.wins - sa.wins
     if (sa.losses !== sb.losses) return sa.losses - sb.losses
+    if (sa.tiebreaker.conferenceWinPct !== sb.tiebreaker.conferenceWinPct) {
+      return sb.tiebreaker.conferenceWinPct - sa.tiebreaker.conferenceWinPct
+    }
     return sb.pointDifferential - sa.pointDifferential
   })
   let rank = 1
