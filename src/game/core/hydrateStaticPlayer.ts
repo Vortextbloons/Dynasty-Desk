@@ -3,32 +3,11 @@ import type { StaticPlayer } from '@/game/models/static'
 import type { PlayerSeasonStats } from '@/game/models/playerSeasonStats'
 import { computeOverall } from '@/game/ratings/overallWeights'
 
-const DEFAULT_MORALE: Player['morale'] = {
-  level: 75,
-  happiness: 75,
-  roleSatisfaction: 75,
-  teamSatisfaction: 75,
-  tradeRequest: false,
-  tradeRequestLevel: 0,
-}
+import { emptyMorale, emptyHealth, emptyDevelopment } from '@/game/models/defaults'
 
-const DEFAULT_HEALTH: Player['health'] = {
-  status: 'healthy',
-  injuryDescription: null,
-  daysRemaining: 0,
-  gamesRemaining: 0,
-}
-
-const DEFAULT_DEVELOPMENT: Player['development'] = {
-  lastTrainedAt: null,
-  focusArea: null,
-  recentForm: 50,
-  ageAtPeak: 27,
-  progressionCurve: 'normal',
-  ratingsDelta: {},
-  breakoutChance: 0.1,
-  bustRisk: 0.1,
-}
+const DEFAULT_MORALE = emptyMorale()
+const DEFAULT_HEALTH = emptyHealth()
+const DEFAULT_DEVELOPMENT = emptyDevelopment()
 
 export function hydrateStaticPlayer(
   sp: StaticPlayer,
@@ -55,6 +34,7 @@ export function hydrateStaticPlayer(
     morale: DEFAULT_MORALE,
     health: DEFAULT_HEALTH,
     development: DEFAULT_DEVELOPMENT,
+    fatigue: 0,
     seasonStats: {
       season: seasonLabel,
       teamId: sp.teamId,

@@ -14,8 +14,10 @@ import type { LeagueRules } from '@/game/models/leagueRules'
 import {
   resolvePossession,
   selectPossessionType,
-  offenseThreePointRate,
 } from '@/game/sim/possessionEngine'
+import { strategyThreePointRate } from '@/game/sim/strategyEngine'
+import { isClutch } from '@/game/sim/clutchEngine'
+import { accumulateGameFatigue } from '@/game/sim/postGameProcessor'
 import {
   planSubstitutions,
   type PlannedSub,
@@ -36,12 +38,14 @@ export interface SimulateGameInput {
   rng: SeededRandom
   date: string
   injuriesEnabled: boolean
+  fatigueEnabled: boolean
   simSpeed: 'instant' | 'normal'
 }
 
 export interface SimulateGameOutput {
   gameState: GameState
   keyPlays: SimEvent[]
+  gameFatigue: Record<string, number>
 }
 
 const QUARTER_SECONDS = 12 * 60
@@ -92,8 +96,10 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
       away: [...startingAway],
     },
     minutesPlayed: {},
+    gameFatigue: {},
     events: [],
     injuriesEnabled: input.injuriesEnabled,
+    fatigueEnabled: input.fatigueEnabled,
     overtimeOccurred: false,
     overtimeTiebreakerUsed: false,
     homeWin: null,
@@ -128,7 +134,7 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
   state.homeWin = state.score.home > state.score.away
 
   const keyPlays = rankKeyPlays(state.events, 5)
-  return { gameState: state, keyPlays }
+  return { gameState: state, keyPlays, gameFatigue: state.gameFatigue }
 }
 
 function playPeriod(
@@ -163,16 +169,24 @@ function playPeriod(
     }
 
     const type = selectPossessionType(input.rng)
-    const offRate = offenseThreePointRate(offActive, input.era)
-
-    const closing = period === 4 && secondsRemaining <= 120
-    const margin = Math.abs(state.score.home - state.score.away)
-    const fatigueActive = Object.values(state.minutesPlayed).some(
-      (m) => m > 36,
+    const offTeamObj = offTeam === 'home' ? input.home : input.away
+    const defTeamObj = offTeam === 'home' ? input.away : input.home
+    const offRate = strategyThreePointRate(
+      offActive,
+      offTeamObj.strategy,
+      input.era,
     )
-    const offenseLineupForSim = closing && margin <= 5 && offTeam === 'home'
+
+    const clutch = isClutch(
+      period,
+      secondsRemaining,
+      state.score.home,
+      state.score.away,
+    )
+    const margin = Math.abs(state.score.home - state.score.away)
+    const offenseLineupForSim = clutch && margin <= 5 && offTeam === 'home'
       ? swapToClosing(state, offTeam, input.homeLineup, homeById)
-      : closing && margin <= 5 && offTeam === 'away'
+      : clutch && margin <= 5 && offTeam === 'away'
         ? swapToClosing(state, offTeam, input.awayLineup, awayById)
         : offActive
 
@@ -183,14 +197,21 @@ function playPeriod(
         offenseTeamId: offTeam === 'home' ? input.home.id : input.away.id,
         defenseTeamId: defTeam === 'home' ? input.home.id : input.away.id,
         homeOffense: offTeam === 'home',
-        closingMinutes: closing && margin <= 5,
-        fatigueActive,
+        closingMinutes: clutch,
+        fatigueByPlayer: state.gameFatigue,
+        fatigueEnabled: input.fatigueEnabled,
         era: input.era,
         threePointRate: offRate,
         possessionType: type,
         period,
         timeRemainingSeconds: secondsRemaining,
         baseTimeSeconds: 15,
+        minutesPlayed: state.minutesPlayed,
+        offenseStrategy: offTeamObj.strategy,
+        defenseStrategy: defTeamObj.strategy,
+        teamChemistry: offTeamObj.chemistry,
+        homeScore: state.score.home,
+        awayScore: state.score.away,
       },
       input.rng,
     )
@@ -216,6 +237,9 @@ function playPeriod(
     }
 
     distributeMinutes(state, result.timeElapsedSeconds)
+    if (input.fatigueEnabled) {
+      updateGameFatigue(state, input, result.timeElapsedSeconds / 60)
+    }
 
     if (result.possessionChange) {
       state.possession = defTeam
@@ -309,6 +333,33 @@ function applySubs(
       period: sub.period,
       timeRemainingSeconds: sub.timeRemainingSeconds,
     })
+  }
+}
+
+function updateGameFatigue(
+  state: GameState,
+  input: SimulateGameInput,
+  minutesDelta: number,
+): void {
+  for (const id of state.lineupOnCourt.home) {
+    const p = input.homePlayers.find((pl) => pl.id === id)
+    if (!p) continue
+    state.gameFatigue[id] = accumulateGameFatigue(
+      p,
+      state.gameFatigue[id] ?? p.fatigue,
+      minutesDelta,
+      input.home.strategy.offense.pace,
+    )
+  }
+  for (const id of state.lineupOnCourt.away) {
+    const p = input.awayPlayers.find((pl) => pl.id === id)
+    if (!p) continue
+    state.gameFatigue[id] = accumulateGameFatigue(
+      p,
+      state.gameFatigue[id] ?? p.fatigue,
+      minutesDelta,
+      input.away.strategy.offense.pace,
+    )
   }
 }
 

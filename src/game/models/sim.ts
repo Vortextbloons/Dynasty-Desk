@@ -236,9 +236,11 @@ export interface GameState {
   startingLineups: { home: string[]; away: string[] }
 
   minutesPlayed: Record<string, number>
+  gameFatigue: Record<string, number>
   events: SimEvent[]
 
   injuriesEnabled: boolean
+  fatigueEnabled: boolean
   overtimeOccurred: boolean
   overtimeTiebreakerUsed: boolean
   homeWin: boolean | null

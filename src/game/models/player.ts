@@ -1,9 +1,11 @@
 import type { Contract } from './contract'
+import type { InjuryRecord } from './injury'
 import type { PlayerSeasonStats } from './playerSeasonStats'
 import type { Position } from './position'
 import type { PlayerRatings } from './ratings'
 import type { PlayerTendencies } from './tendencies'
 import type { PlayerTraits } from './traits'
+import type { TrainingFocus } from './training'
 
 export interface PlayerMorale {
   level: number
@@ -24,11 +26,14 @@ export interface PlayerHealth {
   injuryDescription: string | null
   daysRemaining: number
   gamesRemaining: number
+  injuryHistory: InjuryRecord[]
 }
 
 export interface PlayerDevelopment {
   lastTrainedAt: string | null
+  /** @deprecated use trainingFocus */
   focusArea: string | null
+  trainingFocus: TrainingFocus
   recentForm: number
   ageAtPeak: number
   progressionCurve: 'early' | 'normal' | 'late' | 'veteran_decline'
@@ -79,6 +84,8 @@ export interface Player {
   morale: PlayerMorale
   health: PlayerHealth
   development: PlayerDevelopment
+  /** 0–100; 100 = exhausted. */
+  fatigue: number
 
   seasonStats: PlayerSeasonStat
   careerStats: PlayerCareerStatsEntry[]

@@ -103,6 +103,8 @@ function makeValidSave(): GameSave {
           frozenPicks: [],
           priorTaxpayerYears: 0,
           taxpayerHistory: [],
+          trainingFocus: 'balanced',
+          loadManagement: [],
         },
       },
       players: {
@@ -185,10 +187,12 @@ function makeValidSave(): GameSave {
             injuryDescription: null,
             daysRemaining: 0,
             gamesRemaining: 0,
+            injuryHistory: [],
           },
           development: {
             lastTrainedAt: null,
             focusArea: null,
+            trainingFocus: 'balanced',
             recentForm: 50,
             ageAtPeak: 27,
             progressionCurve: 'normal',
@@ -196,6 +200,7 @@ function makeValidSave(): GameSave {
             breakoutChance: 0.1,
             bustRisk: 0.1,
           },
+          fatigue: 0,
           seasonStats: {
             season: '2025-26',
             teamId: 'team-1',

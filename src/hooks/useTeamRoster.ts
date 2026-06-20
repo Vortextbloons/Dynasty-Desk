@@ -109,6 +109,12 @@ export function useTeamRoster(filter: RosterFilter = {}): Player[] {
         case 'yearsRemaining':
           cmp = a.contract.yearsRemaining - b.contract.yearsRemaining
           break
+        case 'morale':
+          cmp = a.morale.happiness - b.morale.happiness
+          break
+        case 'fatigue':
+          cmp = a.fatigue - b.fatigue
+          break
       }
       return sortDir === 'asc' ? cmp : -cmp
     })

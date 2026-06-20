@@ -21,6 +21,8 @@ import { AllTimeLeadersPage } from '@/pages/AllTimeLeadersPage'
 import { OffseasonPage } from '@/pages/OffseasonPage'
 import { ScoutingPage } from '@/pages/ScoutingPage'
 import { PlayoffsPage } from '@/pages/PlayoffsPage'
+import { TrainingPage } from '@/pages/TrainingPage'
+import { TeamStrategyPage } from '@/pages/TeamStrategyPage'
 import { AppShell } from '@/components/layout/AppShell'
 
 export function AppRouter() {
@@ -51,6 +53,22 @@ export function AppRouter() {
         element={
           <AppShell>
             <LineupPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/training"
+        element={
+          <AppShell>
+            <TrainingPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/strategy"
+        element={
+          <AppShell>
+            <TeamStrategyPage />
           </AppShell>
         }
       />

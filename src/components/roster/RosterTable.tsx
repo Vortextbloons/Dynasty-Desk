@@ -53,7 +53,8 @@ const COLUMNS: { key: string; label: string; align?: 'left' | 'center' | 'right'
   { key: 'yearsRemaining', label: 'Years', align: 'center' },
   { key: 'option', label: 'Option', align: 'center' },
   { key: 'ntc', label: 'NTC', align: 'center' },
-  { key: 'status', label: 'Status', align: 'center' },
+  { key: 'status', label: 'Health', align: 'center' },
+  { key: 'fatigue', label: 'Fatigue', align: 'center' },
   { key: 'morale', label: 'Morale', align: 'center' },
   { key: 'action', label: 'Action', align: 'right' },
 ]
@@ -88,7 +89,7 @@ export function RosterTable({
                       </th>
                     )
                   }
-                  if (col.key === 'ntc' || col.key === 'status' || col.key === 'morale' || col.key === 'tradeValue') {
+                  if (col.key === 'ntc' || col.key === 'status' || col.key === 'tradeValue') {
                     return (
                       <th
                         key={col.key}

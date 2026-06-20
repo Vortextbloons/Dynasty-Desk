@@ -17,6 +17,24 @@ function makeTestLeague(): LeagueState {
   for (const t of [t1, t2]) {
     const roster = makeRoster(t.id, 15)
     for (const p of roster) {
+      if (p.id === 'champ-p-1') {
+        p.seasonStats = {
+          ...p.seasonStats,
+          gamesPlayed: 82,
+          minutes: 2800,
+          points: 2200,
+          rebounds: 500,
+          assists: 400,
+          steals: 90,
+          blocks: 45,
+          fieldGoalsMade: 750,
+          fieldGoalsAttempted: 1400,
+          threePointersMade: 220,
+          threePointersAttempted: 550,
+          freeThrowsMade: 480,
+          freeThrowsAttempted: 550,
+        }
+      }
       players[p.id] = p
       t.roster.push(p.id)
     }
@@ -123,5 +141,27 @@ describe('transitionToOffseason', () => {
     transitionToOffseason(league)
     const offNews = league.news.find((n) => n.type === 'offseason_begins')
     expect(offNews).toBeDefined()
+  })
+
+  it('computes season awards after playoffs', () => {
+    const league = makeTestLeague()
+    transitionToOffseason(league)
+    const mvp = league.awardsHistory[0]?.awards.find((a) => a.award === 'mvp')
+    expect(mvp).toBeDefined()
+  })
+
+  it('still computes season awards without a complete bracket', () => {
+    const league = makeTestLeague()
+    league.playoffBracket = {
+      seasonYear: 2026,
+      format: 'top8',
+      east: [],
+      west: [],
+      status: 'bracket',
+    }
+    transitionToOffseason(league)
+    expect(league.phase).toBe('offseason')
+    expect(league.awardsHistory.length).toBeGreaterThan(0)
+    expect(league.news.some((n) => n.type === 'offseason_begins')).toBe(true)
   })
 })

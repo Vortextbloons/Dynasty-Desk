@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateAutoRotation } from '@/game/management/autoRotation'
+import { emptyHealth } from '@/game/models/defaults'
 import { validateRotation } from '@/game/management/rotationValidator'
 import type { Player } from '@/game/models/player'
 import { makePlayer } from '@/tests/fixtures'
@@ -19,7 +20,7 @@ function makePlayers(specs: Array<{ id: string; overall: number; position?: Play
         stamina: 50, durability: 50, clutch: 50, consistency: 50,
         potential: 50, overall: s.overall,
       },
-      health: s.health ?? { status: 'healthy', injuryDescription: null, daysRemaining: 0, gamesRemaining: 0 },
+      health: s.health ?? emptyHealth(),
     }))
   }
   return map
@@ -147,7 +148,7 @@ describe('generateAutoRotation', () => {
         id: 'injured',
         overall: 95,
         position: 'PG' as const,
-        health: { status: 'season_ending' as const, injuryDescription: 'ACL', daysRemaining: 0, gamesRemaining: 0 },
+        health: { status: 'season_ending' as const, injuryDescription: 'ACL', daysRemaining: 0, gamesRemaining: 0, injuryHistory: [] },
       },
     ]
     const players = makePlayers(specs)

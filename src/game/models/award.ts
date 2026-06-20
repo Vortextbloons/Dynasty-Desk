@@ -11,6 +11,8 @@ export type AwardType =
   | 'all_nba_3'
   | 'all_defense_1'
   | 'all_defense_2'
+  | 'all_rookie_1'
+  | 'all_rookie_2'
 
 export const AWARD_LABELS: Readonly<Record<AwardType, string>> = {
   mvp: 'MVP',
@@ -25,6 +27,8 @@ export const AWARD_LABELS: Readonly<Record<AwardType, string>> = {
   all_nba_3: 'All-NBA Third Team',
   all_defense_1: 'All-Defense First Team',
   all_defense_2: 'All-Defense Second Team',
+  all_rookie_1: 'All-Rookie First Team',
+  all_rookie_2: 'All-Rookie Second Team',
 }
 
 export const AWARD_SHORT_LABELS: Readonly<Record<AwardType, string>> = {
@@ -40,6 +44,8 @@ export const AWARD_SHORT_LABELS: Readonly<Record<AwardType, string>> = {
   all_nba_3: 'All-NBA 3',
   all_defense_1: 'All-Def 1',
   all_defense_2: 'All-Def 2',
+  all_rookie_1: 'All-Rookie 1',
+  all_rookie_2: 'All-Rookie 2',
 }
 
 export interface AwardWinner {
@@ -53,6 +59,13 @@ export interface AwardSeason {
   season: string
   awards: AwardWinner[]
   champions: import('./champion').Champion[]
+}
+
+export interface AwardRaceEntry {
+  playerId: string
+  teamId: string
+  score: number
+  statLine: string
 }
 
 export interface AwardsFile {

@@ -413,8 +413,76 @@ function formatSeasonLabel(startYear: number): string {
 //   v3, v5, v6: never shipped as canonical milestones (skipped in target chain)
 //   v4: M9 trade fields, picks (plus v3 morale + v5 schedule in legacy path)
 //   v7: M10 offseason, draft, FA, two-way
-//   Target migration path: v1 → v2 → v4 → v7
-//   Legacy saves at v3/v5/v6 are upgraded through the historical chain then v7.
+//   v8: M11 realism (fatigue, injuries history, training focus, load management)
+//   Target migration path: v1 → v2 → v4 → v7 → v8
+
+import {
+  emptyHealth,
+  hydrateDevelopment,
+} from '@/game/models/defaults'
+import { parseTrainingFocus } from '@/game/models/training'
+
+export function migrateToV8(input: unknown): GameSave {
+  const save = input as GameSave
+  const league = save.league as unknown as Record<string, unknown>
+
+  const playersRaw = (league.players as Record<string, Record<string, unknown>>) ?? {}
+  const players: GameSave['league']['players'] = {}
+  for (const [pid, raw] of Object.entries(playersRaw)) {
+    const healthRaw = (raw.health as Record<string, unknown>) ?? {}
+    const health = {
+      ...emptyHealth(),
+      ...healthRaw,
+      injuryHistory: Array.isArray(healthRaw.injuryHistory)
+        ? healthRaw.injuryHistory
+        : [],
+    }
+    const development = hydrateDevelopment(
+      (raw.development as Record<string, unknown>) ?? {},
+    )
+    players[pid] = {
+      ...(raw as unknown as GameSave['league']['players'][string]),
+      fatigue: typeof raw.fatigue === 'number' ? raw.fatigue : 0,
+      health,
+      development,
+    }
+  }
+
+  const teamsRaw = (league.teams as Record<string, Record<string, unknown>>) ?? {}
+  const teams: GameSave['league']['teams'] = {}
+  for (const [tid, t] of Object.entries(teamsRaw)) {
+    teams[tid] = {
+      ...(t as unknown as GameSave['league']['teams'][string]),
+      trainingFocus: parseTrainingFocus(t.trainingFocus),
+      loadManagement: Array.isArray(t.loadManagement) ? t.loadManagement : [],
+    }
+  }
+
+  return {
+    ...save,
+    metadata: {
+      ...save.metadata,
+      schemaVersion: 8,
+    },
+    settings: {
+      ...save.settings,
+      injuries: save.settings.injuries ?? true,
+      fatigue: save.settings.fatigue ?? true,
+    },
+    league: {
+      ...save.league,
+      players,
+      teams,
+      awardsHistory: Array.isArray(league.awardsHistory)
+        ? (league.awardsHistory as GameSave['league']['awardsHistory'])
+        : save.league.awardsHistory ?? [],
+      awardRaces:
+        league.awardRaces && typeof league.awardRaces === 'object'
+          ? (league.awardRaces as GameSave['league']['awardRaces'])
+          : {},
+    } as unknown as GameSave['league'],
+  }
+}
 
 export function migrateToV7(input: unknown): GameSave {
   const save = input as GameSave
@@ -484,6 +552,10 @@ export function migrateToCurrent(input: unknown): GameSave {
 
   if (save.metadata.schemaVersion < 7) {
     save = migrateToV7(save)
+  }
+
+  if (save.metadata.schemaVersion < 8) {
+    save = migrateToV8(save)
   }
 
   return save

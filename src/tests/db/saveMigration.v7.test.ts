@@ -65,6 +65,6 @@ describe('migrateToV7', () => {
       rngState: { seed: 1, position: 0 },
     })
     const result = migrateToCurrent(v6save)
-    expect(result.metadata.schemaVersion).toBe(7)
+    expect(result.metadata.schemaVersion).toBe(8)
   })
 })

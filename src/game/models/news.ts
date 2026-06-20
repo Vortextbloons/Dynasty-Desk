@@ -25,6 +25,12 @@ export type NewsType =
   | 'offer_sheet_matched'
   | 'phase_advance'
   | 'roster_change'
+  | 'milestone'
+  | 'hot_streak'
+  | 'cold_streak'
+  | 'development_breakout'
+  | 'development_bust'
+  | 'team_direction'
 
 export type NewsImportance = 'low' | 'medium' | 'high'
 
@@ -37,4 +43,5 @@ export interface NewsEvent {
   teamIds: string[]
   playerIds: string[]
   importance: NewsImportance
+  read?: boolean
 }

@@ -3,6 +3,7 @@ import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { emptyHealth, emptyDevelopment } from '@/game/models/defaults'
 
 type TeamColors = Pick<StaticTeam, 'colors'>
 
@@ -138,22 +139,9 @@ export function TopPerformersCards({ label, players, playerLookup, stat, teamLoo
                           tradeRequest: false,
                           tradeRequestLevel: 0,
                         },
-                        health: {
-                          status: 'healthy',
-                          injuryDescription: null,
-                          daysRemaining: 0,
-                          gamesRemaining: 0,
-                        },
-                        development: {
-                          lastTrainedAt: null,
-                          focusArea: null,
-                          recentForm: 0,
-                          ageAtPeak: 0,
-                          progressionCurve: 'normal',
-                          ratingsDelta: {},
-                          breakoutChance: 0,
-                          bustRisk: 0,
-                        },
+                        health: emptyHealth(),
+                        development: emptyDevelopment(),
+                        fatigue: 0,
                         seasonStats: {
                           season: '',
                           teamId: null,

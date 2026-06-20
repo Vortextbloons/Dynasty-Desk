@@ -3,7 +3,8 @@ import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { Chip } from '@/components/shared/Chip'
-import { FaceIndicator } from '@/components/shared/FaceIndicator'
+import { HealthBadge } from '@/components/health/HealthBadge'
+import { FatigueBar } from '@/components/fatigue/FatigueBar'
 
 export interface RosterRowProps {
   player: Player
@@ -31,23 +32,6 @@ function defenseAvg(r: {
   return Math.round(
     (r.perimeterDefense + r.interiorDefense + r.defensiveIq) / 3,
   )
-}
-
-function statusVariant(
-  status: Player['health']['status'],
-): 'success' | 'warning' | 'danger' | 'default' {
-  if (status === 'healthy') return 'success'
-  if (status === 'day_to_day') return 'warning'
-  return 'danger'
-}
-
-function statusLabel(status: Player['health']['status']): string {
-  if (status === 'healthy') return 'Healthy'
-  if (status === 'day_to_day') return 'DTD'
-  if (status === 'short_term') return 'Out'
-  if (status === 'long_term') return 'Out'
-  if (status === 'season_ending') return 'Out'
-  return 'Out'
 }
 
 export function RosterRow({ player, team }: RosterRowProps) {
@@ -122,14 +106,15 @@ export function RosterRow({ player, team }: RosterRowProps) {
         )}
       </td>
       <td className="px-3 py-2 text-center">
-        <Chip
-          label={statusLabel(player.health.status)}
-          variant={statusVariant(player.health.status)}
-          size="sm"
-        />
+        <div className="flex justify-center">
+          <HealthBadge health={player.health} />
+        </div>
       </td>
-      <td className="px-3 py-2 text-center">
-        <FaceIndicator value={player.morale.happiness} />
+      <td className="px-3 py-2">
+        <FatigueBar fatigue={player.fatigue} />
+      </td>
+      <td className="px-3 py-2 font-mono text-center text-sm">
+        {player.morale.happiness}
       </td>
       <td className="px-3 py-2 text-right">
         <div className="flex items-center justify-end gap-2">

@@ -410,6 +410,7 @@ export async function simulatePlayIn(
         rng,
         date: league.currentDate,
         injuriesEnabled: options?.injuriesEnabled ?? false,
+        fatigueEnabled: false,
         simSpeed: 'instant',
       })
 
@@ -475,6 +476,7 @@ export async function simulatePlayIn(
             rng,
             date: league.currentDate,
         injuriesEnabled: options?.injuriesEnabled ?? false,
+        fatigueEnabled: false,
             simSpeed: 'instant',
           })
 
@@ -733,6 +735,7 @@ export async function advancePlayoffSeries(
       rng,
       date: game.date,
       injuriesEnabled: options?.injuriesEnabled ?? false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
 
@@ -837,6 +840,7 @@ export async function simulateSeries(
       rng,
       date: game.date,
       injuriesEnabled: options?.injuriesEnabled ?? false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
 

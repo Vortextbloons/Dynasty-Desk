@@ -13,6 +13,7 @@ import type { PlayerSeasonStat } from '@/game/models/player'
 import type { PlayerRatings } from '@/game/models/ratings'
 import { emptyTendencies } from '@/game/models/tendencies'
 import { emptyTraits } from '@/game/models/traits'
+import { emptyHealth, emptyDevelopment } from '@/game/models/defaults'
 import type { Team } from '@/game/models/team'
 import type { TeamExceptionBook } from '@/game/models/team'
 import { defaultStrategy } from '@/game/models/defaults'
@@ -98,8 +99,9 @@ function makePlayer(
     traits: emptyTraits(),
     contract,
     morale: { level: 50, happiness: 50, roleSatisfaction: 75, teamSatisfaction: 50, tradeRequest: false, tradeRequestLevel: 0 },
-    health: { status: 'healthy', injuryDescription: null, daysRemaining: 0, gamesRemaining: 0 },
-    development: { lastTrainedAt: null, focusArea: null, recentForm: 50, ageAtPeak: 27, progressionCurve: 'normal', ratingsDelta: {}, breakoutChance: 0.1, bustRisk: 0.1 },
+    health: emptyHealth(),
+    development: emptyDevelopment(),
+    fatigue: 0,
     seasonStats: makeSeasonStats(),
     careerStats: [],
     historicalSeasons: [],

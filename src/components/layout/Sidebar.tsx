@@ -12,6 +12,8 @@ import {
   Award,
   Settings as SettingsIcon,
   Shield,
+  Dumbbell,
+  Target,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useGameStore } from '@/store/useGameStore'
@@ -38,6 +40,8 @@ const navItems: NavItem[] = [
     icon: ClipboardList,
     group: 'Front Office',
   },
+  { to: '/training', label: 'Training', icon: Dumbbell, group: 'Front Office' },
+  { to: '/strategy', label: 'Strategy', icon: Target, group: 'Front Office' },
   { to: '/schedule', label: 'Schedule', icon: CalendarDays, group: 'Season' },
   { to: '/standings', label: 'Standings', icon: BarChart3, group: 'Season' },
   { to: '/playoffs', label: 'Playoffs', icon: Trophy, group: 'Season' },

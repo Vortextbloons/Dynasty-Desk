@@ -86,6 +86,7 @@ export function makePlayer(overrides: Partial<Player> = {}): Player {
     morale: overrides.morale ?? emptyMorale(),
     health: overrides.health ?? emptyHealth(),
     development: overrides.development ?? emptyDevelopment(),
+    fatigue: overrides.fatigue ?? 0,
     seasonStats: overrides.seasonStats ?? {
       season: '2025-26',
       teamId: overrides.teamId ?? 'team-home',
@@ -163,6 +164,8 @@ export function makeTeam(overrides: Partial<Team> = {}): Team {
     priorTaxpayerYears: overrides.priorTaxpayerYears ?? 0,
     taxpayerHistory: overrides.taxpayerHistory ?? [],
     twoWayPlayers: overrides.twoWayPlayers ?? [],
+    trainingFocus: overrides.trainingFocus ?? 'balanced',
+    loadManagement: overrides.loadManagement ?? [],
   } as Team
 }
 

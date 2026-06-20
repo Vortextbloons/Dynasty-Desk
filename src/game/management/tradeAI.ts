@@ -4,6 +4,7 @@ import type { LeagueState } from '@/game/models/league'
 import type { TradeProposal } from '@/game/models/trade'
 import { computeTradeValueDelta, type TradeValueContext } from './tradeValueModel'
 import { computeCapHit } from './capEngine'
+import { updateAITeamDirection } from './aiTeamDirectionEngine'
 
 export interface TradeAIContext {
   projectedWins: Record<string, number>
@@ -69,40 +70,7 @@ export function updateTeamDirection(
   standings: { wins: number; losses: number } | undefined,
   league: LeagueState,
 ): TeamDirection {
-  if (team.id === league.userTeamId) return team.direction
-
-  const wins = standings?.wins ?? 41
-  const losses = standings?.losses ?? 41
-  const totalGames = wins + losses
-  if (totalGames === 0) return team.direction
-
-  const winPct = wins / totalGames
-  const sorted = Object.values(league.standings).sort(
-    (a, b) => b.wins - a.wins,
-  )
-  let rank = sorted.findIndex((s) => s.teamId === team.id) + 1
-  if (rank === 0) {
-    rank = team.direction === 'contender' ? 2 : 21
-  }
-
-  const rosterPlayers = team.roster
-    .map((id) => league.players[id])
-    .filter((p): p is Player => Boolean(p))
-  const avgAge =
-    rosterPlayers.length > 0
-      ? rosterPlayers.reduce((sum, p) => sum + p.age, 0) / rosterPlayers.length
-      : 27
-
-  let next: TeamDirection = team.direction
-
-  if (rank <= 4 && avgAge > 28) next = 'contender'
-  else if (rank > 20 && avgAge < 26) {
-    next = winPct < 0.3 ? 'tanking' : 'rebuilding'
-  } else if (rank > 14) next = 'playoff_push'
-  else if (rank > 8) next = 'playoff_push'
-  else next = 'middle'
-
-  return next
+  return updateAITeamDirection(team, standings, league)
 }
 
 function buildCounterOffer(

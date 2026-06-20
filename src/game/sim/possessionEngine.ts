@@ -1,4 +1,5 @@
 import type { Player } from '@/game/models/player'
+import type { TeamStrategy } from '@/game/models/team'
 import type { ShotZone, ShotType, PossessionResult, SimEvent } from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
 import { resolveShot, selectZone, type ShotContext } from '@/game/sim/shotModel'
@@ -10,6 +11,16 @@ import {
   threePointRateForTeam,
 } from '@/game/sim/shotZones'
 import type { EraConfig } from '@/game/models/eraConfig'
+import { applyFatiguePenalty } from '@/game/sim/fatigueEngine'
+import { applyClutchAdjustments, clutchUsageWeight } from '@/game/sim/clutchEngine'
+import { moraleConsistencyModifier } from '@/game/sim/moraleEngine'
+import { chemistryEffects } from '@/game/sim/chemistryEngine'
+import {
+  initialShotClock,
+  shotClockHandler,
+} from '@/game/sim/shotClock'
+import { clamp } from '@/lib/utils'
+import { applyStrategyToPossession } from '@/game/sim/strategyEngine'
 
 export interface PossessionInput {
   offense: Player[]
@@ -18,17 +29,22 @@ export interface PossessionInput {
   defenseTeamId: string
   homeOffense: boolean
   closingMinutes: boolean
-  fatigueActive: boolean
+  fatigueByPlayer: Record<string, number>
+  fatigueEnabled: boolean
   era: EraConfig
   threePointRate: number
   possessionType: 'half_court' | 'transition'
   period: number
   timeRemainingSeconds: number
   baseTimeSeconds: number
+  minutesPlayed: Record<string, number>
+  offenseStrategy: TeamStrategy
+  defenseStrategy: TeamStrategy
+  teamChemistry: number
+  homeScore: number
+  awayScore: number
 }
 
-const AVERAGE_POSSESSION_SECONDS = 15
-const TRANSITION_POSSESSION_SECONDS = 9
 const TRANSITION_PROBABILITY = 0.18
 
 export function selectPossessionType(rng: SeededRandom): 'half_court' | 'transition' {
@@ -39,14 +55,17 @@ export function selectPrimaryPlayer(
   offense: readonly Player[],
   minutesPlayed: Record<string, number>,
   rng: SeededRandom,
+  clutch = false,
 ): Player {
   if (offense.length === 0) {
     throw new Error('selectPrimaryPlayer: empty offense')
   }
   const weights = offense.map((p) => {
-    const usage = Math.max(2, p.tendencies.usageRate)
+    const base = clutch
+      ? clutchUsageWeight(p, true)
+      : Math.max(2, p.tendencies.usageRate)
     const minutes = Math.max(1, (minutesPlayed[p.id] ?? 1))
-    return usage * Math.sqrt(minutes)
+    return base * Math.sqrt(minutes)
   })
   return rng.weightedPick(offense, weights)
 }
@@ -125,16 +144,69 @@ export function resolvePossession(
   rng: SeededRandom,
 ): PossessionResult {
   const events: SimEvent[] = []
+  const strategyAdj = applyStrategyToPossession(input.offenseStrategy)
+  const chemFx = chemistryEffects(input.teamChemistry)
 
-  const primary = selectPrimaryPlayer(input.offense, {}, rng)
+  let shotClock = initialShotClock(input.possessionType)
+  const clockResult = shotClockHandler(
+    shotClock,
+    {
+      shotClockRemaining: shotClock,
+      period: input.period,
+      timeRemainingSeconds: input.timeRemainingSeconds,
+      possessionType: input.possessionType,
+    },
+    rng,
+  )
+  shotClock -= clockResult.timeElapsed
+
+  if (clockResult.violation) {
+    const primary = selectPrimaryPlayer(
+      input.offense,
+      input.minutesPlayed,
+      rng,
+      input.closingMinutes,
+    )
+    events.push({
+      type: 'turnover',
+      playerId: primary.id,
+      teamId: input.offenseTeamId,
+      turnoverType: 'shot_clock_violation',
+      period: input.period,
+      timeRemainingSeconds: input.timeRemainingSeconds,
+      impact: 30,
+    })
+    return {
+      points: 0,
+      timeElapsedSeconds: clockResult.timeElapsed,
+      events,
+      possessionChange: true,
+      endOfPeriod: false,
+      turnoverType: 'shot_clock_violation',
+      shooterId: primary.id,
+    }
+  }
+
+  const primary = selectPrimaryPlayer(
+    input.offense,
+    input.minutesPlayed,
+    rng,
+    input.closingMinutes,
+  )
   const defender = selectDefender(primary, input.defense, rng)
   const shotType = selectShotType(input.possessionType, primary, rng)
   const zone = selectZone(primary, input.threePointRate, input.possessionType === 'transition', rng)
 
-  const toChance = turnoverChance(primary, input.defense)
-  const foulChance = shootingFoulChance(primary, defender, zone)
+  const toChance = turnoverChance(primary, input.defense) +
+    strategyAdj.turnoverChanceBonus +
+    (input.fatigueEnabled
+      ? -applyFatiguePenalty(input.fatigueByPlayer[primary.id] ?? 0, 'turnovers')
+      : 0)
 
-  if (rng.chance(toChance)) {
+  const foulChance = shootingFoulChance(primary, defender, zone) +
+    strategyAdj.foulChanceBonus
+
+  if (rng.chance(clamp(toChance, 0.05, 0.35))) {
     const t = resolveTurnover(primary, input.defense, rng)
     const turnoverEvent: SimEvent = {
       type: 'turnover',
@@ -149,9 +221,7 @@ export function resolvePossession(
     events.push(turnoverEvent)
     return {
       points: 0,
-      timeElapsedSeconds: input.possessionType === 'transition'
-        ? TRANSITION_POSSESSION_SECONDS
-        : AVERAGE_POSSESSION_SECONDS,
+      timeElapsedSeconds: clockResult.timeElapsed,
       events,
       possessionChange: true,
       endOfPeriod: false,
@@ -192,7 +262,7 @@ export function resolvePossession(
     }
     return {
       points,
-      timeElapsedSeconds: AVERAGE_POSSESSION_SECONDS,
+      timeElapsedSeconds: clockResult.timeElapsed,
       events,
       possessionChange: true,
       endOfPeriod: false,
@@ -203,6 +273,10 @@ export function resolvePossession(
     }
   }
 
+  const shooterFatigue = input.fatigueEnabled
+    ? (input.fatigueByPlayer[primary.id] ?? 0)
+    : 0
+
   const shotCtx: ShotContext = {
     shooter: primary,
     defender,
@@ -212,7 +286,15 @@ export function resolvePossession(
     shotType,
     homeOffense: input.homeOffense,
     inClosingMinutes: input.closingMinutes,
-    shooterFatigue: input.fatigueActive,
+    shooterFatigue,
+    lateShot: clockResult.lateShot,
+    moraleModifier: moraleConsistencyModifier(primary.morale),
+    clutchModifier: applyClutchAdjustments(
+      primary,
+      input.closingMinutes,
+      input.teamChemistry,
+    ) + chemFx.clutchBonus,
+    strategyThreePointBonus: strategyAdj.threePointMakeBonus,
   }
   const shot = resolveShot(shotCtx, rng)
   const assister = shot.made ? pickAssister(input.offense, primary.id, shotType, rng) : undefined
@@ -236,9 +318,7 @@ export function resolvePossession(
   if (shot.made) {
     return {
       points: shot.points,
-      timeElapsedSeconds: input.possessionType === 'transition'
-        ? TRANSITION_POSSESSION_SECONDS
-        : AVERAGE_POSSESSION_SECONDS,
+      timeElapsedSeconds: clockResult.timeElapsed,
       events,
       possessionChange: true,
       endOfPeriod: false,
@@ -287,9 +367,7 @@ export function resolvePossession(
 
   return {
     points: 0,
-    timeElapsedSeconds: input.possessionType === 'transition'
-      ? TRANSITION_POSSESSION_SECONDS
-      : AVERAGE_POSSESSION_SECONDS,
+    timeElapsedSeconds: clockResult.timeElapsed,
     events,
     possessionChange: true,
     endOfPeriod: false,

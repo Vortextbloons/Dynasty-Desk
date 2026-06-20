@@ -5,13 +5,17 @@ import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
-import { FaceIndicator } from '@/components/shared/FaceIndicator'
-import { Chip } from '@/components/shared/Chip'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { Chip } from '@/components/shared/Chip'
 import { SimSpeedToggle } from '@/components/sim/SimSpeedToggle'
 import { Button } from '@/components/ui/button'
 import { PhaseTimeline } from '@/components/offseason/PhaseTimeline'
+import { InjuryReportCard } from '@/components/health/InjuryReportCard'
+import { MoraleAlertsCard } from '@/components/morale/MoraleCard'
+import { NewsTicker } from '@/components/news/NewsTicker'
+import { StreakCard } from '@/components/dashboard/StreakCard'
 import { recomputeStandings, computeGB } from '@/game/league/standingsEngine'
+import { computeTeamStreak } from '@/game/league/teamStreak'
 import { getSeriesRoundLabel } from '@/game/models/playoff'
 import type { LeagueState } from '@/game/models/league'
 import { canAdvancePhase } from '@/game/league/offseasonEngine'
@@ -260,13 +264,11 @@ export function DashboardPage() {
     .sort((a, b) => (b.ratings.overall ?? 0) - (a.ratings.overall ?? 0))
     .slice(0, 3)
 
-  const injuredPlayers = rosterPlayers.filter(
-    (p) => p.health.status !== 'healthy',
-  )
+  const teamStreak = userTeam
+    ? computeTeamStreak(league.games, userTeam.id)
+    : { wins: 0, losses: 0 }
 
-  const unhappyPlayers = rosterPlayers.filter(
-    (p) => p.morale.happiness < 50,
-  )
+  const recentNews = [...league.news].reverse()
 
   const handleSimSeason = async () => {
     if (!league.scheduleGenerated) {
@@ -397,6 +399,8 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         )}
+
+        <StreakCard streak={teamStreak} />
 
         {lastUserGame && (
           <Card>
@@ -670,58 +674,11 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-5">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-3">
-              Injury Report
-            </div>
-            {injuredPlayers.length === 0 ? (
-              <div className="text-sm text-[var(--color-muted-foreground)]">
-                <div className="text-emerald-500 font-medium">All healthy</div>
-                <div className="mt-1">No injuries to report</div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {injuredPlayers.map((p) => (
-                  <div key={p.id} className="flex items-center gap-2">
-                    <Chip
-                      label={p.health.status === 'day_to_day' ? 'DTD' : 'Out'}
-                      variant="danger"
-                    />
-                    <span className="text-sm">{p.firstName} {p.lastName}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-5">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-3">
-              Morale Alerts
-            </div>
-            {unhappyPlayers.length === 0 ? (
-              <div className="text-sm text-[var(--color-muted-foreground)]">
-                <div className="text-emerald-500 font-medium">Team morale good</div>
-                <div className="mt-1">No unhappy players</div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {unhappyPlayers.map((p) => (
-                  <div key={p.id} className="flex items-center gap-2">
-                    <FaceIndicator value={p.morale.happiness} />
-                    <span className="text-sm">{p.firstName} {p.lastName}</span>
-                    <span className="text-xs text-[var(--color-muted-foreground)]">
-                      ({p.morale.happiness}/100)
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <InjuryReportCard players={rosterPlayers} />
+        <MoraleAlertsCard players={rosterPlayers} />
       </div>
+
+      <NewsTicker news={recentNews} />
     </div>
   )
 }

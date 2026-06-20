@@ -69,6 +69,7 @@ describe('simulateGame', () => {
       rng,
       date: '2025-10-21',
       injuriesEnabled: false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
     expect(gameState.score.home).toBeGreaterThanOrEqual(0)
@@ -95,6 +96,7 @@ describe('simulateGame', () => {
       rng,
       date: '2025-10-21',
       injuriesEnabled: false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
     const box = buildBoxScore({ gameState, keyPlays })
@@ -121,6 +123,7 @@ describe('simulateGame', () => {
       rng,
       date: '2025-10-21',
       injuriesEnabled: false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
     let homeMins = 0
@@ -155,6 +158,7 @@ describe('simulateGame', () => {
       rng,
       date: '2025-10-21',
       injuriesEnabled: false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
     expect(gameState.homeWin).not.toBeNull()
@@ -177,6 +181,7 @@ describe('simulateGame', () => {
       rng: a,
       date: '2025-10-21',
       injuriesEnabled: false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
     const rb = await simulateGame({
@@ -192,6 +197,7 @@ describe('simulateGame', () => {
       rng: b,
       date: '2025-10-21',
       injuriesEnabled: false,
+      fatigueEnabled: false,
       simSpeed: 'instant',
     })
     expect(ra.gameState.score).toEqual(rb.gameState.score)

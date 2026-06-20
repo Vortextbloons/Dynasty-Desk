@@ -4,6 +4,7 @@ import {
   selectPrimaryPlayer,
   selectPossessionType,
   selectShotType,
+  type PossessionInput,
 } from '@/game/sim/possessionEngine'
 import { SeededRandom } from '@/game/sim/rng'
 import { createRngState } from '@/game/core/seededRandom'
@@ -15,7 +16,10 @@ function team(count: number, prefix: string): Player[] {
   return Array.from({ length: count }, (_, i) => makePlayer({ id: `${prefix}${i + 1}` }))
 }
 
-function baseInput(overrides: any = {}): any {
+import { defaultStrategy } from '@/game/models/defaults'
+
+function baseInput(overrides: Partial<PossessionInput> = {}): PossessionInput {
+  const strategy = defaultStrategy()
   return {
     offense: team(5, 'o'),
     defense: team(5, 'd'),
@@ -23,13 +27,20 @@ function baseInput(overrides: any = {}): any {
     defenseTeamId: 't2',
     homeOffense: true,
     closingMinutes: false,
-    fatigueActive: false,
+    fatigueByPlayer: {},
+    fatigueEnabled: false,
     era: MODERN_ERA_CONFIG,
     threePointRate: 0.4,
     possessionType: 'half_court',
     period: 1,
     timeRemainingSeconds: 600,
     baseTimeSeconds: 15,
+    minutesPlayed: {},
+    offenseStrategy: strategy,
+    defenseStrategy: strategy,
+    teamChemistry: 50,
+    homeScore: 50,
+    awayScore: 48,
     ...overrides,
   }
 }

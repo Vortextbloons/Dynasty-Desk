@@ -140,6 +140,7 @@ describe('distribution test', () => {
           rng,
           date: '2025-10-21',
           injuriesEnabled: false,
+          fatigueEnabled: false,
           simSpeed: 'instant',
         })
         const box = buildBoxScore({ gameState, keyPlays })

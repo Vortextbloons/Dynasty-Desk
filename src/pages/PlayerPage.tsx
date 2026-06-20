@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Trophy, TrendingUp, BarChart3, DollarSign, Activity, FlaskConical, Star } from 'lucide-react'
+import { ArrowLeft, Trophy, TrendingUp, BarChart3, DollarSign, Activity, FlaskConical, Star, HeartPulse, Smile, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -17,10 +17,14 @@ import { DevelopmentChart } from '@/components/player/DevelopmentChart'
 import { TradeValueCard } from '@/components/player/TradeValueCard'
 import { FaceIndicator } from '@/components/shared/FaceIndicator'
 import { Chip } from '@/components/shared/Chip'
+import { InjuryHistoryList } from '@/components/health/InjuryHistoryList'
+import { MoraleDetailCard } from '@/components/morale/MoraleDetailCard'
+import { ClutchProfileCard } from '@/components/player/ClutchProfileCard'
+import { getPlayerAwards, formatAwardChip } from '@/game/league/playerAwards'
 import { type PlayerSeasonStats } from '@/game/models/playerSeasonStats'
 import { cn } from '@/lib/utils'
 
-type Tab = 'overview' | 'ratings' | 'tendencies' | 'contract' | 'stats' | 'development' | 'tradeValue'
+type Tab = 'overview' | 'ratings' | 'tendencies' | 'contract' | 'stats' | 'development' | 'tradeValue' | 'health' | 'morale' | 'clutch'
 
 const TABS: {
   id: Tab
@@ -30,6 +34,9 @@ const TABS: {
   { id: 'overview', label: 'Overview', icon: Star },
   { id: 'ratings', label: 'Ratings', icon: Trophy },
   { id: 'tendencies', label: 'Tendencies', icon: BarChart3 },
+  { id: 'health', label: 'Health', icon: HeartPulse },
+  { id: 'morale', label: 'Morale', icon: Smile },
+  { id: 'clutch', label: 'Clutch', icon: Zap },
   { id: 'contract', label: 'Contract', icon: DollarSign },
   { id: 'stats', label: 'Stats', icon: TrendingUp },
   { id: 'development', label: 'Development', icon: FlaskConical },
@@ -73,6 +80,11 @@ export function PlayerPage() {
     }
     return []
   }, [save, snapshot, player])
+
+  const playerAwards = useMemo(() => {
+    if (!save || !player) return []
+    return getPlayerAwards(save.league, player.id)
+  }, [save, player])
 
   if (!player) {
     return (
@@ -133,6 +145,9 @@ export function PlayerPage() {
           />
         )}
         <FaceIndicator value={player.morale.happiness} showLabel />
+        {playerAwards.map((award) => (
+          <Chip key={`${award.season}-${award.award}`} label={formatAwardChip(award)} variant="info" />
+        ))}
       </div>
 
       <div className="flex items-center gap-1 border-b border-[var(--color-line-soft)] mb-6 overflow-x-auto">
@@ -193,6 +208,9 @@ export function PlayerPage() {
 
       {tab === 'ratings' && <RatingsTable ratings={player.ratings} />}
       {tab === 'tendencies' && <TendenciesList tendencies={player.tendencies} />}
+      {tab === 'health' && <InjuryHistoryList player={player} />}
+      {tab === 'morale' && <MoraleDetailCard player={player} />}
+      {tab === 'clutch' && <ClutchProfileCard player={player} />}
       {tab === 'contract' && <ContractDetail contract={player.contract} />}
       {tab === 'stats' && (
         <StatsTable historicalSeasons={historicalSeasons} />

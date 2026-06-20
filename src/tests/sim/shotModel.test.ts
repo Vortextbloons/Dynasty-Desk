@@ -41,7 +41,7 @@ function ctx(overrides: Partial<ShotContext> = {}): ShotContext {
     shotType: overrides.shotType ?? 'catch_and_shoot',
     homeOffense: overrides.homeOffense ?? false,
     inClosingMinutes: overrides.inClosingMinutes ?? false,
-    shooterFatigue: overrides.shooterFatigue ?? false,
+    shooterFatigue: overrides.shooterFatigue ?? 0,
   }
 }
 
@@ -78,11 +78,11 @@ describe('makeChance', () => {
     expect(home).toBeGreaterThan(away)
   })
 
-  it('fatigue reduces makeChance by ~0.05', () => {
-    const fresh = makeChance(ctx({ shooterFatigue: false }))
-    const tired = makeChance(ctx({ shooterFatigue: true }))
+  it('fatigue reduces makeChance at high fatigue', () => {
+    const fresh = makeChance(ctx({ shooterFatigue: 0 }))
+    const tired = makeChance(ctx({ shooterFatigue: 85 }))
     expect(tired).toBeLessThan(fresh)
-    expect(fresh - tired).toBeCloseTo(0.05, 5)
+    expect(fresh - tired).toBeCloseTo(0.035, 3)
   })
 
   it('stronger contest reduces makeChance', () => {
@@ -112,8 +112,8 @@ describe('resolveShot', () => {
   it('is deterministic with same seed', () => {
     const a = new SeededRandom(createRngState('shot-a'))
     const b = new SeededRandom(createRngState('shot-a'))
-    const ra = resolveShot(ctx({ zone: 'at_rim', shooterFatigue: false }), a)
-    const rb = resolveShot(ctx({ zone: 'at_rim', shooterFatigue: false }), b)
+    const ra = resolveShot(ctx({ zone: 'at_rim', shooterFatigue: 0 }), a)
+    const rb = resolveShot(ctx({ zone: 'at_rim', shooterFatigue: 0 }), b)
     expect(ra.made).toBe(rb.made)
     expect(ra.impact).toBe(rb.impact)
   })
@@ -149,7 +149,7 @@ describe('resolveShot', () => {
           shotType: 'pull_up',
           homeOffense: false,
           inClosingMinutes: false,
-          shooterFatigue: false,
+          shooterFatigue: 0,
         }),
         rng,
       )

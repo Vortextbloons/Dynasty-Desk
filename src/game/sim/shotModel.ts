@@ -9,6 +9,8 @@ import {
   isThreePointZone,
 } from '@/game/sim/shotZones'
 import { clamp } from '@/lib/utils'
+import { applyFatiguePenalty } from '@/game/sim/fatigueEngine'
+import { lateClockMakePenalty } from '@/game/sim/shotClock'
 
 export interface ShotContext {
   shooter: Player
@@ -19,7 +21,12 @@ export interface ShotContext {
   shotType: ShotType
   homeOffense: boolean
   inClosingMinutes: boolean
-  shooterFatigue: boolean
+  /** 0–100 fatigue level */
+  shooterFatigue: number
+  lateShot?: boolean
+  moraleModifier?: number
+  clutchModifier?: number
+  strategyThreePointBonus?: number
 }
 
 export interface ResolvedShot {
@@ -54,13 +61,20 @@ export function makeChance(ctx: ShotContext): number {
   const passerAdj = passerAdjustment(ctx)
   const contestPenalty = contestPenaltyValue(ctx)
 
-  const fatigueAdj = ctx.shooterFatigue ? -0.05 : 0
+  const fatigueAdj = applyFatiguePenalty(ctx.shooterFatigue, 'shooting')
 
   const clutchAdj = ctx.inClosingMinutes
-    ? ((ctx.shooter.ratings.clutch - 70) / 30) * CLUTCH_BONUS
+    ? ((ctx.shooter.ratings.clutch - 70) / 30) * CLUTCH_BONUS + (ctx.clutchModifier ?? 0)
+    : 0
+
+  const lateAdj = ctx.lateShot
+    ? lateClockMakePenalty(true, 2)
     : 0
 
   const homeAdj = ctx.homeOffense ? HOME_BONUS : 0
+  const moraleAdj = ctx.moraleModifier ?? 0
+  const strat3Adj =
+    isThreePointZone(ctx.zone) ? (ctx.strategyThreePointBonus ?? 0) : 0
 
   const raw =
     base +
@@ -71,7 +85,10 @@ export function makeChance(ctx: ShotContext): number {
     contestPenalty +
     fatigueAdj +
     clutchAdj +
-    homeAdj
+    lateAdj +
+    homeAdj +
+    moraleAdj +
+    strat3Adj
 
   return clamp(raw, 0.05, 0.95)
 }

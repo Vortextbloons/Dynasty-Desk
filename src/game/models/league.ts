@@ -67,6 +67,8 @@ export interface LeagueState {
   playoffBracket?: PlayoffBracket
 
   userTeamId: string
+  /** Award race snapshots updated during the season. */
+  awardRaces?: Record<string, import('./award').AwardRaceEntry[]>
 }
 
 export { type LeagueRules } from './leagueRules'

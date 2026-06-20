@@ -7,6 +7,7 @@ import {
   computeTaxBill,
 } from '@/game/management/capEngine'
 import { emptyContract } from '@/game/models/contract'
+import { emptyHealth, emptyDevelopment } from '@/game/models/defaults'
 import { DEFAULT_LEAGUE_RULES, getLeagueRules } from '@/game/models/leagueRules'
 import type { Player } from '@/game/models/player'
 import type { Team } from '@/game/models/team'
@@ -27,8 +28,9 @@ function makePlayer(contract: Player['contract']): Player {
     traits: {} as any,
     contract,
     morale: { level: 50, happiness: 50, roleSatisfaction: 75, teamSatisfaction: 50, tradeRequest: false, tradeRequestLevel: 0 },
-    health: { status: 'healthy', injuryDescription: null, daysRemaining: 0, gamesRemaining: 0 },
-    development: { lastTrainedAt: null, focusArea: null, recentForm: 50, ageAtPeak: 27, progressionCurve: 'normal', ratingsDelta: {}, breakoutChance: 0.1, bustRisk: 0.1 },
+    health: emptyHealth(),
+    development: emptyDevelopment(),
+    fatigue: 0,
     seasonStats: {} as any,
     careerStats: [],
     historicalSeasons: [],
@@ -87,6 +89,8 @@ function makeTeam(payroll: number): Team {
     frozenPicks: [],
     priorTaxpayerYears: 0,
     taxpayerHistory: [],
+    trainingFocus: 'balanced',
+    loadManagement: [],
   } as Team
 }
 

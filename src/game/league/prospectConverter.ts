@@ -64,5 +64,6 @@ export function prospectToPlayer(
     },
     careerStats: [],
     historicalSeasons: [],
+    fatigue: 0,
   }
 }

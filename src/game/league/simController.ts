@@ -6,6 +6,12 @@ import { simulateGame } from '@/game/sim/gameSimulator'
 import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
 import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import { addDays } from '@/lib/utils'
+import {
+  createSimSessionState,
+  finalizeSimulatedGame,
+  prepareGameDay,
+  type SimSessionState,
+} from '@/game/league/gameFinalization'
 import { GAMES_PER_FRAME_INSTANT, GAMES_PER_FRAME_NORMAL, NORMAL_SIM_DELAY_MS } from './scheduleConstants'
 
 export interface SimResult {
@@ -37,6 +43,7 @@ async function simSingleGame(
   save: GameSave,
   game: ScheduledGame,
   rng: SeededRandom,
+  session: SimSessionState,
 ): Promise<SimResult | null> {
   if (game.status === 'final') return null
 
@@ -53,7 +60,9 @@ async function simSingleGame(
     .filter((p): p is NonNullable<typeof p> => Boolean(p))
   if (homePlayers.length < 5 || awayPlayers.length < 5) return null
 
-  const { gameState, keyPlays } = await simulateGame({
+  prepareGameDay(save, game, session)
+
+  const { gameState, keyPlays, gameFatigue } = await simulateGame({
     id: game.id,
     home,
     away,
@@ -66,30 +75,23 @@ async function simSingleGame(
     rng,
     date: game.date,
     injuriesEnabled: save.settings.injuries,
+    fatigueEnabled: save.settings.fatigue,
     simSpeed: normalizeModernSimSpeed(save.settings.simSpeed),
   })
 
   const boxScore = buildBoxScore({ gameState, keyPlays })
 
-  game.status = 'final'
-  game.homeScore = boxScore.homeScore
-  game.awayScore = boxScore.awayScore
-  game.boxScore = boxScore
-  game.boxScoreId = game.id
-  game.winnerTeamId = boxScore.homeWin ? game.homeTeamId : game.awayTeamId
-
-  if (boxScore.overtimeOccurred) {
-    game.ot = true
-  }
+  const post = finalizeSimulatedGame(
+    save,
+    game,
+    boxScore,
+    gameFatigue,
+    gameState.minutesPlayed,
+    rng,
+  )
+  save.league.news.push(...post.news)
 
   save.rngState = rng.state
-
-  if (save.league.currentDate < game.date) {
-    save.league.currentDate = game.date
-  }
-  if (save.metadata.currentDate < game.date) {
-    save.metadata.currentDate = game.date
-  }
 
   return {
     gameId: game.id,
@@ -147,10 +149,11 @@ export async function advanceToNextUserGame(
   if (!userGameDate) return { gamesSimulated: 0, results: [] }
 
   let currentDate = save.league.currentDate
+  const session = createSimSessionState(save)
   while (currentDate < userGameDate) {
     const dayGames = getGamesOnDate(save.league.games, currentDate)
     for (const g of dayGames) {
-      const result = await simSingleGame(save, g, rng)
+      const result = await simSingleGame(save, g, rng, session)
       if (result) results.push(result)
     }
     currentDate = addDays(currentDate, 1)
@@ -159,7 +162,7 @@ export async function advanceToNextUserGame(
   const userDayGames = getGamesOnDate(save.league.games, userGameDate)
   for (const g of userDayGames) {
     if (g.homeTeamId === userTeamId || g.awayTeamId === userTeamId) continue
-    const result = await simSingleGame(save, g, rng)
+    const result = await simSingleGame(save, g, rng, session)
     if (result) results.push(result)
   }
 
@@ -185,6 +188,7 @@ export async function advanceSeason(
 
   const results: SimResult[] = []
   let processed = 0
+  const session = createSimSessionState(save)
 
   for (let i = 0; i < allScheduled.length; i += gamesPerFrame) {
     if (cancelToken?.cancelled) break
@@ -192,7 +196,7 @@ export async function advanceSeason(
     const chunk = allScheduled.slice(i, i + gamesPerFrame)
     for (const game of chunk) {
       if (game.status === 'final') continue
-      const result = await simSingleGame(save, game, rng)
+      const result = await simSingleGame(save, game, rng, session)
       if (result) results.push(result)
       processed++
     }

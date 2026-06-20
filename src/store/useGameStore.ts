@@ -15,9 +15,26 @@ import {
 } from '@/db/saveRepository'
 import { buildSave } from '@/game/core/saveBuilder'
 import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
+import type { TrainingFocus } from '@/game/models/training'
+import type { TeamStrategy } from '@/game/models/team'
+import type { NewsEvent, NewsType, NewsImportance } from '@/game/models/news'
+import {
+  filterNews,
+  markNewsRead,
+  markAllNewsRead,
+} from '@/game/league/newsEngine'
+import {
+  runLeagueEndOfSeasonDevelopment,
+  runLeagueSeasonAwards,
+} from '@/game/league/seasonWrapUp'
 import { SeededRandom } from '@/game/sim/rng'
 import { simulateGame } from '@/game/sim/gameSimulator'
 import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
+import {
+  createSimSessionState,
+  finalizeSimulatedGame,
+  prepareGameDay,
+} from '@/game/league/gameFinalization'
 import { generateStubSchedule } from '@/game/sim/stubSchedule'
 import { generateSchedule } from '@/game/league/scheduleGenerator'
 import { recomputeStandings, initializeStandings } from '@/game/league/standingsEngine'
@@ -124,11 +141,26 @@ interface GameStore {
   setBench: (playerIds: string[]) => void
   setClosingLineup: (playerIds: string[]) => void
   setTargetMinutes: (playerId: string, minutes: number) => void
+  setTrainingFocus: (playerId: string, focus: TrainingFocus) => void
+  setTeamTrainingFocus: (teamId: string, focus: TrainingFocus) => void
+  setLoadManagement: (playerId: string, targetMinutes: number) => void
+  setTeamStrategy: (teamId: string, strategy: TeamStrategy) => void
+  markNewsRead: (newsId: string) => void
+  markAllNewsRead: () => void
+  filterNews: (filters: {
+    type?: NewsType
+    teamId?: string
+    playerId?: string
+    importance?: NewsImportance
+    unreadOnly?: boolean
+  }) => NewsEvent[]
+  runEndOfSeasonDevelopment: () => void
+  computeSeasonAwardsAction: () => void
   forceIncludePlayer: (playerId: string, force: boolean) => void
   autoRotate: () => void
   saveLineup: () => void
   generateRotationIfMissing: () => void
-  simOneGame: (gameId: string, options?: { skipRecompute?: boolean }) => Promise<{ gameId: string; boxScore: ReturnType<typeof buildBoxScore> } | { error: string }>
+  simOneGame: (gameId: string) => Promise<{ gameId: string; boxScore: ReturnType<typeof buildBoxScore> } | { error: string }>
   simNextGame: () => Promise<{ gameId: string } | { error: string }>
   simDay: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
   simWeek: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
@@ -664,6 +696,93 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     get().scheduleAutoSave()
   },
 
+  setTrainingFocus: (playerId, focus) => {
+    const { save } = get()
+    if (!save) return
+    const player = save.league.players[playerId]
+    if (!player) return
+    player.development.trainingFocus = focus
+    player.development.focusArea = focus
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  setTeamTrainingFocus: (teamId, focus) => {
+    const { save } = get()
+    if (!save) return
+    const team = save.league.teams[teamId]
+    if (!team) return
+    team.trainingFocus = focus
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  setLoadManagement: (playerId, targetMinutes) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    const existing = team.loadManagement.findIndex((e) => e.playerId === playerId)
+    if (existing >= 0) {
+      team.loadManagement[existing] = { playerId, targetMinutes }
+    } else {
+      team.loadManagement.push({ playerId, targetMinutes })
+    }
+    team.lineup.targetMinutes[playerId] = targetMinutes
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  setTeamStrategy: (teamId, strategy) => {
+    const { save } = get()
+    if (!save) return
+    const team = save.league.teams[teamId]
+    if (!team) return
+    team.strategy = strategy
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  markNewsRead: (newsId) => {
+    const { save } = get()
+    if (!save) return
+    save.league.news = markNewsRead(save.league.news, newsId)
+    set({ save: { ...save } })
+  },
+
+  markAllNewsRead: () => {
+    const { save } = get()
+    if (!save) return
+    save.league.news = markAllNewsRead(save.league.news)
+    set({ save: { ...save } })
+  },
+
+  filterNews: (filters) => {
+    const { save } = get()
+    if (!save) return []
+    return filterNews(save.league.news, filters)
+  },
+
+  runEndOfSeasonDevelopment: () => {
+    const { save } = get()
+    if (!save) return
+    const rng = new SeededRandom(save.rngState)
+    runLeagueEndOfSeasonDevelopment(save.league, rng)
+    save.rngState = rng.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  computeSeasonAwardsAction: () => {
+    const { save } = get()
+    if (!save) return
+    const news = runLeagueSeasonAwards(save.league)
+    save.league.news.push(...news)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
   forceIncludePlayer: (playerId, force) => {
     const { save } = get()
     if (!save) return
@@ -771,7 +890,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     return games[0]?.id ?? null
   },
 
-  simOneGame: async (gameId, options) => {
+  simOneGame: async (gameId) => {
     const { save } = get()
     if (!save) return { error: 'No active save.' }
     const game = save.league.games[gameId]
@@ -796,8 +915,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
 
     const seededRng = new SeededRandom(save.rngState)
+    const session = createSimSessionState(save)
 
-    const { gameState, keyPlays } = await simulateGame({
+    prepareGameDay(save, game, session)
+
+    const { gameState, keyPlays, gameFatigue } = await simulateGame({
       id: gameId,
       home,
       away,
@@ -810,34 +932,24 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       rng: seededRng,
       date: game.date,
       injuriesEnabled: save.settings.injuries,
+      fatigueEnabled: save.settings.fatigue,
       simSpeed: normalizeModernSimSpeed(save.settings.simSpeed),
     })
 
     const boxScore = buildBoxScore({ gameState, keyPlays })
 
-    game.status = 'final'
-    game.homeScore = boxScore.homeScore
-    game.awayScore = boxScore.awayScore
-    game.boxScore = boxScore
-    game.boxScoreId = gameId
-    game.winnerTeamId = boxScore.homeWin ? game.homeTeamId : game.awayTeamId
-    if (boxScore.overtimeOccurred) {
-      game.ot = true
-    }
+    const post = finalizeSimulatedGame(
+      save,
+      game,
+      boxScore,
+      gameFatigue,
+      gameState.minutesPlayed,
+      seededRng,
+    )
+    save.league.news.push(...post.news)
 
     save.rngState = seededRng.state
-    advanceLeagueDate(save, game.date)
 
-    if (options?.skipRecompute) {
-      return { gameId, boxScore }
-    }
-
-    save.league.standings = recomputeStandings(
-      save.league.games,
-      save.league.teams,
-      save.league.rules.seasonLabel,
-      save.league.rules.regularSeasonGames,
-    )
     set({ save: { ...save } })
     get().scheduleAutoSave()
     return { gameId, boxScore }
@@ -870,7 +982,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       .filter((g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === today)
     const simIds: string[] = []
     for (const game of todays) {
-      const result = await get().simOneGame(game.id, { skipRecompute: true })
+      const result = await get().simOneGame(game.id)
       if (!('error' in result)) simIds.push(result.gameId)
     }
     if (simIds.length > 0) {
@@ -901,7 +1013,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         (g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === targetDate,
       )
       for (const game of dayGames) {
-        const result = await get().simOneGame(game.id, { skipRecompute: true })
+        const result = await get().simOneGame(game.id)
         if (!('error' in result)) simIds.push(result.gameId)
       }
     }
@@ -1209,6 +1321,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     doTransitionToOffseason(save.league)
     const rng = new SeededRandom(save.rngState)
+    runLeagueEndOfSeasonDevelopment(save.league, rng)
+    save.rngState = rng.state
     beginOffseason(save.league, rng)
     save.rngState = rng.state
     set({ save: { ...save } })
@@ -1597,13 +1711,4 @@ function revalidateLineup(save: GameSave, teamId: string) {
   )
   team.lineup.lastValidatedAt = new Date().toISOString()
   team.lineup.lastValidationWarnings = result.warnings.map((w) => w.code)
-}
-
-function advanceLeagueDate(save: GameSave, gameDate: string): void {
-  if (save.league.currentDate < gameDate) {
-    save.league.currentDate = gameDate
-  }
-  if (save.metadata.currentDate < gameDate) {
-    save.metadata.currentDate = gameDate
-  }
 }

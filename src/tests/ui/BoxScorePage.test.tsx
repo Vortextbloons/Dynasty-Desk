@@ -75,6 +75,8 @@ function makeSave(): GameSave {
           frozenPicks: [],
           priorTaxpayerYears: 0,
           taxpayerHistory: [],
+          trainingFocus: 'balanced',
+          loadManagement: [],
         },
         't-away': {
           id: 't-away',
@@ -102,6 +104,8 @@ function makeSave(): GameSave {
           frozenPicks: [],
           priorTaxpayerYears: 0,
           taxpayerHistory: [],
+          trainingFocus: 'balanced',
+          loadManagement: [],
         },
       },
       players: {

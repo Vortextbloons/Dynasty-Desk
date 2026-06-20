@@ -180,7 +180,7 @@ describe('validateRotation', () => {
       const ids = ['p1', 'p2', 'p3', 'p4', 'p5']
       const players = makePlayers(ids)
       const injured = players.get('p1')!
-      injured.health = { status: 'day_to_day', injuryDescription: 'Ankle', daysRemaining: 3, gamesRemaining: 2 }
+      injured.health = { status: 'day_to_day', injuryDescription: 'Ankle', daysRemaining: 3, gamesRemaining: 2, injuryHistory: [] }
       const lineup = makeLineup({
         starters: ids,
         closingLineup: ids,
@@ -194,7 +194,7 @@ describe('validateRotation', () => {
       const ids = ['p1', 'p2', 'p3', 'p4', 'p5']
       const players = makePlayers(ids)
       const injured = players.get('p1')!
-      injured.health = { status: 'short_term', injuryDescription: 'Knee', daysRemaining: 10, gamesRemaining: 7 }
+      injured.health = { status: 'short_term', injuryDescription: 'Knee', daysRemaining: 10, gamesRemaining: 7, injuryHistory: [] }
       const lineup = makeLineup({
         starters: ids,
         closingLineup: ids,

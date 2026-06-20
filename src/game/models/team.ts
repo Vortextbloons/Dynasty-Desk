@@ -1,5 +1,11 @@
 import type { OwnerProfile } from './owner'
 import type { TradeException } from './trade'
+import type { TrainingFocus } from './training'
+
+export interface LoadManagementEntry {
+  playerId: string
+  targetMinutes: number
+}
 
 export interface OffensiveStrategy {
   pace: 'slow' | 'balanced' | 'fast'
@@ -138,6 +144,8 @@ export interface Team {
   chemistry: number
   morale: number
   prestige: number
+  trainingFocus: TrainingFocus
+  loadManagement: LoadManagementEntry[]
 
   owner?: OwnerProfile
 

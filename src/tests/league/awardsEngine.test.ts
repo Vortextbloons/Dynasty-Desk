@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { computeFinalsMvp, getCandidatesForFinals } from '@/game/league/awardsEngine'
+import { computeFinalsMvp, getCandidatesForFinals, computeSeasonAwards } from '@/game/league/awardsEngine'
+import { makePlayer, makeTeam } from '@/tests/fixtures'
+import type { LeagueState } from '@/game/models/league'
+import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 import type { PlayoffBracket } from '@/game/models/playoff'
 import type { ScheduledGame } from '@/game/models/game'
 import type { BoxScoreResult } from '@/game/models/sim'
@@ -249,5 +252,44 @@ describe('getCandidatesForFinals', () => {
     expect(candidates.length).toBe(2)
     expect(candidates[0]!.playerId).toBe('p1')
     expect(candidates[0]!.combinedStat).toBe(43)
+  })
+})
+
+describe('computeSeasonAwards', () => {
+  it('assigns MVP to top candidate', () => {
+    const team = makeTeam({ id: 't1' })
+    const star = makePlayer({
+      id: 'mvp',
+      teamId: team.id,
+      seasonStats: {
+        season: '2025-26',
+        teamId: team.id,
+        gamesPlayed: 82,
+        minutes: 3000,
+        points: 2400,
+        rebounds: 500,
+        assists: 400,
+        steals: 100,
+        blocks: 50,
+        turnovers: 200,
+        fieldGoalsMade: 800,
+        fieldGoalsAttempted: 1500,
+        threePointersMade: 250,
+        threePointersAttempted: 600,
+        freeThrowsMade: 550,
+        freeThrowsAttempted: 620,
+        plusMinus: 150,
+      },
+    })
+    team.roster = [star.id]
+    const league = {
+      rules: DEFAULT_LEAGUE_RULES,
+      players: { [star.id]: star },
+      teams: { [team.id]: team },
+      standings: {},
+    } as unknown as LeagueState
+
+    const result = computeSeasonAwards(league, '2025-26')
+    expect(result.awards.some((a) => a.award === 'mvp' && a.playerId === 'mvp')).toBe(true)
   })
 })
