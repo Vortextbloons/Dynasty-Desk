@@ -84,6 +84,7 @@ describe('TradeBuilder', () => {
         onSubmit={() => ({ accepted: true })}
         onCancel={() => undefined}
         onSaveDraft={() => undefined}
+        onSaveProtection={() => undefined}
       />,
     )
     expect(screen.getByText('Your team')).toBeInTheDocument()
@@ -103,6 +104,7 @@ describe('TradeBuilder', () => {
         onSubmit={() => ({ accepted: true })}
         onCancel={() => undefined}
         onSaveDraft={() => undefined}
+        onSaveProtection={() => undefined}
       />,
     )
     expect(screen.getByText('Submit trade')).toBeInTheDocument()
@@ -123,6 +125,7 @@ describe('TradeBuilder', () => {
         onSubmit={() => ({ accepted: true })}
         onCancel={() => undefined}
         onSaveDraft={() => undefined}
+        onSaveProtection={() => undefined}
       />,
     )
     const meter = screen.queryByText(/AI interest/) || screen.queryByText(/Likely/) || screen.queryByText(/Vetoed/) || screen.queryByText(/Illegal Trade/)
@@ -143,6 +146,7 @@ describe('TradeBuilder', () => {
         onSubmit={() => ({ accepted: true })}
         onCancel={() => undefined}
         onSaveDraft={() => undefined}
+        onSaveProtection={() => undefined}
       />,
     )
     const addButtons = screen.getAllByText('+ Add')
@@ -163,6 +167,7 @@ describe('TradeBuilder', () => {
         onSubmit={() => ({ accepted: true })}
         onCancel={onCancel}
         onSaveDraft={() => undefined}
+        onSaveProtection={() => undefined}
       />,
     )
     fireEvent.click(screen.getByText('Cancel'))
@@ -182,6 +187,7 @@ describe('TradeBuilder', () => {
         onSubmit={() => ({ accepted: true })}
         onCancel={() => undefined}
         onSaveDraft={() => undefined}
+        onSaveProtection={() => undefined}
       />,
     )
     expect(screen.getByText(/Salary match/)).toBeInTheDocument()

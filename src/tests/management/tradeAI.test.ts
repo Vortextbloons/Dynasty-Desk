@@ -108,6 +108,48 @@ describe('evaluateTradeForAI', () => {
     void star1
     void fillerFor
   })
+
+  it('MIN-5: 3-team counter adds the AI pick to the side with fewest incoming assets', () => {
+    const { league, contender, user, user2 } = buildLeague()
+    void user
+    void user2
+    const pick = {
+      id: 'pick-1',
+      season: '2026-27',
+      round: 2,
+      pickNumber: 31,
+      originalTeamId: 'contender',
+      currentTeamId: 'contender',
+      prospectId: null,
+    }
+    league.draftPicks = [pick as never]
+
+    const proposal: TradeProposal = {
+      id: 'p3team',
+      sides: [
+        { teamId: 'contender', outgoing: [{ type: 'player', playerId: 'star-1', toTeamId: 'user' }], incoming: [{ type: 'player', playerId: 'fillerFor', toTeamId: 'contender' }, { type: 'player', playerId: 'filler', toTeamId: 'contender' }] },
+        { teamId: 'user', outgoing: [{ type: 'player', playerId: 'fillerFor', toTeamId: 'contender' }], incoming: [{ type: 'player', playerId: 'star-1', toTeamId: 'user' }] },
+        { teamId: 'user2', outgoing: [{ type: 'player', playerId: 'filler', toTeamId: 'contender' }], incoming: [] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'submitted',
+    }
+    const response = evaluateTradeForAI(proposal, contender, {
+      projectedWins: { user: 41, contender: 41, rebuilding: 41, user2: 41 },
+      userTeamId: 'user',
+      league,
+    })
+    if (response.kind === 'counter') {
+      const counterSide = response.counterOffer.sides.find(
+        (s) => s.teamId === 'contender',
+      )
+      const addedPick = counterSide?.outgoing.find(
+        (a) => a.type === 'pick' && a.pickId === 'pick-1',
+      )
+      expect(addedPick).toBeDefined()
+      expect(addedPick?.toTeamId).toBe('user2')
+    }
+  })
 })
 
 describe('updateTeamDirection', () => {

@@ -695,7 +695,7 @@ describe('migrateToV6', () => {
     const v6 = migrateToV6(v5) as GameSave
     expect(v6.league.draftPicks.length).toBeGreaterThan(0)
     const seasons = new Set(v6.league.draftPicks.map((p) => p.season))
-    expect(seasons.size).toBe(3)
+    expect(seasons.size).toBe(5)
   })
 
   it('MED 4: does not backfill when picks already exist', () => {

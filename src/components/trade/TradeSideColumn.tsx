@@ -3,11 +3,13 @@ import type { Player } from '@/game/models/player'
 import type { DraftPick } from '@/game/models/draft'
 import type { Team } from '@/game/models/team'
 import type { TradeAsset, TradeSide } from '@/game/models/trade'
+import type { LeagueRules } from '@/game/models/leagueRules'
 import { Card, CardContent } from '@/components/ui/card'
 import { Chip } from '@/components/shared/Chip'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
-import { PickProtectionBadge } from './PickProtectionBadge'
+import { PickProtectionEditor } from './PickProtectionEditor'
 import { AssetPickerDialog } from './AssetPickerDialog'
+import { computeCapHit } from '@/game/management/capEngine'
 
 interface TargetTeam {
   id: string
@@ -25,8 +27,10 @@ interface TradeSideColumnProps {
   targetTeams: TargetTeam[]
   defaultTargetTeamId?: string
   allTeams: Team[]
+  rules: LeagueRules
   onAdd: (asset: TradeAsset) => void
   onRemove: (index: number) => void
+  onSaveProtection: (pickId: string, protection: string | null) => void
 }
 
 function fmt(n: number): string {
@@ -46,8 +50,10 @@ export function TradeSideColumn({
   targetTeams,
   defaultTargetTeamId,
   allTeams,
+  rules,
   onAdd,
   onRemove,
+  onSaveProtection,
 }: TradeSideColumnProps) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const playerMap = new Map(players.map((p) => [p.id, p]))
@@ -60,10 +66,7 @@ export function TradeSideColumn({
     if (asset.type === 'player' && asset.playerId) {
       const p = playerMap.get(asset.playerId)
       if (!p) return sum
-      const s = p.contract.salaryByYear[0] ?? 0
-      const sb = p.contract.signingBonusByYear[0] ?? 0
-      const lb = p.contract.likelyBonusesByYear[0] ?? 0
-      return sum + s + sb + lb
+      return sum + computeCapHit(p, rules, 0)
     }
     return sum
   }, 0)
@@ -71,10 +74,7 @@ export function TradeSideColumn({
     if (asset.type === 'player' && asset.playerId) {
       const p = playerMap.get(asset.playerId)
       if (!p) return sum
-      const s = p.contract.salaryByYear[0] ?? 0
-      const sb = p.contract.signingBonusByYear[0] ?? 0
-      const lb = p.contract.likelyBonusesByYear[0] ?? 0
-      return sum + s + sb + lb
+      return sum + computeCapHit(p, rules, 0)
     }
     return sum
   }, 0)
@@ -128,7 +128,10 @@ export function TradeSideColumn({
                     pickMap={pickMap}
                     isUserSide={isUserSide}
                     targetTeam={asset.toTeamId ? allTeams.find((t) => t.id === asset.toTeamId) : undefined}
+                    rules={rules}
+                    team={team}
                     onRemove={() => onRemove(i)}
+                    onSaveProtection={onSaveProtection}
                   />
                 ))
               )}
@@ -152,7 +155,10 @@ export function TradeSideColumn({
                     playerMap={playerMap}
                     pickMap={pickMap}
                     isUserSide={false}
+                    rules={rules}
+                    team={team}
                     onRemove={() => undefined}
+                    onSaveProtection={onSaveProtection}
                   />
                 ))
               )}
@@ -186,14 +192,20 @@ function AssetRow({
   pickMap,
   isUserSide,
   targetTeam,
+  rules,
+  team,
   onRemove,
+  onSaveProtection,
 }: {
   asset: TradeAsset
   playerMap: Map<string, Player>
   pickMap: Map<string, DraftPick>
   isUserSide: boolean
   targetTeam?: Team
+  rules: LeagueRules
+  team: Team
   onRemove: () => void
+  onSaveProtection: (pickId: string, protection: string | null) => void
 }) {
   if (asset.type === 'player' && asset.playerId) {
     const player = playerMap.get(asset.playerId)
@@ -211,11 +223,7 @@ function AssetRow({
         </div>
         {player.contract.noTradeClause && <Chip label="NTC" variant="warning" size="sm" />}
         <div className="font-mono text-xs">
-          {fmt(
-            (player.contract.salaryByYear[0] ?? 0) +
-              (player.contract.signingBonusByYear[0] ?? 0) +
-              (player.contract.likelyBonusesByYear[0] ?? 0),
-          )}
+          {fmt(computeCapHit(player, rules, 0))}
         </div>
         {targetTeam && (
           <div className="text-[10px] text-[var(--color-muted-foreground)] flex items-center gap-1">
@@ -236,16 +244,20 @@ function AssetRow({
   if (asset.type === 'pick' && asset.pickId) {
     const pick = pickMap.get(asset.pickId)
     if (!pick) return null
+    const canEditProtection = isUserSide && pick.currentTeamId === team.id
     return (
       <div className="flex items-center justify-between rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2 py-1.5">
         <div className="text-xs">
           {pick.season} • Rd {pick.round} • #{pick.pickNumber}
         </div>
         <div className="flex items-center gap-2">
-          <PickProtectionBadge
+          <PickProtectionEditor
+            pickId={pick.id}
             protection={pick.protected}
             stepienBlocked={pick.stepienBlocked}
             frozenUntilSeason={pick.frozenUntilSeason}
+            canEdit={canEditProtection}
+            onSave={onSaveProtection}
           />
           {targetTeam && (
             <div className="text-[10px] text-[var(--color-muted-foreground)]">

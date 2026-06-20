@@ -13,6 +13,7 @@ export function TradeCenterPage() {
   const cancelTradeProposal = useGameStore((s) => s.cancelTradeProposal)
   const addTeamToTrade = useGameStore((s) => s.addTeamToTrade)
   const importProposal = useGameStore((s) => s.importProposal)
+  const setPickProtection = useGameStore((s) => s.setPickProtection)
 
   const [proposalId, setProposalId] = useState<string | null>(null)
   const [selectedTeam, setSelectedTeam] = useState<string>('')
@@ -148,6 +149,7 @@ export function TradeCenterPage() {
               }
             }}
             onRemoveAsset={(teamId, idx) => removeAssetFromTrade(proposal.id, teamId, idx)}
+            onSaveProtection={(pickId, protection) => setPickProtection(pickId, protection)}
             onSubmit={() => submitTrade(proposal.id)}
             onSaveDraft={() => setProposalId(null)}
             onCancel={() => {

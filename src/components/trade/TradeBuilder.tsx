@@ -16,6 +16,7 @@ interface TradeBuilderProps {
   rulesMaxCash: number
   onAddAsset: (teamId: string, asset: TradeAsset) => void
   onRemoveAsset: (teamId: string, index: number) => void
+  onSaveProtection: (pickId: string, protection: string | null) => void
   onSubmit: () => {
     accepted: boolean
     counterOffer?: TradeProposal
@@ -40,6 +41,7 @@ export function TradeBuilder({
   rulesMaxCash,
   onAddAsset,
   onRemoveAsset,
+  onSaveProtection,
   onSubmit,
   onCancel,
   onSaveDraft,
@@ -170,8 +172,10 @@ export function TradeBuilder({
               targetTeams={targetTeams}
               defaultTargetTeamId={defaultTargetTeamId}
               allTeams={teams}
+              rules={league.rules}
               onAdd={(asset) => onAddAsset(side.teamId, asset)}
               onRemove={(idx) => onRemoveAsset(side.teamId, idx)}
+              onSaveProtection={onSaveProtection}
             />
           )
         })}

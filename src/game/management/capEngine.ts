@@ -64,6 +64,10 @@ export function computePayroll(
 }
 
 export function computeCapSpace(team: Team, rules: LeagueRules): number {
+  if (!rules.salaryCapEnabled) {
+    if (rules.apron > 0) return rules.apron - team.finances.payroll
+    return Number.POSITIVE_INFINITY
+  }
   return rules.salaryCap - team.finances.payroll
 }
 

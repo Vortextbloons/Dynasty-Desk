@@ -347,7 +347,7 @@ function seedDraftPicks(snapshot: StaticSnapshot): DraftPick[] {
   const currentYear = parseSeasonYear(currentSeason)
   const draftRounds = snapshot.rules.draftRounds
 
-  for (let yearOffset = 1; yearOffset <= 3; yearOffset++) {
+  for (let yearOffset = 1; yearOffset <= 5; yearOffset++) {
     const seasonYear = currentYear + yearOffset
     const seasonLabel = formatSeasonLabel(seasonYear)
     for (const team of snapshot.teams) {

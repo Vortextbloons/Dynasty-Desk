@@ -126,6 +126,7 @@ interface GameStore {
   removeTeamFromTrade: (proposalId: string, teamId: string) => void
   importProposal: (proposal: TradeProposal) => void
   removeAssetFromTrade: (proposalId: string, teamId: string, assetIndex: number) => void
+  setPickProtection: (pickId: string, protection: string | null) => void
   cancelTradeProposal: (proposalId: string) => void
   submitTrade: (proposalId: string) => {
     accepted: boolean
@@ -1147,6 +1148,22 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     get().scheduleAutoSave()
   },
 
+  setPickProtection: (pickId, protection) => {
+    const { save } = get()
+    if (!save) return
+    const pick = save.league.draftPicks.find((p) => p.id === pickId)
+    if (!pick) return
+    if (pick.currentTeamId !== save.league.userTeamId) return
+    if (protection === null || protection.trim() === '') {
+      pick.protected = undefined
+    } else {
+      const cleaned = protection.trim().slice(0, 16)
+      pick.protected = cleaned
+    }
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
   submitTrade: (proposalId) => {
     const { save } = get()
     if (!save) {
@@ -1233,15 +1250,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       (p) => p.id !== proposalId,
     )
 
-    const teamIdMap: Record<string, string> = {}
-    for (const side of proposal.sides) {
-      teamIdMap[side.teamId] = save.league.teams[side.teamId]?.name ?? side.teamId
-    }
     save.league.news = [
       ...save.league.news,
       createTradeCompletedEvent(proposal, save.league),
     ]
-    void teamIdMap
 
     set({ save: { ...save } })
     get().scheduleAutoSave()

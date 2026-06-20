@@ -377,7 +377,7 @@ function backfillDraftPicks(
   if (teamList.length === 0) return []
   const currentYear = parseSeasonStartYear(currentSeason)
   const picks: DraftPick[] = []
-  for (let yearOffset = 1; yearOffset <= 3; yearOffset++) {
+  for (let yearOffset = 1; yearOffset <= 5; yearOffset++) {
     const seasonYear = currentYear + yearOffset
     const seasonLabel = formatSeasonLabel(seasonYear)
     for (const team of teamList) {

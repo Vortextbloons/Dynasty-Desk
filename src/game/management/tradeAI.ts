@@ -126,13 +126,20 @@ function buildCounterOffer(
 
   if (!futureSecond) return null
 
-  const otherSide = proposal.sides.find((s) => s.teamId !== aiTeam.id)
-  if (!otherSide) return null
+  const otherSides = proposal.sides.filter((s) => s.teamId !== aiTeam.id)
+  if (otherSides.length === 0) return null
+
+  const targetSide =
+    otherSides.length === 1
+      ? otherSides[0]!
+      : [...otherSides].sort(
+          (a, b) => a.incoming.length - b.incoming.length,
+        )[0]!
 
   const newAsset: { type: 'pick'; pickId: string; toTeamId: string } = {
     type: 'pick',
     pickId: futureSecond.id,
-    toTeamId: otherSide.teamId,
+    toTeamId: targetSide.teamId,
   }
 
   const sides = proposal.sides.map((s) => {

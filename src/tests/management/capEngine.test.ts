@@ -207,6 +207,18 @@ describe('computeCapSpace', () => {
     const team = makeTeam(160_000_000)
     expect(computeCapSpace(team, rules)).toBe(-19_412_000)
   })
+
+  it('MIN-1: returns apron-relative space when salaryCapEnabled is false', () => {
+    const disabled = { ...rules, salaryCapEnabled: false }
+    const team = makeTeam(100_000_000)
+    expect(computeCapSpace(team, disabled)).toBe(rules.apron - 100_000_000)
+  })
+
+  it('MIN-1: returns positive infinity when both cap and apron are disabled', () => {
+    const allOff = { ...rules, salaryCapEnabled: false, apron: 0 }
+    const team = makeTeam(100_000_000)
+    expect(computeCapSpace(team, allOff)).toBe(Number.POSITIVE_INFINITY)
+  })
 })
 
 describe('computeApronStatus', () => {
