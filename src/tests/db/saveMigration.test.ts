@@ -687,4 +687,21 @@ describe('migrateToV6', () => {
     expect(team.tradeExceptions).toEqual([])
     expect(team.frozenPicks).toEqual([])
   })
+
+  it('MED 4: backfills draftPicks for v5 saves with no picks', () => {
+    const v5 = makeV5SaveForV6()
+    v5.league.draftPicks = []
+    expect(v5.league.draftPicks).toEqual([])
+    const v6 = migrateToV6(v5) as GameSave
+    expect(v6.league.draftPicks.length).toBeGreaterThan(0)
+    const seasons = new Set(v6.league.draftPicks.map((p) => p.season))
+    expect(seasons.size).toBe(3)
+  })
+
+  it('MED 4: does not backfill when picks already exist', () => {
+    const v5 = makeV5SaveForV6()
+    const originalPicks = JSON.parse(JSON.stringify(v5.league.draftPicks))
+    const v6 = migrateToV6(v5) as GameSave
+    expect(v6.league.draftPicks).toHaveLength(originalPicks.length)
+  })
 })

@@ -9,6 +9,11 @@ import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { PickProtectionBadge } from './PickProtectionBadge'
 import { AssetPickerDialog } from './AssetPickerDialog'
 
+interface TargetTeam {
+  id: string
+  label: string
+}
+
 interface TradeSideColumnProps {
   side: TradeSide
   team: Team
@@ -16,6 +21,10 @@ interface TradeSideColumnProps {
   picks: DraftPick[]
   isUserSide: boolean
   rulesMaxCash: number
+  allowCash: boolean
+  targetTeams: TargetTeam[]
+  defaultTargetTeamId?: string
+  allTeams: Team[]
   onAdd: (asset: TradeAsset) => void
   onRemove: (index: number) => void
 }
@@ -33,6 +42,10 @@ export function TradeSideColumn({
   picks,
   isUserSide,
   rulesMaxCash,
+  allowCash,
+  targetTeams,
+  defaultTargetTeamId,
+  allTeams,
   onAdd,
   onRemove,
 }: TradeSideColumnProps) {
@@ -114,6 +127,7 @@ export function TradeSideColumn({
                     playerMap={playerMap}
                     pickMap={pickMap}
                     isUserSide={isUserSide}
+                    targetTeam={asset.toTeamId ? allTeams.find((t) => t.id === asset.toTeamId) : undefined}
                     onRemove={() => onRemove(i)}
                   />
                 ))
@@ -155,8 +169,10 @@ export function TradeSideColumn({
             .map((id) => playerMap.get(id))
             .filter((p): p is Player => Boolean(p))}
           picks={picks.filter((p) => p.currentTeamId === team.id)}
-          allowCash
+          allowCash={allowCash}
           maxCash={rulesMaxCash}
+          targetTeams={targetTeams}
+          defaultTargetTeamId={defaultTargetTeamId}
           onSelect={onAdd}
         />
       )}
@@ -169,12 +185,14 @@ function AssetRow({
   playerMap,
   pickMap,
   isUserSide,
+  targetTeam,
   onRemove,
 }: {
   asset: TradeAsset
   playerMap: Map<string, Player>
   pickMap: Map<string, DraftPick>
   isUserSide: boolean
+  targetTeam?: Team
   onRemove: () => void
 }) {
   if (asset.type === 'player' && asset.playerId) {
@@ -199,6 +217,11 @@ function AssetRow({
               (player.contract.likelyBonusesByYear[0] ?? 0),
           )}
         </div>
+        {targetTeam && (
+          <div className="text-[10px] text-[var(--color-muted-foreground)] flex items-center gap-1">
+            → <span className="font-mono">{targetTeam.abbreviation}</span>
+          </div>
+        )}
         {isUserSide && (
           <button
             onClick={onRemove}
@@ -224,6 +247,11 @@ function AssetRow({
             stepienBlocked={pick.stepienBlocked}
             frozenUntilSeason={pick.frozenUntilSeason}
           />
+          {targetTeam && (
+            <div className="text-[10px] text-[var(--color-muted-foreground)]">
+              → <span className="font-mono">{targetTeam.abbreviation}</span>
+            </div>
+          )}
           {isUserSide && (
             <button
               onClick={onRemove}
@@ -242,6 +270,11 @@ function AssetRow({
         <div className="text-xs">Cash</div>
         <div className="flex items-center gap-2">
           <div className="font-mono text-xs">{fmt(asset.cashAmount ?? 0)}</div>
+          {targetTeam && (
+            <div className="text-[10px] text-[var(--color-muted-foreground)]">
+              → <span className="font-mono">{targetTeam.abbreviation}</span>
+            </div>
+          )}
           {isUserSide && (
             <button
               onClick={onRemove}

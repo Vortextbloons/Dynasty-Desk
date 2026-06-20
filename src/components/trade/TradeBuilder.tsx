@@ -134,6 +134,29 @@ export function TradeBuilder({
         {proposal.sides.map((side) => {
           const team = league.teams[side.teamId]
           if (!team) return null
+          const isUserSide = side.teamId === userTeamId
+          const targetTeams = isUserSide
+            ? proposal.sides
+                .filter((s) => s.teamId !== side.teamId)
+                .map((s) => {
+                  const t = league.teams[s.teamId]
+                  return {
+                    id: s.teamId,
+                    label: t ? `${t.city} ${t.name}` : s.teamId,
+                  }
+                })
+            : proposal.sides
+                .filter((s) => s.teamId !== side.teamId)
+                .map((s) => {
+                  const t = league.teams[s.teamId]
+                  return {
+                    id: s.teamId,
+                    label: t ? `${t.city} ${t.name}` : s.teamId,
+                  }
+                })
+          const defaultTargetTeamId = isUserSide
+            ? targetTeams[0]?.id
+            : targetTeams.find((t) => t.id === userTeamId)?.id ?? targetTeams[0]?.id
           return (
             <TradeSideColumn
               key={side.teamId}
@@ -141,8 +164,12 @@ export function TradeBuilder({
               team={team}
               players={allPlayers}
               picks={allPicks}
-              isUserSide={side.teamId === userTeamId}
+              isUserSide={isUserSide}
               rulesMaxCash={rulesMaxCash}
+              allowCash={league.rules.allowCashInTrades}
+              targetTeams={targetTeams}
+              defaultTargetTeamId={defaultTargetTeamId}
+              allTeams={teams}
               onAdd={(asset) => onAddAsset(side.teamId, asset)}
               onRemove={(idx) => onRemoveAsset(side.teamId, idx)}
             />

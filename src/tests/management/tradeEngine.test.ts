@@ -493,4 +493,99 @@ describe('CRIT fixes', () => {
     const updated = result.league.draftPicks.find((p) => p.id === 'pick-1')
     expect(updated?.frozenUntilSeason).toBe('2032-33')
   })
+
+  it('MED 2: cash rejected entirely when allowCashInTrades is false', () => {
+    const eraRules = { ...rules, allowCashInTrades: false }
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a1 = p('a1', 10_000_000, 1, 'a')
+    const b1 = p('b1', 10_000_000, 1, 'b')
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'med2',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }, { type: 'cash', cashAmount: 500_000 }], incoming: [{ type: 'player', playerId: 'b1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }, { type: 'cash', cashAmount: 500_000 }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = validateTradeLegality(proposal, league, eraRules)
+    expect(result.legal).toBe(false)
+    expect(result.reason).toMatch(/Cash cannot be included/)
+  })
+
+  it('MED 2: cash allowed when allowCashInTrades is true (control)', () => {
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a1 = p('a1', 10_000_000, 1, 'a')
+    const b1 = p('b1', 10_000_000, 1, 'b')
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'med2ok',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }, { type: 'cash', cashAmount: 500_000 }], incoming: [{ type: 'player', playerId: 'b1' }, { type: 'cash', cashAmount: 500_000 }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }, { type: 'cash', cashAmount: 500_000 }], incoming: [{ type: 'player', playerId: 'a1' }, { type: 'cash', cashAmount: 500_000 }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    expect(validateTradeLegality(proposal, league, rules).legal).toBe(true)
+  })
+
+  it('MED 3: TPE exception counts as incoming salary for matching', () => {
+    const teamAExceptions = [
+      {
+        id: 'tpe-1',
+        teamId: 'a',
+        amount: 8_000_000,
+        expiresAt: '2099-10-21',
+        source: 'outgoing_salary' as const,
+      },
+    ]
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a1 = p('a1', 8_000_000, 1, 'a')
+    const b1 = p('b1', 8_000_000, 1, 'b')
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    a.tradeExceptions = teamAExceptions
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'med3',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }, { type: 'exception', exceptionId: 'tpe-1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    expect(validateTradeLegality(proposal, league, rules).legal).toBe(true)
+  })
+
+  it('MED 3: TPE exception not found on team fails legality', () => {
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a1 = p('a1', 8_000_000, 1, 'a')
+    const b1 = p('b1', 8_000_000, 1, 'b')
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'med3bad',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }, { type: 'exception', exceptionId: 'tpe-missing' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = validateTradeLegality(proposal, league, rules)
+    expect(result.legal).toBe(false)
+    expect(result.reason).toMatch(/Trade exception tpe-missing not found/)
+  })
 })

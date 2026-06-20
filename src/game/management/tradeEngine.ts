@@ -71,10 +71,17 @@ export function validateTradeLegality(
     let cash = 0
     for (const asset of side.outgoing) {
       if (asset.type === 'cash') {
+        if (!rules.allowCashInTrades) {
+          return {
+            ...result,
+            legal: false,
+            reason: `Cash cannot be included in trades this season (disabled in rules).`,
+          }
+        }
         cash += asset.cashAmount ?? 0
       }
     }
-    if (cash > rules.maxCashPerSide) {
+    if (rules.allowCashInTrades && cash > rules.maxCashPerSide) {
       return {
         ...result,
         legal: false,
@@ -175,6 +182,37 @@ export function validateTradeLegality(
   }
 
   for (const side of proposal.sides) {
+    for (const asset of side.incoming) {
+      if (asset.type === 'exception' && asset.exceptionId) {
+        const ex = teamById[side.teamId]?.tradeExceptions?.find(
+          (te) => te.id === asset.exceptionId,
+        )
+        if (!ex) {
+          return {
+            ...result,
+            legal: false,
+            reason: `Trade exception ${asset.exceptionId} not found on ${side.teamId}.`,
+          }
+        }
+        if (new Date(ex.expiresAt) < new Date(league.currentDate)) {
+          return {
+            ...result,
+            legal: false,
+            reason: `Trade exception ${asset.exceptionId} has expired.`,
+          }
+        }
+        if (asset.toTeamId && asset.toTeamId !== side.teamId) {
+          return {
+            ...result,
+            legal: false,
+            reason: `Trade exception cannot be sent to another team.`,
+          }
+        }
+      }
+    }
+  }
+
+  for (const side of proposal.sides) {
     const team = teamById[side.teamId]!
     const finalRosterSize = computeFinalRosterSize(team, side, league)
     result.perSideRosterSize[side.teamId] = finalRosterSize
@@ -189,18 +227,27 @@ export function validateTradeLegality(
 
   if (apronEnforced) {
     for (const side of proposal.sides) {
-      const outgoing = sumSalary(side.outgoing, league, rules)
-      const incoming = sumSalary(side.incoming, league, rules)
-      const exceptionIn = side.incoming
-        .filter((a) => a.type === 'exception')
-        .reduce((sum) => sum + 0, 0)
-      const effectiveIncoming = incoming + exceptionIn
+      const playerOutgoing = sumSalary(side.outgoing, league, rules)
+      const playerIncoming = sumSalary(side.incoming, league, rules)
+      const teamRecord = teamById[side.teamId]!
+      const tpeAmount = side.incoming
+        .filter((a) => a.type === 'exception' && a.exceptionId)
+        .reduce((sum, a) => {
+          const ex = teamRecord.tradeExceptions?.find(
+            (te) => te.id === a.exceptionId,
+          )
+          if (!ex) return sum
+          if (new Date(ex.expiresAt) < new Date(league.currentDate)) return sum
+          return sum + ex.amount
+        }, 0)
+      const outgoing = playerOutgoing + tpeAmount
+      const incoming = playerIncoming
       const teamApron = apronStatus[side.teamId]!
-      if (!checkSalaryMatch(outgoing, effectiveIncoming, teamApron)) {
+      if (!checkSalaryMatch(outgoing, incoming, teamApron)) {
         return {
           ...result,
           legal: false,
-          reason: `Salary match failed for ${side.teamId} (out $${(outgoing / 1_000_000).toFixed(1)}M, in $${(effectiveIncoming / 1_000_000).toFixed(1)}M, ${teamApron} apron).`,
+          reason: `Salary match failed for ${side.teamId} (out $${(outgoing / 1_000_000).toFixed(1)}M, in $${(incoming / 1_000_000).toFixed(1)}M, ${teamApron} apron).`,
         }
       }
     }

@@ -1,5 +1,6 @@
 import type { GameSave } from '@/game/models'
 import type { TeamFinances } from '@/game/models/team'
+import type { DraftPick } from '@/game/models/draft'
 import {
   OPERATING_EXPENSES_BASELINE,
   OWNER_CASH_INITIAL,
@@ -327,7 +328,7 @@ export function migrateToV6(input: unknown): GameSave {
   }
 
   const picksRaw = (league.draftPicks as Array<Record<string, unknown>>) ?? []
-  const draftPicks: GameSave['league']['draftPicks'] = picksRaw.map((p) => ({
+  let draftPicks: GameSave['league']['draftPicks'] = picksRaw.map((p) => ({
     ...p,
     protected: typeof p.protected === 'string' ? p.protected : undefined,
     frozenUntilSeason:
@@ -335,6 +336,17 @@ export function migrateToV6(input: unknown): GameSave {
     stepienBlocked:
       typeof p.stepienBlocked === 'boolean' ? p.stepienBlocked : false,
   })) as GameSave['league']['draftPicks']
+
+  if (draftPicks.length === 0 && Object.keys(teams).length > 0) {
+    const currentSeason =
+      typeof save.league.rules.seasonLabel === 'string'
+        ? save.league.rules.seasonLabel
+        : '2025-26'
+    const draftRounds = typeof save.league.rules.draftRounds === 'number'
+      ? save.league.rules.draftRounds
+      : 2
+    draftPicks = backfillDraftPicks(teams, currentSeason, draftRounds)
+  }
 
   const activeProposals = Array.isArray(league.activeProposals)
     ? (league.activeProposals as unknown as GameSave['league']['activeProposals'])
@@ -354,4 +366,43 @@ export function migrateToV6(input: unknown): GameSave {
       activeProposals,
     } as unknown as GameSave['league'],
   }
+}
+
+function backfillDraftPicks(
+  teams: GameSave['league']['teams'],
+  currentSeason: string,
+  draftRounds: number,
+): DraftPick[] {
+  const teamList = Object.values(teams)
+  if (teamList.length === 0) return []
+  const currentYear = parseSeasonStartYear(currentSeason)
+  const picks: DraftPick[] = []
+  for (let yearOffset = 1; yearOffset <= 3; yearOffset++) {
+    const seasonYear = currentYear + yearOffset
+    const seasonLabel = formatSeasonLabel(seasonYear)
+    for (const team of teamList) {
+      for (let round = 1; round <= draftRounds; round++) {
+        picks.push({
+          id: `pick-${team.id}-${seasonYear}-r${round}`,
+          season: seasonLabel,
+          round,
+          pickNumber: 0,
+          originalTeamId: team.id,
+          currentTeamId: team.id,
+          prospectId: null,
+        })
+      }
+    }
+  }
+  return picks
+}
+
+function parseSeasonStartYear(season: string): number {
+  const m = season.match(/^(\d{4})/)
+  return m ? Number(m[1]) : new Date().getFullYear()
+}
+
+function formatSeasonLabel(startYear: number): string {
+  const endYear = (startYear + 1) % 100
+  return `${startYear}-${String(endYear).padStart(2, '0')}`
 }

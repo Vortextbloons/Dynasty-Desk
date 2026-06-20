@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { Player } from '@/game/models/player'
 import type { DraftPick } from '@/game/models/draft'
 import type { TradeAsset } from '@/game/models/trade'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { PickProtectionBadge } from './PickProtectionBadge'
+
+interface TargetTeam {
+  id: string
+  label: string
+}
 
 interface AssetPickerDialogProps {
   open: boolean
@@ -13,6 +18,8 @@ interface AssetPickerDialogProps {
   picks: DraftPick[]
   allowCash?: boolean
   maxCash?: number
+  targetTeams?: TargetTeam[]
+  defaultTargetTeamId?: string
   onSelect: (asset: TradeAsset) => void
 }
 
@@ -23,11 +30,23 @@ export function AssetPickerDialog({
   picks,
   allowCash = true,
   maxCash = 1_000_000,
+  targetTeams,
+  defaultTargetTeamId,
   onSelect,
 }: AssetPickerDialogProps) {
   const [tab, setTab] = useState<'players' | 'picks' | 'cash'>('players')
   const [search, setSearch] = useState('')
   const [cashAmount, setCashAmount] = useState(1_000_000)
+  const [targetTeamId, setTargetTeamId] = useState<string>(
+    defaultTargetTeamId ?? targetTeams?.[0]?.id ?? '',
+  )
+
+  const requiresTarget = (targetTeams?.length ?? 0) > 1
+  const targetTeamMap = useMemo(() => {
+    const map = new Map<string, TargetTeam>()
+    for (const t of targetTeams ?? []) map.set(t.id, t)
+    return map
+  }, [targetTeams])
 
   if (!open) return null
 
@@ -39,6 +58,11 @@ export function AssetPickerDialog({
       p.lastName.toLowerCase().includes(q)
     )
   })
+
+  function withTarget(asset: TradeAsset): TradeAsset {
+    if (!requiresTarget) return asset
+    return { ...asset, toTeamId: targetTeamId }
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
@@ -53,6 +77,25 @@ export function AssetPickerDialog({
               Close
             </button>
           </div>
+
+          {requiresTarget && targetTeams && (
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-1">
+                Send to
+              </div>
+              <select
+                value={targetTeamId}
+                onChange={(e) => setTargetTeamId(e.target.value)}
+                className="w-full rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-3 py-2 text-sm"
+              >
+                {targetTeams.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="flex border-b border-[var(--color-line-soft)] gap-4">
             {(['players', 'picks', 'cash'] as const).map((t) => (
@@ -88,11 +131,12 @@ export function AssetPickerDialog({
                   filteredPlayers.map((player) => (
                     <button
                       key={player.id}
+                      disabled={requiresTarget && !targetTeamId}
                       onClick={() => {
-                        onSelect({ type: 'player', playerId: player.id })
+                        onSelect(withTarget({ type: 'player', playerId: player.id }))
                         onOpenChange(false)
                       }}
-                      className="w-full flex items-center gap-3 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-3 py-2 text-left hover:border-[var(--color-primary)]/40 transition-colors"
+                      className="w-full flex items-center gap-3 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-3 py-2 text-left hover:border-[var(--color-primary)]/40 transition-colors disabled:opacity-50"
                     >
                       <PlayerHeadshot player={player} size={32} />
                       <div className="flex-1 min-w-0">
@@ -123,9 +167,9 @@ export function AssetPickerDialog({
                 picks.map((pick) => (
                   <button
                     key={pick.id}
-                    disabled={pick.stepienBlocked}
+                    disabled={pick.stepienBlocked || (requiresTarget && !targetTeamId)}
                     onClick={() => {
-                      onSelect({ type: 'pick', pickId: pick.id })
+                      onSelect(withTarget({ type: 'pick', pickId: pick.id }))
                       onOpenChange(false)
                     }}
                     className="w-full flex items-center justify-between rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-3 py-2 text-left hover:border-[var(--color-primary)]/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -164,13 +208,16 @@ export function AssetPickerDialog({
               </div>
               <button
                 onClick={() => {
-                  onSelect({ type: 'cash', cashAmount })
+                  onSelect(withTarget({ type: 'cash', cashAmount }))
                   onOpenChange(false)
                 }}
-                disabled={cashAmount <= 0 || cashAmount > maxCash}
+                disabled={cashAmount <= 0 || cashAmount > maxCash || (requiresTarget && !targetTeamId)}
                 className="w-full rounded-md bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-[var(--color-primary-foreground)] hover:opacity-90 disabled:opacity-50"
               >
                 Add ${(cashAmount / 1_000_000).toFixed(1)}M cash
+                {requiresTarget && targetTeamId && targetTeamMap.has(targetTeamId)
+                  ? ` to ${targetTeamMap.get(targetTeamId)!.label}`
+                  : ''}
               </button>
             </div>
           )}
