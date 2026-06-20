@@ -140,13 +140,7 @@ export function TradeCenterPage() {
             userTeamId={userTeamId}
             rulesMaxCash={league.rules.maxCashPerSide}
             onAddAsset={(teamId, asset) => {
-              if (asset.type === 'player') {
-                addAssetToTrade(proposal.id, teamId, { type: 'player', playerId: asset.playerId })
-              } else if (asset.type === 'pick') {
-                addAssetToTrade(proposal.id, teamId, { type: 'pick', pickId: asset.pickId })
-              } else {
-                addAssetToTrade(proposal.id, teamId, { type: 'cash', cashAmount: asset.cashAmount })
-              }
+              addAssetToTrade(proposal.id, teamId, asset)
             }}
             onRemoveAsset={(teamId, idx) => removeAssetFromTrade(proposal.id, teamId, idx)}
             onSaveProtection={(pickId, protection) => setPickProtection(pickId, protection)}
