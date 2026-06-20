@@ -88,11 +88,11 @@ export function HomePage() {
 
         <section className="mt-16">
           <SectionHeader
-            eyebrow="What ships"
-            title="Milestone 0 — App shell"
-            description="This page is the Phase One deliverable. Every major surface is wired and routable. The sim, saves, and dynasty systems fill in milestone by milestone."
+            eyebrow="Roadmap"
+            title="From the draft room to the championship podium"
+            description="Build your roster, set the rotation, and let the sim run. The league diverges from real history based on your decisions."
           />
-          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {milestones.map((m) => (
               <Card
                 key={m.id}
@@ -164,8 +164,8 @@ function Hero({ hasSaves }: { hasSaves: boolean }) {
     <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
-          <span className="size-1.5 rounded-full bg-[var(--color-primary)]" />
-          Phase 1 · App Shell
+          <span className="size-1.5 rounded-full bg-[var(--color-positive)]" />
+          M5 Complete · M6 Next
         </div>
         <h1 className="mt-5 font-display text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
           Run a franchise.
@@ -458,60 +458,66 @@ const milestones: Milestone[] = [
   },
   {
     id: 'M2',
-    title: 'New league & saves',
-    summary: 'Dexie storage, export/import JSON.',
-    status: 'in_progress',
+    title: 'Saves & persistence',
+    summary: 'Dexie storage, export/import JSON, auto-save.',
+    status: 'done',
   },
   {
     id: 'M3',
-    title: 'Roster & player UI',
-    summary: 'Sortable roster + detailed player page.',
-    status: 'later',
+    title: 'Money & finance',
+    summary: 'Contracts, cap engine, revenue, owner system.',
+    status: 'done',
   },
   {
     id: 'M4',
-    title: 'Lineups & rotation',
-    summary: 'Starters, bench, target minutes, closing lineup.',
-    status: 'later',
+    title: 'Roster & player UI',
+    summary: 'Sortable roster, player profiles, compare, search.',
+    status: 'done',
   },
   {
     id: 'M5',
-    title: 'Single-game sim',
-    summary: 'Possession engine, shot/turnover/foul/rebound models.',
-    status: 'later',
+    title: 'Lineups & rotation',
+    summary: 'Starters, bench, target minutes, closing lineup.',
+    status: 'done',
   },
   {
     id: 'M6',
+    title: 'Single-game sim',
+    summary: 'Possession engine, shot/turnover/foul/rebound models.',
+    status: 'next',
+  },
+  {
+    id: 'M7',
     title: 'Schedule & standings',
     summary: 'Season sim end-to-end with dashboard updates.',
     status: 'later',
   },
   {
-    id: 'M7',
+    id: 'M8',
     title: 'Playoffs',
     summary: 'Bracket, best-of-7 series, champion history.',
     status: 'later',
   },
   {
-    id: 'M8',
+    id: 'M9',
     title: 'Trades & contracts',
     summary: 'Trade builder, AI accept/reject, payroll ledger.',
     status: 'later',
   },
   {
-    id: 'M9',
+    id: 'M10',
     title: 'Draft & free agency',
     summary: 'Prospects, scouting, multi-year offers.',
     status: 'later',
   },
   {
-    id: 'M10',
+    id: 'M11',
     title: 'Realism expansion',
     summary: 'Injuries, fatigue, morale, awards, news.',
     status: 'later',
   },
   {
-    id: 'M11',
+    id: 'M12',
     title: 'Polish & calibration',
     summary: 'Tune sim distributions, charts, accessibility.',
     status: 'later',
