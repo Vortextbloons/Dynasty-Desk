@@ -1,4 +1,3 @@
-import type { GameState } from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
 import {
   HOLD_FOR_LAST_SHOT_THRESHOLD,
@@ -53,11 +52,11 @@ export function getClockFactor(
     return { factor: 'runOutClock', meanPace: clock }
   }
 
-  if (clock <= HOLD_FOR_LAST_SHOT_THRESHOLD && !trailing && absDiff <= 10) {
+  if (isFinalPeriod && clock <= HOLD_FOR_LAST_SHOT_THRESHOLD && !trailing && absDiff <= 10) {
     return { factor: 'holdForLastShot', meanPace: HOLD_FOR_LAST_SHOT_MEAN_PACE }
   }
 
-  if (clock >= TWO_FOR_ONE_MIN && clock <= TWO_FOR_ONE_MAX) {
+  if (isFinalPeriod && clock >= TWO_FOR_ONE_MIN && clock <= TWO_FOR_ONE_MAX) {
     return { factor: 'twoForOne', meanPace: TWO_FOR_ONE_MEAN_PACE }
   }
 

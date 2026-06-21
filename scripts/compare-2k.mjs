@@ -91,7 +91,7 @@ for (const d of deltas) {
 }
 
 console.log('='.repeat(80));
-console.log('  DYNASTY DESK vs NBA 2K25 — RATING COMPARISON');
+console.log('  DYNASTY DESK vs LOCAL 2K RATINGS — RATING COMPARISON');
 console.log('='.repeat(80));
 console.log(`\n  Matched: ${matches.length} of ${roster.length} Dynasty Desk players (${(matches.length / roster.length * 100).toFixed(1)}%)`);
 console.log(`  2K reference players: ${k2ratings.length}`);

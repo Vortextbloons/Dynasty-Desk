@@ -45,6 +45,7 @@ function baseInput(overrides: Partial<PossessionInput> = {}): PossessionInput {
     teamChemistry: 50,
     homeScore: 50,
     awayScore: 48,
+    clockFactor: 'normal' as const,
     ...overrides,
   }
 }

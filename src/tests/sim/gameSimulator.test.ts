@@ -161,11 +161,13 @@ describe('simulateGame', () => {
       expect(v).toBeGreaterThanOrEqual(0)
       expect(v).toBeLessThanOrEqual(48)
     }
-    for (const id of gameState.lineupOnCourt.home) {
-      homeMins += gameState.minutesPlayed[id] ?? 0
-    }
-    for (const id of gameState.lineupOnCourt.away) {
-      awayMins += gameState.minutesPlayed[id] ?? 0
+    for (const [id, mins] of Object.entries(gameState.minutesPlayed)) {
+      if (gameState.startingLineups.home.includes(id) || gameState.lineupOnCourt.home.includes(id)) {
+        homeMins += mins
+      }
+      if (gameState.startingLineups.away.includes(id) || gameState.lineupOnCourt.away.includes(id)) {
+        awayMins += mins
+      }
     }
     expect(homeMins).toBeGreaterThan(150)
     expect(awayMins).toBeGreaterThan(150)

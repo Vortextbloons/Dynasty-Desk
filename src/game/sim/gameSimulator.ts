@@ -30,12 +30,21 @@ import {
   MAX_POSSESSIONS_PER_PERIOD,
   SUB_INTERVAL_SECONDS,
   BASE_TIME_SECONDS,
+  BONUS_FOULS_REGULATION,
+  BONUS_FOULS_OT,
+  BONUS_FOULS_LAST_TWO_MIN,
 } from '@/game/sim/simConstants'
 import {
   buildLiveGameSnapshot,
   type LiveGameSnapshot,
 } from '@/game/sim/liveGameSnapshot'
 import { LIVE_SIM_POSSESSION_DELAY_MS } from '@/game/league/scheduleConstants'
+import {
+  getClockFactor,
+  shouldIntentionalFoul,
+} from '@/game/sim/clockEngine'
+import { resolveTechnical, isFlagrantEjection, isTechnicalEjection } from '@/game/sim/foulModel'
+import { FOUL_OUT_LIMIT } from '@/game/sim/simConstants'
 
 export interface SimulateGameInput {
   id: string
@@ -97,6 +106,7 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
       home: { team: 0, byPlayer: {} },
       away: { team: 0, byPlayer: {} },
     },
+    teamFoulsThisQuarter: { home: 0, away: 0 },
     lineupOnCourt: {
       home: [...startingHome],
       away: [...startingAway],
@@ -117,6 +127,9 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
 
   for (let period = 1 as 1 | 2 | 3 | 4; period <= 4; period = (period + 1) as 1 | 2 | 3 | 4) {
     state.clock = { period, timeRemainingSeconds: QUARTER_SECONDS }
+    state.fouls.home.team = 0
+    state.fouls.away.team = 0
+    state.teamFoulsThisQuarter = { home: 0, away: 0 }
     state.events.push({ type: 'endOfPeriod', period: period - 1 })
     await playPeriod(state, input, homeById, awayById, period)
   }
@@ -194,6 +207,66 @@ async function playPeriod(
       state.score.away,
     )
     const margin = Math.abs(state.score.home - state.score.away)
+
+    const scoreDiff = offTeam === 'home'
+      ? state.score.home - state.score.away
+      : state.score.away - state.score.home
+    const { factor: clockFactor } = getClockFactor(
+      period,
+      secondsRemaining,
+      scoreDiff,
+      offTeam === 'home',
+    )
+
+    if (clockFactor === 'runOutClock') {
+      distributeMinutes(state, secondsRemaining)
+      secondsRemaining = 0
+      state.possession = defTeam
+      possessionsThisHalf++
+      continue
+    }
+
+    const foulsUntilBonus = getFoulsUntilBonus(state, defTeam)
+    if (shouldIntentionalFoul(period, secondsRemaining, state.score[offTeam], state.score[defTeam], foulsUntilBonus)) {
+      const fouler = defActive[Math.floor(input.rng.next() * defActive.length)]
+      const ftShooter = offActive[0]
+      if (fouler && ftShooter) {
+        state.fouls[defTeam].team++
+        state.teamFoulsThisQuarter[defTeam]++
+        state.fouls[defTeam].byPlayer[fouler.id] = (state.fouls[defTeam].byPlayer[fouler.id] ?? 0) + 1
+        state.events.push({
+          type: 'foul',
+          playerId: fouler.id,
+          teamId: defTeam === 'home' ? input.home.id : input.away.id,
+          kind: 'non_shooting',
+          onShot: false,
+          period,
+          timeRemainingSeconds: secondsRemaining,
+        })
+        const ftPct = ftShooter.ratings.freeThrow
+        let ftPoints = 0
+        for (let i = 0; i < 2; i++) {
+          const made = input.rng.chance(ftPct / 100)
+          if (made) ftPoints++
+          state.events.push({
+            type: 'freeThrow',
+            playerId: ftShooter.id,
+            teamId: offTeam === 'home' ? input.home.id : input.away.id,
+            attempt: i + 1,
+            made,
+            period,
+            timeRemainingSeconds: secondsRemaining,
+          })
+        }
+        if (offTeam === 'home') state.score.home += ftPoints
+        else state.score.away += ftPoints
+        state.possession = defTeam
+        state.arrow = offTeam
+        possessionsThisHalf++
+        continue
+      }
+    }
+
     const offenseLineupForSim = clutch && margin <= 5 && offTeam === 'home'
       ? swapToClosing(state, offTeam, input.homeLineup, homeById)
       : clutch && margin <= 5 && offTeam === 'away'
@@ -222,6 +295,8 @@ async function playPeriod(
         teamChemistry: offTeamObj.chemistry,
         homeScore: state.score.home,
         awayScore: state.score.away,
+        clockFactor,
+        foulsUntilBonus: getFoulsUntilBonus(state, defTeam),
       },
       input.rng,
     )
@@ -437,4 +512,16 @@ function recordTiebreakerPoint(
     period: 7,
     timeRemainingSeconds: 0,
   })
+}
+
+function getFoulsUntilBonus(state: GameState, team: 'home' | 'away'): number {
+  const foulsThisQuarter = state.teamFoulsThisQuarter[team]
+  const isOT = state.clock.period >= 5
+  const isLastTwoMin = state.clock.period <= 4 && state.clock.timeRemainingSeconds <= 120
+  const foulsNeeded = isOT
+    ? BONUS_FOULS_OT
+    : isLastTwoMin
+      ? BONUS_FOULS_LAST_TWO_MIN
+      : BONUS_FOULS_REGULATION
+  return Math.max(0, foulsNeeded - foulsThisQuarter)
 }

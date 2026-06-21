@@ -99,7 +99,14 @@ export function computeOverall(ratings: PlayerRatings, position: Position): numb
   }
   if (sum <= 50) return Math.round(sum)
   const deviation = sum - 50
-  return Math.min(99, Math.round(50 + deviation * (1 + deviation / 55)))
+  const isBigProfile =
+    position === 'C' ||
+    ((position === 'PF' || position === 'SF') &&
+      ratings.interiorDefense >= 70 &&
+      ratings.defensiveRebound >= 75 &&
+      ratings.block >= 65)
+  const curveDivisor = isBigProfile ? 120 : 85
+  return Math.min(100, Math.round(50 + deviation * (1 + deviation / curveDivisor)))
 }
 
 export function computeProductionImpact(stats: PlayerSeasonStats): number {
@@ -153,7 +160,11 @@ export function computeRealOverall(
 
   const gp = Math.max(1, stats.gamesPlayed)
   const ppg = stats.points / gp
+  const rpg = stats.rebounds / gp
+  const apg = stats.assists / gp
   const mpg = stats.minutes / gp
+  const usage = stats.usageRate
+  const bpm = stats.boxPlusMinus
 
   const blended = Math.max(skillOverall, skillOverall * 0.65 + productionImpact * 0.35)
 
@@ -164,26 +175,97 @@ export function computeRealOverall(
     else if (ppg >= 16) floor = 80
     else if (ppg >= 12) floor = 76
   } else if (mpg >= 24 && gp >= 35) {
-    if (ppg >= 18) floor = 78
-    else if (ppg >= 14) floor = 74
-    else if (ppg >= 10) floor = 70
+    if (ppg >= 18) floor = 79
+    else if (ppg >= 14) floor = 75
+    else if (ppg >= 10) floor = 71
   } else if (mpg >= 18 && gp >= 40) {
-    if (ppg >= 14) floor = 72
-    else if (ppg >= 10) floor = 68
-    else if (ppg >= 6) floor = 64
+    if (ppg >= 14) floor = 73
+    else if (ppg >= 10) floor = 69
+    else if (ppg >= 6) floor = 65
+  } else if (mpg >= 18 && gp >= 15) {
+    if (ppg >= 7) floor = 70
+    else floor = 68
+  } else if (mpg >= 12 && gp >= 15) {
+    floor = 69
+  } else if (mpg >= 8 && gp >= 15) {
+    floor = 69
   } else if (gp >= 50) {
-    floor = 66
+    floor = 67
   } else if (gp >= 30) {
-    floor = 62
+    floor = 63
+  }
+  if (gp >= 15 && mpg >= 28 && ppg >= 22 && usage >= 28) {
+    floor = Math.max(floor, 89)
+  }
+  if (gp >= 15 && mpg >= 28 && ppg >= 24 && bpm >= 4) {
+    floor = Math.max(floor, 92)
+  }
+  if (gp >= 40 && mpg >= 28 && ppg >= 23) {
+    floor = Math.max(floor, 90)
+  }
+  if (gp >= 30 && mpg >= 28 && ppg >= 17 && apg >= 5) {
+    floor = Math.max(floor, 81)
+  }
+  if (gp >= 40 && mpg >= 30 && ppg >= 22) {
+    floor = Math.max(floor, 85)
+  }
+  if (gp >= 30 && mpg >= 20 && ppg >= 8) {
+    floor = Math.max(floor, 73)
+  }
+  if (gp >= 20 && mpg >= 25 && ppg >= 20 && usage >= 25) {
+    floor = Math.max(floor, 84)
+  }
+  if (gp >= 30 && mpg >= 24 && ppg >= 14 && rpg >= 7 && bpm >= 2.5) {
+    floor = Math.max(floor, 80)
+  }
+  if (gp >= 35 && mpg >= 24 && apg >= 6) {
+    floor = Math.max(floor, 75)
+  }
+  if (gp >= 10) {
+    floor = Math.max(floor, 67)
   }
 
   let boosted = Math.max(blended, floor)
 
+  const isBigProfile =
+    position === 'C' ||
+    ((position === 'PF' || position === 'SF') &&
+      ratings.interiorDefense >= 70 &&
+      ratings.defensiveRebound >= 75 &&
+      ratings.block >= 65)
+
+  if (isBigProfile && usage < 28) {
+    if (ppg < 12) boosted = Math.min(boosted, 82)
+    else if (ppg < 17) boosted = Math.min(boosted, bpm >= 3 ? 88 : 83)
+    else if (ppg < 20) boosted = Math.min(boosted, bpm >= 3 ? 88 : 82)
+    else if (ppg < 25 && bpm < 3) boosted = Math.min(boosted, 91)
+    else if (ppg < 25) boosted = Math.min(boosted, 94)
+  }
+  if (isBigProfile && usage >= 28 && ppg < 25) {
+    boosted = Math.min(boosted, 89)
+  }
+  if (!isBigProfile && usage >= 28 && bpm < 3) {
+    const cap = bpm < 0 ? 82 : gp < 30 && ppg >= 22 ? 89 : ppg >= 24 && stats.tsPct >= 0.58 ? 88 : 87
+    boosted = Math.min(boosted, cap)
+  }
+  if (!isBigProfile && ppg >= 18 && ppg < 23 && usage >= 24 && bpm < 1.5) {
+    boosted = Math.min(boosted, ppg >= 22 ? 83 : 82)
+  }
+  if (!isBigProfile && ppg >= 20 && usage < 28 && bpm < 2.5) {
+    boosted = Math.min(boosted, 87)
+  }
+  if (!isBigProfile && ppg >= 20 && ppg < 25 && usage < 28) {
+    boosted = Math.min(boosted, 89)
+  }
+  if (!isBigProfile && ppg >= 20 && usage < 26 && bpm < 1.5) {
+    boosted = Math.min(boosted, 82)
+  }
+
   let finalBoost: number
-  if (boosted < 65) finalBoost = 5.0
-  else if (boosted < 72) finalBoost = 5.0
-  else if (boosted < 78) finalBoost = 4.0
-  else if (boosted < 85) finalBoost = 3.0
+  if (boosted < 65) finalBoost = 6.0
+  else if (boosted < 72) finalBoost = 6.0
+  else if (boosted < 78) finalBoost = 6.0
+  else if (boosted < 85) finalBoost = 4.0
   else finalBoost = 2.0
 
   return clampRating(boosted + finalBoost)

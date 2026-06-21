@@ -30,6 +30,10 @@ interface StaticPlayer {
   [key: string]: unknown
 }
 
+type StaticSeasonStats = PlayerSeasonStats & {
+  playerExternalId?: string
+}
+
 function deriveOverallForSnapshot(snapshotDir: string): number {
   const rosterPath = join(snapshotDir, 'roster.json')
   const statsPath = join(snapshotDir, 'season-stats.json')
@@ -39,9 +43,10 @@ function deriveOverallForSnapshot(snapshotDir: string): number {
 
   let statsByExternalId: Record<string, PlayerSeasonStats> = {}
   if (existsSync(statsPath)) {
-    const statsList = JSON.parse(readFileSync(statsPath, 'utf-8')) as PlayerSeasonStats[]
+    const statsList = JSON.parse(readFileSync(statsPath, 'utf-8')) as StaticSeasonStats[]
     for (const s of statsList) {
-      if (s.playerId) statsByExternalId[s.playerId] = s
+      const externalId = s.playerExternalId ?? s.playerId
+      if (externalId) statsByExternalId[externalId] = s
     }
   }
 
@@ -53,8 +58,8 @@ function deriveOverallForSnapshot(snapshotDir: string): number {
 
     const stats = player.externalId ? statsByExternalId[player.externalId] : undefined
     const overall = stats
-      ? computeRealOverall(player.ratings as PlayerRatings, position, stats)
-      : computeOverall(player.ratings as PlayerRatings, position)
+      ? computeRealOverall(player.ratings as unknown as PlayerRatings, position, stats)
+      : computeOverall(player.ratings as unknown as PlayerRatings, position)
     player.ratings.overall = overall
     updated++
   }

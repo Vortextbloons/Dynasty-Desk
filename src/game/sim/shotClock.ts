@@ -7,6 +7,8 @@ import {
   RUSH_CHANCE_LATE,
   RUSH_CHANCE_NORMAL,
 } from '@/game/sim/simConstants'
+import type { ClockFactor } from '@/game/sim/clockEngine'
+import { getClockFactorPace } from '@/game/sim/clockEngine'
 
 export { SHOT_CLOCK_SECONDS } from '@/game/sim/simConstants'
 
@@ -34,11 +36,25 @@ export function shotClockHandler(
   clock: number,
   ctx: ShotClockContext,
   rng: SeededRandom,
+  clockFactor: ClockFactor = 'normal',
 ): ShotClockResult {
-  const baseElapsed =
-    ctx.possessionType === 'transition'
-      ? 6 + rng.next() * 4
-      : 10 + rng.next() * 10
+  let baseElapsed: number
+  if (clockFactor === 'runOutClock') {
+    baseElapsed = ctx.timeRemainingSeconds
+  } else if (clockFactor === 'holdForLastShot') {
+    baseElapsed = getClockFactorPace('holdForLastShot', rng)
+  } else if (clockFactor === 'twoForOne') {
+    baseElapsed = getClockFactorPace('twoForOne', rng)
+  } else if (clockFactor === 'catchUp') {
+    baseElapsed = getClockFactorPace('catchUp', rng)
+  } else if (clockFactor === 'maintainLead') {
+    baseElapsed = getClockFactorPace('maintainLead', rng)
+  } else {
+    baseElapsed =
+      ctx.possessionType === 'transition'
+        ? 6 + rng.next() * 4
+        : 10 + rng.next() * 10
+  }
 
   const timeElapsed = Math.min(baseElapsed, ctx.timeRemainingSeconds, clock)
   const remaining = clock - timeElapsed

@@ -55,6 +55,13 @@ export const NON_SHOOTING_FOUL_CLAMP_MAX = 0.15
 export const OFFENSIVE_FOUL_BASE = 0.04
 export const OFFENSIVE_FOUL_CLAMP_MIN = 0.01
 export const OFFENSIVE_FOUL_CLAMP_MAX = 0.08
+export const NON_SHOOTING_FOUL_RATE = 0.08
+export const FLAGRANT_CHANCE = 0.005
+export const TECHNICAL_CHANCE = 0.003
+export const FOUL_OUT_LIMIT = 6
+export const BONUS_FOULS_REGULATION = 5
+export const BONUS_FOULS_OT = 2
+export const BONUS_FOULS_LAST_TWO_MIN = 2
 
 // --- Turnovers ---
 export const TURNOVER_IMPACT = 35
@@ -138,6 +145,29 @@ export const DEV_DECLINE_MAX = -0.5
 export const DEV_EARLY_CURVE_MULT = 1.2
 export const DEV_LATE_CURVE_MULT = 0.85
 export const DEV_VETERAN_DECLINE_MULT = 1.3
+
+// --- Clock Awareness ---
+export const HOLD_FOR_LAST_SHOT_THRESHOLD = 26
+export const TWO_FOR_ONE_MIN = 32
+export const TWO_FOR_ONE_MAX = 52
+export const INTENTIONAL_FOUL_WINDOW = 27
+export const RUN_OUT_CLOCK_THRESHOLD = 24
+export const CATCH_UP_DEFICIT_MIN = 3
+export const CATCH_UP_DEFICIT_MAX = 15
+export const CATCH_UP_CLOCK_MAX = 180
+export const MAINTAIN_LEAD_DEFICIT_MIN = 3
+export const MAINTAIN_LEAD_DEFICIT_MAX = 10
+export const MAINTAIN_LEAD_CLOCK_MAX = 180
+export const HOLD_FOR_LAST_SHOT_MEAN_PACE = 22
+export const TWO_FOR_ONE_MEAN_PACE = 6.25
+export const CATCH_UP_MEAN_PACE = 5
+export const MAINTAIN_LEAD_MEAN_PACE = 12
+export const NORMAL_MEAN_PACE = 12.5
+export const INTENTIONAL_FOUL_MIN_SCORE_DIFF = 1
+export const INTENTIONAL_FOUL_MAX_SCORE_DIFF = 6
+export const TIMEOUT_CLOCK_THRESHOLD = 10
+export const TIMEOUT_DEFICIT_MAX = 10
+export const FINAL_PERIOD = 4
 
 // --- Key Plays ---
 export const KEY_PLAYS_LIMIT = 5

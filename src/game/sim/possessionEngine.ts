@@ -5,7 +5,7 @@ import type { SeededRandom } from '@/game/sim/rng'
 import { resolveShot, selectZone, type ShotContext } from '@/game/sim/shotModel'
 import { turnoverChance, resolveTurnover } from '@/game/sim/turnoverModel'
 import { resolveRebound } from '@/game/sim/reboundModel'
-import { shootingFoulChance, resolveFoul } from '@/game/sim/foulModel'
+import { shootingFoulChance, nonShootingFoulChance, resolveFoul } from '@/game/sim/foulModel'
 import {
   isThreePointZone,
   threePointRateForTeam,
@@ -21,7 +21,14 @@ import {
 } from '@/game/sim/shotClock'
 import { clamp } from '@/lib/utils'
 import { applyStrategyToPossession } from '@/game/sim/strategyEngine'
-import { TRANSITION_PROBABILITY } from '@/game/sim/simConstants'
+import {
+  TRANSITION_PROBABILITY,
+  NON_SHOOTING_FOUL_RATE,
+  BONUS_FOULS_REGULATION,
+  BONUS_FOULS_OT,
+  BONUS_FOULS_LAST_TWO_MIN,
+} from '@/game/sim/simConstants'
+import type { ClockFactor } from '@/game/sim/clockEngine'
 
 export interface PossessionInput {
   offense: Player[]
@@ -44,6 +51,8 @@ export interface PossessionInput {
   teamChemistry: number
   homeScore: number
   awayScore: number
+  clockFactor: ClockFactor
+  foulsUntilBonus: number
 }
 
 export function selectPossessionType(rng: SeededRandom): 'half_court' | 'transition' {
@@ -156,6 +165,7 @@ export function resolvePossession(
       possessionType: input.possessionType,
     },
     rng,
+    input.clockFactor,
   )
 
   if (clockResult.violation) {
@@ -226,6 +236,81 @@ export function resolvePossession(
       turnoverType: t.turnoverType,
       shooterId: t.playerId,
       stealerId: t.stolenBy,
+    }
+  }
+
+  if (rng.chance(NON_SHOOTING_FOUL_RATE)) {
+    const foul = resolveFoul(defender, primary, false, rng)
+    if (foul.kind === 'offensive') {
+      events.push({
+        type: 'turnover',
+        playerId: foul.playerId,
+        teamId: input.offenseTeamId,
+        turnoverType: 'offensive_foul',
+        period: input.period,
+        timeRemainingSeconds: input.timeRemainingSeconds,
+        impact: 35,
+      })
+      return {
+        points: 0,
+        timeElapsedSeconds: clockResult.timeElapsed,
+        events,
+        possessionChange: true,
+        endOfPeriod: false,
+        turnoverType: 'offensive_foul',
+        shooterId: foul.playerId,
+      }
+    }
+
+    events.push({
+      type: 'foul',
+      playerId: foul.playerId,
+      teamId: input.defenseTeamId,
+      kind: foul.kind === 'flagrant' ? 'flagrant' : 'non_shooting',
+      onShot: false,
+      period: input.period,
+      timeRemainingSeconds: input.timeRemainingSeconds,
+      ...(foul.fouledPlayerId ? { fouledPlayerId: foul.fouledPlayerId } : {}),
+    })
+
+    if (input.foulsUntilBonus <= 1 || foul.kind === 'flagrant') {
+      const ftCount = foul.kind === 'flagrant' ? 2 : 2
+      let points = 0
+      for (let attempt = 1; attempt <= ftCount; attempt++) {
+        const ftPct = primary.ratings.freeThrow / 100
+        const made = rng.chance(ftPct)
+        if (made) points++
+        events.push({
+          type: 'freeThrow',
+          playerId: primary.id,
+          teamId: input.offenseTeamId,
+          attempt,
+          made,
+          period: input.period,
+          timeRemainingSeconds: input.timeRemainingSeconds,
+        })
+      }
+      return {
+        points,
+        timeElapsedSeconds: clockResult.timeElapsed,
+        events,
+        possessionChange: false,
+        endOfPeriod: false,
+        fouled: true,
+        shooterId: primary.id,
+        defenderId: defender.id,
+      }
+    }
+
+    return {
+      points: 0,
+      timeElapsedSeconds: clockResult.timeElapsed,
+      events,
+      possessionChange: false,
+      endOfPeriod: false,
+      fouled: true,
+      shooterId: primary.id,
+      defenderId: defender.id,
     }
   }
 

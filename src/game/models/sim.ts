@@ -136,6 +136,8 @@ export interface PlayerGameStats {
   steals: number
   blocks: number
   fouls: number
+  flagrants: number
+  technicals: number
   plusMinus: number
   shotsAtRim: TeamShotZones
   shotsShortMid: TeamShotZones
@@ -232,6 +234,8 @@ export interface GameState {
     away: FoulCounts
   }
 
+  teamFoulsThisQuarter: { home: number; away: number }
+
   lineupOnCourt: { home: string[]; away: string[] }
   startingLineups: { home: string[]; away: string[] }
 
@@ -271,6 +275,8 @@ export function emptyPlayerGameStats(
     steals: 0,
     blocks: 0,
     fouls: 0,
+    flagrants: 0,
+    technicals: 0,
     plusMinus: 0,
     shotsAtRim: { made: 0, attempted: 0 },
     shotsShortMid: { made: 0, attempted: 0 },

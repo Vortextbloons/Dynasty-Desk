@@ -13,15 +13,18 @@ import {
   OFFENSIVE_FOUL_BASE,
   OFFENSIVE_FOUL_CLAMP_MIN,
   OFFENSIVE_FOUL_CLAMP_MAX,
+  FLAGRANT_CHANCE,
+  TECHNICAL_CHANCE,
 } from '@/game/sim/simConstants'
 
-export type ResolvedFoulKind = 'shooting' | 'non_shooting' | 'offensive'
+export type ResolvedFoulKind = 'shooting' | 'non_shooting' | 'offensive' | 'flagrant' | 'technical'
 
 export interface ResolvedFoul {
   kind: ResolvedFoulKind
   onShot: boolean
   playerId: string
   fouledPlayerId?: string
+  isEjection?: boolean
 }
 
 export function shootingFoulChance(
@@ -62,6 +65,14 @@ export function resolveFoul(
   rng: SeededRandom,
 ): ResolvedFoul {
   if (onShot) {
+    if (rng.chance(FLAGRANT_CHANCE)) {
+      return {
+        kind: 'flagrant',
+        onShot: true,
+        playerId: defender.id,
+        fouledPlayerId: offense.id,
+      }
+    }
     return {
       kind: 'shooting',
       onShot: true,
@@ -79,10 +90,37 @@ export function resolveFoul(
     }
   }
 
+  if (rng.chance(FLAGRANT_CHANCE)) {
+    return {
+      kind: 'flagrant',
+      onShot: false,
+      playerId: defender.id,
+      fouledPlayerId: offense.id,
+    }
+  }
+
   return {
     kind: 'non_shooting',
     onShot: false,
     playerId: defender.id,
     fouledPlayerId: offense.id,
   }
+}
+
+export function resolveTechnical(rng: SeededRandom, playerIds: string[]): ResolvedFoul | null {
+  if (!rng.chance(TECHNICAL_CHANCE)) return null
+  const playerId = rng.pick(playerIds)
+  return {
+    kind: 'technical',
+    onShot: false,
+    playerId,
+  }
+}
+
+export function isFlagrantEjection(flagrantCount: number): boolean {
+  return flagrantCount >= 2
+}
+
+export function isTechnicalEjection(technicalCount: number): boolean {
+  return technicalCount >= 2
 }
