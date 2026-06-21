@@ -12,14 +12,13 @@ from .config import MAX_RETRIES, RAW_CACHE, RATE_LIMIT_SECONDS
 
 T = TypeVar("T")
 
-# Global rate limiter: max 4 concurrent requests, 1 per 0.8s
-_api_semaphore = threading.Semaphore(4)
+# Global rate limiter
 _last_request_time = 0.0
 _rate_lock = threading.Lock()
 
 
 def _global_rate_wait() -> None:
-    """Thread-safe global rate limiter."""
+    """Thread-safe: wait at least RATE_LIMIT_SECONDS between requests."""
     global _last_request_time
     with _rate_lock:
         now = time.monotonic()
@@ -59,14 +58,13 @@ def with_retry(fn: Callable[[], T]) -> T:
     for attempt in range(MAX_RETRIES):
         try:
             _global_rate_wait()
-            with _api_semaphore:
-                result = fn()
+            result = fn()
             if attempt > 0:
                 print(f"  [OK] recovered after {attempt} retries")
             return result
         except Exception as exc:  # noqa: BLE001
             last_err = exc
-            backoff = RATE_LIMIT_SECONDS * (2 ** (attempt + 1))
+            backoff = min(RATE_LIMIT_SECONDS * (2 ** attempt), 30)
             print(f"  ! attempt {attempt + 1} failed: {exc} -- retrying in {backoff:.1f}s")
             time.sleep(backoff)
     assert last_err is not None
