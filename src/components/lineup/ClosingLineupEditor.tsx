@@ -14,17 +14,16 @@ import {
 } from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'
 import type { Player } from '@/game/models/player'
-import { Button } from '@/components/ui/button'
+import { STARTER_SLOT_COUNT, uniquePlayerIds } from '@/game/management/rotationActions'
 import { SlotItem } from './SlotItem'
-
-const CLOSING_LABELS = ['1', '2', '3', '4', '5']
 
 interface ClosingLineupEditorProps {
   closingIds: string[]
   players: Map<string, Player>
   onReorder: (newIds: string[]) => void
   onRemove: (playerId: string) => void
-  onAddSlot: () => void
+  onEmptySlotClick: (slotIndex: number) => void
+  onPlayerClick: (slotIndex: number) => void
 }
 
 export function ClosingLineupEditor({
@@ -32,7 +31,8 @@ export function ClosingLineupEditor({
   players,
   onReorder,
   onRemove,
-  onAddSlot,
+  onEmptySlotClick,
+  onPlayerClick,
 }: ClosingLineupEditorProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -54,13 +54,18 @@ export function ClosingLineupEditor({
   }
 
   return (
-    <div>
+    <div className="rounded-lg border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] p-4">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-display font-medium text-[var(--color-foreground)]">
-          Closing Lineup
-        </h3>
+        <div>
+          <h3 className="text-sm font-display font-medium text-[var(--color-foreground)]">
+            Closing Lineup
+          </h3>
+          <p className="text-[10px] text-[var(--color-muted-foreground)] mt-0.5">
+            Five players for clutch minutes — must be in your rotation
+          </p>
+        </div>
         <span className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)]">
-          5 slots · drag to reorder
+          {closingIds.length}/{STARTER_SLOT_COUNT}
         </span>
       </div>
       <DndContext
@@ -69,34 +74,41 @@ export function ClosingLineupEditor({
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={closingIds}
+          items={uniquePlayerIds(closingIds)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="space-y-1">
-            {closingIds.map((id, i) => (
-              <SlotItem
-                key={id}
-                id={id}
-                player={players.get(id) ?? null}
-                index={i}
-                label={CLOSING_LABELS[i]}
-                onRemove={() => onRemove(id)}
-              />
-            ))}
+          <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-1">
+            {Array.from({ length: STARTER_SLOT_COUNT }, (_, i) => {
+              const id = closingIds[i]
+              const player = id ? players.get(id) ?? null : null
+              if (player && id) {
+                return (
+                  <SlotItem
+                    key={`closing-slot-${i}`}
+                    id={id}
+                    player={player}
+                    index={i}
+                    label={`${i + 1}`}
+                    onClickSlot={() => onPlayerClick(i)}
+                    onRemove={() => onRemove(id)}
+                  />
+                )
+              }
+              return (
+                <button
+                  key={`empty-${i}`}
+                  type="button"
+                  onClick={() => onEmptySlotClick(i)}
+                  className="flex items-center gap-2 rounded-md border border-dashed border-[var(--color-line-soft)] px-3 py-2 text-sm text-[var(--color-muted-foreground)] hover:border-[var(--color-primary)] hover:text-[var(--color-foreground)] transition-colors"
+                >
+                  <Plus className="size-4" />
+                  <span>Click to add closing player</span>
+                </button>
+              )
+            })}
           </div>
         </SortableContext>
       </DndContext>
-      {closingIds.length < 5 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mt-2 w-full text-[var(--color-muted-foreground)]"
-          onClick={onAddSlot}
-        >
-          <Plus className="size-4" />
-          Add to closing lineup
-        </Button>
-      )}
     </div>
   )
 }

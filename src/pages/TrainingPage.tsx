@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
@@ -13,7 +14,6 @@ export function TrainingPage() {
   const save = useGameStore((s) => s.save)
   const setTeamTrainingFocus = useGameStore((s) => s.setTeamTrainingFocus)
   const setTrainingFocus = useGameStore((s) => s.setTrainingFocus)
-  const setLoadManagement = useGameStore((s) => s.setLoadManagement)
   const [search, setSearch] = useState('')
 
   const team = useMemo(() => {
@@ -69,7 +69,7 @@ export function TrainingPage() {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-display">Player focus & load management</CardTitle>
+          <CardTitle className="text-sm font-display">Player focus</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative max-w-md">
@@ -87,10 +87,10 @@ export function TrainingPage() {
             <EmptyState description="No players match your search." />
           ) : (
             filteredRoster.map((player) => {
-              const cap =
-                team.loadManagement.find((e) => e.playerId === player.id)?.targetMinutes ??
-                team.lineup.targetMinutes[player.id] ??
-                32
+              const targetMinutes = team.lineup.targetMinutes[player.id] ?? 0
+              const inRotation =
+                team.lineup.starters.includes(player.id) ||
+                team.lineup.bench.includes(player.id)
               return (
                 <div
                   key={player.id}
@@ -102,9 +102,15 @@ export function TrainingPage() {
                     linkTo={`/player/${player.id}`}
                     subtitle={`${player.position} · OVR ${player.ratings.overall}`}
                     trailing={
-                      <span className="text-xs text-[var(--color-muted-foreground)] font-mono">
-                        {cap} min
-                      </span>
+                      inRotation ? (
+                        <span className="text-xs text-[var(--color-muted-foreground)] font-mono">
+                          {targetMinutes} min
+                        </span>
+                      ) : (
+                        <span className="text-xs text-[var(--color-muted-foreground)]">
+                          Not in rotation
+                        </span>
+                      )
                     }
                   />
                   <TrainingFocusPicker
@@ -115,21 +121,14 @@ export function TrainingPage() {
                   <p className="text-xs text-[var(--color-muted-foreground)]">
                     {trainingFocusPreview(player.development.trainingFocus)}
                   </p>
-                  <label className="flex items-center gap-3 text-xs">
-                    <span className="text-[var(--color-muted-foreground)] shrink-0">
-                      Target minutes
-                    </span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={48}
-                      value={cap}
-                      onChange={(e) =>
-                        setLoadManagement(player.id, Number(e.target.value) || 0)
-                      }
-                      className="w-20 rounded border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2 py-1 font-mono"
-                    />
-                  </label>
+                  {inRotation && (
+                    <Link
+                      to="/lineup"
+                      className="text-xs text-[var(--color-primary)] hover:underline"
+                    >
+                      Edit rotation minutes on Lineup
+                    </Link>
+                  )}
                 </div>
               )
             })

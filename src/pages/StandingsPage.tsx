@@ -9,6 +9,7 @@ import { TeamDirectionBadge } from '@/components/team/TeamDirectionBadge'
 import { TeamLogo } from '@/components/team/TeamLogo'
 import { formatWinPct } from '@/lib/format'
 import { FastForward, Trophy } from 'lucide-react'
+import { toast } from 'sonner'
 
 type Tab = 'East' | 'West' | 'League'
 

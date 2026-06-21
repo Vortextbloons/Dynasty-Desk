@@ -11,6 +11,7 @@ import { ChampionCard } from '@/components/playoffs/ChampionCard'
 import { PlayoffBracketChart } from '@/components/charts/PlayoffBracketChart'
 import { getPlayoffBracketBlockReason } from '@/game/league/playoffEngine'
 import { Trophy, Play, Square, FastForward } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type Tab = 'East' | 'West' | 'Finals'
 

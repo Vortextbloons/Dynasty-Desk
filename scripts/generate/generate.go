@@ -501,16 +501,16 @@ func generateSeasonSnapshot(season string) error {
 
 	realData := hasRealData(season)
 
+	if realData {
+		fmt.Printf("[real] skipped %s/ (real data exists)\n", season)
+		return nil
+	}
+
 	if err := writeJSON(filepath.Join(base, "teams.json"), teams); err != nil {
 		return err
 	}
 	if err := writeJSON(filepath.Join(base, "era-config.json"), eraConfigFor(season)); err != nil {
 		return err
-	}
-
-	if realData {
-		fmt.Printf("[real] skipped %s/ (real data exists)\n", season)
-		return nil
 	}
 
 	players := generatePlayers(teams, season, r)

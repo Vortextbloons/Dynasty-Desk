@@ -13,7 +13,7 @@ const WARNING_LABELS: Record<RotationWarning, string> = {
   not_five_closing: 'Need 5 closing players',
   minutes_not_240: 'Minutes ≠ 240',
   duplicate_player: 'Duplicate player',
-  injured_player_in_rotation: 'Injured player',
+  injured_player_in_rotation: 'Injured player in rotation',
   injured_player_force_included: 'Injured (force-included)',
   player_not_on_roster: 'Not on roster',
   no_ball_handler: 'No ball handler',
@@ -26,14 +26,23 @@ export function warningMessage(code: RotationWarning): string {
   return WARNING_LABELS[code] ?? code
 }
 
+export const FIXABLE_WARNING_CODES = new Set<RotationWarning>([
+  'not_five_starters',
+  'no_ball_handler',
+  'no_center',
+  'minutes_not_240',
+])
+
 interface ValidationWarningsListProps {
   warnings: WarningEntry[]
   onFix?: (code: RotationWarning) => void
+  fixableCodes?: Set<RotationWarning>
 }
 
 export function ValidationWarningsList({
   warnings,
   onFix,
+  fixableCodes = FIXABLE_WARNING_CODES,
 }: ValidationWarningsListProps) {
   if (warnings.length === 0) return null
 
@@ -51,7 +60,7 @@ export function ValidationWarningsList({
               <span className="ml-1.5 text-amber-500/70">{w.message}</span>
             )}
           </span>
-          {onFix && (
+          {onFix && fixableCodes.has(w.code) && (
             <Button
               variant="ghost"
               size="sm"

@@ -67,11 +67,15 @@ export function SlotItem({
       </span>
 
       {player ? (
-        <>
+        <button
+          type="button"
+          onClick={onClickSlot}
+          className="flex-1 min-w-0 text-left"
+        >
           <PlayerListItem
             player={player}
             size={28}
-            className="flex-1 min-w-0 pointer-events-none"
+            className="pointer-events-none"
             trailing={
               <>
                 <Chip label={player.position} size="sm" />
@@ -81,7 +85,7 @@ export function SlotItem({
               </>
             }
           />
-        </>
+        </button>
       ) : (
         <button
           type="button"

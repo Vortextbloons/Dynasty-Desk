@@ -51,9 +51,12 @@ export function MinutesDistribution({ players, teamName }: MinutesDistributionPr
                 borderRadius: 8,
                 fontSize: 12,
               }}
-              formatter={(value: number, name: string) => [Math.round(value), name]}
+              formatter={(value, name) => [
+                Math.round(Number(value ?? 0)),
+                name === 'minutes' ? 'Actual MPG' : 'Target',
+              ]}
             />
-            <Bar dataKey="minutes" fill="var(--color-primary)" name="Minutes" />
+            <Bar dataKey="minutes" fill="var(--color-primary)" name="Actual MPG" />
             <Bar dataKey="target" fill="var(--color-muted-foreground)" name="Target" opacity={0.3} />
           </BarChart>
         </ResponsiveContainer>

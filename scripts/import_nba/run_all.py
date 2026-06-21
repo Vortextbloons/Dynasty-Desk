@@ -37,16 +37,31 @@ def _fetch_season(season: str, skip_schedule: bool, force_ratings: bool) -> None
     compute_ratings = _import("compute_ratings").run
 
     print(f"\n=== {season} ===")
-    fetch_rosters(season)
+    try:
+        fetch_rosters(season)
+    except Exception as exc:
+        print(f"  ! roster fetch failed: {exc}")
+        return
 
     roster_path = REPO_ROOT / "public" / "data" / "nba" / season / "roster.json"
     roster = []
     if roster_path.exists():
         roster = json.loads(roster_path.read_text(encoding="utf-8"))
 
-    fetch_season_stats(season, roster)
-    compute_era_config([season])
-    compute_ratings([season], force=force_ratings)
+    try:
+        fetch_season_stats(season, roster)
+    except Exception as exc:
+        print(f"  ! season stats fetch failed: {exc}")
+
+    try:
+        compute_era_config([season])
+    except Exception as exc:
+        print(f"  ! era config compute failed: {exc}")
+
+    try:
+        compute_ratings([season], force=force_ratings)
+    except Exception as exc:
+        print(f"  ! ratings compute failed: {exc}")
 
     if not skip_schedule:
         try:

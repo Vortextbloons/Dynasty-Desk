@@ -22,7 +22,7 @@ import {
   setActiveSaveId,
 } from '@/game/core/activeSavePersistence'
 import type { TrainingFocus } from '@/game/models/training'
-import type { TeamStrategy } from '@/game/models/team'
+import type { TeamStrategy, LineupSettings } from '@/game/models/team'
 import type { NewsEvent, NewsType, NewsImportance } from '@/game/models/news'
 import {
   filterNews,
@@ -70,6 +70,17 @@ import {
 } from '@/game/management/contractActions'
 import { validateRotation } from '@/game/management/rotationValidator'
 import { generateAutoRotation } from '@/game/management/autoRotation'
+import {
+  assignToBench,
+  assignToStarter,
+  balanceRotationMinutes as balanceRotationMinutesAction,
+  BENCH_SOFT_CAP,
+  moveBetweenSections,
+  removeFromRotation,
+  STARTER_SLOT_COUNT,
+  uniquePlayerIds,
+  type RotationSection,
+} from '@/game/management/rotationActions'
 import { addDays } from '@/lib/utils'
 import {
   tryGeneratePlayoffBracket,
@@ -214,6 +225,19 @@ interface GameStore {
   setBench: (playerIds: string[]) => void
   setClosingLineup: (playerIds: string[]) => void
   setTargetMinutes: (playerId: string, minutes: number) => void
+  assignPlayerToRotation: (
+    playerId: string,
+    dest: 'starter' | 'bench',
+    index?: number,
+  ) => void
+  removePlayerFromRotation: (playerId: string) => void
+  movePlayerInRotation: (
+    playerId: string,
+    from: RotationSection,
+    to: RotationSection,
+    index?: number,
+  ) => void
+  balanceRotationMinutes: () => void
   setTrainingFocus: (playerId: string, focus: TrainingFocus) => void
   setTeamTrainingFocus: (teamId: string, focus: TrainingFocus) => void
   setLoadManagement: (playerId: string, targetMinutes: number) => void
@@ -983,7 +1007,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const teamId = save.league.userTeamId
     const team = save.league.teams[teamId]
     if (!team) return
-    team.lineup.starters = playerIds
+    team.lineup.starters = uniquePlayerIds(playerIds).slice(0, STARTER_SLOT_COUNT)
     revalidateLineup(save, teamId)
     set({ save: { ...save } })
     get().scheduleAutoSave()
@@ -995,7 +1019,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const teamId = save.league.userTeamId
     const team = save.league.teams[teamId]
     if (!team) return
-    team.lineup.bench = playerIds
+    team.lineup.bench = uniquePlayerIds(playerIds).slice(0, BENCH_SOFT_CAP)
     revalidateLineup(save, teamId)
     set({ save: { ...save } })
     get().scheduleAutoSave()
@@ -1007,7 +1031,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const teamId = save.league.userTeamId
     const team = save.league.teams[teamId]
     if (!team) return
-    team.lineup.closingLineup = playerIds
+    team.lineup.closingLineup = uniquePlayerIds(playerIds).slice(0, STARTER_SLOT_COUNT)
     revalidateLineup(save, teamId)
     set({ save: { ...save } })
     get().scheduleAutoSave()
@@ -1021,6 +1045,69 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!team) return
     team.lineup.targetMinutes[playerId] = minutes
     team.lineup.generatedByAutoRotate = false
+    syncLoadManagement(team, playerId, minutes)
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  assignPlayerToRotation: (playerId, dest, index) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    const updated =
+      dest === 'starter'
+        ? assignToStarter(team.lineup, playerId, index)
+        : assignToBench(team.lineup, playerId, index)
+    applyLineupSettings(team, updated)
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  removePlayerFromRotation: (playerId) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    const updated = removeFromRotation(team.lineup, playerId)
+    applyLineupSettings(team, updated)
+    clearLoadManagement(team, playerId)
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  movePlayerInRotation: (playerId, from, to, index) => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    const updated = moveBetweenSections(team.lineup, playerId, from, to, index)
+    applyLineupSettings(team, updated)
+    if (to === 'pool') {
+      clearLoadManagement(team, playerId)
+    }
+    revalidateLineup(save, teamId)
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+  },
+
+  balanceRotationMinutes: () => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    const updated = balanceRotationMinutesAction(team.lineup)
+    applyLineupSettings(team, updated)
+    for (const [id, minutes] of Object.entries(updated.targetMinutes)) {
+      syncLoadManagement(team, id, minutes)
+    }
     revalidateLineup(save, teamId)
     set({ save: { ...save } })
     get().scheduleAutoSave()
@@ -2210,4 +2297,41 @@ function revalidateLineup(save: GameSave, teamId: string) {
   )
   team.lineup.lastValidatedAt = new Date().toISOString()
   team.lineup.lastValidationWarnings = result.warnings.map((w) => w.code)
+}
+
+function applyLineupSettings(
+  team: GameSave['league']['teams'][string],
+  updated: LineupSettings,
+) {
+  team.lineup.starters = updated.starters
+  team.lineup.bench = updated.bench
+  team.lineup.closingLineup = updated.closingLineup
+  team.lineup.targetMinutes = updated.targetMinutes
+  if (updated.generatedByAutoRotate !== undefined) {
+    team.lineup.generatedByAutoRotate = updated.generatedByAutoRotate
+  }
+}
+
+function syncLoadManagement(
+  team: GameSave['league']['teams'][string],
+  playerId: string,
+  targetMinutes: number,
+) {
+  const existing = team.loadManagement.findIndex(
+    (e) => e.playerId === playerId,
+  )
+  if (existing >= 0) {
+    team.loadManagement[existing] = { playerId, targetMinutes }
+  } else {
+    team.loadManagement.push({ playerId, targetMinutes })
+  }
+}
+
+function clearLoadManagement(
+  team: GameSave['league']['teams'][string],
+  playerId: string,
+) {
+  team.loadManagement = team.loadManagement.filter(
+    (e) => e.playerId !== playerId,
+  )
 }

@@ -1,10 +1,8 @@
 {
   "season": "1996-97",
-  "pace": 100.0,
-  "league3PARate": 0.211,
-  "leagueTsPct": 0.505,
-  "leaguePpg": 9.7,
-  "possessionCoefficient": 1.0,
-  "playerCount": 441,
-  "teamCount": 289
+  "pace": 91.1,
+  "league3PARate": 0.18,
+  "leagueTsPct": 0.52,
+  "leaguePpg": 99.1,
+  "possessionCoefficient": 0.92
 }

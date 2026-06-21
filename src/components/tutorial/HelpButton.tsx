@@ -1,6 +1,6 @@
 import { HelpCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 
 const HELP_TEXT: Record<string, string> = {
   dashboard: 'Overview of your team record, standings position, and upcoming games.',
@@ -23,20 +23,22 @@ export function HelpButton({ page }: HelpButtonProps) {
   const text = HELP_TEXT[page] ?? 'No help available for this page.'
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-          aria-label={`Help for ${page}`}
-        >
-          <HelpCircle className="size-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-xs">
-        {text}
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+            aria-label={`Help for ${page}`}
+          >
+            <HelpCircle className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-xs">
+          {text}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }

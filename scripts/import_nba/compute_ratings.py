@@ -578,9 +578,11 @@ def compute_for_season(season: str, force: bool = False) -> None:
         return
 
     # Check if already computed (unless force)
-    if not force and roster and "ratings" in (roster[0] if roster else {}):
-        print(f"  [SKIP] {season}: ratings already computed (use --force to recompute)")
-        return
+    if not force and roster and "importMeta" in (roster[0] if roster else {}):
+        meta = roster[0].get("importMeta", {})
+        if meta.get("statsSource") == "nba_api":
+            print(f"  [SKIP] {season}: ratings already computed (use --force to recompute)")
+            return
 
     # Build stats lookup by externalId
     stats_by_id: dict[str, dict[str, Any]] = {}

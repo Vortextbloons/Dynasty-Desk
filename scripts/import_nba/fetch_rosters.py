@@ -313,12 +313,21 @@ def run(season: str) -> None:
 
     roster_out: list[dict[str, Any]] = []
     player_counter: dict[str, int] = {}
+    failed_teams: list[str] = []
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         futures = {pool.submit(_fetch_one, tid): tid for tid in team_ids}
         done = 0
         for future in as_completed(futures):
             done += 1
-            team_id, players = future.result()
+            team_id = futures[future]
+            try:
+                team_id, players = future.result()
+            except Exception as exc:
+                print(f"  ! failed to fetch roster for {team_id}: {exc}")
+                failed_teams.append(team_id)
+                if done % 10 == 0 or done == len(team_ids):
+                    print(f"  ... {done}/{len(team_ids)} teams fetched")
+                continue
             internal_id = team_internal_ids[team_id]
             abbr = abbr_by_team_id.get(team_id, "UNK")
             for p in players:
@@ -390,3 +399,5 @@ def run(season: str) -> None:
 
     write_json(out / "roster.json", roster_out)
     print(f"  [OK] wrote roster.json ({len(roster_out)} players)")
+    if failed_teams:
+        print(f"  [WARN] {len(failed_teams)} teams failed: {', '.join(failed_teams)}")

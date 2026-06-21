@@ -29,9 +29,11 @@ export function KeyPlaysList({ plays, playerLookup }: Props) {
               return (
                 <li key={idx} className="flex items-start gap-3 text-sm">
                   <span className="shrink-0 font-mono text-[10px] text-[var(--color-muted-foreground)] pt-0.5">
-                    {'period' in ev
-                      ? `${formatQuarter(ev.period)} ${formatClock(ev.timeRemainingSeconds)}`
-                      : '—'}
+                    {ev.type === 'endOfPeriod'
+                      ? formatQuarter(ev.period > 0 ? ev.period : 1)
+                      : 'period' in ev && 'timeRemainingSeconds' in ev
+                        ? `${formatQuarter(ev.period)} ${formatClock(ev.timeRemainingSeconds)}`
+                        : '—'}
                   </span>
                   <span>{desc}</span>
                 </li>

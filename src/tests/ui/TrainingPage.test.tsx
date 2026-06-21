@@ -19,7 +19,11 @@ describe('TrainingPage', () => {
               id: 't1',
               trainingFocus: 'balanced',
               roster: ['p1'],
-              lineup: { targetMinutes: { p1: 32 } },
+              lineup: {
+                starters: ['p1'],
+                bench: [],
+                targetMinutes: { p1: 32 },
+              },
               loadManagement: [],
             },
           },
@@ -28,6 +32,7 @@ describe('TrainingPage', () => {
               id: 'p1',
               firstName: 'Test',
               lastName: 'Player',
+              position: 'PG',
               ratings: { overall: 80 },
               development: { trainingFocus: 'balanced' },
             },
@@ -36,7 +41,6 @@ describe('TrainingPage', () => {
       },
       setTeamTrainingFocus: vi.fn(),
       setTrainingFocus: vi.fn(),
-      setLoadManagement: vi.fn(),
     }
     mockUseGameStore.mockImplementation((selector: (s: typeof state) => unknown) => selector(state))
 
@@ -44,5 +48,7 @@ describe('TrainingPage', () => {
     expect(screen.getByText('Training')).toBeInTheDocument()
     expect(screen.getByText('Team training focus')).toBeInTheDocument()
     expect(screen.getByText('Test Player')).toBeInTheDocument()
+    expect(screen.getByText('32 min')).toBeInTheDocument()
+    expect(screen.getByText('Edit rotation minutes on Lineup')).toBeInTheDocument()
   })
 })
