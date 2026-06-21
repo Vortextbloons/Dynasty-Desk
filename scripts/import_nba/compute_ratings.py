@@ -194,7 +194,7 @@ def derive_ratings(stats: dict[str, Any], position: str, season: str, rng: rando
     def blend(raw: float, mean: float) -> float:
         return blend_to_mean(raw, weight, mean)
 
-    def jitter(v: float, sigma: float = 1.5) -> float:
+    def jitter(v: float, sigma: float = 1.0) -> float:
         return v + j(0, sigma)
 
     # Shooting
@@ -226,34 +226,34 @@ def derive_ratings(stats: dict[str, Any], position: str, season: str, rng: rando
     ath = 60 + (usage - 18) * 0.4 + mpg * 0.4 + per * 0.6
 
     ratings = {
-        "insideScoring": clamp_rating(jitter(blend(inside_raw, 55))),
-        "closeShot": clamp_rating(jitter(blend(60 + (ppg - 10) * 1.2, 60))),
-        "midrange": clamp_rating(jitter(blend(60 + (efg_pct - 0.5) * 80, 55))),
-        "threePoint": clamp_rating(jitter(blend(three_raw, 55))),
-        "freeThrow": clamp_rating(jitter(blend(60 + (ft_pct - 0.78) * 200, 70))),
-        "ballHandling": clamp_rating(jitter(blend(60 + (usage - 18) * 0.6, 55))),
-        "passing": clamp_rating(jitter(blend(pass_raw, 55))),
-        "offensiveIq": clamp_rating(jitter(blend(60 + per * 0.8 + bpm * 1.5, 60))),
-        "offensiveRebound": clamp_rating(jitter(blend(oreb_raw, 45))),
-        "defensiveRebound": clamp_rating(jitter(blend(dreb_raw, 60))),
-        "perimeterDefense": clamp_rating(jitter(blend(def_raw, 55))),
+        "insideScoring": clamp_rating(jitter(blend(inside_raw, 50))),
+        "closeShot": clamp_rating(jitter(blend(60 + (ppg - 10) * 1.5, 55))),
+        "midrange": clamp_rating(jitter(blend(60 + (efg_pct - 0.48) * 100, 50))),
+        "threePoint": clamp_rating(jitter(blend(three_raw, 50))),
+        "freeThrow": clamp_rating(jitter(blend(60 + (ft_pct - 0.75) * 250, 65))),
+        "ballHandling": clamp_rating(jitter(blend(60 + (usage - 16) * 0.8, 50))),
+        "passing": clamp_rating(jitter(blend(pass_raw, 50))),
+        "offensiveIq": clamp_rating(jitter(blend(60 + per * 1.0 + bpm * 2.0, 55))),
+        "offensiveRebound": clamp_rating(jitter(blend(oreb_raw, 40))),
+        "defensiveRebound": clamp_rating(jitter(blend(dreb_raw, 55))),
+        "perimeterDefense": clamp_rating(jitter(blend(def_raw, 50))),
         "interiorDefense": clamp_rating(jitter(blend(
             def_raw + 5 if position in ("C", "PF") else def_raw - 3,
-            60 if position in ("C", "PF") else 50,
+            55 if position in ("C", "PF") else 45,
         ))),
-        "steal": clamp_rating(jitter(blend(60 + spg * 8, 55))),
-        "block": clamp_rating(jitter(blend(60 + bpg * 10, 50))),
-        "defensiveIq": clamp_rating(jitter(blend(60 + bpm * 1.5, 60))),
-        "speed": clamp_rating(jitter(blend(ath + (5 if position == "PG" else 0), 60))),
+        "steal": clamp_rating(jitter(blend(60 + spg * 10, 50))),
+        "block": clamp_rating(jitter(blend(60 + bpg * 12, 45))),
+        "defensiveIq": clamp_rating(jitter(blend(60 + bpm * 2.0, 55))),
+        "speed": clamp_rating(jitter(blend(ath + (5 if position == "PG" else 0), 55))),
         "strength": clamp_rating(jitter(blend(
             ath + 5 if position in ("C", "PF") else ath,
-            65 if position in ("C", "PF") else 55,
+            60 if position in ("C", "PF") else 50,
         ))),
-        "vertical": clamp_rating(jitter(blend(60 + (5 if position == "C" else 0), 55))),
-        "stamina": clamp_rating(jitter(blend(60 + mpg * 0.8, 65))),
-        "durability": clamp_rating(jitter(blend(60 + gp * 0.4, 65))),
-        "clutch": clamp_rating(jitter(blend(60 + bpm * 0.5, 60))),
-        "consistency": clamp_rating(jitter(blend(60 + gp * 0.2, 60))),
+        "vertical": clamp_rating(jitter(blend(60 + (5 if position == "C" else 0), 50))),
+        "stamina": clamp_rating(jitter(blend(60 + mpg * 1.0, 60))),
+        "durability": clamp_rating(jitter(blend(60 + gp * 0.5, 60))),
+        "clutch": clamp_rating(jitter(blend(60 + bpm * 0.8, 55))),
+        "consistency": clamp_rating(jitter(blend(60 + gp * 0.3, 55))),
     }
 
     # Potential: based on age + recent performance

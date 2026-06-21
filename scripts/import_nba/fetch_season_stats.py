@@ -64,21 +64,7 @@ def jsonable_rows(df: Any) -> list[dict[str, Any]]:
 
 def estimate_per(pts: float, reb: float, ast: float, stl: float, blk: float, tov: float,
                   fga: float, fta: float, oreb: float, gp: int) -> float:
-    """Estimate PER from box score stats (Hollinger approximation)."""
-    if gp == 0:
-        return 0
-    mpg = pts / max(1, gp)  # rough proxy
-    factor = 2 / 3 - 0.5 * (ast / max(1, pts)) * (2 / 3)
-    vop = pts / max(1, fga + 0.44 * fta + tov)
-    drbp = (reb + blk) / max(1, reb + blk + 0)
-    per_unadj = (pts + reb + ast + stl + blk - tov * 2 - fga * (vop - 0.5)) / max(1, gp)
-    # Scale to typical PER range (0-30, league avg ~15)
-    return clamp(per_unadj * 1.2 + 10, 0, 35)
-
-
-def estimate_bpm(pts: float, reb: float, ast: float, stl: float, blk: float,
-                  tov: float, fga: float, fta: float, gp: int) -> float:
-    """Estimate BPM from box score stats (rough approximation)."""
+    """Estimate PER from box score stats (Hollinger-style)."""
     if gp == 0:
         return 0
     ppg = pts / gp
@@ -87,9 +73,25 @@ def estimate_bpm(pts: float, reb: float, ast: float, stl: float, blk: float,
     spg = stl / gp
     bpg = blk / gp
     topg = tov / gp
-    fg_pct = (pts - (fta * 0.75)) / max(1, fga * 2)  # rough
-    # Simple BPM-like formula
-    bpm = (ppg * 0.09 + rpg * 0.11 + apg * 0.16 + spg * 1.5 + bpg * 1.5 - topg * 0.9 - 12)
+    fg2a = max(0, fga - (fta * 0.44) - 0)
+    # Hollinger PER rough estimate
+    per = (ppg + rpg * 1.2 + apg * 1.5 + spg * 2 + bpg * 2 - topg * 1.5) / 2
+    return clamp(per, 0, 40)
+
+
+def estimate_bpm(pts: float, reb: float, ast: float, stl: float, blk: float,
+                  tov: float, fga: float, fta: float, gp: int) -> float:
+    """Estimate BPM from box score stats."""
+    if gp == 0:
+        return 0
+    ppg = pts / gp
+    rpg = reb / gp
+    apg = ast / gp
+    spg = stl / gp
+    bpg = blk / gp
+    topg = tov / gp
+    # Simple BPM: league avg contribution is ~0, stars are +5 to +10
+    bpm = ppg * 0.12 + rpg * 0.15 + apg * 0.2 + spg * 1.8 + bpg * 1.8 - topg * 0.7 - 4
     return clamp(bpm, -8, 15)
 
 
