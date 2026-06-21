@@ -6,11 +6,10 @@ Output: public/data/shared/draft-history.json
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from typing import Any
 
 from .config import SHARED_ROOT
-from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
+from .util import read_cache, with_retry, write_cache, write_json
 
 try:
     from nba_api.stats.endpoints import drafthistory
@@ -67,7 +66,6 @@ def fetch_draft_history() -> list[dict[str, Any]]:
 def run() -> None:
     SHARED_ROOT.mkdir(parents=True, exist_ok=True)
     print("[draft] fetching draft history")
-    rate_limit_sleep()
     picks = fetch_draft_history()
     write_json(SHARED_ROOT / "draft-history.json", {
         "version": "0.1.0",

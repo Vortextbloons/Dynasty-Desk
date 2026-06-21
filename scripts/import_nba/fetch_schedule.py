@@ -6,11 +6,10 @@ Output: public/data/nba/{season}/schedule.json
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from typing import Any
 
-from .config import output_dir, ensure_output_dir
-from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
+from .config import ensure_output_dir
+from .util import read_cache, with_retry, write_cache, write_json
 
 try:
     from nba_api.stats.endpoints import scheduleleaguev2
@@ -48,7 +47,6 @@ def fetch_schedule(season: str) -> list[dict[str, Any]]:
 def run(season: str) -> None:
     out = ensure_output_dir(season)
     print(f"[{season}] fetching schedule")
-    rate_limit_sleep()
     games = fetch_schedule(season)
     write_json(out / "schedule.json", {
         "season": season,

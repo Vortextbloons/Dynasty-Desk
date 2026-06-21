@@ -8,17 +8,10 @@ from __future__ import annotations
 
 import hashlib
 import random
-import sys
-from pathlib import Path
 from typing import Any
 
-from .config import NBA_ROOT, ensure_output_dir
+from .config import ensure_output_dir
 from .util import read_json, write_json
-
-try:
-    import numpy as np
-except ImportError:
-    np = None  # type: ignore
 
 # ---------------------------------------------------------------------------
 # Era configs (from src/game/models/eraConfig.ts)

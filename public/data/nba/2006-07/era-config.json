@@ -1,8 +1,10 @@
 {
   "season": "2006-07",
-  "pace": 90.4,
-  "league3PARate": 0.25,
-  "leagueTsPct": 0.535,
-  "leaguePpg": 98.7,
-  "possessionCoefficient": 0.92
+  "pace": 100.0,
+  "league3PARate": 0.212,
+  "leagueTsPct": 0.511,
+  "leaguePpg": 9.7,
+  "possessionCoefficient": 1.0,
+  "playerCount": 458,
+  "teamCount": 305
 }

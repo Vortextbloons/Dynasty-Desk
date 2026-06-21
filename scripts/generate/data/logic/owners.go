@@ -1,9 +1,9 @@
 package logic
 
 import (
-	"math"
 	"dynasty-desk-gen/data"
 	"dynasty-desk-gen/types"
+	"math"
 )
 
 type seededRandom struct {
@@ -54,11 +54,11 @@ func DeriveOwner(team types.StaticTeam, index int) types.OwnerProfile {
 	cash := math.Round(40_000_000 + rand.next()*30_000_000)
 
 	return types.OwnerProfile{
-		TeamId:                 team.Id,
-		Name:                   name,
-		Personality:            personality,
-		NetWorth:               netWorth,
-		Cash:                   cash,
+		TeamId:                  team.Id,
+		Name:                    name,
+		Personality:             personality,
+		NetWorth:                netWorth,
+		Cash:                    cash,
 		SoftCashPressureSeasons: 0,
 	}
 }

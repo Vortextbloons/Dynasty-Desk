@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import ensure_output_dir, MAX_WORKERS
-from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
+from .util import read_cache, with_retry, write_cache, write_json
 
 
 def _safe_int(value: Any, default: int = 0) -> int:
@@ -271,11 +271,13 @@ def run(season: str) -> None:
         print(f"  ! expected {CURRENT_TEAM_COUNT} teams, got {len(teams)}")
 
     team_internal_ids: dict[str, str] = {}
+    abbr_by_team_id: dict[str, str] = {}
     teams_out: list[dict[str, Any]] = []
     for t in teams:
         ext = t["externalId"]
         internal = f"team-{t['abbreviation'].lower()}"
         team_internal_ids[ext] = internal
+        abbr_by_team_id[ext] = t["abbreviation"]
         colors = TEAM_COLORS.get(ext, {"primary": "#1d428a", "secondary": "#c8102e"})
         arena_name, arena_cap = TEAM_ARENAS.get(ext, ("", 0))
         teams_out.append(
@@ -307,7 +309,6 @@ def run(season: str) -> None:
     team_ids = [t["externalId"] for t in teams]
 
     def _fetch_one(team_id: str) -> tuple[str, list[dict[str, Any]]]:
-        rate_limit_sleep()
         return team_id, fetch_roster(season, team_id)
 
     roster_out: list[dict[str, Any]] = []
@@ -319,7 +320,7 @@ def run(season: str) -> None:
             done += 1
             team_id, players = future.result()
             internal_id = team_internal_ids[team_id]
-            abbr = next((t["abbreviation"] for t in teams if t["externalId"] == team_id), "UNK")
+            abbr = abbr_by_team_id.get(team_id, "UNK")
             for p in players:
                 key = f"{p['firstName']} {p['lastName']}"
                 n = player_counter.get(key, 0) + 1
@@ -363,6 +364,8 @@ def run(season: str) -> None:
                 except Exception:
                     age_val = 25
 
+                bio = bio_map.get(p["externalId"], {})
+
                 roster_out.append({
                     "id": pid,
                     "externalId": p["externalId"],
@@ -375,12 +378,12 @@ def run(season: str) -> None:
                     "weightLbs": weight_lbs,
                     "teamId": internal_id,
                     "teamExternalId": team_id,
-                    "college": bio_map.get(p["externalId"], {}).get("college", p.get("college", "")),
-                    "country": bio_map.get(p["externalId"], {}).get("country", ""),
-                    "draftYear": bio_map.get(p["externalId"], {}).get("draftYear", 0),
-                    "draftRound": bio_map.get(p["externalId"], {}).get("draftRound", 0),
-                    "draftPick": bio_map.get(p["externalId"], {}).get("draftPick", 0),
-                    "birthDate": bio_map.get(p["externalId"], {}).get("birthDate", p.get("birthDate", "")),
+                    "college": bio.get("college", p.get("college", "")),
+                    "country": bio.get("country", ""),
+                    "draftYear": bio.get("draftYear", 0),
+                    "draftRound": bio.get("draftRound", 0),
+                    "draftPick": bio.get("draftPick", 0),
+                    "birthDate": bio.get("birthDate", p.get("birthDate", "")),
                 })
             if done % 10 == 0 or done == len(team_ids):
                 print(f"  ... {done}/{len(team_ids)} teams fetched")

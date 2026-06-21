@@ -7,6 +7,7 @@ Usage:
     python scripts/import_nba/run_all.py --skip-schedule
     python scripts/import_nba/run_all.py --skip-draft
     python scripts/import_nba/run_all.py --workers 16     # concurrent workers
+    python scripts/import_nba/run_all.py --force-ratings  # recompute ratings
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ def _import(module_name: str):
     return importlib.import_module(full)
 
 
-def _fetch_season(season: str, skip_schedule: bool) -> None:
+def _fetch_season(season: str, skip_schedule: bool, force_ratings: bool) -> None:
     """Fetch all data for a single season."""
     fetch_rosters = _import("fetch_rosters").run
     fetch_season_stats = _import("fetch_season_stats").run
@@ -45,7 +46,7 @@ def _fetch_season(season: str, skip_schedule: bool) -> None:
 
     fetch_season_stats(season, roster)
     compute_era_config([season])
-    compute_ratings([season], force=True)
+    compute_ratings([season], force=force_ratings)
 
     if not skip_schedule:
         try:
@@ -58,26 +59,25 @@ def _fetch_season(season: str, skip_schedule: bool) -> None:
 def main() -> int:
     config = _import("config")
     DEFAULT_SEASONS = config.DEFAULT_SEASONS
-    MAX_WORKERS = config.MAX_WORKERS
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--seasons", nargs="*", default=None)
     parser.add_argument("--skip-awards", action="store_true")
     parser.add_argument("--skip-schedule", action="store_true")
     parser.add_argument("--skip-draft", action="store_true")
     parser.add_argument("--force-champions", action="store_true")
-    parser.add_argument("--workers", type=int, default=MAX_WORKERS)
+    parser.add_argument("--force-ratings", action="store_true")
+    parser.add_argument("--workers", type=int, default=config.MAX_WORKERS)
     args = parser.parse_args()
 
     seasons = args.seasons or DEFAULT_SEASONS
-    workers = min(args.workers, len(seasons))
+    workers = max(1, min(args.workers, len(seasons)))
     print(f"Running pipeline for {len(seasons)} seasons ({workers} workers)")
 
     if workers > 1:
         print(f"\n--- Phase 1: Fetching seasons concurrently ({workers} workers) ---")
         with ThreadPoolExecutor(max_workers=workers) as pool:
             futures = {
-                pool.submit(_fetch_season, s, args.skip_schedule): s
+                pool.submit(_fetch_season, s, args.skip_schedule, args.force_ratings): s
                 for s in seasons
             }
             for future in as_completed(futures):
@@ -88,7 +88,7 @@ def main() -> int:
                     print(f"  ! {season} failed: {exc}")
     else:
         for season in seasons:
-            _fetch_season(season, args.skip_schedule)
+            _fetch_season(season, args.skip_schedule, args.force_ratings)
 
     print("\n--- Phase 2: Careers ---")
     compute_careers = _import("compute_careers").run

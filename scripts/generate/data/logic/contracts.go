@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"math"
 	"dynasty-desk-gen/types"
+	"math"
 )
 
 func ComputeOverallRating(player types.StaticPlayer) int {

@@ -12,10 +12,10 @@ import sys
 from typing import Any
 
 from .config import SHARED_ROOT
-from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
+from .util import read_cache, with_retry, write_cache, write_json
 
 try:
-    from nba_api.stats.endpoints import commonallplayers, playerawards
+    from nba_api.stats.endpoints import playerawards
 except Exception as exc:  # pragma: no cover
     print(
         f"Could not import nba_api: {exc}\n"
@@ -61,6 +61,10 @@ AWARD_KEYWORDS = {
 
 
 def fetch_awards_for_player(player_id: str) -> list[dict[str, Any]]:
+    cached = read_cache("player_awards", player=player_id)
+    if cached is not None:
+        return cached
+
     def _do_fetch() -> list[dict[str, Any]]:
         resp = playerawards.PlayerAwards(player_id=player_id)
         df = resp.get_data_frames()[0]
@@ -86,7 +90,9 @@ def fetch_awards_for_player(player_id: str) -> list[dict[str, Any]]:
             })
         return out
 
-    return with_retry(_do_fetch)
+    awards = with_retry(_do_fetch)
+    write_cache("player_awards", awards, player=player_id)
+    return awards
 
 
 def run(seasons: list[str]) -> None:
@@ -94,7 +100,6 @@ def run(seasons: list[str]) -> None:
     print("[awards] fetching award winners for top players")
     all_awards: list[dict[str, Any]] = []
     for pid in TOP_PLAYER_IDS:
-        rate_limit_sleep()
         try:
             awards = fetch_awards_for_player(pid)
             all_awards.extend(awards)

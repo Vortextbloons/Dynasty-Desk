@@ -1,8 +1,10 @@
 {
   "season": "2008-09",
-  "pace": 92.2,
-  "league3PARate": 0.27,
-  "leagueTsPct": 0.541,
-  "leaguePpg": 100,
-  "possessionCoefficient": 0.92
+  "pace": 100.0,
+  "league3PARate": 0.224,
+  "leagueTsPct": 0.521,
+  "leaguePpg": 10.0,
+  "possessionCoefficient": 1.0,
+  "playerCount": 445,
+  "teamCount": 300
 }

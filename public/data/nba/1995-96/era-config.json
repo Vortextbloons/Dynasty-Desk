@@ -1,8 +1,8 @@
 {
   "season": "1995-96",
-  "pace": 94.1,
-  "league3PARate": 0.17,
-  "leagueTsPct": 0.525,
-  "leaguePpg": 99.5,
-  "possessionCoefficient": 0.92
+  "pace": 95,
+  "league3PARate": 0.25,
+  "leagueTsPct": 0.55,
+  "leaguePpg": 105,
+  "possessionCoefficient": 1.0
 }

@@ -1,8 +1,10 @@
 {
   "season": "2019-20",
-  "pace": 100.3,
-  "league3PARate": 0.38,
-  "leagueTsPct": 0.565,
-  "leaguePpg": 111.8,
-  "possessionCoefficient": 0.92
+  "pace": 100.0,
+  "league3PARate": 0.384,
+  "leagueTsPct": 0.538,
+  "leaguePpg": 10.6,
+  "possessionCoefficient": 1.0,
+  "playerCount": 529,
+  "teamCount": 273
 }

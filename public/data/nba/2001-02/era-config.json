@@ -1,8 +1,10 @@
 {
   "season": "2001-02",
-  "pace": 91.5,
-  "league3PARate": 0.21,
-  "leagueTsPct": 0.514,
-  "leaguePpg": 95.1,
-  "possessionCoefficient": 0.92
+  "pace": 100.0,
+  "league3PARate": 0.181,
+  "leagueTsPct": 0.493,
+  "leaguePpg": 9.5,
+  "possessionCoefficient": 1.0,
+  "playerCount": 440,
+  "teamCount": 291
 }

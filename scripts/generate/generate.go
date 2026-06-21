@@ -260,16 +260,16 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 			}
 
 			player := types.StaticPlayer{
-				Id:                playerId,
-				ExternalId:        externalId,
-				FirstName:         fn,
-				LastName:          ln,
-				Age:               age,
-				Position:          profile.Pos,
+				Id:                 playerId,
+				ExternalId:         externalId,
+				FirstName:          fn,
+				LastName:           ln,
+				Age:                age,
+				Position:           profile.Pos,
 				SecondaryPositions: secPos,
-				HeightInches:      profile.Height + randInt(r, -1, 1),
-				WeightLbs:         profile.Weight + randInt(r, -5, 5),
-				TeamId:            &teamId,
+				HeightInches:       profile.Height + randInt(r, -1, 1),
+				WeightLbs:          profile.Weight + randInt(r, -5, 5),
+				TeamId:             &teamId,
 				Ratings: types.PlayerRatings{
 					InsideScoring:    clampInt(ri+randInt(r, -5, 5), 50, 99),
 					CloseShot:        clampInt(ri+randInt(r, -5, 5), 50, 99),
@@ -331,12 +331,12 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 					ShotCreation:         clampInt(ri+randInt(r, -5, 5), 50, 99),
 					DefensiveVersatility: clampInt(ri+randInt(r, -5, 5), 50, 99),
 				},
-				Contract: types.EmptyContract(0, 1),
-				College:           randomCollege(r),
-				Country:           randomCountry(r),
-				DraftYear:         2020 + randInt(r, -5, 0),
-				DraftRound:        randInt(r, 1, 2),
-				DraftPick:         randInt(r, 1, 30),
+				Contract:   types.EmptyContract(0, 1),
+				College:    randomCollege(r),
+				Country:    randomCountry(r),
+				DraftYear:  2020 + randInt(r, -5, 0),
+				DraftRound: randInt(r, 1, 2),
+				DraftPick:  randInt(r, 1, 30),
 				ImportMeta: &types.ImportMeta{
 					SnapshotSeason: season,
 					StatsSource:    "synthetic",
@@ -520,14 +520,12 @@ func generateSeasonSnapshot(season string) error {
 	}
 
 	careerStats := make([]types.PlayerCareerStats, len(players))
+	seasonStatsByPlayer := make(map[string][]types.PlayerSeasonStats, len(players))
+	for _, s := range seasonStats {
+		seasonStatsByPlayer[s.PlayerId] = append(seasonStatsByPlayer[s.PlayerId], s)
+	}
 	for i, p := range players {
-		var playerStats []types.PlayerSeasonStats
-		for _, s := range seasonStats {
-			if s.PlayerId == p.Id {
-				playerStats = append(playerStats, s)
-			}
-		}
-		careerStats[i] = types.ComputeCareerStats(p.Id, playerStats, types.EmptyAccolades())
+		careerStats[i] = types.ComputeCareerStats(p.Id, seasonStatsByPlayer[p.Id], types.EmptyAccolades())
 	}
 	if err := writeJSON(filepath.Join(base, "career-stats.json"), careerStats); err != nil {
 		return err

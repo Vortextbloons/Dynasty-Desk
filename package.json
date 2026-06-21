@@ -19,6 +19,7 @@
     "data:generate": "go run -C scripts/generate . && npx tsx scripts/deriveOverall.ts",
     "data:import": "python scripts/import_nba/run_all.py",
     "data:import:latest": "python scripts/import_nba/run_all.py --seasons 2025-26",
+    "data:cache:clear": "node -e \"const fs=require('fs'); fs.rmSync('.raw_nba_cache',{recursive:true,force:true}); fs.mkdirSync('.raw_nba_cache',{recursive:true}); console.log('Cleared .raw_nba_cache');\"",
     "data:headshots": "npx tsx scripts/import/importHeadshots.ts",
     "data:logos": "echo 'Logos loaded from cdn.nba.com at runtime'",
     "calibrate": "npx tsx scripts/calibrate.ts"
