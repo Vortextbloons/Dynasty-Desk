@@ -5,6 +5,7 @@ import { computeSeasonAwards, computeAwardRaces } from '@/game/league/awardsEngi
 import { createAwardEvent, createMilestoneEvent, createCoachPressureEvent } from '@/game/league/newsEngine'
 import { endOfSeasonDevelopment } from '@/game/sim/developmentEngine'
 import { computeOverall } from '@/game/ratings/overallWeights'
+import { clamp } from '@/lib/utils'
 import type { SeededRandom } from '@/game/sim/rng'
 import { inductPlayers } from '@/game/league/hallOfFameEngine'
 import { checkSeasonRecords } from '@/game/league/recordTracker'
@@ -38,7 +39,7 @@ export function runLeagueEndOfSeasonDevelopment(
     )
     player.ratings = {
       ...result.ratings,
-      overall: computeOverall(result.ratings, player.position),
+      overall: clamp(computeOverall(result.ratings, player.position), 25, 99),
     }
     player.development.ratingsDelta = result.ratingsDelta
   }

@@ -87,6 +87,14 @@ export function PlayerPage() {
     return getPlayerAwards(save.league, player.id)
   }, [save, player])
 
+  const staticPlayer = useMemo(() => {
+    if (!player) return null
+    if (snapshot) {
+      return snapshot.players.find((p) => p.id === player.id) ?? null
+    }
+    return null
+  }, [player, snapshot])
+
   if (!player) {
     return (
       <PageHeader
@@ -135,6 +143,20 @@ export function PlayerPage() {
         <Stat label="Weight" value={`${player.weightLbs} lbs`} />
         <Stat label="OVR" value={String(player.ratings.overall)} />
       </div>
+
+      {(staticPlayer?.college ?? staticPlayer?.country ?? staticPlayer?.draftYear) && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+          {staticPlayer?.college && <Stat label="College" value={staticPlayer.college} />}
+          {staticPlayer?.country && <Stat label="Country" value={staticPlayer.country} />}
+          {staticPlayer?.draftYear && (
+            <Stat
+              label="Draft"
+              value={`${staticPlayer.draftYear} R${staticPlayer.draftRound ?? '?'} P${staticPlayer.draftPick ?? '?'}`}
+            />
+          )}
+          {staticPlayer?.birthDate && <Stat label="Born" value={staticPlayer.birthDate} />}
+        </div>
+      )}
 
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <Chip label={healthLabel} variant={healthStatus === 'healthy' ? 'success' : 'danger'} />

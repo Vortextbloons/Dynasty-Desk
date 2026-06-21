@@ -28,6 +28,7 @@ describe('TeamStrategyPage', () => {
 
     render(<TeamStrategyPage />)
     expect(screen.getByText('Team Strategy')).toBeInTheDocument()
-    expect(screen.getByText('Save strategy')).toBeInTheDocument()
+    expect(screen.getByText('Offense')).toBeInTheDocument()
+    expect(screen.getByText('Defense')).toBeInTheDocument()
   })
 })

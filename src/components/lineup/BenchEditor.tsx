@@ -17,7 +17,7 @@ import type { Player } from '@/game/models/player'
 import { Button } from '@/components/ui/button'
 import { SlotItem } from './SlotItem'
 
-const BENCH_SOFT_CAP = 10
+const BENCH_SOFT_CAP = 15
 
 interface BenchEditorProps {
   benchIds: string[]

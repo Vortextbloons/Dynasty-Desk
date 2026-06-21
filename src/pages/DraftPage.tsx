@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { MyPickPanel } from '@/components/draft/MyPickPanel'
 import { ProspectCard } from '@/components/draft/ProspectCard'
+import { DraftOrderPanel } from '@/components/draft/DraftOrderPanel'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { Card, CardContent } from '@/components/ui/card'
 import { SectionLabel } from '@/components/shared/SectionLabel'
@@ -14,7 +15,12 @@ import {
   getActiveDraft,
   getCurrentPickOwner,
   getAvailableProspects,
+  getUserDraftPickSlots,
+  picksUntilUserTurn,
+  isUserOnClock,
+  getNextDraftPickNumber,
   totalDraftSlotsForSeason,
+  FORFEITED_PROSPECT_ID,
 } from '@/game/league/draftEngine'
 import {
   ChevronRight,
@@ -23,6 +29,19 @@ import {
   RadioTower,
   Trophy,
 } from 'lucide-react'
+
+function formatUserPickSlots(
+  slots: ReturnType<typeof getUserDraftPickSlots>,
+  teamCount: number,
+): string {
+  if (slots.length === 0) return 'No picks remaining'
+  return slots
+    .map((s) => {
+      const round = s.pickNumber <= teamCount ? 1 : 2
+      return `R${round} #${s.pickNumber}`
+    })
+    .join(' · ')
+}
 
 export function DraftPage() {
   const save = useGameStore((s) => s.save)
@@ -34,6 +53,7 @@ export function DraftPage() {
   const advancePhaseIfReady = useGameStore((s) => s.advancePhaseIfReady)
   const navigate = useNavigate()
   const autoAdvancedRef = useRef(false)
+  const [showFullFeed, setShowFullFeed] = useState(false)
 
   const draft = useMemo(() => {
     if (!save || save.league.phase !== 'draft') return null
@@ -93,14 +113,24 @@ export function DraftPage() {
   }
 
   const owner = getCurrentPickOwner(save.league, draft)
-  const isUserPick = owner?.teamId === save.league.userTeamId
+  const isUserPick = isUserOnClock(save.league, draft, save.league.userTeamId)
+  const nextPick = getNextDraftPickNumber(draft)
   const userTeam = save.league.teams[save.league.userTeamId]
   const onClockTeam = owner ? save.league.teams[owner.teamId] : null
   const available = getAvailableProspects(save.league, draft)
   const teamCount = Object.keys(save.league.teams).length
   const totalSlots = totalDraftSlotsForSeason(save.league, draft.seasonYear)
   const draftComplete = draft.status === 'complete'
-  const recentPicks = [...draft.picks].reverse().slice(0, 10)
+  const userSlots = getUserDraftPickSlots(
+    save.league,
+    draft.seasonYear,
+    save.league.userTeamId,
+  )
+  const nextUserSlot = userSlots[0]?.pickNumber ?? null
+  const picksUntilTurn = picksUntilUserTurn(draft, userSlots)
+  const feedPicks = showFullFeed
+    ? [...draft.picks].reverse()
+    : [...draft.picks].reverse().slice(0, 10)
 
   const handlePick = (prospectId: string, isTwoWay: boolean) => {
     const result = makeDraftPick(prospectId, isTwoWay)
@@ -127,6 +157,9 @@ export function DraftPage() {
     }
   }
 
+  const simButtonLabel =
+    nextUserSlot != null ? `Sim to my pick (#${nextUserSlot})` : 'Sim to my pick'
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -151,11 +184,11 @@ export function DraftPage() {
                   #{draftComplete ? totalSlots : draft.currentPickNumber}
                 </div>
                 <div className="mt-2 text-sm uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-                  {draftComplete ? 'Final pick logged' : 'On the clock'}
+                  {draftComplete ? 'Final pick logged' : 'Draft clock'}
                 </div>
               </div>
               <div className="min-w-0 pb-2">
-                <div className="font-display text-2xl sm:text-4xl">
+                <div className="font-display text-2xl sm:text-3xl">
                   {draftComplete
                     ? 'Draft complete'
                     : onClockTeam
@@ -163,40 +196,97 @@ export function DraftPage() {
                       : 'Awaiting pick'}
                 </div>
                 <div className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-                  {draft.picks.length} of {totalSlots} selections made ·{' '}
-                  {draft.orderSource === 'lottery'
-                    ? 'lottery order'
-                    : 'inverse-record order'}
+                  {draft.picks.length} of {totalSlots} selections logged · clock
+                  on #{nextPick}
+                </div>
+                <div className="mt-2 text-sm font-medium text-[var(--color-primary)]">
+                  Your picks: {formatUserPickSlots(userSlots, teamCount)}
                 </div>
               </div>
             </div>
 
+            {!draftComplete && nextUserSlot != null && nextUserSlot > 1 && !isUserPick && (
+              <div className="mt-4 rounded-lg border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
+                {picksUntilTurn != null && picksUntilTurn > 0 ? (
+                  <>
+                    {picksUntilTurn} pick{picksUntilTurn === 1 ? '' : 's'} until
+                    your turn (#{nextUserSlot}) — use Next pick (AI) or Sim to my
+                    pick.
+                  </>
+                ) : (
+                  <>
+                    You hold the #{nextUserSlot} pick. Draft clock is on pick #
+                    {nextPick}.
+                  </>
+                )}
+              </div>
+            )}
+
+            {!draftComplete && isUserPick && (
+              <div className="mt-4 rounded-lg border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 px-3 py-2 text-sm">
+                You are on the clock — pick #{draft.currentPickNumber}.
+              </div>
+            )}
+
             {!draftComplete && (
               <div className="mt-6 flex flex-wrap gap-2">
                 <Button onClick={handleAdvanceOne} disabled={isUserPick}>
-                  <ChevronRight className="mr-2 size-4" /> Next pick
+                  <ChevronRight className="mr-2 size-4" /> Next pick (AI)
                 </Button>
                 <Button variant="secondary" onClick={handleSimToUser} disabled={isUserPick}>
-                  <FastForward className="mr-2 size-4" /> Sim to my pick
+                  <FastForward className="mr-2 size-4" /> {simButtonLabel}
                 </Button>
               </div>
             )}
           </div>
 
           <div className="rounded-xl border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] p-4">
-            <SectionLabel className="mb-3 flex items-center gap-2">
-              <Trophy className="size-4" /> Pick Feed
-            </SectionLabel>
-            <div className="space-y-2 max-h-72 overflow-y-auto">
-              {recentPicks.length === 0 ? (
-                <EmptyState description="No picks yet. Start the clock to begin." />
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <SectionLabel className="flex items-center gap-2">
+                <Trophy className="size-4" /> Pick Feed
+              </SectionLabel>
+              {draft.picks.length > 10 && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-xs"
+                  onClick={() => setShowFullFeed((v) => !v)}
+                >
+                  {showFullFeed ? 'Show recent' : 'Show all'}
+                </Button>
+              )}
+            </div>
+            <div className="max-h-72 space-y-2 overflow-y-auto">
+              {feedPicks.length === 0 ? (
+                <EmptyState description="No picks yet. Use Next pick (AI) to start the clock." />
               ) : (
-                recentPicks.map((pick) => {
-                  const prospect = draftClass.prospects.find(
-                    (p) => p.id === pick.prospectId,
-                  )
+                feedPicks.map((pick) => {
+                  const isForfeit = pick.prospectId === FORFEITED_PROSPECT_ID
+                  const prospect = isForfeit
+                    ? null
+                    : draftClass.prospects.find((p) => p.id === pick.prospectId)
                   const team = save.league.teams[pick.pickedByTeamId]
+
+                  if (isForfeit) {
+                    return (
+                      <div
+                        key={pick.id}
+                        className="flex items-center gap-3 rounded-lg border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] px-3 py-2"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-[var(--color-muted-foreground)]">
+                            #{pick.pickNumber} Forfeited
+                          </div>
+                          <div className="text-xs text-[var(--color-muted-foreground)]">
+                            Roster cap · {team?.abbreviation ?? '—'}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }
+
                   if (!prospect) return null
+
                   return (
                     <div
                       key={pick.id}
@@ -215,8 +305,9 @@ export function DraftPage() {
                           #{pick.pickNumber} {prospect.firstName} {prospect.lastName}
                         </div>
                         <div className="text-xs text-[var(--color-muted-foreground)]">
-                          {prospect.position} · OVR {prospect.visibleRatings.overall ?? '?'} ·{' '}
-                          {team?.abbreviation ?? '—'}
+                          {prospect.position} · OVR {prospect.visibleRatings.overall ?? '?'}{' '}
+                          · {team?.abbreviation ?? '—'}
+                          {pick.isTwoWay ? ' · Two-way' : ''}
                         </div>
                       </div>
                     </div>
@@ -227,6 +318,15 @@ export function DraftPage() {
           </div>
         </CardContent>
       </Card>
+
+      {!draftComplete && (
+        <DraftOrderPanel
+          league={save.league}
+          draft={draft}
+          userTeamId={save.league.userTeamId}
+          currentPickNumber={draft.currentPickNumber}
+        />
+      )}
 
       {draftComplete ? (
         <Card>
@@ -244,7 +344,7 @@ export function DraftPage() {
       ) : null}
 
       <Card className="border-amber-500/30 bg-amber-500/5">
-        <CardContent className="p-3 flex items-center gap-2 text-sm">
+        <CardContent className="flex items-center gap-2 p-3 text-sm">
           <Lock className="size-4 text-amber-500" />
           Trade Center is disabled during the draft.
         </CardContent>
@@ -262,7 +362,7 @@ export function DraftPage() {
       )}
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Available draft board</h3>
+        <h3 className="mb-3 text-sm font-medium">Available draft board</h3>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {available.map((p) => (
             <ProspectCard

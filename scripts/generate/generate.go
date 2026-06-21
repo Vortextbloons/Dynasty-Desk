@@ -331,6 +331,11 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 					DefensiveVersatility: clampInt(ri+randInt(r, -5, 5), 50, 99),
 				},
 				Contract: types.EmptyContract(0, 1),
+				College:           randomCollege(r),
+				Country:           randomCountry(r),
+				DraftYear:         2020 + randInt(r, -5, 0),
+				DraftRound:        randInt(r, 1, 2),
+				DraftPick:         randInt(r, 1, 30),
 				ImportMeta: &types.ImportMeta{
 					SnapshotSeason: season,
 					StatsSource:    "synthetic",
@@ -355,6 +360,31 @@ func boolToInt(b bool) int {
 		return 1
 	}
 	return 0
+}
+
+var colleges = []string{
+	"Duke", "Kentucky", "Kansas", "North Carolina", "UCLA",
+	"Gonzaga", "Villanova", "Michigan", "Arizona", "Indiana",
+	"Louisville", "Syracuse", "Ohio State", "Florida", "Texas",
+	"Memphis", "Houston", "Baylor", "Purdue", "Connecticut",
+	"Marquette", "Arkansas", "Auburn", "Alabama", "LSU",
+	"Oregon", "USC", "Colorado", "Arizona State", "Washington",
+}
+
+var countries = []string{
+	"USA", "USA", "USA", "USA", "USA",
+	"Canada", "France", "Australia", "Nigeria", "Serbia",
+	"Croatia", "Lithuania", "Latvia", "Spain", "Argentina",
+	"Brazil", "Cameroon", "Senegal", "Mali", "Turkey",
+	"Greece", "Italy", "Germany", "Slovenia", "Montenegro",
+}
+
+func randomCollege(r *rand.Rand) string {
+	return colleges[r.Intn(len(colleges))]
+}
+
+func randomCountry(r *rand.Rand) string {
+	return countries[r.Intn(len(countries))]
 }
 
 func generateSeasonStats(players []types.StaticPlayer, season string, r *rand.Rand) []types.PlayerSeasonStats {

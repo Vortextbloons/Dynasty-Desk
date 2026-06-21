@@ -32,7 +32,7 @@ import {
 } from '@/game/management/freeAgencyEngine'
 import { generateRookieContract } from '@/game/management/rookieContractEngine'
 import { prospectToPlayer } from './prospectConverter'
-import { initScoutingForDraftClass } from './scoutingEngine'
+import { initScoutingForDraftClass, autoAllocateAIScouting } from './scoutingEngine'
 import { generateSchedule } from './scheduleGenerator'
 import { initializeStandings } from './standingsEngine'
 import { getLeagueRules } from '@/game/models/leagueRules'
@@ -65,6 +65,7 @@ export function beginOffseason(league: LeagueState, rng: SeededRandom): void {
     const draftClass = generateDraftClass(draftYear, league.rules, [], rng)
     league.draftClasses[draftClass.id] = draftClass
     initScoutingForDraftClass(league, draftClass.id)
+    autoAllocateAIScouting(league, draftClass, league.userTeamId, rng)
   }
 
   const expired = expireContracts(league)
@@ -219,6 +220,7 @@ export async function advancePhase(
         : runInverseWLDraftOrder(league)
     assignPickNumbers(league, order, seasonLabel)
     extendDraftClassToSlotCount(league, draftClass, draftYear, rng)
+    autoAllocateAIScouting(league, draftClass, userTeamId, rng)
     const draft = startDraft(league, draftClass, order, orderSource)
     newsEvents.push(createLotteryNews(league, order))
     autoDraftOffClock(league, draft, userTeamId, rng)

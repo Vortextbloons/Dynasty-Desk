@@ -4,7 +4,7 @@
     "externalId": "1544",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -35,7 +35,7 @@
       "clutch": 58,
       "consistency": 63,
       "potential": 69,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 19.56448650799114,
@@ -85,7 +85,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -104,7 +104,7 @@
     "externalId": "1728",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -185,7 +185,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -204,7 +204,7 @@
     "externalId": "120",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -235,7 +235,7 @@
       "clutch": 58,
       "consistency": 65,
       "potential": 94,
-      "overall": 63
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 25.941678133996763,
@@ -289,7 +289,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -308,7 +308,7 @@
     "externalId": "302",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -339,7 +339,7 @@
       "clutch": 61,
       "consistency": 71,
       "potential": 80,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 19.957827020623256,
@@ -393,7 +393,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -412,7 +412,7 @@
     "externalId": "1516",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -493,7 +493,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -512,7 +512,7 @@
     "externalId": "1533",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -543,7 +543,7 @@
       "clutch": 58,
       "consistency": 66,
       "potential": 62,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 17.189857673307202,
@@ -593,7 +593,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -612,7 +612,7 @@
     "externalId": "895",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -643,7 +643,7 @@
       "clutch": 58,
       "consistency": 66,
       "potential": 70,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 17.738736070593966,
@@ -697,7 +697,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -716,7 +716,7 @@
     "externalId": "770",
     "firstName": "",
     "lastName": "",
-    "age": 38.0,
+    "age": 38,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -747,7 +747,7 @@
       "clutch": 54,
       "consistency": 63,
       "potential": 57,
-      "overall": 52
+      "overall": 53
     },
     "tendencies": {
       "usageRate": 10,
@@ -801,7 +801,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -820,7 +820,7 @@
     "externalId": "3",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -851,7 +851,7 @@
       "clutch": 60,
       "consistency": 68,
       "potential": 76,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 18.25610552460678,
@@ -905,7 +905,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -924,7 +924,7 @@
     "externalId": "673",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -955,7 +955,7 @@
       "clutch": 59,
       "consistency": 65,
       "potential": 81,
-      "overall": 58
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 21.5416828729778,
@@ -1009,7 +1009,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -1028,7 +1028,7 @@
     "externalId": "87",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 86,
@@ -1059,7 +1059,7 @@
       "clutch": 60,
       "consistency": 73,
       "potential": 84,
-      "overall": 77
+      "overall": 90
     },
     "tendencies": {
       "usageRate": 14.89891318301399,
@@ -1113,7 +1113,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -1132,7 +1132,7 @@
     "externalId": "962",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -1213,7 +1213,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -1232,7 +1232,7 @@
     "externalId": "1500",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -1263,7 +1263,7 @@
       "clutch": 60,
       "consistency": 68,
       "potential": 90,
-      "overall": 63
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 24.479046597880767,
@@ -1313,7 +1313,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -1332,7 +1332,7 @@
     "externalId": "72",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -1363,7 +1363,7 @@
       "clutch": 56,
       "consistency": 63,
       "potential": 79,
-      "overall": 60
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 18.591867638993154,
@@ -1417,7 +1417,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -1436,7 +1436,7 @@
     "externalId": "952",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -1467,7 +1467,7 @@
       "clutch": 61,
       "consistency": 68,
       "potential": 94,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 26.45671626862131,
@@ -1515,7 +1515,7 @@
         12000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -1534,7 +1534,7 @@
     "externalId": "344",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 71,
@@ -1565,7 +1565,7 @@
       "clutch": 57,
       "consistency": 69,
       "potential": 75,
-      "overall": 63
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 17.042379702230022,
@@ -1619,7 +1619,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -1638,7 +1638,7 @@
     "externalId": "1477",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -1723,7 +1723,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -1742,7 +1742,7 @@
     "externalId": "1800",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -1821,7 +1821,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -1840,7 +1840,7 @@
     "externalId": "1718",
     "firstName": "",
     "lastName": "",
-    "age": 21.0,
+    "age": 21,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -1871,7 +1871,7 @@
       "clutch": 60,
       "consistency": 71,
       "potential": 91,
-      "overall": 69
+      "overall": 75
     },
     "tendencies": {
       "usageRate": 22.228715099849147,
@@ -1919,7 +1919,7 @@
         12000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -1938,7 +1938,7 @@
     "externalId": "1499",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -1969,7 +1969,7 @@
       "clutch": 61,
       "consistency": 68,
       "potential": 70,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 14.520052376504724,
@@ -2019,7 +2019,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -2038,7 +2038,7 @@
     "externalId": "35",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -2069,7 +2069,7 @@
       "clutch": 55,
       "consistency": 61,
       "potential": 65,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 12.928847248302631,
@@ -2123,7 +2123,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -2142,7 +2142,7 @@
     "externalId": "958",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -2173,7 +2173,7 @@
       "clutch": 60,
       "consistency": 68,
       "potential": 77,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 19.26855892480454,
@@ -2223,7 +2223,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -2242,7 +2242,7 @@
     "externalId": "368",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 86,
@@ -2327,7 +2327,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -2346,7 +2346,7 @@
     "externalId": "445",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -2377,7 +2377,7 @@
       "clutch": 58,
       "consistency": 67,
       "potential": 80,
-      "overall": 60
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 16.62796985054015,
@@ -2431,7 +2431,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -2450,7 +2450,7 @@
     "externalId": "682",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -2481,7 +2481,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 59,
-      "overall": 54
+      "overall": 55
     },
     "tendencies": {
       "usageRate": 18.383256219203812,
@@ -2535,7 +2535,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -2554,7 +2554,7 @@
     "externalId": "431",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -2585,7 +2585,7 @@
       "clutch": 59,
       "consistency": 68,
       "potential": 100,
-      "overall": 66
+      "overall": 71
     },
     "tendencies": {
       "usageRate": 27.714302762777695,
@@ -2639,7 +2639,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -2658,7 +2658,7 @@
     "externalId": "1863",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 65,
@@ -2739,7 +2739,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -2758,7 +2758,7 @@
     "externalId": "348",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -2789,7 +2789,7 @@
       "clutch": 55,
       "consistency": 58,
       "potential": 65,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 21.095736001007435,
@@ -2843,7 +2843,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -2862,7 +2862,7 @@
     "externalId": "1756",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -2943,7 +2943,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -2962,7 +2962,7 @@
     "externalId": "271",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -2993,7 +2993,7 @@
       "clutch": 56,
       "consistency": 67,
       "potential": 68,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 16.679493233174362,
@@ -3047,7 +3047,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -3066,7 +3066,7 @@
     "externalId": "1507",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -3097,7 +3097,7 @@
       "clutch": 58,
       "consistency": 64,
       "potential": 77,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 22.519429045700793,
@@ -3147,7 +3147,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -3166,7 +3166,7 @@
     "externalId": "198",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -3197,7 +3197,7 @@
       "clutch": 58,
       "consistency": 67,
       "potential": 71,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 15.33122540160885,
@@ -3251,7 +3251,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -3270,7 +3270,7 @@
     "externalId": "1538",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -3301,7 +3301,7 @@
       "clutch": 59,
       "consistency": 70,
       "potential": 73,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 16.970107964271783,
@@ -3351,7 +3351,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -3370,7 +3370,7 @@
     "externalId": "692",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -3401,7 +3401,7 @@
       "clutch": 58,
       "consistency": 68,
       "potential": 73,
-      "overall": 58
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 15.780080852478086,
@@ -3455,7 +3455,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -3474,7 +3474,7 @@
     "externalId": "95",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -3505,7 +3505,7 @@
       "clutch": 56,
       "consistency": 67,
       "potential": 74,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 18.612116632512198,
@@ -3559,7 +3559,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -3578,7 +3578,7 @@
     "externalId": "1601",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -3609,7 +3609,7 @@
       "clutch": 56,
       "consistency": 63,
       "potential": 61,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 15.225254345845357,
@@ -3659,7 +3659,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -3678,7 +3678,7 @@
     "externalId": "389",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -3709,7 +3709,7 @@
       "clutch": 60,
       "consistency": 69,
       "potential": 95,
-      "overall": 66
+      "overall": 70
     },
     "tendencies": {
       "usageRate": 27.909025434104258,
@@ -3763,7 +3763,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -3782,7 +3782,7 @@
     "externalId": "54",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -3813,7 +3813,7 @@
       "clutch": 56,
       "consistency": 70,
       "potential": 75,
-      "overall": 58
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 17.472381973688414,
@@ -3867,7 +3867,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -3886,7 +3886,7 @@
     "externalId": "166",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -3917,7 +3917,7 @@
       "clutch": 57,
       "consistency": 63,
       "potential": 75,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 19.5674488232328,
@@ -3971,7 +3971,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -3990,7 +3990,7 @@
     "externalId": "1869",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -4071,7 +4071,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -4090,7 +4090,7 @@
     "externalId": "1600",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -4121,7 +4121,7 @@
       "clutch": 59,
       "consistency": 68,
       "potential": 69,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 18.67365226521847,
@@ -4175,7 +4175,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -4194,7 +4194,7 @@
     "externalId": "1757",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -4275,7 +4275,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -4294,7 +4294,7 @@
     "externalId": "1522",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -4375,7 +4375,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -4394,7 +4394,7 @@
     "externalId": "1736",
     "firstName": "",
     "lastName": "",
-    "age": 21.0,
+    "age": 21,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -4473,7 +4473,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -4492,7 +4492,7 @@
     "externalId": "699",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -4523,7 +4523,7 @@
       "clutch": 56,
       "consistency": 66,
       "potential": 77,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 19.163064488515552,
@@ -4577,7 +4577,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -4596,7 +4596,7 @@
     "externalId": "82",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -4627,7 +4627,7 @@
       "clutch": 57,
       "consistency": 62,
       "potential": 63,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 19.22322835779746,
@@ -4681,7 +4681,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -4700,7 +4700,7 @@
     "externalId": "714",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -4731,7 +4731,7 @@
       "clutch": 59,
       "consistency": 72,
       "potential": 99,
-      "overall": 71
+      "overall": 78
     },
     "tendencies": {
       "usageRate": 23.014917372691173,
@@ -4785,7 +4785,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -4804,7 +4804,7 @@
     "externalId": "1512",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -4835,7 +4835,7 @@
       "clutch": 56,
       "consistency": 61,
       "potential": 63,
-      "overall": 54
+      "overall": 55
     },
     "tendencies": {
       "usageRate": 18.044719401502864,
@@ -4885,7 +4885,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -4904,7 +4904,7 @@
     "externalId": "959",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -4935,7 +4935,7 @@
       "clutch": 57,
       "consistency": 64,
       "potential": 69,
-      "overall": 60
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 15.10202805458785,
@@ -4985,7 +4985,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -5004,7 +5004,7 @@
     "externalId": "73",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -5035,7 +5035,7 @@
       "clutch": 55,
       "consistency": 58,
       "potential": 58,
-      "overall": 54
+      "overall": 55
     },
     "tendencies": {
       "usageRate": 10,
@@ -5089,7 +5089,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -5108,7 +5108,7 @@
     "externalId": "1065",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -5189,7 +5189,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -5208,7 +5208,7 @@
     "externalId": "93",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -5239,7 +5239,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 73,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 15.835188861233975,
@@ -5293,7 +5293,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -5312,7 +5312,7 @@
     "externalId": "718",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -5343,7 +5343,7 @@
       "clutch": 56,
       "consistency": 67,
       "potential": 89,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 27.673111354641758,
@@ -5393,7 +5393,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -5412,7 +5412,7 @@
     "externalId": "1743",
     "firstName": "",
     "lastName": "",
-    "age": 19.0,
+    "age": 19,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 86,
@@ -5491,7 +5491,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -5510,7 +5510,7 @@
     "externalId": "1717",
     "firstName": "",
     "lastName": "",
-    "age": 21.0,
+    "age": 21,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -5541,7 +5541,7 @@
       "clutch": 56,
       "consistency": 67,
       "potential": 72,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 21.906350632042496,
@@ -5589,7 +5589,7 @@
         3000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -5608,7 +5608,7 @@
     "externalId": "762",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 90,
@@ -5639,7 +5639,7 @@
       "clutch": 61,
       "consistency": 67,
       "potential": 78,
-      "overall": 70
+      "overall": 77
     },
     "tendencies": {
       "usageRate": 14.032358493789376,
@@ -5693,7 +5693,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -5712,7 +5712,7 @@
     "externalId": "920",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -5743,7 +5743,7 @@
       "clutch": 56,
       "consistency": 68,
       "potential": 63,
-      "overall": 54
+      "overall": 55
     },
     "tendencies": {
       "usageRate": 12.008959367140537,
@@ -5797,7 +5797,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -5816,7 +5816,7 @@
     "externalId": "955",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -5847,7 +5847,7 @@
       "clutch": 55,
       "consistency": 61,
       "potential": 67,
-      "overall": 53
+      "overall": 54
     },
     "tendencies": {
       "usageRate": 21.688164532725505,
@@ -5897,7 +5897,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -5916,7 +5916,7 @@
     "externalId": "1497",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -5947,7 +5947,7 @@
       "clutch": 60,
       "consistency": 68,
       "potential": 84,
-      "overall": 66
+      "overall": 70
     },
     "tendencies": {
       "usageRate": 19.59381359545921,
@@ -5995,7 +5995,7 @@
         12000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -6014,7 +6014,7 @@
     "externalId": "724",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -6045,7 +6045,7 @@
       "clutch": 58,
       "consistency": 62,
       "potential": 67,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 20.72257161431243,
@@ -6099,7 +6099,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -6118,7 +6118,7 @@
     "externalId": "1820",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -6199,7 +6199,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -6218,7 +6218,7 @@
     "externalId": "1540",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -6299,7 +6299,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -6318,7 +6318,7 @@
     "externalId": "1504",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -6349,7 +6349,7 @@
       "clutch": 57,
       "consistency": 71,
       "potential": 80,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 17.62344923768972,
@@ -6399,7 +6399,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -6418,7 +6418,7 @@
     "externalId": "1511",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -6449,7 +6449,7 @@
       "clutch": 58,
       "consistency": 61,
       "potential": 67,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 13.907801768654961,
@@ -6499,7 +6499,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -6518,7 +6518,7 @@
     "externalId": "61",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -6603,7 +6603,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -6622,7 +6622,7 @@
     "externalId": "179",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -6653,7 +6653,7 @@
       "clutch": 58,
       "consistency": 68,
       "potential": 69,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 11.557449024381203,
@@ -6707,7 +6707,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -6726,7 +6726,7 @@
     "externalId": "686",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -6757,7 +6757,7 @@
       "clutch": 65,
       "consistency": 72,
       "potential": 100,
-      "overall": 71
+      "overall": 79
     },
     "tendencies": {
       "usageRate": 26.713107191533187,
@@ -6807,7 +6807,7 @@
         19440000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -6826,7 +6826,7 @@
     "externalId": "89",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -6857,7 +6857,7 @@
       "clutch": 58,
       "consistency": 72,
       "potential": 88,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 22.10657948319264,
@@ -6911,7 +6911,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -6930,7 +6930,7 @@
     "externalId": "677",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -6961,7 +6961,7 @@
       "clutch": 55,
       "consistency": 62,
       "potential": 70,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 20.981062511095963,
@@ -7015,7 +7015,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -7034,7 +7034,7 @@
     "externalId": "684",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -7119,7 +7119,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -7138,7 +7138,7 @@
     "externalId": "960",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -7219,7 +7219,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -7238,7 +7238,7 @@
     "externalId": "177",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 63,
@@ -7269,7 +7269,7 @@
       "clutch": 57,
       "consistency": 61,
       "potential": 65,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 10.93426247109549,
@@ -7323,7 +7323,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -7342,7 +7342,7 @@
     "externalId": "923",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -7373,7 +7373,7 @@
       "clutch": 56,
       "consistency": 69,
       "potential": 78,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 21.01876756435889,
@@ -7427,7 +7427,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -7446,7 +7446,7 @@
     "externalId": "1712",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -7477,7 +7477,7 @@
       "clutch": 58,
       "consistency": 68,
       "potential": 75,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 21.03054028934471,
@@ -7527,7 +7527,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -7546,7 +7546,7 @@
     "externalId": "317",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -7577,7 +7577,7 @@
       "clutch": 58,
       "consistency": 71,
       "potential": 81,
-      "overall": 63
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 21.20563082397421,
@@ -7631,7 +7631,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -7650,7 +7650,7 @@
     "externalId": "902",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -7681,7 +7681,7 @@
       "clutch": 57,
       "consistency": 68,
       "potential": 73,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 18.44003800283296,
@@ -7735,7 +7735,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -7754,7 +7754,7 @@
     "externalId": "956",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -7785,7 +7785,7 @@
       "clutch": 57,
       "consistency": 68,
       "potential": 76,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 19.262235069687918,
@@ -7835,7 +7835,7 @@
         12960000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -7854,7 +7854,7 @@
     "externalId": "1502",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -7885,7 +7885,7 @@
       "clutch": 58,
       "consistency": 64,
       "potential": 63,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 11.693396502195242,
@@ -7935,7 +7935,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -7954,7 +7954,7 @@
     "externalId": "273",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -7985,7 +7985,7 @@
       "clutch": 55,
       "consistency": 56,
       "potential": 45,
-      "overall": 51
+      "overall": 52
     },
     "tendencies": {
       "usageRate": 14.793569161804616,
@@ -8039,7 +8039,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -8058,7 +8058,7 @@
     "externalId": "168",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -8089,7 +8089,7 @@
       "clutch": 58,
       "consistency": 66,
       "potential": 76,
-      "overall": 62
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 16.343076886049836,
@@ -8143,7 +8143,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -8162,7 +8162,7 @@
     "externalId": "187",
     "firstName": "",
     "lastName": "",
-    "age": 38.0,
+    "age": 38,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -8193,7 +8193,7 @@
       "clutch": 58,
       "consistency": 66,
       "potential": 73,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 23.183046570219407,
@@ -8247,7 +8247,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -8266,7 +8266,7 @@
     "externalId": "280",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -8351,7 +8351,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -8370,7 +8370,7 @@
     "externalId": "1722",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -8401,7 +8401,7 @@
       "clutch": 59,
       "consistency": 70,
       "potential": 78,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 17.03184278620768,
@@ -8451,7 +8451,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -8470,7 +8470,7 @@
     "externalId": "787",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -8501,7 +8501,7 @@
       "clutch": 59,
       "consistency": 69,
       "potential": 91,
-      "overall": 65
+      "overall": 70
     },
     "tendencies": {
       "usageRate": 22.818371282112977,
@@ -8555,7 +8555,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -8574,7 +8574,7 @@
     "externalId": "1749",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -8605,7 +8605,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 75,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 16.910685718640416,
@@ -8655,7 +8655,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -8674,7 +8674,7 @@
     "externalId": "694",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -8705,7 +8705,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 80,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 18.54208895043022,
@@ -8759,7 +8759,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -8778,7 +8778,7 @@
     "externalId": "1724",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -8809,7 +8809,7 @@
       "clutch": 53,
       "consistency": 60,
       "potential": 58,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 17.29377124940275,
@@ -8859,7 +8859,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -8878,7 +8878,7 @@
     "externalId": "85",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -8909,7 +8909,7 @@
       "clutch": 56,
       "consistency": 62,
       "potential": 72,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 18.31452951545184,
@@ -8963,7 +8963,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -8982,7 +8982,7 @@
     "externalId": "970",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -9013,7 +9013,7 @@
       "clutch": 56,
       "consistency": 65,
       "potential": 77,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 21.930188103899983,
@@ -9063,7 +9063,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -9082,7 +9082,7 @@
     "externalId": "937",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -9113,7 +9113,7 @@
       "clutch": 62,
       "consistency": 72,
       "potential": 87,
-      "overall": 70
+      "overall": 78
     },
     "tendencies": {
       "usageRate": 19.369391443224345,
@@ -9167,7 +9167,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -9186,7 +9186,7 @@
     "externalId": "165",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -9217,7 +9217,7 @@
       "clutch": 63,
       "consistency": 71,
       "potential": 100,
-      "overall": 79
+      "overall": 95
     },
     "tendencies": {
       "usageRate": 24.852280369255,
@@ -9271,7 +9271,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -9290,7 +9290,7 @@
     "externalId": "672",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -9321,7 +9321,7 @@
       "clutch": 54,
       "consistency": 61,
       "potential": 60,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 15.218198014238485,
@@ -9375,7 +9375,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -9394,7 +9394,7 @@
     "externalId": "914",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -9479,7 +9479,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -9498,7 +9498,7 @@
     "externalId": "156",
     "firstName": "",
     "lastName": "",
-    "age": 37.0,
+    "age": 37,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -9583,7 +9583,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -9602,7 +9602,7 @@
     "externalId": "1520",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -9683,7 +9683,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -9702,7 +9702,7 @@
     "externalId": "1607",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -9733,7 +9733,7 @@
       "clutch": 54,
       "consistency": 59,
       "potential": 67,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 18.334213958790503,
@@ -9783,7 +9783,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -9802,7 +9802,7 @@
     "externalId": "441",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -9833,7 +9833,7 @@
       "clutch": 59,
       "consistency": 68,
       "potential": 80,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 26.80254752976673,
@@ -9887,7 +9887,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -9906,7 +9906,7 @@
     "externalId": "1838",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -9937,7 +9937,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 78,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 16.20001774195176,
@@ -9987,7 +9987,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -10006,7 +10006,7 @@
     "externalId": "428",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -10091,7 +10091,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -10110,7 +10110,7 @@
     "externalId": "1508",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -10141,7 +10141,7 @@
       "clutch": 58,
       "consistency": 70,
       "potential": 91,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 27.1681161964496,
@@ -10189,7 +10189,7 @@
         7000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -10208,7 +10208,7 @@
     "externalId": "1730",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -10239,7 +10239,7 @@
       "clutch": 55,
       "consistency": 57,
       "potential": 63,
-      "overall": 52
+      "overall": 53
     },
     "tendencies": {
       "usageRate": 18.364569233584046,
@@ -10289,7 +10289,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -10308,7 +10308,7 @@
     "externalId": "1569",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 87,
@@ -10339,7 +10339,7 @@
       "clutch": 55,
       "consistency": 57,
       "potential": 65,
-      "overall": 53
+      "overall": 54
     },
     "tendencies": {
       "usageRate": 18.30055271518025,
@@ -10389,7 +10389,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -10408,7 +10408,7 @@
     "externalId": "1709",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -10439,7 +10439,7 @@
       "clutch": 58,
       "consistency": 66,
       "potential": 76,
-      "overall": 63
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 20.039210654889928,
@@ -10489,7 +10489,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -10508,7 +10508,7 @@
     "externalId": "15",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -10539,7 +10539,7 @@
       "clutch": 56,
       "consistency": 68,
       "potential": 79,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 17.314146948029954,
@@ -10593,7 +10593,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -10612,7 +10612,7 @@
     "externalId": "915",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -10643,7 +10643,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 71,
-      "overall": 58
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 19.591402668977093,
@@ -10697,7 +10697,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -10716,7 +10716,7 @@
     "externalId": "953",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -10747,7 +10747,7 @@
       "clutch": 59,
       "consistency": 68,
       "potential": 69,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 13.869955219896013,
@@ -10797,7 +10797,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -10816,7 +10816,7 @@
     "externalId": "965",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -10847,7 +10847,7 @@
       "clutch": 59,
       "consistency": 69,
       "potential": 65,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 14.40651641852198,
@@ -10897,7 +10897,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -10916,7 +10916,7 @@
     "externalId": "109",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -10947,7 +10947,7 @@
       "clutch": 57,
       "consistency": 62,
       "potential": 67,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 12.980298735993255,
@@ -11001,7 +11001,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -11020,7 +11020,7 @@
     "externalId": "977",
     "firstName": "",
     "lastName": "",
-    "age": 20.0,
+    "age": 20,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -11051,7 +11051,7 @@
       "clutch": 59,
       "consistency": 72,
       "potential": 99,
-      "overall": 71
+      "overall": 78
     },
     "tendencies": {
       "usageRate": 24.318167023821523,
@@ -11099,7 +11099,7 @@
         18000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -11118,7 +11118,7 @@
     "externalId": "1731",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 72,
@@ -11197,7 +11197,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -11216,7 +11216,7 @@
     "externalId": "462",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -11247,7 +11247,7 @@
       "clutch": 58,
       "consistency": 65,
       "potential": 75,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 18.11302782384675,
@@ -11301,7 +11301,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -11320,7 +11320,7 @@
     "externalId": "157",
     "firstName": "",
     "lastName": "",
-    "age": 37.0,
+    "age": 37,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -11351,7 +11351,7 @@
       "clutch": 57,
       "consistency": 65,
       "potential": 67,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 13.55965264099184,
@@ -11405,7 +11405,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -11424,7 +11424,7 @@
     "externalId": "296",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -11455,7 +11455,7 @@
       "clutch": 57,
       "consistency": 64,
       "potential": 75,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 20.049642331277536,
@@ -11509,7 +11509,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -11528,7 +11528,7 @@
     "externalId": "1739",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -11609,7 +11609,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -11628,7 +11628,7 @@
     "externalId": "406",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 85,
@@ -11659,7 +11659,7 @@
       "clutch": 62,
       "consistency": 72,
       "potential": 100,
-      "overall": 79
+      "overall": 95
     },
     "tendencies": {
       "usageRate": 32.58473576807576,
@@ -11713,7 +11713,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -11732,7 +11732,7 @@
     "externalId": "969",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -11813,7 +11813,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -11832,7 +11832,7 @@
     "externalId": "779",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -11863,7 +11863,7 @@
       "clutch": 57,
       "consistency": 62,
       "potential": 94,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 22.073022687048255,
@@ -11917,7 +11917,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -11936,7 +11936,7 @@
     "externalId": "399",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -12021,7 +12021,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12040,7 +12040,7 @@
     "externalId": "173",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -12125,7 +12125,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12144,7 +12144,7 @@
     "externalId": "190",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -12229,7 +12229,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12248,7 +12248,7 @@
     "externalId": "1110",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -12333,7 +12333,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12352,7 +12352,7 @@
     "externalId": "105",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -12383,7 +12383,7 @@
       "clutch": 58,
       "consistency": 71,
       "potential": 70,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 11.677578067631922,
@@ -12437,7 +12437,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12456,7 +12456,7 @@
     "externalId": "896",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 72,
@@ -12487,7 +12487,7 @@
       "clutch": 60,
       "consistency": 71,
       "potential": 90,
-      "overall": 67
+      "overall": 72
     },
     "tendencies": {
       "usageRate": 24.45512424205766,
@@ -12541,7 +12541,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12560,7 +12560,7 @@
     "externalId": "702",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -12645,7 +12645,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12664,7 +12664,7 @@
     "externalId": "777",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -12749,7 +12749,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12768,7 +12768,7 @@
     "externalId": "469",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -12799,7 +12799,7 @@
       "clutch": 57,
       "consistency": 59,
       "potential": 87,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 23.442839878975736,
@@ -12853,7 +12853,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12872,7 +12872,7 @@
     "externalId": "345",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -12903,7 +12903,7 @@
       "clutch": 57,
       "consistency": 70,
       "potential": 78,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 20.471058411222938,
@@ -12957,7 +12957,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -12976,7 +12976,7 @@
     "externalId": "297",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -13007,7 +13007,7 @@
       "clutch": 63,
       "consistency": 71,
       "potential": 100,
-      "overall": 81
+      "overall": 99
     },
     "tendencies": {
       "usageRate": 25.15677746881542,
@@ -13061,7 +13061,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13080,7 +13080,7 @@
     "externalId": "221",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -13111,7 +13111,7 @@
       "clutch": 57,
       "consistency": 68,
       "potential": 75,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 17.58964070897904,
@@ -13165,7 +13165,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13184,7 +13184,7 @@
     "externalId": "136",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -13215,7 +13215,7 @@
       "clutch": 59,
       "consistency": 70,
       "potential": 80,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 17.607177533903542,
@@ -13269,7 +13269,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13288,7 +13288,7 @@
     "externalId": "906",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -13319,7 +13319,7 @@
       "clutch": 57,
       "consistency": 62,
       "potential": 68,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 14.300465758455333,
@@ -13373,7 +13373,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13392,7 +13392,7 @@
     "externalId": "1501",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -13423,7 +13423,7 @@
       "clutch": 57,
       "consistency": 65,
       "potential": 71,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 21.784318320927856,
@@ -13471,7 +13471,7 @@
         3000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -13490,7 +13490,7 @@
     "externalId": "288",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -13575,7 +13575,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13594,7 +13594,7 @@
     "externalId": "688",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -13625,7 +13625,7 @@
       "clutch": 57,
       "consistency": 70,
       "potential": 63,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 11.921111998959141,
@@ -13679,7 +13679,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13698,7 +13698,7 @@
     "externalId": "299",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -13729,7 +13729,7 @@
       "clutch": 60,
       "consistency": 69,
       "potential": 95,
-      "overall": 69
+      "overall": 75
     },
     "tendencies": {
       "usageRate": 28.10171637943242,
@@ -13783,7 +13783,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13802,7 +13802,7 @@
     "externalId": "208",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -13887,7 +13887,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -13906,7 +13906,7 @@
     "externalId": "423",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -13991,7 +13991,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -14010,7 +14010,7 @@
     "externalId": "209",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -14041,7 +14041,7 @@
       "clutch": 58,
       "consistency": 63,
       "potential": 79,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 19.892084094109244,
@@ -14095,7 +14095,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -14114,7 +14114,7 @@
     "externalId": "951",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -14145,7 +14145,7 @@
       "clutch": 60,
       "consistency": 73,
       "potential": 91,
-      "overall": 69
+      "overall": 75
     },
     "tendencies": {
       "usageRate": 23.51759839482124,
@@ -14195,7 +14195,7 @@
         12960000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -14214,7 +14214,7 @@
     "externalId": "911",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -14245,7 +14245,7 @@
       "clutch": 57,
       "consistency": 67,
       "potential": 71,
-      "overall": 62
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 12.192831258738805,
@@ -14299,7 +14299,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -14318,7 +14318,7 @@
     "externalId": "281",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -14403,7 +14403,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -14422,7 +14422,7 @@
     "externalId": "1714",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -14501,7 +14501,7 @@
         3000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -14520,7 +14520,7 @@
     "externalId": "324",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -14551,7 +14551,7 @@
       "clutch": 58,
       "consistency": 60,
       "potential": 72,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 17.080067057593606,
@@ -14605,7 +14605,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -14624,7 +14624,7 @@
     "externalId": "907",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -14655,7 +14655,7 @@
       "clutch": 59,
       "consistency": 62,
       "potential": 71,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 18.390228400380376,
@@ -14709,7 +14709,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -14728,7 +14728,7 @@
     "externalId": "210",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 71,
@@ -14759,7 +14759,7 @@
       "clutch": 59,
       "consistency": 64,
       "potential": 81,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 23.405668927071265,
@@ -14813,7 +14813,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -14832,7 +14832,7 @@
     "externalId": "1725",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -14913,7 +14913,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -14932,7 +14932,7 @@
     "externalId": "67",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -15017,7 +15017,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -15036,7 +15036,7 @@
     "externalId": "708",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -15067,7 +15067,7 @@
       "clutch": 62,
       "consistency": 70,
       "potential": 99,
-      "overall": 73
+      "overall": 83
     },
     "tendencies": {
       "usageRate": 27.298743817339275,
@@ -15117,7 +15117,7 @@
         19440000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -15136,7 +15136,7 @@
     "externalId": "1051",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -15167,7 +15167,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 71,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 11.477689222032652,
@@ -15221,7 +15221,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -15240,7 +15240,7 @@
     "externalId": "1517",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -15271,7 +15271,7 @@
       "clutch": 56,
       "consistency": 68,
       "potential": 67,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 21.896949554170128,
@@ -15325,7 +15325,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -15344,7 +15344,7 @@
     "externalId": "381",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -15375,7 +15375,7 @@
       "clutch": 57,
       "consistency": 60,
       "potential": 64,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 20.132528915650983,
@@ -15429,7 +15429,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -15448,7 +15448,7 @@
     "externalId": "693",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -15479,7 +15479,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 84,
-      "overall": 62
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 19.74605160452774,
@@ -15529,7 +15529,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -15548,7 +15548,7 @@
     "externalId": "417",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -15579,7 +15579,7 @@
       "clutch": 59,
       "consistency": 69,
       "potential": 78,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 20.476370849751213,
@@ -15633,7 +15633,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -15652,7 +15652,7 @@
     "externalId": "1754",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -15733,7 +15733,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -15752,7 +15752,7 @@
     "externalId": "386",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 72,
@@ -15837,7 +15837,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -15856,7 +15856,7 @@
     "externalId": "938",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -15941,7 +15941,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -15960,7 +15960,7 @@
     "externalId": "446",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -16045,7 +16045,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -16064,7 +16064,7 @@
     "externalId": "383",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -16095,7 +16095,7 @@
       "clutch": 62,
       "consistency": 70,
       "potential": 78,
-      "overall": 63
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 19.646170451184965,
@@ -16149,7 +16149,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -16168,7 +16168,7 @@
     "externalId": "994",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -16199,7 +16199,7 @@
       "clutch": 57,
       "consistency": 59,
       "potential": 70,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 10,
@@ -16249,7 +16249,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -16268,7 +16268,7 @@
     "externalId": "197",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -16299,7 +16299,7 @@
       "clutch": 56,
       "consistency": 60,
       "potential": 68,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 16.9184689839497,
@@ -16353,7 +16353,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -16372,7 +16372,7 @@
     "externalId": "954",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -16403,7 +16403,7 @@
       "clutch": 59,
       "consistency": 70,
       "potential": 79,
-      "overall": 64
+      "overall": 68
     },
     "tendencies": {
       "usageRate": 21.422622217669886,
@@ -16453,7 +16453,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -16472,7 +16472,7 @@
     "externalId": "950",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -16503,7 +16503,7 @@
       "clutch": 60,
       "consistency": 74,
       "potential": 99,
-      "overall": 70
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 26.47487113298654,
@@ -16551,7 +16551,7 @@
         18000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -16570,7 +16570,7 @@
     "externalId": "971",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -16651,7 +16651,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -16670,7 +16670,7 @@
     "externalId": "713",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -16751,7 +16751,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -16770,7 +16770,7 @@
     "externalId": "1496",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -16801,7 +16801,7 @@
       "clutch": 60,
       "consistency": 69,
       "potential": 100,
-      "overall": 69
+      "overall": 75
     },
     "tendencies": {
       "usageRate": 28.171483115250197,
@@ -16851,7 +16851,7 @@
         12960000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -16870,7 +16870,7 @@
     "externalId": "1061",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -16901,7 +16901,7 @@
       "clutch": 57,
       "consistency": 57,
       "potential": 49,
-      "overall": 52
+      "overall": 53
     },
     "tendencies": {
       "usageRate": 10,
@@ -16951,7 +16951,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -16970,7 +16970,7 @@
     "externalId": "49",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 91,
@@ -17055,7 +17055,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17074,7 +17074,7 @@
     "externalId": "164",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -17105,7 +17105,7 @@
       "clutch": 58,
       "consistency": 70,
       "potential": 68,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 14.2786482709969,
@@ -17159,7 +17159,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17178,7 +17178,7 @@
     "externalId": "913",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -17209,7 +17209,7 @@
       "clutch": 58,
       "consistency": 71,
       "potential": 82,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 18.496508281866525,
@@ -17263,7 +17263,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17282,7 +17282,7 @@
     "externalId": "84",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -17313,7 +17313,7 @@
       "clutch": 58,
       "consistency": 64,
       "potential": 90,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 26.108095726147106,
@@ -17367,7 +17367,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17386,7 +17386,7 @@
     "externalId": "1594",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -17471,7 +17471,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17490,7 +17490,7 @@
     "externalId": "201",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -17521,7 +17521,7 @@
       "clutch": 55,
       "consistency": 65,
       "potential": 62,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 10,
@@ -17575,7 +17575,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17594,7 +17594,7 @@
     "externalId": "275",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -17625,7 +17625,7 @@
       "clutch": 58,
       "consistency": 72,
       "potential": 88,
-      "overall": 67
+      "overall": 73
     },
     "tendencies": {
       "usageRate": 23.528451349995443,
@@ -17679,7 +17679,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17698,7 +17698,7 @@
     "externalId": "369",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -17729,7 +17729,7 @@
       "clutch": 58,
       "consistency": 72,
       "potential": 69,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 13.56818559181146,
@@ -17783,7 +17783,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -17802,7 +17802,7 @@
     "externalId": "948",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -17833,7 +17833,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 71,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 18.375690752465864,
@@ -17883,7 +17883,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -17902,7 +17902,7 @@
     "externalId": "766",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -17987,7 +17987,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18006,7 +18006,7 @@
     "externalId": "1006",
     "firstName": "",
     "lastName": "",
-    "age": 41.0,
+    "age": 41,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -18091,7 +18091,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18110,7 +18110,7 @@
     "externalId": "121",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -18141,7 +18141,7 @@
       "clutch": 60,
       "consistency": 65,
       "potential": 96,
-      "overall": 72
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 27.24647815342713,
@@ -18195,7 +18195,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18214,7 +18214,7 @@
     "externalId": "703",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -18245,7 +18245,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 72,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 19.89927190796393,
@@ -18299,7 +18299,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18318,7 +18318,7 @@
     "externalId": "358",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -18349,7 +18349,7 @@
       "clutch": 61,
       "consistency": 73,
       "potential": 88,
-      "overall": 69
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 22.152840673421455,
@@ -18403,7 +18403,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18422,7 +18422,7 @@
     "externalId": "769",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -18507,7 +18507,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18526,7 +18526,7 @@
     "externalId": "1134",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -18557,7 +18557,7 @@
       "clutch": 57,
       "consistency": 68,
       "potential": 78,
-      "overall": 63
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 24.28283132799189,
@@ -18611,7 +18611,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18630,7 +18630,7 @@
     "externalId": "353",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -18661,7 +18661,7 @@
       "clutch": 58,
       "consistency": 70,
       "potential": 85,
-      "overall": 68
+      "overall": 74
     },
     "tendencies": {
       "usageRate": 22.44698817550626,
@@ -18715,7 +18715,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18734,7 +18734,7 @@
     "externalId": "1723",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -18765,7 +18765,7 @@
       "clutch": 56,
       "consistency": 68,
       "potential": 73,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 18.711835157154965,
@@ -18815,7 +18815,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -18834,7 +18834,7 @@
     "externalId": "1122",
     "firstName": "",
     "lastName": "",
-    "age": 39.0,
+    "age": 39,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -18919,7 +18919,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -18938,7 +18938,7 @@
     "externalId": "7",
     "firstName": "",
     "lastName": "",
-    "age": 40.0,
+    "age": 40,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -19023,7 +19023,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19042,7 +19042,7 @@
     "externalId": "98",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -19073,7 +19073,7 @@
       "clutch": 60,
       "consistency": 71,
       "potential": 86,
-      "overall": 64
+      "overall": 68
     },
     "tendencies": {
       "usageRate": 22.052157334300823,
@@ -19127,7 +19127,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19146,7 +19146,7 @@
     "externalId": "400",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -19231,7 +19231,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19250,7 +19250,7 @@
     "externalId": "448",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -19335,7 +19335,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19354,7 +19354,7 @@
     "externalId": "1720",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -19385,7 +19385,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 72,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 17.488889487705094,
@@ -19433,7 +19433,7 @@
         3000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -19452,7 +19452,7 @@
     "externalId": "270",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -19483,7 +19483,7 @@
       "clutch": 59,
       "consistency": 71,
       "potential": 72,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 15.408233637441299,
@@ -19537,7 +19537,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19556,7 +19556,7 @@
     "externalId": "696",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 71,
@@ -19587,7 +19587,7 @@
       "clutch": 59,
       "consistency": 68,
       "potential": 68,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 19.0320040173368,
@@ -19641,7 +19641,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19660,7 +19660,7 @@
     "externalId": "147",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -19691,7 +19691,7 @@
       "clutch": 57,
       "consistency": 69,
       "potential": 76,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 23.134217578902316,
@@ -19745,7 +19745,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19764,7 +19764,7 @@
     "externalId": "365",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -19849,7 +19849,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19868,7 +19868,7 @@
     "externalId": "349",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -19899,7 +19899,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 69,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 16.608242209730378,
@@ -19953,7 +19953,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -19972,7 +19972,7 @@
     "externalId": "64",
     "firstName": "",
     "lastName": "",
-    "age": 38.0,
+    "age": 38,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -20003,7 +20003,7 @@
       "clutch": 55,
       "consistency": 64,
       "potential": 66,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 15.216500938161833,
@@ -20057,7 +20057,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -20076,7 +20076,7 @@
     "externalId": "904",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -20107,7 +20107,7 @@
       "clutch": 58,
       "consistency": 68,
       "potential": 80,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 19.637343898496994,
@@ -20161,7 +20161,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -20180,7 +20180,7 @@
     "externalId": "697",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -20265,7 +20265,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -20284,7 +20284,7 @@
     "externalId": "397",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -20315,7 +20315,7 @@
       "clutch": 60,
       "consistency": 73,
       "potential": 95,
-      "overall": 69
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 23.341100355924574,
@@ -20369,7 +20369,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -20388,7 +20388,7 @@
     "externalId": "905",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -20419,7 +20419,7 @@
       "clutch": 60,
       "consistency": 71,
       "potential": 73,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 11.984186601831365,
@@ -20473,7 +20473,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -20492,7 +20492,7 @@
     "externalId": "213",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -20523,7 +20523,7 @@
       "clutch": 58,
       "consistency": 68,
       "potential": 76,
-      "overall": 60
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 17.688296206066727,
@@ -20577,7 +20577,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -20596,7 +20596,7 @@
     "externalId": "1506",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -20677,7 +20677,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -20696,7 +20696,7 @@
     "externalId": "22",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 88,
@@ -20727,7 +20727,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 91,
-      "overall": 67
+      "overall": 72
     },
     "tendencies": {
       "usageRate": 28.453569022282153,
@@ -20781,7 +20781,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -20800,7 +20800,7 @@
     "externalId": "947",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 72,
@@ -20831,7 +20831,7 @@
       "clutch": 60,
       "consistency": 73,
       "potential": 100,
-      "overall": 72
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 31.718666460013615,
@@ -20881,7 +20881,7 @@
         19440000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -20900,7 +20900,7 @@
     "externalId": "328",
     "firstName": "",
     "lastName": "",
-    "age": 40.0,
+    "age": 40,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -20985,7 +20985,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -21004,7 +21004,7 @@
     "externalId": "243",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -21089,7 +21089,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -21108,7 +21108,7 @@
     "externalId": "248",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -21139,7 +21139,7 @@
       "clutch": 58,
       "consistency": 67,
       "potential": 71,
-      "overall": 62
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 15.898058798873773,
@@ -21193,7 +21193,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -21212,7 +21212,7 @@
     "externalId": "1737",
     "firstName": "",
     "lastName": "",
-    "age": 21.0,
+    "age": 21,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -21291,7 +21291,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -21310,7 +21310,7 @@
     "externalId": "727",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -21341,7 +21341,7 @@
       "clutch": 60,
       "consistency": 71,
       "potential": 71,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 15.501798985332346,
@@ -21395,7 +21395,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -21414,7 +21414,7 @@
     "externalId": "1716",
     "firstName": "",
     "lastName": "",
-    "age": 20.0,
+    "age": 20,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -21445,7 +21445,7 @@
       "clutch": 57,
       "consistency": 67,
       "potential": 71,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 24.502638937730737,
@@ -21493,7 +21493,7 @@
         3000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -21512,7 +21512,7 @@
     "externalId": "1532",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -21593,7 +21593,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -21612,7 +21612,7 @@
     "externalId": "238",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -21643,7 +21643,7 @@
       "clutch": 56,
       "consistency": 64,
       "potential": 73,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 16.902125759793694,
@@ -21697,7 +21697,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -21716,7 +21716,7 @@
     "externalId": "689",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -21747,7 +21747,7 @@
       "clutch": 61,
       "consistency": 72,
       "potential": 80,
-      "overall": 66
+      "overall": 71
     },
     "tendencies": {
       "usageRate": 16.799846126607807,
@@ -21801,7 +21801,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -21820,7 +21820,7 @@
     "externalId": "265",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -21905,7 +21905,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -21924,7 +21924,7 @@
     "externalId": "761",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 85,
@@ -21955,7 +21955,7 @@
       "clutch": 59,
       "consistency": 71,
       "potential": 89,
-      "overall": 70
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 21.841377544677346,
@@ -22009,7 +22009,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -22028,7 +22028,7 @@
     "externalId": "988",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -22109,7 +22109,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -22128,7 +22128,7 @@
     "externalId": "364",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -22159,7 +22159,7 @@
       "clutch": 57,
       "consistency": 65,
       "potential": 77,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 20.48877671502174,
@@ -22213,7 +22213,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -22232,7 +22232,7 @@
     "externalId": "1871",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -22313,7 +22313,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -22332,7 +22332,7 @@
     "externalId": "1727",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -22363,7 +22363,7 @@
       "clutch": 56,
       "consistency": 62,
       "potential": 68,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 18.76743086286263,
@@ -22411,7 +22411,7 @@
         3000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -22430,7 +22430,7 @@
     "externalId": "26",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 86,
@@ -22461,7 +22461,7 @@
       "clutch": 57,
       "consistency": 65,
       "potential": 78,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 17.266107842447102,
@@ -22515,7 +22515,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -22534,7 +22534,7 @@
     "externalId": "330",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -22565,7 +22565,7 @@
       "clutch": 60,
       "consistency": 68,
       "potential": 75,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 19.911667681143772,
@@ -22619,7 +22619,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -22638,7 +22638,7 @@
     "externalId": "45",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -22669,7 +22669,7 @@
       "clutch": 56,
       "consistency": 68,
       "potential": 76,
-      "overall": 64
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 15.63286789028185,
@@ -22723,7 +22723,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -22742,7 +22742,7 @@
     "externalId": "339",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -22773,7 +22773,7 @@
       "clutch": 59,
       "consistency": 69,
       "potential": 93,
-      "overall": 65
+      "overall": 70
     },
     "tendencies": {
       "usageRate": 22.481092950255178,
@@ -22827,7 +22827,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -22846,7 +22846,7 @@
     "externalId": "361",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -22877,7 +22877,7 @@
       "clutch": 61,
       "consistency": 71,
       "potential": 92,
-      "overall": 69
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 20.90258510444218,
@@ -22931,7 +22931,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -22950,7 +22950,7 @@
     "externalId": "467",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -22981,7 +22981,7 @@
       "clutch": 62,
       "consistency": 73,
       "potential": 90,
-      "overall": 72
+      "overall": 82
     },
     "tendencies": {
       "usageRate": 20.83652136336092,
@@ -23035,7 +23035,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -23054,7 +23054,7 @@
     "externalId": "356",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -23085,7 +23085,7 @@
       "clutch": 54,
       "consistency": 62,
       "potential": 65,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 13.92783544230358,
@@ -23139,7 +23139,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -23158,7 +23158,7 @@
     "externalId": "170",
     "firstName": "",
     "lastName": "",
-    "age": 37.0,
+    "age": 37,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -23189,7 +23189,7 @@
       "clutch": 55,
       "consistency": 58,
       "potential": 61,
-      "overall": 54
+      "overall": 55
     },
     "tendencies": {
       "usageRate": 11.682932690864751,
@@ -23243,7 +23243,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -23262,7 +23262,7 @@
     "externalId": "278",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -23293,7 +23293,7 @@
       "clutch": 59,
       "consistency": 65,
       "potential": 64,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 12.855252111847298,
@@ -23347,7 +23347,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -23366,7 +23366,7 @@
     "externalId": "757",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 70,
@@ -23397,7 +23397,7 @@
       "clutch": 57,
       "consistency": 72,
       "potential": 79,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 21.48955721579467,
@@ -23447,7 +23447,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -23466,7 +23466,7 @@
     "externalId": "979",
     "firstName": "",
     "lastName": "",
-    "age": 20.0,
+    "age": 20,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -23545,7 +23545,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -23564,7 +23564,7 @@
     "externalId": "717",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 87,
@@ -23595,7 +23595,7 @@
       "clutch": 60,
       "consistency": 70,
       "potential": 86,
-      "overall": 68
+      "overall": 74
     },
     "tendencies": {
       "usageRate": 21.102554967347903,
@@ -23649,7 +23649,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -23668,7 +23668,7 @@
     "externalId": "754",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -23699,7 +23699,7 @@
       "clutch": 57,
       "consistency": 67,
       "potential": 71,
-      "overall": 60
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 19.831358735381226,
@@ -23753,7 +23753,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -23772,7 +23772,7 @@
     "externalId": "202",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -23857,7 +23857,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -23876,7 +23876,7 @@
     "externalId": "739",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -23907,7 +23907,7 @@
       "clutch": 59,
       "consistency": 70,
       "potential": 84,
-      "overall": 66
+      "overall": 71
     },
     "tendencies": {
       "usageRate": 20.80921590625234,
@@ -23957,7 +23957,7 @@
         12960000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -23976,7 +23976,7 @@
     "externalId": "1509",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -24007,7 +24007,7 @@
       "clutch": 57,
       "consistency": 62,
       "potential": 65,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 15.234140003523859,
@@ -24057,7 +24057,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -24076,7 +24076,7 @@
     "externalId": "375",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -24107,7 +24107,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 82,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 25.429080927721728,
@@ -24161,7 +24161,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -24180,7 +24180,7 @@
     "externalId": "1005",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -24211,7 +24211,7 @@
       "clutch": 59,
       "consistency": 68,
       "potential": 76,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 19.87163698779252,
@@ -24265,7 +24265,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -24284,7 +24284,7 @@
     "externalId": "258",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -24315,7 +24315,7 @@
       "clutch": 56,
       "consistency": 70,
       "potential": 81,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 16.233133467451935,
@@ -24369,7 +24369,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -24388,7 +24388,7 @@
     "externalId": "21",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -24419,7 +24419,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 68,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 18.427753843232125,
@@ -24473,7 +24473,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -24492,7 +24492,7 @@
     "externalId": "137",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -24523,7 +24523,7 @@
       "clutch": 59,
       "consistency": 66,
       "potential": 76,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 22.024007893832973,
@@ -24577,7 +24577,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -24596,7 +24596,7 @@
     "externalId": "185",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -24627,7 +24627,7 @@
       "clutch": 62,
       "consistency": 68,
       "potential": 97,
-      "overall": 67
+      "overall": 73
     },
     "tendencies": {
       "usageRate": 23.88481169987493,
@@ -24681,7 +24681,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -24700,7 +24700,7 @@
     "externalId": "1138",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 72,
@@ -24785,7 +24785,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -24804,7 +24804,7 @@
     "externalId": "1505",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -24835,7 +24835,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 74,
-      "overall": 60
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 17.53351036175121,
@@ -24885,7 +24885,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -24904,7 +24904,7 @@
     "externalId": "978",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -24935,7 +24935,7 @@
       "clutch": 56,
       "consistency": 67,
       "potential": 72,
-      "overall": 60
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 17.659249376696124,
@@ -24983,7 +24983,7 @@
         7000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -25002,7 +25002,7 @@
     "externalId": "468",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -25033,7 +25033,7 @@
       "clutch": 58,
       "consistency": 62,
       "potential": 66,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 13.515392721383087,
@@ -25087,7 +25087,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -25106,7 +25106,7 @@
     "externalId": "124",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 85,
@@ -25137,7 +25137,7 @@
       "clutch": 60,
       "consistency": 73,
       "potential": 90,
-      "overall": 73
+      "overall": 82
     },
     "tendencies": {
       "usageRate": 19.81191957948725,
@@ -25191,7 +25191,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -25210,7 +25210,7 @@
     "externalId": "1513",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -25241,7 +25241,7 @@
       "clutch": 56,
       "consistency": 54,
       "potential": 72,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 13.509482287540603,
@@ -25291,7 +25291,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -25310,7 +25310,7 @@
     "externalId": "722",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -25341,7 +25341,7 @@
       "clutch": 57,
       "consistency": 71,
       "potential": 83,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 22.171769770604737,
@@ -25391,7 +25391,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -25410,7 +25410,7 @@
     "externalId": "1444",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -25441,7 +25441,7 @@
       "clutch": 56,
       "consistency": 66,
       "potential": 77,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 17.269161535735456,
@@ -25495,7 +25495,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -25514,7 +25514,7 @@
     "externalId": "1744",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 85,
@@ -25595,7 +25595,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -25614,7 +25614,7 @@
     "externalId": "1715",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -25645,7 +25645,7 @@
       "clutch": 59,
       "consistency": 71,
       "potential": 80,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 18.020250772463186,
@@ -25695,7 +25695,7 @@
         12960000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -25714,7 +25714,7 @@
     "externalId": "1114",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -25745,7 +25745,7 @@
       "clutch": 55,
       "consistency": 65,
       "potential": 66,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 17.260356298556008,
@@ -25799,7 +25799,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -25818,7 +25818,7 @@
     "externalId": "70",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -25849,7 +25849,7 @@
       "clutch": 57,
       "consistency": 64,
       "potential": 62,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 11.865836191082659,
@@ -25903,7 +25903,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -25922,7 +25922,7 @@
     "externalId": "422",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 71,
@@ -26007,7 +26007,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -26026,7 +26026,7 @@
     "externalId": "53",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -26057,7 +26057,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 78,
-      "overall": 63
+      "overall": 67
     },
     "tendencies": {
       "usageRate": 16.715129142350538,
@@ -26111,7 +26111,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -26130,7 +26130,7 @@
     "externalId": "1495",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -26161,7 +26161,7 @@
       "clutch": 64,
       "consistency": 73,
       "potential": 100,
-      "overall": 72
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 27.909741722034198,
@@ -26211,7 +26211,7 @@
         19440000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -26230,7 +26230,7 @@
     "externalId": "760",
     "firstName": "",
     "lastName": "",
-    "age": 37.0,
+    "age": 37,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -26315,7 +26315,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -26334,7 +26334,7 @@
     "externalId": "990",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -26415,7 +26415,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -26434,7 +26434,7 @@
     "externalId": "251",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -26465,7 +26465,7 @@
       "clutch": 58,
       "consistency": 71,
       "potential": 78,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 19.58311125993815,
@@ -26519,7 +26519,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -26538,7 +26538,7 @@
     "externalId": "1498",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -26569,7 +26569,7 @@
       "clutch": 57,
       "consistency": 63,
       "potential": 63,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 18.759263494953885,
@@ -26619,7 +26619,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -26638,7 +26638,7 @@
     "externalId": "781",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -26669,7 +26669,7 @@
       "clutch": 56,
       "consistency": 61,
       "potential": 67,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 10.212034048152695,
@@ -26723,7 +26723,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -26742,7 +26742,7 @@
     "externalId": "764",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 85,
@@ -26773,7 +26773,7 @@
       "clutch": 62,
       "consistency": 69,
       "potential": 95,
-      "overall": 75
+      "overall": 87
     },
     "tendencies": {
       "usageRate": 24.857701918049965,
@@ -26827,7 +26827,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -26846,7 +26846,7 @@
     "externalId": "1562",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -26931,7 +26931,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -26950,7 +26950,7 @@
     "externalId": "178",
     "firstName": "",
     "lastName": "",
-    "age": 34.0,
+    "age": 34,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -26981,7 +26981,7 @@
       "clutch": 58,
       "consistency": 68,
       "potential": 70,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 11.882666923860919,
@@ -27035,7 +27035,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27054,7 +27054,7 @@
     "externalId": "1735",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -27135,7 +27135,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -27154,7 +27154,7 @@
     "externalId": "1740",
     "firstName": "",
     "lastName": "",
-    "age": 19.0,
+    "age": 19,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -27233,7 +27233,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -27252,7 +27252,7 @@
     "externalId": "96",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -27283,7 +27283,7 @@
       "clutch": 59,
       "consistency": 70,
       "potential": 89,
-      "overall": 69
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 19.408870578912513,
@@ -27337,7 +27337,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27356,7 +27356,7 @@
     "externalId": "1003",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -27441,7 +27441,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27460,7 +27460,7 @@
     "externalId": "1425",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -27545,7 +27545,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27564,7 +27564,7 @@
     "externalId": "56",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -27595,7 +27595,7 @@
       "clutch": 61,
       "consistency": 72,
       "potential": 100,
-      "overall": 71
+      "overall": 79
     },
     "tendencies": {
       "usageRate": 27.188056626967583,
@@ -27649,7 +27649,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27668,7 +27668,7 @@
     "externalId": "180",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -27753,7 +27753,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27772,7 +27772,7 @@
     "externalId": "931",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -27857,7 +27857,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27876,7 +27876,7 @@
     "externalId": "765",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -27907,7 +27907,7 @@
       "clutch": 60,
       "consistency": 72,
       "potential": 76,
-      "overall": 66
+      "overall": 71
     },
     "tendencies": {
       "usageRate": 13.060214046721754,
@@ -27961,7 +27961,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -27980,7 +27980,7 @@
     "externalId": "1741",
     "firstName": "",
     "lastName": "",
-    "age": 21.0,
+    "age": 21,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -28011,7 +28011,7 @@
       "clutch": 56,
       "consistency": 57,
       "potential": 75,
-      "overall": 54
+      "overall": 55
     },
     "tendencies": {
       "usageRate": 14.732017474133345,
@@ -28059,7 +28059,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -28078,7 +28078,7 @@
     "externalId": "452",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -28109,7 +28109,7 @@
       "clutch": 58,
       "consistency": 64,
       "potential": 83,
-      "overall": 57
+      "overall": 58
     },
     "tendencies": {
       "usageRate": 24.934888181547755,
@@ -28163,7 +28163,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -28182,7 +28182,7 @@
     "externalId": "1503",
     "firstName": "",
     "lastName": "",
-    "age": 20.0,
+    "age": 20,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -28213,7 +28213,7 @@
       "clutch": 61,
       "consistency": 67,
       "potential": 75,
-      "overall": 62
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 21.467063525728594,
@@ -28261,7 +28261,7 @@
         7000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -28280,7 +28280,7 @@
     "externalId": "1565",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -28361,7 +28361,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -28380,7 +28380,7 @@
     "externalId": "244",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -28411,7 +28411,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 77,
-      "overall": 62
+      "overall": 65
     },
     "tendencies": {
       "usageRate": 19.75294811751559,
@@ -28465,7 +28465,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -28484,7 +28484,7 @@
     "externalId": "1519",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -28565,7 +28565,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -28584,7 +28584,7 @@
     "externalId": "57",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -28615,7 +28615,7 @@
       "clutch": 60,
       "consistency": 73,
       "potential": 87,
-      "overall": 69
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 21.084817824738465,
@@ -28669,7 +28669,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -28688,7 +28688,7 @@
     "externalId": "1713",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -28719,7 +28719,7 @@
       "clutch": 60,
       "consistency": 73,
       "potential": 95,
-      "overall": 69
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 25.5080083150757,
@@ -28767,7 +28767,7 @@
         12000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -28786,7 +28786,7 @@
     "externalId": "1541",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -28817,7 +28817,7 @@
       "clutch": 56,
       "consistency": 69,
       "potential": 62,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 14.51424914054649,
@@ -28867,7 +28867,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -28886,7 +28886,7 @@
     "externalId": "891",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -28917,7 +28917,7 @@
       "clutch": 58,
       "consistency": 72,
       "potential": 69,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 13.129292879261124,
@@ -28971,7 +28971,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -28990,7 +28990,7 @@
     "externalId": "1073",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -29075,7 +29075,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -29094,7 +29094,7 @@
     "externalId": "788",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -29125,7 +29125,7 @@
       "clutch": 57,
       "consistency": 67,
       "potential": 80,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 22.22309378590057,
@@ -29179,7 +29179,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -29198,7 +29198,7 @@
     "externalId": "961",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -29229,7 +29229,7 @@
       "clutch": 58,
       "consistency": 67,
       "potential": 73,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 27.17029922216974,
@@ -29279,7 +29279,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -29298,7 +29298,7 @@
     "externalId": "731",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 86,
@@ -29329,7 +29329,7 @@
       "clutch": 59,
       "consistency": 69,
       "potential": 71,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 10.517932982258111,
@@ -29383,7 +29383,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -29402,7 +29402,7 @@
     "externalId": "935",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -29433,7 +29433,7 @@
       "clutch": 59,
       "consistency": 73,
       "potential": 83,
-      "overall": 67
+      "overall": 73
     },
     "tendencies": {
       "usageRate": 16.552402097551713,
@@ -29487,7 +29487,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -29506,7 +29506,7 @@
     "externalId": "458",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -29537,7 +29537,7 @@
       "clutch": 57,
       "consistency": 66,
       "potential": 69,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 21.369443426049255,
@@ -29591,7 +29591,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -29610,7 +29610,7 @@
     "externalId": "1521",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -29691,7 +29691,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -29710,7 +29710,7 @@
     "externalId": "304",
     "firstName": "",
     "lastName": "",
-    "age": 37.0,
+    "age": 37,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -29741,7 +29741,7 @@
       "clutch": 58,
       "consistency": 70,
       "potential": 79,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 19.45952674301418,
@@ -29795,7 +29795,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -29814,7 +29814,7 @@
     "externalId": "204",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -29845,7 +29845,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 81,
-      "overall": 66
+      "overall": 70
     },
     "tendencies": {
       "usageRate": 19.04766075030971,
@@ -29899,7 +29899,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -29918,7 +29918,7 @@
     "externalId": "228",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -30003,7 +30003,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -30022,7 +30022,7 @@
     "externalId": "252",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -30053,7 +30053,7 @@
       "clutch": 60,
       "consistency": 74,
       "potential": 100,
-      "overall": 70
+      "overall": 78
     },
     "tendencies": {
       "usageRate": 31.682901725283273,
@@ -30107,7 +30107,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -30126,7 +30126,7 @@
     "externalId": "1000",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -30157,7 +30157,7 @@
       "clutch": 57,
       "consistency": 68,
       "potential": 73,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 21.46992598193507,
@@ -30207,7 +30207,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -30226,7 +30226,7 @@
     "externalId": "1847",
     "firstName": "",
     "lastName": "",
-    "age": 38.0,
+    "age": 38,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -30311,7 +30311,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -30330,7 +30330,7 @@
     "externalId": "323",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -30415,7 +30415,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -30434,7 +30434,7 @@
     "externalId": "957",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -30465,7 +30465,7 @@
       "clutch": 56,
       "consistency": 62,
       "potential": 65,
-      "overall": 54
+      "overall": 55
     },
     "tendencies": {
       "usageRate": 17.733555235527525,
@@ -30515,7 +30515,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -30534,7 +30534,7 @@
     "externalId": "685",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -30619,7 +30619,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -30638,7 +30638,7 @@
     "externalId": "949",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -30669,7 +30669,7 @@
       "clutch": 62,
       "consistency": 74,
       "potential": 100,
-      "overall": 73
+      "overall": 83
     },
     "tendencies": {
       "usageRate": 28.167110347375615,
@@ -30717,7 +30717,7 @@
         18000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -30736,7 +30736,7 @@
     "externalId": "1545",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 72,
@@ -30767,7 +30767,7 @@
       "clutch": 56,
       "consistency": 65,
       "potential": 61,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 21.07638889538503,
@@ -30817,7 +30817,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -30836,7 +30836,7 @@
     "externalId": "1710",
     "firstName": "",
     "lastName": "",
-    "age": 21.0,
+    "age": 21,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -30867,7 +30867,7 @@
       "clutch": 61,
       "consistency": 74,
       "potential": 81,
-      "overall": 63
+      "overall": 66
     },
     "tendencies": {
       "usageRate": 21.034769080377032,
@@ -30915,7 +30915,7 @@
         7000000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -30934,7 +30934,7 @@
     "externalId": "1518",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -30965,7 +30965,7 @@
       "clutch": 57,
       "consistency": 57,
       "potential": 57,
-      "overall": 51
+      "overall": 52
     },
     "tendencies": {
       "usageRate": 23.047768093347344,
@@ -31015,7 +31015,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -31034,7 +31034,7 @@
     "externalId": "1732",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -31065,7 +31065,7 @@
       "clutch": 59,
       "consistency": 66,
       "potential": 72,
-      "overall": 59
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 19.708546788383206,
@@ -31115,7 +31115,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -31134,7 +31134,7 @@
     "externalId": "143",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -31219,7 +31219,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -31238,7 +31238,7 @@
     "externalId": "432",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -31269,7 +31269,7 @@
       "clutch": 56,
       "consistency": 64,
       "potential": 61,
-      "overall": 55
+      "overall": 56
     },
     "tendencies": {
       "usageRate": 14.121878054525336,
@@ -31323,7 +31323,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -31342,7 +31342,7 @@
     "externalId": "63",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -31373,7 +31373,7 @@
       "clutch": 57,
       "consistency": 68,
       "potential": 67,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 11.182818713103424,
@@ -31427,7 +31427,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -31446,7 +31446,7 @@
     "externalId": "1823",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -31527,7 +31527,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -31546,7 +31546,7 @@
     "externalId": "763",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -31577,7 +31577,7 @@
       "clutch": 58,
       "consistency": 66,
       "potential": 79,
-      "overall": 58
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 21.533356929460847,
@@ -31631,7 +31631,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -31650,7 +31650,7 @@
     "externalId": "1764",
     "firstName": "",
     "lastName": "",
-    "age": 22.0,
+    "age": 22,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -31729,7 +31729,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -31748,7 +31748,7 @@
     "externalId": "393",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -31779,7 +31779,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 86,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 23.997960349280966,
@@ -31833,7 +31833,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -31852,7 +31852,7 @@
     "externalId": "782",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -31883,7 +31883,7 @@
       "clutch": 61,
       "consistency": 73,
       "potential": 96,
-      "overall": 69
+      "overall": 76
     },
     "tendencies": {
       "usageRate": 23.613049004434547,
@@ -31937,7 +31937,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -31956,7 +31956,7 @@
     "externalId": "976",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -32037,7 +32037,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -32056,7 +32056,7 @@
     "externalId": "43",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 72,
@@ -32087,7 +32087,7 @@
       "clutch": 55,
       "consistency": 62,
       "potential": 64,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 21.574530376860324,
@@ -32141,7 +32141,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -32160,7 +32160,7 @@
     "externalId": "100",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -32245,7 +32245,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -32264,7 +32264,7 @@
     "externalId": "1112",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -32295,7 +32295,7 @@
       "clutch": 59,
       "consistency": 66,
       "potential": 68,
-      "overall": 58
+      "overall": 60
     },
     "tendencies": {
       "usageRate": 11.095240382722103,
@@ -32345,7 +32345,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -32364,7 +32364,7 @@
     "externalId": "901",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -32395,7 +32395,7 @@
       "clutch": 58,
       "consistency": 69,
       "potential": 81,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 16.712293396336957,
@@ -32449,7 +32449,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -32468,7 +32468,7 @@
     "externalId": "145",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -32553,7 +32553,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -32572,7 +32572,7 @@
     "externalId": "384",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -32603,7 +32603,7 @@
       "clutch": 58,
       "consistency": 66,
       "potential": 69,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 15.115526650504814,
@@ -32657,7 +32657,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -32676,7 +32676,7 @@
     "externalId": "1872",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -32757,7 +32757,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -32776,7 +32776,7 @@
     "externalId": "77108",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -32857,7 +32857,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -32876,7 +32876,7 @@
     "externalId": "715",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -32961,7 +32961,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -32980,7 +32980,7 @@
     "externalId": "1751",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -33061,7 +33061,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -33080,7 +33080,7 @@
     "externalId": "376",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -33165,7 +33165,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -33184,7 +33184,7 @@
     "externalId": "283",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 74,
@@ -33215,7 +33215,7 @@
       "clutch": 59,
       "consistency": 71,
       "potential": 79,
-      "overall": 66
+      "overall": 71
     },
     "tendencies": {
       "usageRate": 17.72978396554023,
@@ -33269,7 +33269,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -33288,7 +33288,7 @@
     "externalId": "247",
     "firstName": "",
     "lastName": "",
-    "age": 36.0,
+    "age": 36,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -33319,7 +33319,7 @@
       "clutch": 56,
       "consistency": 64,
       "potential": 79,
-      "overall": 60
+      "overall": 62
     },
     "tendencies": {
       "usageRate": 18.217144166142408,
@@ -33373,7 +33373,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -33392,7 +33392,7 @@
     "externalId": "1525",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -33473,7 +33473,7 @@
         1620000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -33492,7 +33492,7 @@
     "externalId": "183",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -33523,7 +33523,7 @@
       "clutch": 58,
       "consistency": 68,
       "potential": 78,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 24.135546316067483,
@@ -33577,7 +33577,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -33596,7 +33596,7 @@
     "externalId": "966",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -33627,7 +33627,7 @@
       "clutch": 57,
       "consistency": 68,
       "potential": 71,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 14.214736763168727,
@@ -33681,7 +33681,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -33700,7 +33700,7 @@
     "externalId": "146",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -33731,7 +33731,7 @@
       "clutch": 57,
       "consistency": 67,
       "potential": 68,
-      "overall": 60
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 11.566363750037809,
@@ -33785,7 +33785,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -33804,7 +33804,7 @@
     "externalId": "363",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -33889,7 +33889,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -33908,7 +33908,7 @@
     "externalId": "255",
     "firstName": "",
     "lastName": "",
-    "age": 26.0,
+    "age": 26,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -33939,7 +33939,7 @@
       "clutch": 60,
       "consistency": 72,
       "potential": 100,
-      "overall": 68
+      "overall": 74
     },
     "tendencies": {
       "usageRate": 28.444343777317847,
@@ -33993,7 +33993,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34012,7 +34012,7 @@
     "externalId": "919",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 81,
@@ -34097,7 +34097,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34116,7 +34116,7 @@
     "externalId": "711",
     "firstName": "",
     "lastName": "",
-    "age": 24.0,
+    "age": 24,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -34147,7 +34147,7 @@
       "clutch": 57,
       "consistency": 67,
       "potential": 86,
-      "overall": 61
+      "overall": 63
     },
     "tendencies": {
       "usageRate": 27.492238388661455,
@@ -34197,7 +34197,7 @@
         7560000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -34216,7 +34216,7 @@
     "externalId": "690",
     "firstName": "",
     "lastName": "",
-    "age": 25.0,
+    "age": 25,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -34247,7 +34247,7 @@
       "clutch": 56,
       "consistency": 66,
       "potential": 68,
-      "overall": 56
+      "overall": 57
     },
     "tendencies": {
       "usageRate": 11.75495075054378,
@@ -34297,7 +34297,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -34316,7 +34316,7 @@
     "externalId": "695",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 76,
@@ -34347,7 +34347,7 @@
       "clutch": 55,
       "consistency": 63,
       "potential": 65,
-      "overall": 58
+      "overall": 59
     },
     "tendencies": {
       "usageRate": 16.142044499002083,
@@ -34401,7 +34401,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34420,7 +34420,7 @@
     "externalId": "133",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 73,
@@ -34451,7 +34451,7 @@
       "clutch": 60,
       "consistency": 70,
       "potential": 85,
-      "overall": 70
+      "overall": 77
     },
     "tendencies": {
       "usageRate": 18.035768343322307,
@@ -34505,7 +34505,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34524,7 +34524,7 @@
     "externalId": "922",
     "firstName": "",
     "lastName": "",
-    "age": 30.0,
+    "age": 30,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 84,
@@ -34555,7 +34555,7 @@
       "clutch": 61,
       "consistency": 70,
       "potential": 82,
-      "overall": 62
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 22.88453591622344,
@@ -34609,7 +34609,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34628,7 +34628,7 @@
     "externalId": "224",
     "firstName": "",
     "lastName": "",
-    "age": 27.0,
+    "age": 27,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 78,
@@ -34659,7 +34659,7 @@
       "clutch": 62,
       "consistency": 72,
       "potential": 88,
-      "overall": 71
+      "overall": 79
     },
     "tendencies": {
       "usageRate": 19.488992003417597,
@@ -34713,7 +34713,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34732,7 +34732,7 @@
     "externalId": "184",
     "firstName": "",
     "lastName": "",
-    "age": 29.0,
+    "age": 29,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 77,
@@ -34763,7 +34763,7 @@
       "clutch": 59,
       "consistency": 68,
       "potential": 84,
-      "overall": 65
+      "overall": 69
     },
     "tendencies": {
       "usageRate": 16.998872212899904,
@@ -34817,7 +34817,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34836,7 +34836,7 @@
     "externalId": "1133",
     "firstName": "",
     "lastName": "",
-    "age": 28.0,
+    "age": 28,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 75,
@@ -34921,7 +34921,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -34940,7 +34940,7 @@
     "externalId": "1729",
     "firstName": "",
     "lastName": "",
-    "age": 19.0,
+    "age": 19,
     "position": "SG",
     "secondaryPositions": [],
     "heightInches": 79,
@@ -35019,7 +35019,7 @@
         1500000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -35038,7 +35038,7 @@
     "externalId": "1593",
     "firstName": "",
     "lastName": "",
-    "age": 33.0,
+    "age": 33,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -35123,7 +35123,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -35142,7 +35142,7 @@
     "externalId": "1802",
     "firstName": "",
     "lastName": "",
-    "age": 23.0,
+    "age": 23,
     "position": "C",
     "secondaryPositions": [],
     "heightInches": 83,
@@ -35223,7 +35223,7 @@
         3240000
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": false,
       "teamOption": false,
@@ -35242,7 +35242,7 @@
     "externalId": "934",
     "firstName": "",
     "lastName": "",
-    "age": 32.0,
+    "age": 32,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 82,
@@ -35273,7 +35273,7 @@
       "clutch": 56,
       "consistency": 66,
       "potential": 83,
-      "overall": 61
+      "overall": 64
     },
     "tendencies": {
       "usageRate": 23.74710603927558,
@@ -35327,7 +35327,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -35346,7 +35346,7 @@
     "externalId": "456",
     "firstName": "",
     "lastName": "",
-    "age": 35.0,
+    "age": 35,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -35377,7 +35377,7 @@
       "clutch": 56,
       "consistency": 66,
       "potential": 68,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 15.48372833773679,
@@ -35431,7 +35431,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,
@@ -35450,7 +35450,7 @@
     "externalId": "359",
     "firstName": "",
     "lastName": "",
-    "age": 31.0,
+    "age": 31,
     "position": "SF",
     "secondaryPositions": [],
     "heightInches": 80,
@@ -35481,7 +35481,7 @@
       "clutch": 59,
       "consistency": 70,
       "potential": 73,
-      "overall": 59
+      "overall": 61
     },
     "tendencies": {
       "usageRate": 16.688241034228046,
@@ -35535,7 +35535,7 @@
         0
       ],
       "noTradeClause": false,
-      "tradeKickerPct": 0.0,
+      "tradeKickerPct": 0,
       "poisonPill": false,
       "playerOption": true,
       "teamOption": false,

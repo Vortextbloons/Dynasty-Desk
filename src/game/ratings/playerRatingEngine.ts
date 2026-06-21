@@ -41,34 +41,34 @@ function shootingRating(n: EraNormalizedStats): number {
   const ts = (n.tsPct - 0.5) * 200
   const threePct = (n.threePct - 0.3) * 200
   const ft = (n.ftPct - 0.7) * 100
-  return 65 + ts * 0.3 + threePct * 0.4 + ft * 0.2
+  return 62 + ts * 0.35 + threePct * 0.45 + ft * 0.25
 }
 
 function playmakingRating(n: EraNormalizedStats): number {
-  return 60 + (n.apg - STARTER_BASELINE.apg) * 4 + n.per * 0.5
+  return 60 + (n.apg - STARTER_BASELINE.apg) * 5 + n.per * 0.6
 }
 
 function reboundingRating(n: EraNormalizedStats): number {
-  return 60 + (n.rpg - STARTER_BASELINE.rpg) * 4
+  return 60 + (n.rpg - STARTER_BASELINE.rpg) * 5
 }
 
 function defenseRating(n: EraNormalizedStats): number {
-  const stock = (n.spg + n.bpg) * 6
-  return 60 + stock + n.boxPlusMinus * 1.5
+  const stock = (n.spg + n.bpg) * 7
+  return 60 + stock + n.boxPlusMinus * 1.8
 }
 
 function insideScoringRating(
   n: EraNormalizedStats,
   position: Position,
 ): number {
-  const base = 60 + (n.ppg - STARTER_BASELINE.ppg) * 1.8 + n.tsPct * 30
+  const base = 60 + (n.ppg - STARTER_BASELINE.ppg) * 2.2 + n.tsPct * 35
   if (position === 'C' || position === 'PF') return base + 4
   if (position === 'PG' || position === 'SG') return base - 2
   return base
 }
 
 function athleticismFromN(n: EraNormalizedStats): number {
-  return 60 + (n.usageRate - 18) * 0.4 + n.minutesPerGame * 0.4 + n.per * 0.6
+  return 60 + (n.usageRate - 18) * 0.5 + n.minutesPerGame * 0.5 + n.per * 0.7
 }
 
 export function generateRatings(
@@ -90,46 +90,46 @@ export function generateRatings(
   const norm = normalizeStats(recent, era)
   const weight = sampleWeight(totalMinutes, totalGames)
 
-  const threePoint = blendToMean(shootingRating(norm), weight, 55)
-  const passing = blendToMean(playmakingRating(norm), weight, 55)
+  const threePoint = blendToMean(shootingRating(norm), weight, 54)
+  const passing = blendToMean(playmakingRating(norm), weight, 54)
   const offensiveRebound = blendToMean(reboundingRating(norm) * 0.7, weight, 45)
-  const defensiveRebound = blendToMean(reboundingRating(norm) * 1.1, weight, 60)
-  const perimeterDefense = blendToMean(defenseRating(norm), weight, 55)
+  const defensiveRebound = blendToMean(reboundingRating(norm) * 1.1, weight, 59)
+  const perimeterDefense = blendToMean(defenseRating(norm), weight, 54)
   const interiorDefense =
     position === 'C' || position === 'PF'
-      ? blendToMean(defenseRating(norm) + 5, weight, 60)
-      : blendToMean(defenseRating(norm) - 3, weight, 50)
+      ? blendToMean(defenseRating(norm) + 5, weight, 59)
+      : blendToMean(defenseRating(norm) - 3, weight, 49)
   const insideScoring = blendToMean(
     insideScoringRating(norm, position),
     weight,
-    55,
+    54,
   )
-  const freeThrow = blendToMean(60 + (norm.ftPct - 0.78) * 200, weight, 70)
-  const midrange = blendToMean(60 + (norm.efgPct - 0.5) * 80, weight, 55)
-  const closeShot = blendToMean(60 + (norm.ppg - 10) * 1.2, weight, 60)
-  const ballHandling = blendToMean(60 + (norm.usageRate - 18) * 0.6, weight, 55)
+  const freeThrow = blendToMean(60 + (norm.ftPct - 0.78) * 200, weight, 69)
+  const midrange = blendToMean(60 + (norm.efgPct - 0.5) * 80, weight, 54)
+  const closeShot = blendToMean(60 + (norm.ppg - 10) * 1.2, weight, 59)
+  const ballHandling = blendToMean(60 + (norm.usageRate - 18) * 0.6, weight, 54)
   const offensiveIq = blendToMean(
     60 + norm.per * 0.8 + norm.boxPlusMinus * 1.5,
     weight,
-    60,
+    59,
   )
-  const steal = blendToMean(60 + norm.spg * 8, weight, 55)
-  const block = blendToMean(60 + norm.bpg * 10, weight, 50)
-  const defensiveIq = blendToMean(60 + norm.boxPlusMinus * 1.5, weight, 60)
+  const steal = blendToMean(60 + norm.spg * 8, weight, 54)
+  const block = blendToMean(60 + norm.bpg * 10, weight, 49)
+  const defensiveIq = blendToMean(60 + norm.boxPlusMinus * 1.5, weight, 59)
   const speed = blendToMean(
     athleticismFromN(norm) + (position === 'PG' ? 5 : 0),
     weight,
-    60,
+    59,
   )
   const strength =
     position === 'C' || position === 'PF'
-      ? blendToMean(athleticismFromN(norm) + 5, weight, 65)
-      : blendToMean(athleticismFromN(norm), weight, 55)
-  const vertical = blendToMean(60 + (position === 'C' ? 5 : 0), weight, 55)
-  const stamina = blendToMean(60 + norm.minutesPerGame * 0.8, weight, 65)
-  const durability = blendToMean(60 + totalGames * 0.4, weight, 65)
-  const clutch = blendToMean(60 + norm.boxPlusMinus * 0.5, weight, 60)
-  const consistency = blendToMean(60 + totalGames * 0.2, weight, 60)
+      ? blendToMean(athleticismFromN(norm) + 5, weight, 64)
+      : blendToMean(athleticismFromN(norm), weight, 54)
+  const vertical = blendToMean(60 + (position === 'C' ? 5 : 0), weight, 54)
+  const stamina = blendToMean(60 + norm.minutesPerGame * 0.8, weight, 64)
+  const durability = blendToMean(60 + totalGames * 0.4, weight, 64)
+  const clutch = blendToMean(60 + norm.boxPlusMinus * 0.5, weight, 59)
+  const consistency = blendToMean(60 + totalGames * 0.2, weight, 59)
   const potential = Math.min(
     RATING_MAX,
     Math.max(recent.per, insideScoring) + 5,
@@ -173,7 +173,7 @@ function makeDefault(position: Position): PlayerRatings {
     freeThrow: 60,
     ballHandling: 50,
     passing: 50,
-    offensiveIq: RATING_REPLACEMENT,
+    offensiveIq: 50,
     offensiveRebound: 50,
     defensiveRebound: 50,
     perimeterDefense: 50,
@@ -181,23 +181,23 @@ function makeDefault(position: Position): PlayerRatings {
     steal: 50,
     block: 50,
     defensiveIq: 50,
-    speed: 55,
-    strength: 55,
-    vertical: 55,
+    speed: 54,
+    strength: 54,
+    vertical: 54,
     stamina: 60,
-    durability: 65,
+    durability: 64,
     clutch: 50,
-    consistency: 55,
+    consistency: 54,
     potential: 60,
   }
   if (position === 'C') {
     baseline.interiorDefense = 60
-    baseline.insideScoring = 55
+    baseline.insideScoring = 54
     baseline.vertical = 60
   } else if (position === 'PG') {
     baseline.ballHandling = 60
     baseline.passing = 60
-    baseline.speed = 65
+    baseline.speed = 64
   }
   return { ...baseline, overall: computeOverall(baseline as PlayerRatings, position) }
 }

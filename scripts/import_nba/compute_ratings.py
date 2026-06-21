@@ -76,10 +76,10 @@ def get_era(season: str) -> dict[str, float]:
 # ---------------------------------------------------------------------------
 OVERALL_WEIGHTS: dict[str, dict[str, float]] = {
     "PG": {
-        "ballHandling": 0.15, "passing": 0.15, "perimeterDefense": 0.12,
+        "ballHandling": 0.13, "passing": 0.13, "perimeterDefense": 0.12,
         "threePoint": 0.12, "speed": 0.10, "offensiveIq": 0.10,
-        "midrange": 0.06, "freeThrow": 0.05, "consistency": 0.05,
-        "defensiveIq": 0.05, "steal": 0.05,
+        "midrange": 0.04, "freeThrow": 0.05, "consistency": 0.05,
+        "defensiveIq": 0.03, "steal": 0.03, "closeShot": 0.05, "insideScoring": 0.05,
     },
     "SG": {
         "threePoint": 0.15, "perimeterDefense": 0.12, "midrange": 0.10,
@@ -123,8 +123,8 @@ def clamp_rating(v: float) -> int:
 
 
 def sample_weight(minutes: float, games: int) -> float:
-    mw = min(1.0, minutes / 2000)
-    gw = min(1.0, games / 60)
+    mw = min(1.0, minutes / 1500)
+    gw = min(1.0, games / 45)
     return 0.6 * mw + 0.4 * gw
 
 
@@ -139,7 +139,10 @@ def compute_overall(ratings: dict[str, int], position: str) -> int:
     for key, weight in weights.items():
         val = ratings.get(key, 50)
         total += val * weight
-    return int(round(total))
+    if total <= 50:
+        return int(round(total))
+    deviation = total - 50
+    return int(min(99, round(50 + deviation * (1 + deviation / 55))))
 
 
 def compute_production_impact(stats: dict[str, Any]) -> float:
@@ -165,23 +168,25 @@ def compute_production_impact(stats: dict[str, Any]) -> float:
     ts_pct = float(stats.get("tsPct", 0) or 0)
 
     impact = (
-        57
-        + (ppg - 10) * 0.95
-        + (rpg - 4) * 0.65
-        + (apg - 3) * 0.9
-        + (per - 15) * 0.8
-        + bpm * 1.4
-        + (usage - 20) * 0.3
-        + (mpg - 24) * 0.3
-        + (ts_pct - 0.57) * 45
+        62
+        + (ppg - 10) * 1.0
+        + (rpg - 4) * 0.7
+        + (apg - 3) * 0.95
+        + (per - 15) * 0.9
+        + bpm * 1.5
+        + (usage - 20) * 0.35
+        + (mpg - 24) * 0.35
+        + (ts_pct - 0.57) * 50
     )
     if ppg >= 24 and ts_pct >= 0.59:
-        impact += 3
+        impact += 3.5
     elif ppg >= 24 and ts_pct >= 0.56:
-        impact += 1.5
+        impact += 2
     if apg >= 6 and usage >= 26:
+        impact += 2
+    if ppg >= 20 and per >= 20:
         impact += 1.5
-    return clamp(impact, 48, 99)
+    return clamp(impact, 55, 99)
 
 
 def compute_real_overall(ratings: dict[str, int], position: str, stats: dict[str, Any]) -> int:
@@ -193,58 +198,53 @@ def compute_real_overall(ratings: dict[str, int], position: str, stats: dict[str
     gp = int(stats.get("gamesPlayed", 0) or 0)
     minutes = float(stats.get("minutes", 0) or 0)
     ppg = float(stats.get("points", 0) or 0) / max(1, gp)
-    rpg = float(stats.get("rebounds", 0) or 0) / max(1, gp)
     mpg = minutes / max(1, gp)
-    ts_pct = float(stats.get("tsPct", 0) or 0)
 
-    # Stars should be recognized by their actual production, while role players
-    # still mostly follow the granular skill model.
-    blended = skill_overall * 0.65 + production_impact * 0.35
-    if production_impact >= 90:
-        blended = max(blended, production_impact - 3)
-    elif production_impact >= 82:
-        blended = max(blended, production_impact - 2)
-    elif production_impact >= 78:
-        blended = max(blended, production_impact - 1)
+    blended = max(skill_overall, skill_overall * 0.65 + production_impact * 0.35)
 
-    if mpg >= 28:
-        if ppg >= 26 and gp >= 40:
-            blended = max(blended, 88)
-        elif ppg >= 24 and gp >= 40:
-            blended = max(blended, 84)
-        elif ppg >= 22 and gp >= 40:
-            blended = max(blended, 80)
-        elif ppg >= 24 and gp >= 20:
-            blended = max(blended, 78)
-        elif ppg >= 22 and gp >= 20:
-            blended = max(blended, 76)
-
-    if mpg >= 26 and gp >= 30 and ppg >= 18 and rpg >= 6 and ts_pct >= 0.6:
-        blended = max(blended, 78)
-
+    floor = 0
     if mpg >= 28 and gp >= 40:
-        if ppg >= 18:
-            blended = max(blended, 76)
+        if ppg >= 26:
+            floor = 88
+        elif ppg >= 22:
+            floor = 84
         elif ppg >= 16:
-            blended = max(blended, 73)
+            floor = 80
+        elif ppg >= 12:
+            floor = 76
+    elif mpg >= 24 and gp >= 35:
+        if ppg >= 18:
+            floor = 78
         elif ppg >= 14:
-            blended = max(blended, 70)
-    elif mpg >= 22 and gp >= 35:
-        if ppg >= 12:
-            blended = max(blended, 66)
-        elif ppg >= 9:
-            blended = max(blended, 62)
+            floor = 74
+        elif ppg >= 10:
+            floor = 70
+    elif mpg >= 18 and gp >= 40:
+        if ppg >= 14:
+            floor = 72
+        elif ppg >= 10:
+            floor = 68
+        elif ppg >= 6:
+            floor = 64
+    elif gp >= 50:
+        floor = 66
+    elif gp >= 30:
+        floor = 62
 
-    if blended < 65:
+    boosted = max(blended, floor)
+
+    if boosted < 65:
+        final_boost = 5.0
+    elif boosted < 72:
+        final_boost = 5.0
+    elif boosted < 78:
         final_boost = 4.0
-    elif blended < 75:
-        final_boost = 3.5
-    elif blended < 85:
+    elif boosted < 85:
         final_boost = 3.0
     else:
         final_boost = 2.0
 
-    return clamp_rating(blended + final_boost)
+    return clamp_rating(boosted + final_boost)
 
 
 # ---------------------------------------------------------------------------
@@ -307,59 +307,59 @@ def derive_ratings(stats: dict[str, Any], position: str, season: str, rng: rando
     ts_component = (ts_pct - 0.5) * 200
     three_component = (three_pct - 0.3) * 200
     ft_component = (ft_pct - 0.7) * 100
-    three_raw = 65 + ts_component * 0.3 + three_component * 0.4 + ft_component * 0.2
+    three_raw = 62 + ts_component * 0.35 + three_component * 0.45 + ft_component * 0.25
 
     # Playmaking
-    pass_raw = 60 + (apg - 3) * 4 + per * 0.5
+    pass_raw = 60 + (apg - 3) * 5 + per * 0.6
 
     # Rebounding
-    reb_raw = 60 + (rpg - 4) * 4
+    reb_raw = 60 + (rpg - 4) * 5
     oreb_raw = reb_raw * 0.7
     dreb_raw = reb_raw * 1.1
 
     # Defense
-    stock = (spg + bpg) * 6
-    def_raw = 60 + stock + bpm * 1.5
+    stock = (spg + bpg) * 7
+    def_raw = 60 + stock + bpm * 1.8
 
     # Inside scoring
-    inside_raw = 60 + (ppg_norm - 14) * 1.8 + ts_pct * 30
+    inside_raw = 60 + (ppg_norm - 14) * 2.2 + ts_pct * 35
     if position in ("C", "PF"):
         inside_raw += 4
     elif position in ("PG", "SG"):
         inside_raw -= 2
 
     # Athleticism
-    ath = 60 + (usage - 18) * 0.4 + mpg * 0.4 + per * 0.6
+    ath = 60 + (usage - 18) * 0.5 + mpg * 0.5 + per * 0.7
 
     ratings = {
-        "insideScoring": clamp_rating(jitter(blend(inside_raw, 50))),
-        "closeShot": clamp_rating(jitter(blend(60 + (ppg - 10) * 1.5, 55))),
-        "midrange": clamp_rating(jitter(blend(60 + (efg_pct - 0.48) * 100, 50))),
-        "threePoint": clamp_rating(jitter(blend(three_raw, 50))),
-        "freeThrow": clamp_rating(jitter(blend(60 + (ft_pct - 0.75) * 250, 65))),
-        "ballHandling": clamp_rating(jitter(blend(60 + (usage - 16) * 0.8, 50))),
-        "passing": clamp_rating(jitter(blend(pass_raw, 50))),
-        "offensiveIq": clamp_rating(jitter(blend(60 + per * 1.0 + bpm * 2.0, 55))),
-        "offensiveRebound": clamp_rating(jitter(blend(oreb_raw, 40))),
-        "defensiveRebound": clamp_rating(jitter(blend(dreb_raw, 55))),
-        "perimeterDefense": clamp_rating(jitter(blend(def_raw, 50))),
+        "insideScoring": clamp_rating(jitter(blend(inside_raw, 54))),
+        "closeShot": clamp_rating(jitter(blend(60 + (ppg - 10) * 1.5, 59))),
+        "midrange": clamp_rating(jitter(blend(60 + (efg_pct - 0.48) * 100, 54))),
+        "threePoint": clamp_rating(jitter(blend(three_raw, 54))),
+        "freeThrow": clamp_rating(jitter(blend(60 + (ft_pct - 0.75) * 250, 69))),
+        "ballHandling": clamp_rating(jitter(blend(60 + (usage - 16) * 0.8, 54))),
+        "passing": clamp_rating(jitter(blend(pass_raw, 54))),
+        "offensiveIq": clamp_rating(jitter(blend(60 + per * 1.0 + bpm * 2.0, 59))),
+        "offensiveRebound": clamp_rating(jitter(blend(oreb_raw, 45))),
+        "defensiveRebound": clamp_rating(jitter(blend(dreb_raw, 59))),
+        "perimeterDefense": clamp_rating(jitter(blend(def_raw, 54))),
         "interiorDefense": clamp_rating(jitter(blend(
             def_raw + 5 if position in ("C", "PF") else def_raw - 3,
-            55 if position in ("C", "PF") else 45,
+            59 if position in ("C", "PF") else 49,
         ))),
-        "steal": clamp_rating(jitter(blend(60 + spg * 10, 50))),
-        "block": clamp_rating(jitter(blend(60 + bpg * 12, 45))),
-        "defensiveIq": clamp_rating(jitter(blend(60 + bpm * 2.0, 55))),
-        "speed": clamp_rating(jitter(blend(ath + (5 if position == "PG" else 0), 55))),
+        "steal": clamp_rating(jitter(blend(60 + spg * 10, 54))),
+        "block": clamp_rating(jitter(blend(60 + bpg * 12, 49))),
+        "defensiveIq": clamp_rating(jitter(blend(60 + bpm * 2.0, 59))),
+        "speed": clamp_rating(jitter(blend(ath + (5 if position == "PG" else 0), 59))),
         "strength": clamp_rating(jitter(blend(
             ath + 5 if position in ("C", "PF") else ath,
-            60 if position in ("C", "PF") else 50,
+            64 if position in ("C", "PF") else 54,
         ))),
-        "vertical": clamp_rating(jitter(blend(60 + (5 if position == "C" else 0), 50))),
-        "stamina": clamp_rating(jitter(blend(60 + mpg * 1.0, 60))),
-        "durability": clamp_rating(jitter(blend(60 + gp * 0.5, 60))),
-        "clutch": clamp_rating(jitter(blend(60 + bpm * 0.8, 55))),
-        "consistency": clamp_rating(jitter(blend(60 + gp * 0.3, 55))),
+        "vertical": clamp_rating(jitter(blend(60 + (5 if position == "C" else 0), 54))),
+        "stamina": clamp_rating(jitter(blend(60 + mpg * 1.0, 64))),
+        "durability": clamp_rating(jitter(blend(60 + gp * 0.5, 64))),
+        "clutch": clamp_rating(jitter(blend(60 + bpm * 0.8, 59))),
+        "consistency": clamp_rating(jitter(blend(60 + gp * 0.3, 59))),
     }
 
     # Potential: based on age + recent performance
@@ -382,17 +382,17 @@ def _default_ratings(position: str, rng: random.Random) -> dict[str, int]:
         "freeThrow": 60, "ballHandling": 50, "passing": 50, "offensiveIq": 50,
         "offensiveRebound": 50, "defensiveRebound": 50, "perimeterDefense": 50,
         "interiorDefense": 50, "steal": 50, "block": 50, "defensiveIq": 50,
-        "speed": 55, "strength": 55, "vertical": 55, "stamina": 60,
-        "durability": 65, "clutch": 50, "consistency": 55, "potential": 60,
+        "speed": 54, "strength": 54, "vertical": 54, "stamina": 60,
+        "durability": 64, "clutch": 50, "consistency": 54, "potential": 60,
     }
     if position == "C":
         base["interiorDefense"] = 60
-        base["insideScoring"] = 55
+        base["insideScoring"] = 54
         base["vertical"] = 60
     elif position == "PG":
         base["ballHandling"] = 60
         base["passing"] = 60
-        base["speed"] = 65
+        base["speed"] = 64
 
     for k in base:
         base[k] = clamp_rating(base[k] + rng.gauss(0, 1))

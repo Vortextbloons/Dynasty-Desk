@@ -51,6 +51,7 @@ export function MinutesDistribution({ players, teamName }: MinutesDistributionPr
                 borderRadius: 8,
                 fontSize: 12,
               }}
+              formatter={(value: number, name: string) => [Math.round(value), name]}
             />
             <Bar dataKey="minutes" fill="var(--color-primary)" name="Minutes" />
             <Bar dataKey="target" fill="var(--color-muted-foreground)" name="Target" opacity={0.3} />

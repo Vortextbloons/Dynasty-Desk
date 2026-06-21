@@ -57,8 +57,8 @@ function formatPct(value: number): string {
 
 function getBarColor(value: number): string {
   if (value >= 60) return 'var(--color-primary)'
-  if (value >= 40) return 'var(--color-muted-foreground)'
-  return 'var(--color-surface-3)'
+  if (value >= 40) return 'var(--color-accent)'
+  return 'var(--color-muted-foreground)'
 }
 
 export function TendenciesList({

@@ -156,6 +156,34 @@ def fetch_team_definitions() -> list[dict[str, Any]]:
     return teams
 
 
+def fetch_bio_stats(season: str) -> dict[str, dict[str, Any]]:
+    """Fetch player bio stats (country, birthDate, college) from LeagueDashPlayerBioStats."""
+    cached = read_cache("bio_stats", season=season)
+    if cached is not None:
+        return cached
+
+    def _do_fetch() -> dict[str, dict[str, Any]]:
+        from nba_api.stats.endpoints import leaguedashplayerbiostats
+        bio = leaguedashplayerbiostats.LeagueDashPlayerBioStats(season=season)
+        df = bio.get_data_frames()[0]
+        out: dict[str, dict[str, Any]] = {}
+        for _, row in df.iterrows():
+            pid = str(int(row["PLAYER_ID"]))
+            out[pid] = {
+                "country": row.get("COUNTRY", ""),
+                "birthDate": row.get("BIRTH_DATE", ""),
+                "college": row.get("SCHOOL", ""),
+                "draftYear": int(row.get("DRAFT_YEAR", 0) or 0),
+                "draftRound": int(row.get("DRAFT_ROUND", 0) or 0),
+                "draftPick": int(row.get("DRAFT_NUMBER", 0) or 0),
+            }
+        return out
+
+    bio_map = with_retry(_do_fetch)
+    write_cache("bio_stats", bio_map, season=season)
+    return bio_map
+
+
 def fetch_standings(season: str) -> list[dict[str, Any]]:
     cached = read_cache("standings", season=season)
     if cached is not None:
@@ -259,6 +287,10 @@ def run(season: str) -> None:
     write_json(out / "teams.json", teams_out)
     print(f"  [OK] wrote teams.json ({len(teams_out)} teams)")
 
+    print(f"[{season}] fetching player bio stats")
+    bio_map = fetch_bio_stats(season)
+    print(f"  [OK] got bio stats for {len(bio_map)} players")
+
     print(f"[{season}] fetching rosters ({MAX_WORKERS} workers)")
     team_ids = [t["externalId"] for t in teams]
 
@@ -331,7 +363,12 @@ def run(season: str) -> None:
                     "weightLbs": weight_lbs,
                     "teamId": internal_id,
                     "teamExternalId": team_id,
-                    "college": p.get("college", ""),
+                    "college": bio_map.get(p["externalId"], {}).get("college", p.get("college", "")),
+                    "country": bio_map.get(p["externalId"], {}).get("country", ""),
+                    "draftYear": bio_map.get(p["externalId"], {}).get("draftYear", 0),
+                    "draftRound": bio_map.get(p["externalId"], {}).get("draftRound", 0),
+                    "draftPick": bio_map.get(p["externalId"], {}).get("draftPick", 0),
+                    "birthDate": bio_map.get(p["externalId"], {}).get("birthDate", p.get("birthDate", "")),
                 })
             if done % 10 == 0 or done == len(team_ids):
                 print(f"  ... {done}/{len(team_ids)} teams fetched")

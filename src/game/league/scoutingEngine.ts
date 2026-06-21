@@ -3,6 +3,7 @@ import type { TeamScoutingState } from '@/game/models/draft'
 import type { LeagueState } from '@/game/models/league'
 import type { PlayerRatings } from '@/game/models/ratings'
 import { clampRating } from '@/game/models/ratings'
+import type { SeededRandom } from '@/game/sim/rng'
 
 export const SCOUTING_POINTS_PER_TEAM = 100
 
@@ -68,6 +69,41 @@ export function allocateScoutingPoints(
     state: nextState,
     visibleRatings: visibility.visibleRatings,
     visiblePotentialRange: visibility.visiblePotentialRange,
+  }
+}
+
+export function autoAllocateAIScouting(
+  league: LeagueState,
+  draftClass: DraftClass,
+  userTeamId: string,
+  rng: SeededRandom,
+): void {
+  const prospects = [...draftClass.prospects].sort(
+    (a, b) => b.trueRatings.overall - a.trueRatings.overall,
+  )
+  const targets = prospects.slice(0, 12)
+
+  for (const teamId of Object.keys(league.teams)) {
+    if (teamId === userTeamId) continue
+
+    const key = `${teamId}-${draftClass.id}`
+    let state =
+      league.scoutingState[key] ?? initScoutingState(teamId, draftClass.id)
+
+    for (const prospect of targets) {
+      if (state.pointsRemaining <= 0) break
+      const maxChunk = Math.min(12, state.pointsRemaining)
+      const chunk =
+        maxChunk <= 1 ? 1 : rng.nextInt(Math.min(3, maxChunk), maxChunk)
+      const prev = state.allocations[prospect.id] ?? 0
+      state = {
+        ...state,
+        pointsRemaining: state.pointsRemaining - chunk,
+        allocations: { ...state.allocations, [prospect.id]: prev + chunk },
+      }
+    }
+
+    league.scoutingState[key] = state
   }
 }
 

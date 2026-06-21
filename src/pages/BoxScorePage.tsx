@@ -150,7 +150,7 @@ export function BoxScorePage() {
       <PageHeader
         eyebrow="Final"
         title={`${away?.name ?? 'Away'} ${box.awayScore} — ${box.homeScore} ${home?.name ?? 'Home'}`}
-        description={`${formatGameDate(game.date)} · ${home?.city ?? ''} ${home?.name ?? ''} Arena${box.overtimeOccurred ? ' · OT' : ''}`}
+        description={`${formatGameDate(game.date)} · ${home?.arena ?? `${home?.city ?? ''} ${home?.name ?? ''} Arena`}${box.overtimeOccurred ? ' · OT' : ''}`}
       />
 
       <div className="flex items-center justify-between">

@@ -8,6 +8,7 @@ import type {
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { Position } from '@/game/models/position'
 import type { Player } from '@/game/models/player'
+import type { TeamDirection } from '@/game/models/team'
 import type { PlayerRatings } from '@/game/models/ratings'
 import { clampRating } from '@/game/models/ratings'
 import { computeOverall } from '@/game/ratings/overallWeights'
@@ -22,6 +23,21 @@ import { initScoutingForDraftClass } from './scoutingEngine'
 import type { DraftPick } from '@/game/models/draft'
 
 export const BASE_DRAFT_PROSPECTS = 60
+export const FORFEITED_PROSPECT_ID = '__forfeited__'
+
+export interface DraftOrderBoardEntry {
+  pickNumber: number
+  originalTeamId: string
+  currentTeamId: string
+  round: number
+  traded: boolean
+}
+
+export interface UserDraftPickSlot {
+  pickNumber: number
+  round: number
+  pickId: string
+}
 const POSITIONS: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 const RATING_KEYS: (keyof PlayerRatings)[] = [
   'insideScoring',
@@ -356,17 +372,82 @@ export function pickRoundForSlot(
   return pickNumber <= firstRoundSlots ? 1 : 2
 }
 
-/** Align current pick + completion status with numbered, unpicked assets. */
+/** Next sequential pick slot from logged results (not lowest numbered asset). */
+export function getNextDraftPickNumber(draft: Draft): number {
+  const taken = new Set(draft.picks.map((p) => p.pickNumber))
+  let next = 1
+  while (taken.has(next)) next++
+  return next
+}
+
+/**
+ * Keep draft-night pick assets aligned with the draft pick feed.
+ * Clears phantom asset marks that skipped the feed; backfills missing marks.
+ */
+export function reconcileDraftPickState(
+  league: LeagueState,
+  draft: Draft,
+): boolean {
+  const seasonLabel = formatSeasonLabel(draft.seasonYear)
+  const seasonAssets = league.draftPicks.filter((p) => p.season === seasonLabel)
+  const loggedByPickNumber = new Map(
+    draft.picks.map((p) => [p.pickNumber, p] as const),
+  )
+  const loggedByPickId = new Map(draft.picks.map((p) => [p.pickId, p] as const))
+  let changed = false
+
+  for (const asset of seasonAssets) {
+    if (!asset.prospectId || asset.pickNumber <= 0) continue
+
+    const logged =
+      loggedByPickId.get(asset.id) ??
+      loggedByPickNumber.get(asset.pickNumber)
+
+    if (!logged) {
+      asset.prospectId = null
+      changed = true
+      continue
+    }
+
+    if (asset.prospectId !== logged.prospectId) {
+      asset.prospectId = logged.prospectId
+      changed = true
+    }
+  }
+
+  for (const result of draft.picks) {
+    const asset =
+      league.draftPicks.find((p) => p.id === result.pickId) ??
+      seasonAssets.find((p) => p.pickNumber === result.pickNumber)
+    if (!asset) continue
+    if (asset.prospectId !== result.prospectId) {
+      asset.prospectId = result.prospectId
+      changed = true
+    }
+  }
+
+  return changed
+}
+
+/** Align current pick + completion status with the pick feed only. */
 export function syncDraftClock(league: LeagueState, draft: Draft): void {
   const seasonLabel = formatSeasonLabel(draft.seasonYear)
-  const openPickNumbers = league.draftPicks
-    .filter(
-      (p) => p.season === seasonLabel && !p.prospectId && p.pickNumber > 0,
-    )
-    .map((p) => p.pickNumber)
-    .sort((a, b) => a - b)
+  const seasonPicks = league.draftPicks.filter((p) => p.season === seasonLabel)
+  const totalSlots = seasonPicks.length
 
-  if (openPickNumbers.length === 0) {
+  if (
+    totalSlots > 0 &&
+    seasonPicks.every((p) => p.prospectId != null) &&
+    draft.picks.length >= totalSlots
+  ) {
+    draft.status = 'complete'
+    draft.completedAt = draft.completedAt ?? league.currentDate
+    return
+  }
+
+  const nextPick = getNextDraftPickNumber(draft)
+
+  if (totalSlots > 0 && nextPick > totalSlots && draft.picks.length > 0) {
     draft.status = 'complete'
     draft.completedAt = draft.completedAt ?? league.currentDate
     return
@@ -374,7 +455,105 @@ export function syncDraftClock(league: LeagueState, draft: Draft): void {
 
   draft.status = 'in_progress'
   draft.completedAt = undefined
-  draft.currentPickNumber = openPickNumbers[0]!
+  draft.currentPickNumber = nextPick
+}
+
+export function countPicksMade(draft: Draft): number {
+  return draft.picks.filter((p) => p.prospectId !== FORFEITED_PROSPECT_ID).length
+}
+
+export function getUserDraftPickSlots(
+  league: LeagueState,
+  draftYear: number,
+  userTeamId: string,
+): UserDraftPickSlot[] {
+  const seasonLabel = formatSeasonLabel(draftYear)
+  return league.draftPicks
+    .filter(
+      (p) =>
+        p.season === seasonLabel &&
+        p.currentTeamId === userTeamId &&
+        !p.prospectId &&
+        p.pickNumber > 0,
+    )
+    .sort((a, b) => a.pickNumber - b.pickNumber)
+    .map((p) => ({
+      pickNumber: p.pickNumber,
+      round: p.round,
+      pickId: p.id,
+    }))
+}
+
+export function getDraftOrderBoard(
+  league: LeagueState,
+  draft: Draft,
+): DraftOrderBoardEntry[] {
+  const seasonLabel = formatSeasonLabel(draft.seasonYear)
+  const entries: DraftOrderBoardEntry[] = []
+  const lotteryOrder = draft.lotteryResults ?? []
+
+  for (const slot of lotteryOrder) {
+    for (const round of [1, 2] as const) {
+      const pick = league.draftPicks.find(
+        (p) =>
+          p.season === seasonLabel &&
+          p.round === round &&
+          !isCompensationDraftPick(p) &&
+          p.originalTeamId === slot.teamId &&
+          p.pickNumber > 0,
+      )
+      if (!pick) continue
+      entries.push({
+        pickNumber: pick.pickNumber,
+        originalTeamId: pick.originalTeamId,
+        currentTeamId: pick.currentTeamId,
+        round,
+        traded: pick.originalTeamId !== pick.currentTeamId,
+      })
+    }
+  }
+
+  for (const pick of league.draftPicks) {
+    if (pick.season !== seasonLabel) continue
+    if (!isCompensationDraftPick(pick) || pick.pickNumber <= 0) continue
+    entries.push({
+      pickNumber: pick.pickNumber,
+      originalTeamId: pick.originalTeamId,
+      currentTeamId: pick.currentTeamId,
+      round: pick.round,
+      traded: pick.originalTeamId !== pick.currentTeamId,
+    })
+  }
+
+  return entries.sort((a, b) => a.pickNumber - b.pickNumber)
+}
+
+export function picksUntilUserTurn(
+  draft: Draft,
+  userSlots: UserDraftPickSlot[],
+): number | null {
+  if (userSlots.length === 0) return null
+  const nextSlot = userSlots[0]!.pickNumber
+  const nextPick = getNextDraftPickNumber(draft)
+  if (nextPick >= nextSlot) return 0
+  return nextSlot - nextPick
+}
+
+/** True when the user should see the pick panel and make a selection. */
+export function isUserOnClock(
+  league: LeagueState,
+  draft: Draft,
+  userTeamId: string,
+): boolean {
+  const owner = getCurrentPickOwner(league, draft)
+  if (owner?.teamId !== userTeamId) return false
+
+  const userSlots = getUserDraftPickSlots(league, draft.seasonYear, userTeamId)
+  const nextUserSlot = userSlots[0]?.pickNumber
+  if (nextUserSlot == null) return false
+
+  const nextPick = getNextDraftPickNumber(draft)
+  return draft.currentPickNumber === nextUserSlot && nextPick === nextUserSlot
 }
 
 function buildRealProspect(
@@ -686,20 +865,33 @@ export function repairDraftPickOrder(
   const openNumbered = seasonPicks.filter(
     (p) => !p.prospectId && p.pickNumber > 0,
   ).length
+  const hasUnnumberedUnpicked = seasonPicks.some(
+    (p) => !p.prospectId && p.pickNumber === 0,
+  )
 
   const needsRepair =
-    total > 0 && (assigned < total || (unpicked > 0 && openNumbered === 0))
+    total > 0 &&
+    (assigned < total ||
+      (unpicked > 0 && openNumbered === 0) ||
+      hasUnnumberedUnpicked)
 
   if (!needsRepair) return false
 
-  const order =
-    draft.lotteryResults && draft.lotteryResults.length > 0
-      ? draft.lotteryResults
-      : draft.orderSource === 'lottery'
+  const picksAlreadyMade = draft.picks.length > 0
+  let order: { teamId: string; pickNumber: number }[] | undefined
+
+  if (draft.lotteryResults && draft.lotteryResults.length > 0) {
+    order = draft.lotteryResults
+  } else if (picksAlreadyMade) {
+    return false
+  } else {
+    order =
+      draft.orderSource === 'lottery'
         ? runLottery(league, rng)
         : runInverseWLDraftOrder(league)
+  }
 
-  if (order.length === 0) return false
+  if (!order || order.length === 0) return false
 
   for (const pick of seasonPicks) {
     if (!pick.prospectId) {
@@ -711,6 +903,7 @@ export function repairDraftPickOrder(
   if (!draft.lotteryResults || draft.lotteryResults.length === 0) {
     draft.lotteryResults = order
   }
+  reconcileDraftPickState(league, draft)
   syncDraftClock(league, draft)
   return true
 }
@@ -808,11 +1001,15 @@ export function getCurrentPickOwner(
   draft: Draft,
 ): { teamId: string; pickId: string } | null {
   const seasonLabel = formatSeasonLabel(draft.seasonYear)
-  const slotPicks = league.draftPicks
+  const pickNumber = draft.currentPickNumber
+  const teamCount = draftTeamCount(league)
+  const round: 1 | 2 = pickNumber <= teamCount ? 1 : 2
+
+  let slotPicks = league.draftPicks
     .filter(
       (p) =>
         p.season === seasonLabel &&
-        p.pickNumber === draft.currentPickNumber &&
+        p.pickNumber === pickNumber &&
         !p.prospectId,
     )
     .sort((a, b) => {
@@ -821,6 +1018,27 @@ export function getCurrentPickOwner(
       }
       return a.id.localeCompare(b.id)
     })
+
+  if (slotPicks.length === 0 && draft.lotteryResults?.length) {
+    const lotterySlot =
+      round === 1 ? pickNumber : pickNumber - teamCount
+    const originalTeamId = draft.lotteryResults.find(
+      (o) => o.pickNumber === lotterySlot,
+    )?.teamId
+    if (originalTeamId) {
+      slotPicks = league.draftPicks
+        .filter(
+          (p) =>
+            p.season === seasonLabel &&
+            p.round === round &&
+            !isCompensationDraftPick(p) &&
+            p.originalTeamId === originalTeamId &&
+            !p.prospectId,
+        )
+        .sort((a, b) => a.id.localeCompare(b.id))
+    }
+  }
+
   const pick = slotPicks[0]
   if (!pick) return null
   return { teamId: pick.currentTeamId, pickId: pick.id }
@@ -897,13 +1115,13 @@ export function forfeitDraftPick(league: LeagueState, draft: Draft): boolean {
   const pickAsset = league.draftPicks.find((p) => p.id === owner.pickId)
   if (!pickAsset) return false
 
-  pickAsset.prospectId = '__forfeited__'
+  pickAsset.prospectId = FORFEITED_PROSPECT_ID
 
   draft.picks.push({
     id: `pick-result-${draft.id}-${draft.currentPickNumber}-forfeit`,
     draftId: draft.id,
     pickId: owner.pickId,
-    prospectId: '__forfeited__',
+    prospectId: FORFEITED_PROSPECT_ID,
     pickedByTeamId: owner.teamId,
     pickNumber: draft.currentPickNumber,
     round: pickRoundForSlot(league, draft.currentPickNumber),
@@ -928,42 +1146,106 @@ export function autoPickForTeam(
   if (available.length === 0) return { error: 'No prospects left.' }
 
   const pickNumber = draft.currentPickNumber
+  const useFullScouting = teamId !== league.userTeamId
   const sorted = [...available].sort(
     (a, b) =>
-      draftBoardValue(league, teamId, b, pickNumber) -
-      draftBoardValue(league, teamId, a, pickNumber),
+      draftBoardValue(league, teamId, b, pickNumber, useFullScouting) -
+      draftBoardValue(league, teamId, a, pickNumber, useFullScouting),
   )
-  const candidatePool = pickNumber <= 5 ? 3 : pickNumber <= 20 ? 5 : 7
+  const direction = league.teams[teamId]?.direction ?? 'middle'
+  const teamCount = draftTeamCount(league)
+  const candidatePool = pickCandidatePoolSize(pickNumber, direction)
   const pick =
     sorted[rng.nextInt(0, Math.min(candidatePool - 1, sorted.length - 1))]!
-  return simulateDraftPick(league, draft, teamId, pick.id, false, rng)
+  const rosterCap = league.rosterSizeCap ?? 20
+  const rosterLen = league.teams[teamId]?.roster.length ?? 0
+  const isLateSecondRound = pickNumber > teamCount + teamCount * 0.6
+  const useTwoWay =
+    useFullScouting &&
+    isLateSecondRound &&
+    rosterLen >= rosterCap - 3 &&
+    rng.nextFloat(0, 1) < 0.35
+  return simulateDraftPick(league, draft, teamId, pick.id, useTwoWay, rng)
 }
 
-function draftBoardValue(
+function pickCandidatePoolSize(
+  pickNumber: number,
+  direction: TeamDirection,
+): number {
+  if (pickNumber <= 5) return direction === 'rebuilding' || direction === 'tanking' ? 4 : 3
+  if (pickNumber <= 14) return 4
+  if (pickNumber <= 20) return 5
+  return 7
+}
+
+function draftDirectionWeights(
+  direction: TeamDirection,
+  pickNumber: number,
+): {
+  upsideWeight: number
+  needWeight: number
+  riskPenalty: number
+  overallWeight: number
+} {
+  const isEarlyPick = pickNumber <= 14
+  const isLatePick = pickNumber > 30
+  const isRebuild =
+    direction === 'rebuilding' || direction === 'tanking'
+  const isContender =
+    direction === 'contender' || direction === 'playoff_push'
+
+  let upsideWeight = isEarlyPick ? 0.22 : isLatePick ? 0.1 : 0.16
+  let needWeight = isEarlyPick ? 0.08 : isLatePick ? 0.18 : 0.13
+  let riskPenalty = isEarlyPick ? 14 : isLatePick ? 6 : 10
+  let overallWeight = 0.68
+
+  if (isRebuild && isEarlyPick) {
+    upsideWeight += 0.08
+    needWeight -= 0.03
+    riskPenalty -= 2
+  }
+  if (isContender && isEarlyPick) {
+    needWeight += 0.06
+    upsideWeight -= 0.04
+    riskPenalty += 3
+  }
+  if (isContender && isLatePick) {
+    needWeight += 0.08
+    overallWeight += 0.05
+  }
+  if (isRebuild && isLatePick) {
+    upsideWeight += 0.06
+    overallWeight -= 0.04
+  }
+
+  return { upsideWeight, needWeight, riskPenalty, overallWeight }
+}
+
+export function draftBoardValue(
   league: LeagueState,
   teamId: string,
   prospect: DraftProspect,
   pickNumber: number,
+  useFullScouting = true,
 ): number {
-  const visibleOverall =
-    prospect.visibleRatings.overall ?? prospect.trueRatings.overall - 8
-  const visiblePotential =
-    (prospect.visiblePotentialRange[0] + prospect.visiblePotentialRange[1]) / 2
-  const upside = Math.max(0, visiblePotential - visibleOverall)
+  const overall = useFullScouting
+    ? prospect.trueRatings.overall
+    : (prospect.visibleRatings.overall ?? prospect.trueRatings.overall - 8)
+  const potential = useFullScouting
+    ? prospect.truePotential
+    : (prospect.visiblePotentialRange[0] + prospect.visiblePotentialRange[1]) / 2
+  const upside = Math.max(0, potential - overall)
   const need = positionNeedScore(league, teamId, prospect)
-  const isEarlyPick = pickNumber <= 14
-  const isLatePick = pickNumber > 30
-  const upsideWeight = isEarlyPick ? 0.22 : isLatePick ? 0.1 : 0.16
-  const needWeight = isEarlyPick ? 0.08 : isLatePick ? 0.18 : 0.13
-  const riskPenalty = isEarlyPick ? 14 : isLatePick ? 6 : 10
+  const direction = league.teams[teamId]?.direction ?? 'middle'
+  const weights = draftDirectionWeights(direction, pickNumber)
 
   return (
-    visibleOverall * 0.68 +
-    visiblePotential * 0.18 +
-    upside * upsideWeight +
-    need * needWeight +
+    overall * weights.overallWeight +
+    potential * 0.18 +
+    upside * weights.upsideWeight +
+    need * weights.needWeight +
     prospect.breakoutChance * 12 -
-    prospect.bustRisk * riskPenalty
+    prospect.bustRisk * weights.riskPenalty
   )
 }
 
@@ -1007,13 +1289,18 @@ export function autoDraftOffClock(
   userTeamId: string,
   rng: SeededRandom,
 ): void {
-  while (draft.status === 'in_progress') {
+  const maxIterations = totalDraftSlotsForSeason(league, draft.seasonYear)
+  let iterations = 0
+
+  while (draft.status === 'in_progress' && iterations < maxIterations) {
+    iterations++
     const owner = getCurrentPickOwner(league, draft)
     if (!owner) break
     if (owner.teamId === userTeamId) break
 
     const result = autoPickForTeam(league, draft, owner.teamId, rng)
-    if (result && 'error' in result) {
+    if (result === null) break
+    if ('error' in result) {
       if (!forfeitDraftPick(league, draft)) break
     }
   }

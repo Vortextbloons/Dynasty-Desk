@@ -8,7 +8,7 @@ export function blendToMean(
 }
 
 export function sampleWeight(minutes: number, games: number): number {
-  const minutesWeight = Math.min(1, minutes / 2000)
-  const gamesWeight = Math.min(1, games / 60)
+  const minutesWeight = Math.min(1, minutes / 1500)
+  const gamesWeight = Math.min(1, games / 45)
   return 0.6 * minutesWeight + 0.4 * gamesWeight
 }

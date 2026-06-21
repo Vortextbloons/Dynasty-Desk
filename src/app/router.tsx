@@ -26,6 +26,7 @@ import { TeamStrategyPage } from '@/pages/TeamStrategyPage'
 import { RecordsPage } from '@/pages/RecordsPage'
 import { HallOfFamePage } from '@/pages/HallOfFamePage'
 import { RivalriesPage } from '@/pages/RivalriesPage'
+import { TeamPage } from '@/pages/TeamPage'
 import { AppShell } from '@/components/layout/AppShell'
 
 export function AppRouter() {
@@ -168,6 +169,14 @@ export function AppRouter() {
         element={
           <AppShell>
             <PlayerPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/team/:id"
+        element={
+          <AppShell>
+            <TeamPage />
           </AppShell>
         }
       />

@@ -19,6 +19,15 @@ import {
   syncDraftClock,
   totalDraftSlotsForSeason,
   getActiveDraft,
+  getUserDraftPickSlots,
+  getDraftOrderBoard,
+  countPicksMade,
+  forfeitDraftPick,
+  picksUntilUserTurn,
+  isUserOnClock,
+  getNextDraftPickNumber,
+  reconcileDraftPickState,
+  FORFEITED_PROSPECT_ID,
 } from '@/game/league/draftEngine'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 import { SeededRandom } from '@/game/sim/rng'
@@ -550,5 +559,464 @@ describe('assignPickNumbers', () => {
     assignPickNumbers(league, order, '2026-27')
     const pick = league.draftPicks[0]!
     expect(pick.pickNumber).toBe(1)
+  })
+})
+
+function makeSizedLeague(teamCount: number, userTeamId = 'user'): LeagueState {
+  const teams: LeagueState['teams'] = {}
+  const standings: LeagueState['standings'] = {}
+  for (let i = 0; i < teamCount; i++) {
+    const id = i === 0 ? userTeamId : `t${i}`
+    const t = makeTeam({ id, abbreviation: id.toUpperCase().slice(0, 3) })
+    teams[t.id] = t
+    standings[t.id] = {
+      teamId: t.id,
+      season: '2025-26',
+      gamesPlayed: 82,
+      wins: i,
+      losses: 82 - i,
+      winPct: i / 82,
+      homeWins: 0,
+      homeLosses: 0,
+      awayWins: 0,
+      awayLosses: 0,
+      pointsFor: 0,
+      pointsAgainst: 0,
+      pointDifferential: 0,
+      conferenceRank: 0,
+      divisionRank: 0,
+      streak: 0,
+      last10: '',
+      clinchedPlayoff: i >= teamCount - 16,
+      clinchedDivision: false,
+      eliminated: i < teamCount - 16,
+      conferenceWins: 0,
+      conferenceLosses: 0,
+      divisionWins: 0,
+      divisionLosses: 0,
+      pointsPerGame: 0,
+      pointsAllowedPerGame: 0,
+      pointDifferentialPerGame: 0,
+      gamesRemaining: 0,
+      magicNumber: 0,
+      tiebreaker: {
+        headToHeadWins: 0,
+        conferenceWinPct: 0,
+        pointDifferential: 0,
+      },
+    }
+  }
+  return {
+    id: 'l',
+    name: 'L',
+    currentDate: '2026-06-01',
+    seasonYear: 2026,
+    phase: 'draft',
+    rules: DEFAULT_LEAGUE_RULES,
+    eraConfig: {
+      season: '2025-26',
+      pace: 100,
+      league3PARate: 0.35,
+      leagueTsPct: 0.57,
+      leaguePpg: 112,
+      possessionCoefficient: 1,
+    },
+    snapshotId: 'snap',
+    teams,
+    players: {},
+    games: {},
+    standings,
+    scheduleGenerated: false,
+    transactions: [],
+    news: [],
+    awardsHistory: [],
+    draftPicks: [],
+    draftClasses: {},
+    drafts: {},
+    scoutingState: {},
+    freeAgentOffers: [],
+    qualifyingOffers: [],
+    compensationPicks: [],
+    offseasonLog: [],
+    rosterSizeCap: 20,
+    champions: [],
+    awards: [],
+    activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
+    userTeamId,
+  }
+}
+
+function seedDraftPicksForOrder(
+  league: LeagueState,
+  order: { teamId: string; pickNumber: number }[],
+  seasonLabel: string,
+): void {
+  const teamCount = order.length
+  league.draftPicks = order.flatMap((o) => [
+    {
+      id: `r1-${o.teamId}`,
+      season: seasonLabel,
+      round: 1,
+      pickNumber: o.pickNumber,
+      originalTeamId: o.teamId,
+      currentTeamId: o.teamId,
+      prospectId: null,
+    },
+    {
+      id: `r2-${o.teamId}`,
+      season: seasonLabel,
+      round: 2,
+      pickNumber: teamCount + o.pickNumber,
+      originalTeamId: o.teamId,
+      currentTeamId: o.teamId,
+      prospectId: null,
+    },
+  ])
+}
+
+describe('syncDraftClock', () => {
+  it('does not mark complete when unpicked assets have pickNumber 0', () => {
+    const league = makeMiniLeague()
+    const seasonLabel = '2027-28'
+    league.draftPicks = [
+      {
+        id: 'p1',
+        season: seasonLabel,
+        round: 1,
+        pickNumber: 0,
+        originalTeamId: 't0',
+        currentTeamId: 't0',
+        prospectId: null,
+      },
+    ]
+    const draftClass = generateDraftClass(
+      2027,
+      DEFAULT_LEAGUE_RULES,
+      [],
+      new SeededRandom({ seed: '1', position: 0 }),
+    )
+    const draft = startDraft(league, draftClass, [], 'lottery')
+    draft.seasonYear = 2027
+
+    syncDraftClock(league, draft)
+    expect(draft.status).toBe('in_progress')
+    expect(draft.completedAt).toBeUndefined()
+  })
+
+  it('does not skip ahead when lower slots are unnumbered', () => {
+    const league = makeSizedLeague(30, 'user')
+    const teamIds = Object.keys(league.teams).filter((id) => id !== 'user')
+    const order: { teamId: string; pickNumber: number }[] = []
+    for (let pickNumber = 1; pickNumber <= 30; pickNumber++) {
+      if (pickNumber === 8) {
+        order.push({ teamId: 'user', pickNumber })
+      } else {
+        const idx = pickNumber < 8 ? pickNumber - 1 : pickNumber - 2
+        order.push({ teamId: teamIds[idx]!, pickNumber })
+      }
+    }
+    const seasonLabel = '2027-28'
+    seedDraftPicksForOrder(league, order, seasonLabel)
+    for (const pick of league.draftPicks) {
+      if (
+        pick.season === seasonLabel &&
+        pick.round === 1 &&
+        pick.pickNumber >= 1 &&
+        pick.pickNumber <= 7
+      ) {
+        pick.pickNumber = 0
+      }
+    }
+    const dc = generateDraftClass(
+      2027,
+      DEFAULT_LEAGUE_RULES,
+      [],
+      new SeededRandom({ seed: 'gap', position: 0 }),
+    )
+    const draft = startDraft(league, dc, order, 'lottery')
+    draft.seasonYear = 2027
+
+    syncDraftClock(league, draft)
+    expect(draft.currentPickNumber).toBe(1)
+    expect(isUserOnClock(league, draft, 'user')).toBe(false)
+  })
+})
+
+describe('reconcileDraftPickState', () => {
+  const rng = new SeededRandom({ seed: 'reconcile', position: 0 })
+
+  it('clears phantom asset marks and resets clock when feed has gaps', () => {
+    const league = makeSizedLeague(30, 'user')
+    const teamIds = Object.keys(league.teams).filter((id) => id !== 'user')
+    const order: { teamId: string; pickNumber: number }[] = []
+    for (let pickNumber = 1; pickNumber <= 30; pickNumber++) {
+      if (pickNumber === 8) {
+        order.push({ teamId: 'user', pickNumber })
+      } else {
+        const idx = pickNumber < 8 ? pickNumber - 1 : pickNumber - 2
+        order.push({ teamId: teamIds[idx]!, pickNumber })
+      }
+    }
+    const seasonLabel = '2027-28'
+    seedDraftPicksForOrder(league, order, seasonLabel)
+    const dc = generateDraftClass(2027, DEFAULT_LEAGUE_RULES, [], rng)
+    league.draftClasses[dc.id] = dc
+    const draft = startDraft(league, dc, order, 'lottery')
+    draft.seasonYear = 2027
+
+    for (let i = 1; i <= 23; i++) {
+      const asset = league.draftPicks.find(
+        (p) => p.season === seasonLabel && p.pickNumber === i,
+      )
+      if (asset) asset.prospectId = `phantom-${i}`
+    }
+
+    const pick22Asset = league.draftPicks.find(
+      (p) => p.season === seasonLabel && p.pickNumber === 22,
+    )!
+    const pick23Asset = league.draftPicks.find(
+      (p) => p.season === seasonLabel && p.pickNumber === 23,
+    )!
+    draft.picks.push({
+      id: 'logged-22',
+      draftId: draft.id,
+      pickId: pick22Asset.id,
+      prospectId: dc.prospects[0]!.id,
+      pickedByTeamId: pick22Asset.currentTeamId,
+      pickNumber: 22,
+      round: 1,
+      isTwoWay: false,
+    })
+    draft.picks.push({
+      id: 'logged-23',
+      draftId: draft.id,
+      pickId: pick23Asset.id,
+      prospectId: dc.prospects[1]!.id,
+      pickedByTeamId: pick23Asset.currentTeamId,
+      pickNumber: 23,
+      round: 1,
+      isTwoWay: false,
+    })
+    pick22Asset.prospectId = dc.prospects[0]!.id
+    pick23Asset.prospectId = dc.prospects[1]!.id
+    draft.currentPickNumber = 24
+
+    const changed = reconcileDraftPickState(league, draft)
+    syncDraftClock(league, draft)
+
+    expect(changed).toBe(true)
+    expect(draft.currentPickNumber).toBe(1)
+    expect(
+      league.draftPicks.filter(
+        (p) =>
+          p.season === seasonLabel &&
+          p.pickNumber >= 1 &&
+          p.pickNumber <= 21 &&
+          p.prospectId != null,
+      ),
+    ).toHaveLength(0)
+    expect(pick22Asset.prospectId).toBe(dc.prospects[0]!.id)
+    expect(pick23Asset.prospectId).toBe(dc.prospects[1]!.id)
+  })
+})
+
+describe('user pick slot vs draft clock', () => {
+  const rng = new SeededRandom({ seed: 'slot24', position: 0 })
+
+  it('user at slot 24 is not on the clock at pick 1', () => {
+    const league = makeSizedLeague(30, 'user')
+    const order = Array.from({ length: 30 }, (_, i) => ({
+      teamId: `t${i === 0 ? 1 : i === 1 ? 0 : i}`,
+      pickNumber: i + 1,
+    }))
+    order[23] = { teamId: 'user', pickNumber: 24 }
+    order[0] = { teamId: 't1', pickNumber: 1 }
+
+    const seasonLabel = '2027-28'
+    seedDraftPicksForOrder(league, order, seasonLabel)
+    const dc = generateDraftClass(2027, DEFAULT_LEAGUE_RULES, [], rng)
+    league.draftClasses[dc.id] = dc
+    const draft = startDraft(league, dc, order, 'lottery')
+    draft.seasonYear = 2027
+
+    const owner = getCurrentPickOwner(league, draft)
+    expect(owner?.teamId).toBe('t1')
+    expect(owner?.teamId).not.toBe('user')
+
+    const slots = getUserDraftPickSlots(league, 2027, 'user')
+    expect(slots.map((s) => s.pickNumber)).toContain(24)
+    expect(picksUntilUserTurn(draft, slots)).toBe(23)
+  })
+
+  it('autoPickForTeam advances clock from pick 1 when user holds pick 24', () => {
+    const league = makeSizedLeague(30, 'user')
+    const order: { teamId: string; pickNumber: number }[] = []
+    for (let i = 1; i <= 30; i++) {
+      order.push({ teamId: i === 24 ? 'user' : `t${i}`, pickNumber: i })
+    }
+    order[0] = { teamId: 't1', pickNumber: 1 }
+
+    const seasonLabel = '2027-28'
+    seedDraftPicksForOrder(league, order, seasonLabel)
+    const dc = generateDraftClass(2027, DEFAULT_LEAGUE_RULES, [], rng)
+    league.draftClasses[dc.id] = dc
+    const draft = startDraft(league, dc, order, 'lottery')
+    draft.seasonYear = 2027
+
+    const result = autoPickForTeam(league, draft, 't1', rng)
+    expect(result).not.toBeNull()
+    expect('error' in (result ?? {})).toBe(false)
+    expect(draft.currentPickNumber).toBe(2)
+    expect(countPicksMade(draft)).toBe(1)
+  })
+
+  it('simulates picks 1-23 before user is on clock at 24', () => {
+    const league = makeSizedLeague(30, 'user')
+    const teamIds = Object.keys(league.teams).filter((id) => id !== 'user')
+    const order: { teamId: string; pickNumber: number }[] = []
+    for (let pickNumber = 1; pickNumber <= 30; pickNumber++) {
+      if (pickNumber === 24) {
+        order.push({ teamId: 'user', pickNumber })
+      } else {
+        const idx = pickNumber < 24 ? pickNumber - 1 : pickNumber - 2
+        order.push({ teamId: teamIds[idx]!, pickNumber })
+      }
+    }
+
+    const seasonLabel = '2027-28'
+    seedDraftPicksForOrder(league, order, seasonLabel)
+    const dc = generateDraftClass(2027, DEFAULT_LEAGUE_RULES, [], rng)
+    league.draftClasses[dc.id] = dc
+    const draft = startDraft(league, dc, order, 'lottery')
+    draft.seasonYear = 2027
+
+    for (let i = 0; i < 23; i++) {
+      const owner = getCurrentPickOwner(league, draft)!
+      expect(owner.teamId).not.toBe('user')
+      const result = autoPickForTeam(league, draft, owner.teamId, rng)
+      expect(result).not.toBeNull()
+      expect('error' in (result ?? {})).toBe(false)
+    }
+
+    const owner = getCurrentPickOwner(league, draft)
+    expect(owner?.teamId).toBe('user')
+    expect(draft.currentPickNumber).toBe(24)
+    expect(countPicksMade(draft)).toBe(23)
+  })
+})
+
+describe('getUserDraftPickSlots', () => {
+  it('returns unpicked numbered slots for the user', () => {
+    const league = makeSizedLeague(30, 'user')
+    const seasonLabel = '2027-28'
+    league.draftPicks = [
+      {
+        id: 'u-r1',
+        season: seasonLabel,
+        round: 1,
+        pickNumber: 24,
+        originalTeamId: 'user',
+        currentTeamId: 'user',
+        prospectId: null,
+      },
+      {
+        id: 'u-r2',
+        season: seasonLabel,
+        round: 2,
+        pickNumber: 54,
+        originalTeamId: 'user',
+        currentTeamId: 'user',
+        prospectId: null,
+      },
+    ]
+
+    const slots = getUserDraftPickSlots(league, 2027, 'user')
+    expect(slots.map((s) => s.pickNumber)).toEqual([24, 54])
+  })
+})
+
+describe('repairDraftPickOrder mid-draft', () => {
+  const rng = new SeededRandom({ seed: 'repair', position: 0 })
+
+  it('does not reshuffle lottery after picks are made', () => {
+    const league = makeMiniLeague()
+    const seasonLabel = '2027-28'
+    const order = runLottery(league, rng)
+    seedDraftPicksForOrder(league, order, seasonLabel)
+    const dc = generateDraftClass(2027, DEFAULT_LEAGUE_RULES, [], rng)
+    league.draftClasses[dc.id] = dc
+    const draft = startDraft(league, dc, order, 'lottery')
+    draft.seasonYear = 2027
+    draft.lotteryResults = order
+
+    simulateDraftPick(
+      league,
+      draft,
+      order[0]!.teamId,
+      dc.prospects[0]!.id,
+      false,
+      rng,
+    )
+
+    for (const pick of league.draftPicks) {
+      if (!pick.prospectId && pick.season === seasonLabel) {
+        pick.pickNumber = 0
+      }
+    }
+
+    draft.lotteryResults = undefined
+    const repaired = repairDraftPickOrder(league, draft, rng)
+    expect(repaired).toBe(false)
+    expect(draft.picks).toHaveLength(1)
+  })
+})
+
+describe('forfeitDraftPick', () => {
+  const rng = new SeededRandom({ seed: 'forfeit', position: 0 })
+
+  it('records forfeited sentinel in draft picks', () => {
+    const league = makeMiniLeague()
+    const dc = generateDraftClass(2027, DEFAULT_LEAGUE_RULES, [], rng)
+    league.draftClasses[dc.id] = dc
+    const order = runInverseWLDraftOrder(league)
+    seedDraftPicksForOrder(league, order, '2027-28')
+    const draft = startDraft(league, dc, order, 'inverse_record')
+    draft.seasonYear = 2027
+
+    const ok = forfeitDraftPick(league, draft)
+    expect(ok).toBe(true)
+    expect(draft.picks.some((p) => p.prospectId === FORFEITED_PROSPECT_ID)).toBe(
+      true,
+    )
+    expect(countPicksMade(draft)).toBe(0)
+  })
+})
+
+describe('getDraftOrderBoard', () => {
+  it('includes traded pick ownership', () => {
+    const league = makeMiniLeague()
+    const order = runInverseWLDraftOrder(league)
+    seedDraftPicksForOrder(league, order, '2027-28')
+    const traded = league.draftPicks.find(
+      (p) => p.round === 1 && p.originalTeamId === order[0]!.teamId,
+    )!
+    traded.currentTeamId = 't3'
+
+    const dc = generateDraftClass(
+      2027,
+      DEFAULT_LEAGUE_RULES,
+      [],
+      new SeededRandom({ seed: '1', position: 0 }),
+    )
+    const draft = startDraft(league, dc, order, 'inverse_record')
+    draft.seasonYear = 2027
+
+    const board = getDraftOrderBoard(league, draft)
+    const entry = board.find((e) => e.pickNumber === 1)
+    expect(entry?.currentTeamId).toBe('t3')
+    expect(entry?.traded).toBe(true)
   })
 })

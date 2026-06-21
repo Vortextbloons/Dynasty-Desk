@@ -21,6 +21,7 @@ import {
   forfeitDraftPick,
   formatSeasonLabel,
   syncDraftClock,
+  FORFEITED_PROSPECT_ID,
 } from '@/game/league/draftEngine'
 import { finalizeStrandedFreeAgents, identifyFreeAgents } from '@/game/management/freeAgencyEngine'
 import { makeTeam, makeRoster, emptyM10LeagueFields } from '@/tests/fixtures'
@@ -517,7 +518,7 @@ describe('offseasonEngine', () => {
 
     forfeitDraftPick(league, draft)
     expect(draft.status).toBe('complete')
-    expect(draft.picks.some((p) => p.prospectId === '__forfeited__')).toBe(true)
+    expect(draft.picks.some((p) => p.prospectId === FORFEITED_PROSPECT_ID)).toBe(true)
   })
 })
 

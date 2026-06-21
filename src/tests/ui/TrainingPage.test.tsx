@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { TrainingPage } from '@/pages/TrainingPage'
 
 const mockUseGameStore = vi.fn()
@@ -39,7 +40,7 @@ describe('TrainingPage', () => {
     }
     mockUseGameStore.mockImplementation((selector: (s: typeof state) => unknown) => selector(state))
 
-    render(<TrainingPage />)
+    render(<MemoryRouter><TrainingPage /></MemoryRouter>)
     expect(screen.getByText('Training')).toBeInTheDocument()
     expect(screen.getByText('Team training focus')).toBeInTheDocument()
     expect(screen.getByText('Test Player')).toBeInTheDocument()

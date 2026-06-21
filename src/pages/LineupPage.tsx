@@ -65,10 +65,11 @@ export function LineupPage() {
         const p = players.get(id)
         const target = lineup.targetMinutes[id] ?? 0
         if (target <= 0) return null
-        const seasonMinutes = p?.seasonStats.minutes ?? 0
+        const gp = Math.max(1, p?.seasonStats.gamesPlayed ?? 1)
+        const mpg = p ? Math.round(p.seasonStats.minutes / gp) : 0
         return {
           name: p ? `${p.firstName.charAt(0)}. ${p.lastName}` : id.slice(0, 8),
-          minutes: seasonMinutes,
+          minutes: mpg,
           target,
         }
       })

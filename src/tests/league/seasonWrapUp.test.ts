@@ -8,6 +8,7 @@ import { makePlayer, makeTeam } from '@/tests/fixtures'
 import type { LeagueState } from '@/game/models/league'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 import { SeededRandom } from '@/game/sim/rng'
+import { computeOverall, OVERALL_WEIGHTS } from '@/game/ratings/overallWeights'
 
 function makeMiniLeague(): LeagueState {
   const team = makeTeam({ id: 't1' })
@@ -97,5 +98,20 @@ describe('seasonWrapUp', () => {
     expect(
       league.awardsHistory[0]!.awards.some((a) => a.award === 'finals_mvp'),
     ).toBe(true)
+  })
+
+  it('development produces a reasonable overall consistent with individual ratings', () => {
+    const league = makeMiniLeague()
+    const player = league.players.star!
+    const beforeOverall = player.ratings.overall
+
+    runLeagueEndOfSeasonDevelopment(league, new SeededRandom({ seed: 'prod-boost-seed', position: 0 }))
+
+    const afterOverall = player.ratings.overall
+    const delta = afterOverall - beforeOverall
+    expect(delta).toBeGreaterThanOrEqual(-3)
+    expect(delta).toBeLessThanOrEqual(5)
+    const skillOverall = computeOverall(player.ratings, player.position)
+    expect(Math.abs(afterOverall - skillOverall)).toBeLessThanOrEqual(2)
   })
 })

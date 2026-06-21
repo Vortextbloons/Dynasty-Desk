@@ -91,6 +91,9 @@ import {
   getActiveDraft,
   repairDraftPickOrder,
   syncDraftClock,
+  reconcileDraftPickState,
+  countPicksMade,
+  isUserOnClock,
 } from '@/game/league/draftEngine'
 import {
   allocateScoutingPoints as allocateScouting,
@@ -683,11 +686,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return { ok: false, reason: 'No draft in progress.' }
     }
     const owner = getCurrentPickOwner(save.league, draft)
-    if (owner?.teamId !== save.league.userTeamId) {
+    if (!isUserOnClock(save.league, draft, save.league.userTeamId)) {
+      if (owner?.teamId === save.league.userTeamId) {
+        return {
+          ok: false,
+          reason: 'Prior picks must be made before your selection.',
+        }
+      }
       return { ok: false, reason: 'Not your pick.' }
     }
     const rng = new SeededRandom(save.rngState)
     repairDraftPickOrder(save.league, draft, rng)
+    reconcileDraftPickState(save.league, draft)
     const result = simulateDraftPick(
       save.league,
       draft,
@@ -716,14 +726,22 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return { ok: false, reason: 'No draft in progress.' }
     }
 
+    const rng = new SeededRandom(save.rngState)
+    repairDraftPickOrder(save.league, draft, rng)
+    reconcileDraftPickState(save.league, draft)
+    syncDraftClock(save.league, draft)
     const owner = getCurrentPickOwner(save.league, draft)
-    if (!owner) return { ok: false, reason: 'No current pick.' }
-    if (owner.teamId === save.league.userTeamId) {
+    if (!owner) {
+      return {
+        ok: false,
+        reason:
+          'No current pick. Pick order may need repair — try reloading the draft page.',
+      }
+    }
+    if (isUserOnClock(save.league, draft, save.league.userTeamId)) {
       return { ok: false, reason: 'Your team is on the clock.' }
     }
 
-    const rng = new SeededRandom(save.rngState)
-    repairDraftPickOrder(save.league, draft, rng)
     const result = autoPickForTeam(save.league, draft, owner.teamId, rng)
     if (!result || 'error' in result) {
       return { ok: false, reason: result?.error ?? 'Could not make AI pick.' }
@@ -748,19 +766,25 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return { ok: false, reason: 'No draft in progress.' }
     }
 
-    const startPick = draft.currentPickNumber
+    const startPicksMade = countPicksMade(draft)
     const rng = new SeededRandom(save.rngState)
     repairDraftPickOrder(save.league, draft, rng)
+    reconcileDraftPickState(save.league, draft)
     syncDraftClock(save.league, draft)
     autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
+    reconcileDraftPickState(save.league, draft)
     syncDraftClock(save.league, draft)
     save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
 
     const owner = getCurrentPickOwner(save.league, draft)
-    const onUserClock = owner?.teamId === save.league.userTeamId
-    const picksSimulated = draft.currentPickNumber - startPick
+    const onUserClock = isUserOnClock(
+      save.league,
+      draft,
+      save.league.userTeamId,
+    )
+    const picksSimulated = countPicksMade(draft) - startPicksMade
     const draftComplete = draft.status === 'complete'
 
     if (draftComplete) {
@@ -806,18 +830,25 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     if (draft.status === 'in_progress') {
       const rng = new SeededRandom(save.rngState)
-      const repaired = repairDraftPickOrder(save.league, draft, rng)
       const beforePick = draft.currentPickNumber
+      const repaired = repairDraftPickOrder(save.league, draft, rng)
+      const reconciled = reconcileDraftPickState(save.league, draft)
       syncDraftClock(save.league, draft)
       save.rngState = rng.state
 
-      if (repaired || draft.currentPickNumber !== beforePick) {
+      if (repaired || reconciled || draft.currentPickNumber !== beforePick) {
         set({ save: { ...save } })
         get().scheduleAutoSave()
       }
     }
 
+    const beforeFinal = draft.currentPickNumber
+    reconcileDraftPickState(save.league, draft)
     syncDraftClock(save.league, draft)
+    if (draft.currentPickNumber !== beforeFinal) {
+      set({ save: { ...save } })
+      get().scheduleAutoSave()
+    }
     if (draft.status === 'complete') {
       set({ save: { ...save } })
       get().scheduleAutoSave()
@@ -831,7 +862,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const draft = getActiveDraft(save.league)
     if (!draft || draft.status !== 'in_progress') return
     const owner = getCurrentPickOwner(save.league, draft)
-    if (owner?.teamId !== save.league.userTeamId) return
+    if (!isUserOnClock(save.league, draft, save.league.userTeamId)) return
     const rng = new SeededRandom(save.rngState)
     autoPickForTeam(save.league, draft, save.league.userTeamId, rng)
     syncDraftClock(save.league, draft)

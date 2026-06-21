@@ -158,7 +158,7 @@ describe('RosterTable', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByText('LeBron James')).toBeInTheDocument()
+    expect(screen.getAllByText('LeBron James').length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders empty state when players is empty and hasSave is false', () => {

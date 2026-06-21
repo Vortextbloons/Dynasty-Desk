@@ -286,8 +286,8 @@ describe('validateRotation', () => {
   })
 
   describe('bench size', () => {
-    it('warns when bench exceeds soft cap of 10', () => {
-      const allIds = Array.from({ length: 16 }, (_, i) => `p${i + 1}`)
+    it('warns when bench exceeds soft cap of 15', () => {
+      const allIds = Array.from({ length: 21 }, (_, i) => `p${i + 1}`)
       const players = makePlayers(allIds)
       const lineup = makeLineup({
         starters: ['p1', 'p2', 'p3', 'p4', 'p5'],
@@ -299,8 +299,8 @@ describe('validateRotation', () => {
       expect(result.warnings.some(w => w.code === 'bench_too_large')).toBe(true)
     })
 
-    it('does not warn for 10 bench players', () => {
-      const allIds = Array.from({ length: 15 }, (_, i) => `p${i + 1}`)
+    it('does not warn for 15 bench players', () => {
+      const allIds = Array.from({ length: 20 }, (_, i) => `p${i + 1}`)
       const players = makePlayers(allIds)
       const lineup = makeLineup({
         starters: ['p1', 'p2', 'p3', 'p4', 'p5'],

@@ -51,6 +51,12 @@ type StaticPlayer struct {
 	WeightLbs         int               `json:"weightLbs"`
 	TeamId            *string           `json:"teamId"`
 	HeadshotUrl       string            `json:"headshotUrl,omitempty"`
+	College           string            `json:"college,omitempty"`
+	Country           string            `json:"country,omitempty"`
+	DraftYear         int               `json:"draftYear,omitempty"`
+	DraftRound        int               `json:"draftRound,omitempty"`
+	DraftPick         int               `json:"draftPick,omitempty"`
+	BirthDate         string            `json:"birthDate,omitempty"`
 	Ratings           PlayerRatings     `json:"ratings"`
 	Tendencies        PlayerTendencies  `json:"tendencies"`
 	Traits            PlayerTraits      `json:"traits"`
