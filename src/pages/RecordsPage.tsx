@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { Card, CardContent } from '@/components/ui/card'
+import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { formatGameDate } from '@/lib/format'
 import type { RecordCategory } from '@/game/models/record'
 
 type Tab = 'single_game' | 'season' | 'career' | 'team'
@@ -137,13 +139,20 @@ export function RecordsPage() {
                               {i + 1}
                             </td>
                             <td className="py-1.5 pr-2">
-                              {playerLink ? (
-                                <Link
-                                  to={playerLink}
-                                  className="text-[var(--color-primary)] hover:underline"
-                                >
-                                  {playerName}
-                                </Link>
+                              {player ? (
+                                <div className="flex items-center gap-2">
+                                  <PlayerHeadshot player={player} size={24} />
+                                  {playerLink ? (
+                                    <Link
+                                      to={playerLink}
+                                      className="text-[var(--color-primary)] hover:underline"
+                                    >
+                                      {playerName}
+                                    </Link>
+                                  ) : (
+                                    playerName
+                                  )}
+                                </div>
                               ) : (
                                 playerName
                               )}
@@ -155,7 +164,7 @@ export function RecordsPage() {
                               {formatValue(cat, rec.value)}
                             </td>
                             <td className="py-1.5 text-right text-[var(--color-muted-foreground)]">
-                              {rec.seasonYear ?? rec.date ?? '—'}
+                              {rec.seasonYear ?? (rec.date ? formatGameDate(rec.date) : '—')}
                             </td>
                           </tr>
                         )

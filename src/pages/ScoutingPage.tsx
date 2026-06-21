@@ -32,8 +32,12 @@ export function ScoutingPage() {
     !scouting
   ) {
     return (
-      <div>
-        <PageHeader title="Scouting" description="Allocate scouting points" />
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Front Office"
+          title="Scouting"
+          description="Allocate scouting points to reveal prospect ratings."
+        />
         <p className="text-sm text-[var(--color-muted-foreground)]">
           Scouting opens when the offseason begins.
         </p>
@@ -50,18 +54,19 @@ export function ScoutingPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow={`${upcomingDraftYear(league)} Draft Class`}
         title="Scouting"
         description={`${scouting.pointsRemaining} / ${SCOUTING_POINTS_PER_TEAM} points remaining`}
       />
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <input
           type="number"
           min={1}
           max={scouting.pointsRemaining}
           value={points}
           onChange={(e) => setPoints(Number(e.target.value))}
-          className="w-20 rounded border border-[var(--color-line)] bg-[var(--color-surface-2)] px-2 py-1 text-sm"
+          className="w-20 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2 py-1.5 text-sm font-mono"
         />
         <span className="text-sm text-[var(--color-muted-foreground)]">points per allocation</span>
       </div>

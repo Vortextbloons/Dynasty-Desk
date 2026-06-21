@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { AWARD_SHORT_LABELS, AWARD_LABELS } from '@/game/models/award'
-import { playerName } from '@/game/league/awardsEngine'
 import { AwardRaceChart } from '@/components/charts/AwardRaceChart'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 type Tab = 'current' | 'past'
 
@@ -35,18 +37,14 @@ export function AwardsPage() {
 
       <div className="flex gap-2">
         {(['current', 'past'] as Tab[]).map((t) => (
-          <button
+          <Button
             key={t}
-            type="button"
+            size="sm"
+            variant={tab === t ? 'default' : 'secondary'}
             onClick={() => setTab(t)}
-            className={`rounded-md px-3 py-1.5 text-sm capitalize ${
-              tab === t
-                ? 'bg-[var(--color-surface-3)] text-[var(--color-foreground)]'
-                : 'text-[var(--color-muted-foreground)]'
-            }`}
           >
-            {t}
-          </button>
+            {t === 'current' ? 'Current races' : 'Past winners'}
+          </Button>
         ))}
       </div>
 
@@ -67,16 +65,24 @@ export function AwardsPage() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {list.length === 0 ? (
-                    <p className="text-xs text-[var(--color-muted-foreground)]">No candidates yet.</p>
+                    <EmptyState description="No candidates yet." />
                   ) : (
                     list.map((entry, i) => {
                       const p = players[entry.playerId]
+                      if (!p) return null
                       return (
-                        <div key={entry.playerId} className="flex justify-between text-sm">
-                          <span>
-                            {i + 1}. {playerName(p)} ({entry.statLine})
-                          </span>
-                        </div>
+                        <PlayerListItem
+                          key={entry.playerId}
+                          player={p}
+                          linkTo={`/player/${p.id}`}
+                          subtitle={entry.statLine}
+                          trailing={
+                            <span className="font-mono text-sm text-[var(--color-muted-foreground)]">
+                              #{i + 1}
+                            </span>
+                          }
+                          className="rounded-md px-2 py-1.5"
+                        />
                       )
                     })
                   )}
@@ -88,23 +94,26 @@ export function AwardsPage() {
       ) : (
         <div className="space-y-4">
           {pastSeasons.length === 0 ? (
-            <p className="text-sm text-[var(--color-muted-foreground)]">No past awards yet.</p>
+            <EmptyState description="No past awards yet." />
           ) : (
             pastSeasons.map((season) => (
               <Card key={season.season}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-display">{season.season}</CardTitle>
                 </CardHeader>
-                <CardContent className="grid gap-1 sm:grid-cols-2">
+                <CardContent className="grid gap-2 sm:grid-cols-2">
                   {season.awards.map((a) => {
                     const p = players[a.playerId]
+                    if (!p) return null
                     return (
-                      <div key={`${a.award}-${a.playerId}`} className="text-sm">
-                        <span className="text-[var(--color-muted-foreground)]">
-                          {AWARD_SHORT_LABELS[a.award]}:
-                        </span>{' '}
-                        {playerName(p)}
-                      </div>
+                      <PlayerListItem
+                        key={`${a.award}-${a.playerId}`}
+                        player={p}
+                        linkTo={`/player/${p.id}`}
+                        subtitle={AWARD_SHORT_LABELS[a.award]}
+                        size={28}
+                        className="rounded-md px-2 py-1"
+                      />
                     )
                   })}
                 </CardContent>

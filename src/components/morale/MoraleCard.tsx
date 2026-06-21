@@ -3,6 +3,8 @@ import type { Player } from '@/game/models/player'
 import { Card, CardContent } from '@/components/ui/card'
 import { FaceIndicator } from '@/components/shared/FaceIndicator'
 import { Chip } from '@/components/shared/Chip'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
+import { SectionLabel } from '@/components/shared/SectionLabel'
 
 export function MoraleAlertsCard({ players }: { players: Player[] }) {
   const alerts = players.filter(
@@ -12,9 +14,7 @@ export function MoraleAlertsCard({ players }: { players: Player[] }) {
   return (
     <Card>
       <CardContent className="p-5">
-        <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)] mb-3">
-          Morale Alerts
-        </div>
+        <SectionLabel className="mb-3">Morale Alerts</SectionLabel>
         {alerts.length === 0 ? (
           <div className="text-sm text-[var(--color-muted-foreground)]">
             <div className="text-emerald-500 font-medium">Team morale good</div>
@@ -28,16 +28,22 @@ export function MoraleAlertsCard({ players }: { players: Player[] }) {
                 to={`/player/${p.id}`}
                 className="flex items-center gap-2 hover:opacity-80"
               >
-                <FaceIndicator value={p.morale.happiness} />
-                <span className="text-sm">
-                  {p.firstName} {p.lastName}
-                </span>
-                <span className="text-xs text-[var(--color-muted-foreground)]">
-                  ({p.morale.happiness})
-                </span>
-                {p.morale.tradeRequestLevel >= 80 && (
-                  <Chip label="Trade request" variant="danger" size="sm" />
-                )}
+                <PlayerListItem
+                  player={p}
+                  size={28}
+                  className="flex-1 min-w-0 pointer-events-none"
+                  trailing={
+                    <>
+                      <FaceIndicator value={p.morale.happiness} />
+                      <span className="text-xs text-[var(--color-muted-foreground)]">
+                        ({p.morale.happiness})
+                      </span>
+                      {p.morale.tradeRequestLevel >= 80 && (
+                        <Chip label="Trade request" variant="danger" size="sm" />
+                      )}
+                    </>
+                  }
+                />
               </Link>
             ))}
           </div>

@@ -1,5 +1,6 @@
 import type { SimEvent, ShotZone } from '@/game/models'
 import { Card, CardContent } from '@/components/ui/card'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 const ZONE_LABEL: Record<ShotZone, string> = {
   at_rim: 'at the rim',
@@ -69,9 +70,7 @@ export function KeyPlaysList({ plays, playerLookup }: Props) {
           Key plays — top {plays.length}
         </div>
         {plays.length === 0 ? (
-          <div className="text-sm text-[var(--color-muted-foreground)]">
-            No notable plays recorded.
-          </div>
+          <EmptyState description="No notable plays recorded." />
         ) : (
           <ol className="space-y-2">
             {plays.map((ev, idx) => {

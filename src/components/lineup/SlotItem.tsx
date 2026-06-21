@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, X } from 'lucide-react'
 import type { Player } from '@/game/models/player'
-import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
 import { Chip } from '@/components/shared/Chip'
 import { cn } from '@/lib/utils'
 
@@ -68,16 +68,19 @@ export function SlotItem({
 
       {player ? (
         <>
-          <PlayerHeadshot player={player} size={28} />
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">
-              {player.firstName} {player.lastName}
-            </div>
-          </div>
-          <Chip label={player.position} size="sm" />
-          <span className="font-mono text-xs text-[var(--color-muted-foreground)] w-5 text-right">
-            {player.ratings.overall}
-          </span>
+          <PlayerListItem
+            player={player}
+            size={28}
+            className="flex-1 min-w-0 pointer-events-none"
+            trailing={
+              <>
+                <Chip label={player.position} size="sm" />
+                <span className="font-mono text-xs text-[var(--color-muted-foreground)] w-5 text-right">
+                  {player.ratings.overall}
+                </span>
+              </>
+            }
+          />
         </>
       ) : (
         <button

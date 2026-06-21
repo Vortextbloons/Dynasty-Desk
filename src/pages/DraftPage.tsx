@@ -5,7 +5,10 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { MyPickPanel } from '@/components/draft/MyPickPanel'
 import { ProspectCard } from '@/components/draft/ProspectCard'
+import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 import { Card, CardContent } from '@/components/ui/card'
+import { SectionLabel } from '@/components/shared/SectionLabel'
+import { EmptyState } from '@/components/shared/EmptyState'
 import { Button } from '@/components/ui/button'
 import {
   getActiveDraft,
@@ -136,31 +139,30 @@ export function DraftPage() {
         }
       />
 
-      <section className="relative overflow-hidden rounded-3xl border border-orange-400/30 bg-[#120b08] text-orange-50 shadow-2xl shadow-orange-950/30">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,146,60,0.32),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.08)_0_1px,transparent_1px_12px)]" />
-        <div className="relative grid gap-5 p-5 lg:grid-cols-[1.2fr_0.8fr] lg:p-7">
+      <Card className="overflow-hidden border-[var(--color-primary)]/20 bg-[var(--color-surface-1)]">
+        <CardContent className="relative grid gap-5 p-5 lg:grid-cols-[1.2fr_0.8fr] lg:p-7">
           <div>
-            <div className="mb-4 flex items-center gap-2 text-xs font-black uppercase tracking-[0.35em] text-orange-300">
+            <SectionLabel className="mb-4 flex items-center gap-2 text-[var(--color-primary)]">
               <RadioTower className="size-4" /> Live Draft Room
-            </div>
+            </SectionLabel>
             <div className="flex flex-wrap items-end gap-4">
               <div>
-                <div className="text-6xl font-black leading-none tracking-tighter sm:text-7xl">
+                <div className="font-display text-6xl leading-none sm:text-7xl">
                   #{draftComplete ? totalSlots : draft.currentPickNumber}
                 </div>
-                <div className="mt-2 text-sm uppercase tracking-[0.25em] text-orange-200/70">
+                <div className="mt-2 text-sm uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
                   {draftComplete ? 'Final pick logged' : 'On the clock'}
                 </div>
               </div>
               <div className="min-w-0 pb-2">
-                <div className="text-2xl font-black sm:text-4xl">
+                <div className="font-display text-2xl sm:text-4xl">
                   {draftComplete
                     ? 'Draft complete'
                     : onClockTeam
                       ? `${onClockTeam.city} ${onClockTeam.name}`
                       : 'Awaiting pick'}
                 </div>
-                <div className="mt-1 text-sm text-orange-100/70">
+                <div className="mt-1 text-sm text-[var(--color-muted-foreground)]">
                   {draft.picks.length} of {totalSlots} selections made ·{' '}
                   {draft.orderSource === 'lottery'
                     ? 'lottery order'
@@ -171,62 +173,51 @@ export function DraftPage() {
 
             {!draftComplete && (
               <div className="mt-6 flex flex-wrap gap-2">
-                <Button
-                  onClick={handleAdvanceOne}
-                  disabled={isUserPick}
-                  className="bg-orange-400 text-black hover:bg-orange-300"
-                >
+                <Button onClick={handleAdvanceOne} disabled={isUserPick}>
                   <ChevronRight className="mr-2 size-4" /> Next pick
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={handleSimToUser}
-                  disabled={isUserPick}
-                  className="bg-white/10 text-orange-50 hover:bg-white/20"
-                >
+                <Button variant="secondary" onClick={handleSimToUser} disabled={isUserPick}>
                   <FastForward className="mr-2 size-4" /> Sim to my pick
                 </Button>
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-orange-200/15 bg-black/25 p-4">
-            <div className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.25em] text-orange-300">
+          <div className="rounded-xl border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] p-4">
+            <SectionLabel className="mb-3 flex items-center gap-2">
               <Trophy className="size-4" /> Pick Feed
-            </div>
-            <div className="space-y-2">
+            </SectionLabel>
+            <div className="space-y-2 max-h-72 overflow-y-auto">
               {recentPicks.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-orange-200/20 p-4 text-sm text-orange-100/60">
-                  No picks yet. Let the room breathe, then start the clock.
-                </div>
+                <EmptyState description="No picks yet. Start the clock to begin." />
               ) : (
                 recentPicks.map((pick) => {
                   const prospect = draftClass.prospects.find(
                     (p) => p.id === pick.prospectId,
                   )
                   const team = save.league.teams[pick.pickedByTeamId]
+                  if (!prospect) return null
                   return (
                     <div
                       key={pick.id}
-                      className="flex items-center justify-between rounded-xl bg-orange-50/10 px-3 py-2"
+                      className="flex items-center gap-3 rounded-lg border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] px-3 py-2"
                     >
-                      <div>
-                        <div className="text-sm font-black">
-                          #{pick.pickNumber}{' '}
-                          {prospect
-                            ? `${prospect.firstName} ${prospect.lastName}`
-                            : pick.prospectId}
+                      <PlayerHeadshot
+                        player={{
+                          firstName: prospect.firstName,
+                          lastName: prospect.lastName,
+                          externalId: prospect.externalId,
+                        }}
+                        size={36}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium">
+                          #{pick.pickNumber} {prospect.firstName} {prospect.lastName}
                         </div>
-                        <div className="text-xs text-orange-100/60">
-                          {prospect?.position} · OVR{' '}
-                          {prospect?.visibleRatings.overall ?? '?'} · POT{' '}
-                          {prospect
-                            ? `${prospect.visiblePotentialRange[0]}-${prospect.visiblePotentialRange[1]}`
-                            : '?'}
+                        <div className="text-xs text-[var(--color-muted-foreground)]">
+                          {prospect.position} · OVR {prospect.visibleRatings.overall ?? '?'} ·{' '}
+                          {team?.abbreviation ?? '—'}
                         </div>
-                      </div>
-                      <div className="text-xs font-black text-orange-200">
-                        {team?.abbreviation ?? pick.pickedByTeamId}
                       </div>
                     </div>
                   )
@@ -234,8 +225,8 @@ export function DraftPage() {
               )}
             </div>
           </div>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {draftComplete ? (
         <Card>
@@ -273,7 +264,7 @@ export function DraftPage() {
       <div>
         <h3 className="text-sm font-medium mb-3">Available draft board</h3>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {available.slice(0, 24).map((p) => (
+          {available.map((p) => (
             <ProspectCard
               key={p.id}
               prospect={p}

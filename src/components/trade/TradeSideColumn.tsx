@@ -6,7 +6,7 @@ import type { TradeAsset, TradeSide } from '@/game/models/trade'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import { Card, CardContent } from '@/components/ui/card'
 import { Chip } from '@/components/shared/Chip'
-import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
 import { TeamLogo } from '@/components/team/TeamLogo'
 import { PickProtectionEditor } from './PickProtectionEditor'
 import { AssetPickerDialog } from './AssetPickerDialog'
@@ -209,19 +209,20 @@ function AssetRow({
     if (!player) return null
     return (
       <div className="flex items-center gap-2 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2 py-1.5">
-        <PlayerHeadshot player={player} size={28} />
-        <div className="flex-1 min-w-0">
-          <div className="font-display text-xs truncate">
-            {player.firstName} {player.lastName}
-          </div>
-          <div className="text-[10px] text-[var(--color-muted-foreground)]">
-            {player.position} • OVR {player.ratings.overall}
-          </div>
-        </div>
-        {player.contract.noTradeClause && <Chip label="NTC" variant="warning" size="sm" />}
-        <div className="font-mono text-xs">
-          {fmt(computeCapHit(player, rules, 0))}
-        </div>
+        <PlayerListItem
+          player={player}
+          size={28}
+          subtitle={`${player.position} • OVR ${player.ratings.overall}`}
+          className="flex-1 min-w-0 pointer-events-none"
+          trailing={
+            <>
+              {player.contract.noTradeClause && <Chip label="NTC" variant="warning" size="sm" />}
+              <div className="font-mono text-xs">
+                {fmt(computeCapHit(player, rules, 0))}
+              </div>
+            </>
+          }
+        />
         {targetTeam && (
           <div className="text-[10px] text-[var(--color-muted-foreground)] flex items-center gap-1">
             → <span className="font-mono">{targetTeam.abbreviation}</span>

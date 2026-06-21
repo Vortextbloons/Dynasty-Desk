@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
-import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { PlayerTableCell } from '@/components/shared/PlayerTableCell'
 import { Chip } from '@/components/shared/Chip'
 import { HealthBadge } from '@/components/health/HealthBadge'
 import { FatigueBar } from '@/components/fatigue/FatigueBar'
@@ -42,21 +42,12 @@ export function RosterRow({ player, team }: RosterRowProps) {
 
   return (
     <tr className="border-b border-[var(--color-line-soft)] last:border-b-0 hover:bg-[var(--color-surface-2)]/60">
-      <td className="px-3 py-2">
-        <Link
-          to={`/player/${player.id}`}
-          className="flex items-center gap-3 group"
-        >
-          <PlayerHeadshot player={player} team={team} size={36} />
-          <div>
-            <div className="font-display text-sm group-hover:text-[var(--color-primary)] transition-colors">
-              {player.firstName} {player.lastName}
-            </div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
-              {team ? `${team.city} ${team.name}` : 'Free Agent'}
-            </div>
-          </div>
-        </Link>
+      <td className="px-3 py-2 sticky left-0 z-10 bg-inherit min-w-[200px]">
+        <PlayerTableCell
+          player={player}
+          team={team}
+          subtitle={team ? `${team.city} ${team.name}` : 'Free Agent'}
+        />
       </td>
       <td className="px-3 py-2 text-center">
         <div className="flex items-center justify-center gap-1">

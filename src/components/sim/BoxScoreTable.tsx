@@ -1,5 +1,7 @@
 import type { PlayerGameStats } from '@/game/models'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 interface Props {
   players: PlayerGameStats[]
@@ -23,11 +25,36 @@ export function BoxScoreTable({ players, playerLookup, title }: Props) {
       <div className="border-b border-[var(--color-line-soft)] px-3 py-2 text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
         {title}
       </div>
-      <div className="overflow-x-auto">
+
+      <div className="md:hidden divide-y divide-[var(--color-line-soft)]">
+        {sorted.length === 0 ? (
+          <EmptyState description="No players recorded minutes." />
+        ) : (
+          sorted.map((p) => {
+            const meta = playerLookup.get(p.playerId)
+            if (!meta) return null
+            return (
+              <PlayerListItem
+                key={p.playerId}
+                player={{ ...meta, id: p.playerId }}
+                subtitle={`${fmt(p.minutes)} MIN · ${p.totalRebounds} REB · ${p.assists} AST`}
+                trailing={
+                  <span className="font-display text-lg tabular-nums">{p.points}</span>
+                }
+                className="px-3 py-2.5"
+              />
+            )
+          })
+        )}
+      </div>
+
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
-              <th className="px-3 py-2 text-left font-medium">Player</th>
+              <th className="px-3 py-2 text-left font-medium sticky left-0 z-10 bg-[var(--color-surface-1)] min-w-[160px]">
+                Player
+              </th>
               <th className="px-2 py-2 text-right font-medium">MIN</th>
               <th className="px-2 py-2 text-right font-medium">PTS</th>
               <th className="px-2 py-2 text-right font-medium">REB</th>
@@ -54,7 +81,7 @@ export function BoxScoreTable({ players, playerLookup, title }: Props) {
                   key={p.playerId}
                   className="border-t border-[var(--color-line-soft)]/50 hover:bg-[var(--color-surface-2)]"
                 >
-                  <td className="px-3 py-1.5 font-medium">
+                  <td className="px-3 py-1.5 font-medium sticky left-0 z-10 bg-inherit min-w-[160px]">
                     <div className="flex items-center gap-2">
                       {meta ? (
                         <PlayerHeadshot

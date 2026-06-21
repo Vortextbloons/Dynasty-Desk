@@ -5,6 +5,7 @@ import {
   type PlayerSeasonStats,
 } from '@/game/models/playerSeasonStats'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PlayerTableCell } from '@/components/shared/PlayerTableCell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
 
@@ -141,6 +142,7 @@ export function AllTimeLeadersPage() {
           playerId,
           firstName: player?.firstName ?? '?',
           lastName: player?.lastName ?? '?',
+          externalId: player?.externalId,
           teamAbbrev:
             snapshot.teams.find((t) => t.id === player?.teamId)?.abbreviation ??
             '—',
@@ -318,11 +320,17 @@ export function AllTimeLeadersPage() {
                       <td className="px-5 py-2 font-mono text-[var(--color-muted-foreground)]">
                         {i + 1}
                       </td>
-                      <td className="px-3 py-2 font-display">
-                        {p.firstName} {p.lastName}{' '}
-                        <span className="text-[10px] text-[var(--color-muted-foreground)] font-mono ml-1">
-                          {p.teamAbbrev}
-                        </span>
+                      <td className="px-3 py-2">
+                        <PlayerTableCell
+                          player={{
+                            id: p.playerId,
+                            firstName: p.firstName,
+                            lastName: p.lastName,
+                            externalId: p.externalId,
+                          }}
+                          subtitle={p.teamAbbrev}
+                          size={32}
+                        />
                       </td>
                       <td className="text-right px-3 py-2 font-mono">
                         {p.seasons}

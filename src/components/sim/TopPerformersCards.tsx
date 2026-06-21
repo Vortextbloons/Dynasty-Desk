@@ -3,6 +3,7 @@ import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 type TeamColors = Pick<StaticTeam, 'colors'>
 
@@ -30,7 +31,7 @@ export function TopPerformersCards({ label, players, playerLookup, stat, teamLoo
           Top — {label}
         </div>
         {top.length === 0 ? (
-          <div className="text-sm text-[var(--color-muted-foreground)]">No data.</div>
+          <EmptyState description="No data." />
         ) : (
           <div className="space-y-2">
             {top.map((p) => {

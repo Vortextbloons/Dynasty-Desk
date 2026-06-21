@@ -11,6 +11,7 @@ import { KeyPlaysList } from '@/components/sim/KeyPlaysList'
 import { TopPerformersCards } from '@/components/sim/TopPerformersCards'
 import { Button } from '@/components/ui/button'
 import type { Player } from '@/game/models'
+import { formatGameDate } from '@/lib/format'
 
 export function BoxScorePage() {
   const { id } = useParams<{ id: string }>()
@@ -84,7 +85,7 @@ export function BoxScorePage() {
         <PageHeader
           eyebrow="Box Score"
           title={`${away?.abbreviation ?? ''} @ ${home?.abbreviation ?? ''}`}
-          description={`${game.date} — not yet simulated`}
+          description={`${formatGameDate(game.date)} — not yet simulated`}
         />
         <Card>
           <CardContent className="p-6 text-sm text-[var(--color-muted-foreground)]">
@@ -149,7 +150,7 @@ export function BoxScorePage() {
       <PageHeader
         eyebrow="Final"
         title={`${away?.name ?? 'Away'} ${box.awayScore} — ${box.homeScore} ${home?.name ?? 'Home'}`}
-        description={`${game.date} · ${home?.city ?? ''} ${home?.name ?? ''} Arena${box.overtimeOccurred ? ' · OT' : ''}`}
+        description={`${formatGameDate(game.date)} · ${home?.city ?? ''} ${home?.name ?? ''} Arena${box.overtimeOccurred ? ' · OT' : ''}`}
       />
 
       <div className="flex items-center justify-between">

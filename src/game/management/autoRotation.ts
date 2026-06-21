@@ -24,6 +24,66 @@ function twoWayScore(p: Player): number {
   )
 }
 
+function positionGroups(p: Player): string[] {
+  const groups: string[] = []
+  const pos = p.position
+  const sec = p.secondaryPositions ?? []
+  const all = [pos, ...sec]
+  if (all.some((x) => x === 'PG' || x === 'SG')) groups.push('guard')
+  if (all.some((x) => x === 'SG' || x === 'SF')) groups.push('wing')
+  if (all.some((x) => x === 'PF' || x === 'C')) groups.push('big')
+  return groups
+}
+
+function starterPositionalBalance(
+  starters: Player[],
+  bench: Player[],
+): Player[] {
+  const groupCounts = { guard: 0, wing: 0, big: 0 }
+  for (const p of starters) {
+    for (const g of positionGroups(p)) {
+      groupCounts[g as keyof typeof groupCounts]++
+    }
+  }
+
+  const worstByGroup: Record<string, Player | undefined> = {
+    guard: undefined,
+    wing: undefined,
+    big: undefined,
+  }
+  for (const p of starters) {
+    const groups = positionGroups(p)
+    for (const g of groups) {
+      const key = g as keyof typeof worstByGroup
+      if (!worstByGroup[key] || sortByOverall(p, worstByGroup[key]!) > 0) {
+        worstByGroup[key] = p
+      }
+    }
+  }
+
+  for (const group of ['guard', 'wing', 'big'] as const) {
+    if (groupCounts[group] >= 2) continue
+
+    const missingGroup = group
+    const best = bench.find((p) => {
+      const groups = positionGroups(p)
+      return groups.includes(missingGroup)
+    })
+    if (!best) continue
+
+    const worst = worstByGroup[group]
+    if (!worst || worst.id === best.id) continue
+    if (!starters.includes(worst)) continue
+
+    const starterIdx = starters.findIndex((s) => s.id === worst.id)
+    if (starterIdx === -1) continue
+    starters[starterIdx] = best
+    break
+  }
+
+  return starters
+}
+
 function pickStarters(
   candidates: Player[],
 ): Player[] {
@@ -41,10 +101,10 @@ function pickStarters(
       const worstNonCenter = [...starters]
         .filter((p) => !isCenterOrPF(p))
         .sort(sortByOverall)[0]
-      if (worstNonCenter) {
-        starters = starters.filter((p) => p.id !== worstNonCenter.id)
-        starters.push(bestCenter)
-      }
+        if (worstNonCenter) {
+          starters = starters.filter((p) => p.id !== worstNonCenter.id)
+          starters.push(bestCenter)
+        }
     }
   }
 
@@ -63,14 +123,15 @@ function pickStarters(
     }
   }
 
-  return starters
+  const bench = candidates.filter((p) => !starters.includes(p))
+  return starterPositionalBalance(starters, bench)
 }
 
 function pickClosingLineup(
   starters: Player[],
   bench: Player[],
 ): Player[] {
-  const pool = [...starters, ...bench.slice(0, 3)]
+  const pool = [...starters, ...bench]
   return pool.sort((a, b) => twoWayScore(b) - twoWayScore(a)).slice(0, 5)
 }
 
@@ -104,63 +165,112 @@ function swapStarterWithBench(
   lineup.bench[benchIndex] = worst.id
 }
 
+const STARTER_MIN = 24
+const STARTER_MAX = 38
+const BENCH_MIN = 4
+const BENCH_MAX = 30
+const STARTER_SHARE = 0.70
+
+function minuteWeight(p: Player): number {
+  return Math.pow(p.ratings.overall, 1.3)
+}
+
+function staminaModifier(p: Player): number {
+  if (p.ratings.stamina >= 80) return 1
+  if (p.ratings.stamina <= 45) return -1
+  return 0
+}
+
+function distributeMinutes(
+  group: Player[],
+  share: number,
+  min: number,
+  max: number,
+  minutes: Record<string, number>,
+): void {
+  if (group.length === 0) return
+
+  const total = Math.round(TOTAL_MINUTES * share)
+  const weights = group.map((p) => minuteWeight(p))
+  const weightSum = weights.reduce((a, b) => a + b, 0)
+  if (weightSum === 0) {
+    const each = Math.floor(total / group.length)
+    for (const p of group) minutes[p.id] = each
+    return
+  }
+
+  for (let i = 0; i < group.length; i++) {
+    const raw = (weights[i]! / weightSum) * total
+    minutes[group[i]!.id] = Math.round(Math.max(min, Math.min(max, raw)))
+  }
+
+  let sum = group.reduce((a, p) => a + (minutes[p.id] ?? 0), 0)
+  const diff = total - sum
+  if (diff > 0) {
+    const sorted = [...group].sort(
+      (a, b) => minuteWeight(b) - minuteWeight(a),
+    )
+    let remaining = diff
+    for (const p of sorted) {
+      if (remaining <= 0) break
+      const add = Math.min(remaining, max - (minutes[p.id] ?? 0))
+      minutes[p.id] = (minutes[p.id] ?? 0) + add
+      remaining -= add
+    }
+  } else if (diff < 0) {
+    const sorted = [...group].sort(
+      (a, b) => minuteWeight(a) - minuteWeight(b),
+    )
+    let remaining = -diff
+    for (const p of sorted) {
+      if (remaining <= 0) break
+      const current = minutes[p.id] ?? 0
+      const remove = Math.min(remaining, current - min)
+      minutes[p.id] = current - remove
+      remaining -= remove
+    }
+  }
+}
+
 function assignMinutes(
   starters: Player[],
   bench: Player[],
 ): Record<string, number> {
   const minutes: Record<string, number> = {}
-  const all = [...starters, ...bench]
 
-  if (all.length === 0) return minutes
+  distributeMinutes(starters, STARTER_SHARE, STARTER_MIN, STARTER_MAX, minutes)
+  distributeMinutes(bench, 1 - STARTER_SHARE, BENCH_MIN, BENCH_MAX, minutes)
 
-  const sortedStarters = [...starters].sort(sortByOverall)
-
-  for (let i = 0; i < sortedStarters.length; i++) {
-    const p = sortedStarters[i]!
-    if (i < 2) {
-      minutes[p.id] = 36
-    } else {
-      minutes[p.id] = 32
-    }
-  }
-
-  const sortedBench = [...bench].sort(sortByOverall)
-  for (let i = 0; i < sortedBench.length; i++) {
-    const p = sortedBench[i]!
-    if (i === 0) {
-      minutes[p.id] = 28
-    } else if (i <= 1) {
-      minutes[p.id] = 20
-    } else if (i <= 2) {
-      minutes[p.id] = 14
-    } else {
-      minutes[p.id] = 6
-    }
-  }
-
-  const sum = Object.values(minutes).reduce((a, b) => a + b, 0)
-  const target = TOTAL_MINUTES
-  if (sum !== target) {
-    const diff = target - sum
-    if (diff > 0) {
-      const sortedAll = all.sort(sortByOverall)
-      let remaining = diff
-      for (const p of sortedAll) {
-        if (remaining <= 0) break
-        const add = Math.min(remaining, 4)
-        minutes[p.id] = (minutes[p.id] ?? 0) + add
+  let total = Object.values(minutes).reduce((a, b) => a + b, 0)
+  const gap = TOTAL_MINUTES - total
+  if (gap !== 0) {
+    const sorted = [...starters, ...bench].sort(
+      (a, b) => minuteWeight(b) - minuteWeight(a),
+    )
+    let remaining = gap
+    for (const p of sorted) {
+      if (remaining === 0) break
+      const current = minutes[p.id] ?? 0
+      if (gap > 0) {
+        const add = Math.min(remaining, STARTER_MAX - current)
+        minutes[p.id] = current + add
         remaining -= add
-      }
-    } else if (diff < 0) {
-      const sortedAll = all.sort((a, b) => sortByOverall(b, a))
-      let remaining = -diff
-      for (const p of sortedAll) {
-        if (remaining <= 0) break
-        const current = minutes[p.id] ?? 0
-        const remove = Math.min(remaining, Math.max(0, current - 6))
+      } else {
+        const bound = starters.includes(p) ? STARTER_MIN : BENCH_MIN
+        const remove = Math.min(-remaining, current - bound)
         minutes[p.id] = current - remove
-        remaining -= remove
+        remaining += remove
       }
+    }
+  }
+
+  for (const p of [...starters, ...bench]) {
+    const mod = staminaModifier(p)
+    if (mod !== 0) {
+      const current = minutes[p.id] ?? 0
+      const min = starters.includes(p) ? STARTER_MIN : BENCH_MIN
+      const max = STARTER_MAX
+      minutes[p.id] = Math.max(min, Math.min(max, current + mod))
     }
   }
 

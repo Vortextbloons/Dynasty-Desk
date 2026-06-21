@@ -22,15 +22,7 @@ interface MinutesDistributionProps {
 
 export function MinutesDistribution({ players, teamName }: MinutesDistributionProps) {
   if (players.length === 0) {
-    return (
-      <Card>
-        <CardContent className="py-8">
-          <div className="text-center text-sm text-[var(--color-muted-foreground)]">
-            No minute data available
-          </div>
-        </CardContent>
-      </Card>
-    )
+    return null
   }
 
   return (

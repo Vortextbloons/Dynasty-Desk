@@ -3,7 +3,9 @@ import type { Player } from '@/game/models/player'
 import type { DraftPick } from '@/game/models/draft'
 import type { TradeAsset } from '@/game/models/trade'
 import { Card, CardContent } from '@/components/ui/card'
-import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { fmtMoney } from '@/lib/format'
 import { PickProtectionBadge } from './PickProtectionBadge'
 
 interface TargetTeam {
@@ -124,33 +126,25 @@ export function AssetPickerDialog({
               />
               <div className="flex-1 overflow-y-auto space-y-1">
                 {filteredPlayers.length === 0 ? (
-                  <div className="text-sm text-[var(--color-muted-foreground)] py-4 text-center">
-                    No matching players.
-                  </div>
+                  <EmptyState description="No matching players." />
                 ) : (
                   filteredPlayers.map((player) => (
-                    <button
+                    <PlayerListItem
                       key={player.id}
+                      player={player}
+                      subtitle={`${player.position} • OVR ${player.ratings.overall} • Age ${player.age}`}
                       disabled={requiresTarget && !targetTeamId}
                       onClick={() => {
                         onSelect(withTarget({ type: 'player', playerId: player.id }))
                         onOpenChange(false)
                       }}
-                      className="w-full flex items-center gap-3 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-3 py-2 text-left hover:border-[var(--color-primary)]/40 transition-colors disabled:opacity-50"
-                    >
-                      <PlayerHeadshot player={player} size={32} />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-display text-sm truncate">
-                          {player.firstName} {player.lastName}
+                      trailing={
+                        <div className="font-mono text-xs">
+                          {fmtMoney(player.contract.salaryByYear[0] ?? 0)}
                         </div>
-                        <div className="text-[10px] text-[var(--color-muted-foreground)]">
-                          {player.position} • OVR {player.ratings.overall} • Age {player.age}
-                        </div>
-                      </div>
-                      <div className="font-mono text-xs">
-                        ${((player.contract.salaryByYear[0] ?? 0) / 1_000_000).toFixed(1)}M
-                      </div>
-                    </button>
+                      }
+                      className="rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-3 py-2 hover:border-[var(--color-primary)]/40 disabled:opacity-50"
+                    />
                   ))
                 )}
               </div>

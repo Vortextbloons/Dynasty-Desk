@@ -127,4 +127,46 @@ describe('planSubstitutions', () => {
     const keys = subs.map((s) => `${s.teamId}:${s.out}->${s.in}`)
     expect(new Set(keys).size).toBe(keys.length)
   })
+
+  it('prefers position-matched substitute when subbing out a center', () => {
+    const players = new Map<string, Player>()
+    const makeP = (id: string, pos: import('@/game/models/position').Position) =>
+      [id, makePlayer({ id, position: pos })] as const
+    const entries = [
+      makeP('s1', 'PG'), makeP('s2', 'SG'), makeP('s3', 'SF'),
+      makeP('s4', 'PF'), makeP('s5', 'C'),
+      makeP('b1', 'PG'), makeP('b2', 'SG'), makeP('b3', 'SF'),
+      makeP('b4', 'PF'), makeP('b5', 'C'),
+    ]
+    for (const [id, p] of entries) players.set(id, p)
+
+    const lineup: LineupSettings = {
+      starters: ['s1', 's2', 's3', 's4', 's5'],
+      bench: ['b1', 'b2', 'b3', 'b4', 'b5'],
+      closingLineup: ['s1', 's2', 's3', 'b4', 'b5'],
+      targetMinutes: {
+        s1: 32, s2: 32, s3: 32, s4: 32, s5: 32,
+        b1: 20, b2: 20, b3: 20, b4: 20, b5: 20,
+      },
+      autoRotation: false,
+    }
+
+    const ctx: SubstitutionContext = {
+      team: 'home',
+      teamId: 't-home',
+      lineup,
+      players,
+      onCourt: ['s1', 's2', 's3', 's4', 's5'],
+      minutesPlayed: { s1: 33, s2: 10, s3: 10, s4: 10, s5: 10 },
+      period: 2,
+      timeRemainingSeconds: 500,
+      foulsByPlayer: {},
+      closingMarginLeq5: false,
+    }
+
+    const subs = planSubstitutions(ctx)
+    const s1Sub = subs.find((s) => s.out === 's1')
+    expect(s1Sub).toBeDefined()
+    expect(s1Sub!.in).toBe('b1')
+  })
 })

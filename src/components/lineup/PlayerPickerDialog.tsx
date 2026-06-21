@@ -10,7 +10,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Chip } from '@/components/shared/Chip'
-import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 interface PlayerPickerDialogProps {
   open: boolean
@@ -90,42 +91,31 @@ export function PlayerPickerDialog({
 
         <div className="flex-1 overflow-y-auto mt-2 space-y-0.5">
           {filtered.length === 0 && (
-            <div className="py-8 text-center text-sm text-[var(--color-muted-foreground)]">
-              No players found.
-            </div>
+            <EmptyState description="No players found." />
           )}
           {filtered.map((p) => {
             const disabled = disabledIds.has(p.id)
             return (
-              <button
+              <PlayerListItem
                 key={p.id}
-                type="button"
+                player={p}
+                subtitle={`${p.position} · Age ${p.age}`}
                 disabled={disabled}
                 onClick={() => {
                   onSelect(p.id)
                   onOpenChange(false)
                   setSearch('')
                 }}
-                className={`w-full flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
-                  disabled
-                    ? 'opacity-40 cursor-not-allowed'
-                    : 'hover:bg-[var(--color-surface-2)]'
-                }`}
-              >
-                <PlayerHeadshot player={p} size={32} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">
-                    {p.firstName} {p.lastName}
-                  </div>
-                  <div className="text-[10px] text-[var(--color-muted-foreground)]">
-                    {p.position} · Age {p.age}
-                  </div>
-                </div>
-                <Chip label={p.position} size="sm" />
-                <span className="font-mono text-sm font-display w-6 text-right">
-                  {p.ratings.overall}
-                </span>
-              </button>
+                trailing={
+                  <>
+                    <Chip label={p.position} size="sm" />
+                    <span className="font-mono text-sm font-display w-6 text-right">
+                      {p.ratings.overall}
+                    </span>
+                  </>
+                }
+                className="rounded-md px-3 py-2"
+              />
             )
           })}
         </div>

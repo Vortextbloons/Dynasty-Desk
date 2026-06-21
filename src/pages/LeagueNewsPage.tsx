@@ -8,6 +8,7 @@ import { PhaseTimeline } from '@/components/offseason/PhaseTimeline'
 import { getNextPhase, canAdvancePhase } from '@/game/league/offseasonEngine'
 import type { LeaguePhase } from '@/game/models/league'
 import type { NewsImportance, NewsType } from '@/game/models/news'
+import { formatGameDate, formatNewsType, formatPhaseLabel } from '@/lib/format'
 
 const OFFSEASON_PHASES: LeaguePhase[] = ['offseason', 'draft', 'free_agency', 'preseason']
 
@@ -58,7 +59,7 @@ export function LeagueNewsPage() {
         return
       }
       if (result?.newPhase) {
-        toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
+        toast.success(`Advanced to ${formatPhaseLabel(result.newPhase)}`)
       }
     } finally {
       setAdvancing(false)
@@ -144,7 +145,7 @@ export function LeagueNewsPage() {
             >
               <CardContent className="p-4 cursor-pointer">
                 <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)]">
-                  {item.date} · {item.type.replace(/_/g, ' ')}
+                  {formatGameDate(item.date)} · {formatNewsType(item.type)}
                   {!item.read && (
                     <span className="ml-2 text-[var(--color-primary)]">• new</span>
                   )}

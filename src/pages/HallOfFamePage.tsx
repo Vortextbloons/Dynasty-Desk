@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 
 export function HallOfFamePage() {
   const save = useGameStore((s) => s.save)
@@ -55,17 +56,20 @@ export function HallOfFamePage() {
                   : 'Unknown'
                 return (
                   <Card key={entry.id}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-display">
-                        <Link
-                          to={`/player/${entry.playerId}`}
-                          className="text-[var(--color-primary)] hover:underline"
-                        >
-                          {playerName}
-                        </Link>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
+                    <CardContent className="p-4 flex gap-4">
+                      {player && (
+                        <PlayerHeadshot player={player} size={56} />
+                      )}
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <CardTitle className="text-sm font-display">
+                          <Link
+                            to={`/player/${entry.playerId}`}
+                            className="text-[var(--color-primary)] hover:underline"
+                          >
+                            {playerName}
+                          </Link>
+                        </CardTitle>
+                        <div className="space-y-2 text-sm">
                       <div className="flex justify-between text-[var(--color-muted-foreground)]">
                         <span>Voting</span>
                         <span className="font-medium text-[var(--color-foreground)]">
@@ -103,6 +107,8 @@ export function HallOfFamePage() {
                           {entry.accolades.championships}× Champion
                         </div>
                       )}
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 )

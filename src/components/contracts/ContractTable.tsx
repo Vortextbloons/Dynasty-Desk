@@ -4,11 +4,11 @@ import type { Contract } from '@/game/models/contract'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import { computeCapHit } from '@/game/management/capEngine'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { PlayerTableCell } from '@/components/shared/PlayerTableCell'
+import { fmtMoney } from '@/lib/format'
 
 function fmt(n: number): string {
-  if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
-  if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
-  return `$${n}`
+  return fmtMoney(n)
 }
 
 type SortKey = 'name' | 'salary' | 'years' | 'capHit' | 'option' | 'guaranteed'
@@ -135,12 +135,11 @@ function ContractRow({
   return (
     <tr className="border-b border-[var(--color-line-soft)] hover:bg-[var(--color-surface-2)]/50 transition-colors">
       <td className="py-2.5 pr-4">
-        <div className="font-medium">
-          {player.firstName} {player.lastName}
-        </div>
-        <div className="text-[10px] text-[var(--color-muted-foreground)]">
-          {player.position} · Age {player.age}
-        </div>
+        <PlayerTableCell
+          player={player}
+          subtitle={`${player.position} · Age ${player.age}`}
+          linkToPlayer
+        />
       </td>
       <td className="py-2.5 pr-4 text-right font-mono text-sm">
         {fmt(c.salaryByYear[0] ?? 0)}

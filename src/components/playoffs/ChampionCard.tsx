@@ -2,6 +2,8 @@ import type { PlayoffBracket } from '@/game/models/playoff'
 import type { Team } from '@/game/models/team'
 import type { Player } from '@/game/models/player'
 import { Card, CardContent } from '@/components/ui/card'
+import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { TeamLogo } from '@/components/team/TeamLogo'
 import { Trophy, Star } from 'lucide-react'
 
 interface ChampionCardProps {
@@ -25,9 +27,6 @@ export function ChampionCard({
   const runnerUpName = runnerUpTeam
     ? `${runnerUpTeam.city} ${runnerUpTeam.name}`
     : 'Runner-Up'
-  const mvpName = finalsMvp
-    ? `${finalsMvp.firstName} ${finalsMvp.lastName}`
-    : null
 
   const finals = bracket.finals
   const seriesResult = finals
@@ -38,6 +37,7 @@ export function ChampionCard({
     <Card className="border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5">
       <CardContent className="p-6">
         <div className="flex flex-col items-center text-center space-y-3">
+          {championTeam && <TeamLogo team={championTeam} size={48} />}
           <Trophy className="size-10 text-[var(--color-primary)]" />
           <div>
             <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-primary)] mb-1">
@@ -52,11 +52,12 @@ export function ChampionCard({
               Defeated {runnerUpName} ({seriesResult})
             </div>
           )}
-          {mvpName && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-primary)]/10">
+          {finalsMvp && (
+            <div className="flex items-center gap-3 px-3 py-2 rounded-full bg-[var(--color-primary)]/10">
+              <PlayerHeadshot player={finalsMvp} team={championTeam} size={32} />
               <Star className="size-3.5 text-[var(--color-primary)]" />
               <span className="text-sm font-medium">
-                Finals MVP: {mvpName}
+                Finals MVP: {finalsMvp.firstName} {finalsMvp.lastName}
               </span>
             </div>
           )}

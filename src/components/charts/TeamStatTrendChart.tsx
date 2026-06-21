@@ -9,24 +9,16 @@ import {
   Legend,
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { TeamSeasonResult } from '@/game/models'
+import type { SeasonTrendPoint } from '@/lib/seasonTrend'
 
 interface TeamTrendProps {
-  seasonResults: TeamSeasonResult[]
+  seasonResults: SeasonTrendPoint[]
   teamName: string
 }
 
 export function TeamStatTrendChart({ seasonResults, teamName }: TeamTrendProps) {
   if (seasonResults.length === 0) {
-    return (
-      <Card>
-        <CardContent className="py-8">
-          <div className="text-center text-sm text-[var(--color-muted-foreground)]">
-            No season data yet
-          </div>
-        </CardContent>
-      </Card>
-    )
+    return null
   }
 
   return (
@@ -39,7 +31,7 @@ export function TeamStatTrendChart({ seasonResults, teamName }: TeamTrendProps) 
           <LineChart data={seasonResults}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line-soft)" />
             <XAxis
-              dataKey="season"
+              dataKey="label"
               tick={{ fill: 'var(--color-muted-foreground)', fontSize: 10 }}
             />
             <YAxis

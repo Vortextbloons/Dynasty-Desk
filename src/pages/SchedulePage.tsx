@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { TeamLogo } from '@/components/team/TeamLogo'
 import { toast } from 'sonner'
 import type { ScheduledGame } from '@/game/models/game'
+import { formatGameDate, formatGameDateShort } from '@/lib/format'
 
 type ResultFilter = 'all' | 'W' | 'L'
 
@@ -172,7 +173,7 @@ export function SchedulePage() {
                 <div key={date}>
                   <div className="sticky top-0 z-10 border-b border-[var(--color-line-soft)] bg-[var(--color-surface-1)] px-5 py-2">
                     <span className="text-xs font-medium text-[var(--color-muted-foreground)]">
-                      {formatDate(date)}
+                      {formatGameDate(date)}
                     </span>
                   </div>
                   <ul className="divide-y divide-[var(--color-line-soft)]">
@@ -201,7 +202,7 @@ export function SchedulePage() {
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-16 text-xs text-[var(--color-muted-foreground)]">
-                              {formatDateShort(date)}
+                              {formatGameDateShort(date)}
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
@@ -285,12 +286,3 @@ export function SchedulePage() {
   )
 }
 
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T12:00:00')
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function formatDateShort(dateStr: string): string {
-  const d = new Date(dateStr + 'T12:00:00')
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-}

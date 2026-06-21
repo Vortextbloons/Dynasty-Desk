@@ -57,6 +57,25 @@ export function LineupPage() {
     return new Set([...lineup.starters, ...lineup.bench])
   }, [lineup])
 
+  const minuteChartData = useMemo(() => {
+    if (!lineup) return []
+    const rotationIds = [...new Set([...lineup.starters, ...lineup.bench])]
+    return rotationIds
+      .map((id) => {
+        const p = players.get(id)
+        const target = lineup.targetMinutes[id] ?? 0
+        if (target <= 0) return null
+        const seasonMinutes = p?.seasonStats.minutes ?? 0
+        return {
+          name: p ? `${p.firstName.charAt(0)}. ${p.lastName}` : id.slice(0, 8),
+          minutes: seasonMinutes,
+          target,
+        }
+      })
+      .filter((d): d is { name: string; minutes: number; target: number } => d !== null)
+      .sort((a, b) => b.target - a.target)
+  }, [lineup, players])
+
   const lineupRating = useMemo(() => {
     if (!lineup) return null
     const starterPlayers = lineup.starters
@@ -182,7 +201,9 @@ export function LineupPage() {
 
         {lineupRating && <LineupRatingCard rating={lineupRating} />}
 
-        <MinutesDistribution players={[]} teamName={team.name} />
+        {minuteChartData.length > 0 && (
+          <MinutesDistribution players={minuteChartData} teamName={team.name} />
+        )}
 
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">

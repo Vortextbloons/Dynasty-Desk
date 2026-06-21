@@ -21,12 +21,10 @@ import { computeTeamStreak } from '@/game/league/teamStreak'
 import { getSeriesRoundLabel } from '@/game/models/playoff'
 import type { LeagueState } from '@/game/models/league'
 import { canAdvancePhase } from '@/game/league/offseasonEngine'
+import { buildTeamSeasonTrend } from '@/lib/seasonTrend'
+import { formatGameDate, formatGameDateShort, formatPhaseLabel, fmtMoney } from '@/lib/format'
 
-function fmt(n: number): string {
-  if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
-  if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
-  return `$${n}`
-}
+const fmt = fmtMoney
 
 function OffseasonDashboardCard({ league }: { league: LeagueState }) {
   const advancePhase = useGameStore((s) => s.advancePhase)
@@ -49,7 +47,7 @@ function OffseasonDashboardCard({ league }: { league: LeagueState }) {
         toast.success('Advanced to draft')
         void navigate('/draft')
       } else if (result?.newPhase) {
-        toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
+        toast.success(`Advanced to ${formatPhaseLabel(result.newPhase)}`)
       }
     } finally {
       setAdvancing(false)
@@ -62,7 +60,7 @@ function OffseasonDashboardCard({ league }: { league: LeagueState }) {
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-primary)]">
-              Offseason · {league.phase.replace(/_/g, ' ')}
+              Offseason · {formatPhaseLabel(league.phase)}
             </div>
             <div className="mt-1 text-sm">
               Roster cap: {league.rosterSizeCap} · Continue the dynasty loop.
@@ -275,6 +273,11 @@ export function DashboardPage() {
     ? computeTeamStreak(league.games, userTeam.id)
     : { wins: 0, losses: 0 }
 
+  const seasonTrend = useMemo(() => {
+    if (!userTeam) return []
+    return buildTeamSeasonTrend(userTeam.id, league.games)
+  }, [userTeam, league.games])
+
   const recentNews = [...league.news].reverse()
 
   const handleSimSeason = async () => {
@@ -302,7 +305,7 @@ export function DashboardPage() {
       <PageHeader
         eyebrow="Front Office"
         title="Dashboard"
-        description={`${metadata.name} — ${league.currentDate}`}
+        description={`${metadata.name} — ${formatGameDate(league.currentDate)}`}
       />
 
       <DashboardSimControls />
@@ -367,7 +370,7 @@ export function DashboardPage() {
                   </span>
                 </div>
                 <div className="text-[10px] text-[var(--color-muted-foreground)]">
-                  {nextUserGame.date}
+                  {formatGameDateShort(nextUserGame.date)}
                 </div>
               </div>
               <Button
@@ -652,8 +655,8 @@ export function DashboardPage() {
         </Card>
       )}
 
-      {userTeam && (
-        <TeamStatTrendChart seasonResults={[]} teamName={userTeam.name} />
+      {userTeam && seasonTrend.length > 0 && (
+        <TeamStatTrendChart seasonResults={seasonTrend} teamName={userTeam.name} />
       )}
 
       <div className="grid gap-4 lg:grid-cols-3">

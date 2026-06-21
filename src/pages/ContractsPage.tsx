@@ -9,6 +9,9 @@ import { FrozenPicksWarning } from '@/components/contracts/FrozenPicksWarning'
 import { ContractTable } from '@/components/contracts/ContractTable'
 import { ContractActionDialog } from '@/components/contracts/ContractActionDialog'
 import { SignFreeAgentDialog } from '@/components/contracts/SignFreeAgentDialog'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
+import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/shared/EmptyState'
 import type { Player } from '@/game/models/player'
 import type { ExceptionType } from '@/game/management/contractActions'
 import { SOFT_CASH_RATIO_THRESHOLD } from '@/game/management/financeConstants'
@@ -207,25 +210,26 @@ export function ContractsPage() {
               onAction={handleAction}
             />
           ) : (
-            <div>
-              <ContractTable
-                players={freeAgents}
-                rules={league.rules}
-                isUserTeam={false}
-                onAction={() => { /* noop - free agents have no actions */ }}
-              />
-              {freeAgents.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {freeAgents.map((fa) => (
-                    <button
-                      key={fa.id}
-                      onClick={() => handleSignFreeAgent(fa.id)}
-                      className="rounded-md border border-[var(--color-line-soft)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-surface-2)] transition-colors"
-                    >
-                      Sign {fa.firstName} {fa.lastName}
-                    </button>
-                  ))}
-                </div>
+            <div className="space-y-2">
+              {freeAgents.length === 0 ? (
+                <EmptyState description="No unsigned free agents available." />
+              ) : (
+                freeAgents.map((fa) => (
+                  <div
+                    key={fa.id}
+                    className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-1)] p-3"
+                  >
+                    <PlayerListItem
+                      player={fa}
+                      linkTo={`/player/${fa.id}`}
+                      subtitle={`${fa.position} · OVR ${fa.ratings.overall} · Age ${fa.age}`}
+                      className="flex-1 min-w-0"
+                    />
+                    <Button size="sm" className="shrink-0" onClick={() => handleSignFreeAgent(fa.id)}>
+                      Sign
+                    </Button>
+                  </div>
+                ))
               )}
             </div>
           )}

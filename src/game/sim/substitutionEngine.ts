@@ -1,7 +1,15 @@
 import type { Player } from '@/game/models/player'
+import type { Position } from '@/game/models/position'
 import type { LineupSettings } from '@/game/models/team'
 import { isInjured } from '@/game/management/rotationValidator'
 import { FOUL_LIMIT, MIN_BENCH_FOR_SUB } from '@/game/sim/simConstants'
+
+function positionGroup(pos: Position, secondary: Position[]): 'guard' | 'wing' | 'big' {
+  const all = [pos, ...secondary]
+  if (all.includes('PG') || all.includes('SG')) return 'guard'
+  if (all.includes('SF')) return 'wing'
+  return 'big'
+}
 
 export interface PlannedSub {
   teamId: string
@@ -119,14 +127,33 @@ function pickHealthySubstitute(
 
   if (candidates.length === 0) return null
 
+  const outPlayer = ctx.players.get(outId)
   const target = ctx.lineup.targetMinutes[outId] ?? 24
-  const replacement = candidates.sort((a, b) => {
+
+  const byMinutesDist = (a: Player, b: Player) => {
     const distA = Math.abs((ctx.minutesPlayed[a.id] ?? 0) - target)
     const distB = Math.abs((ctx.minutesPlayed[b.id] ?? 0) - target)
     return distA - distB
-  })[0]
+  }
 
-  if (!replacement) return null
+  if (outPlayer) {
+    const outGroup = positionGroup(outPlayer.position, outPlayer.secondaryPositions)
+    const sameGroup = candidates.filter(
+      (p) => positionGroup(p.position, p.secondaryPositions) === outGroup,
+    )
+    if (sameGroup.length > 0) {
+      const replacement = sameGroup.sort(byMinutesDist)[0]!
+      return {
+        teamId: ctx.teamId,
+        out: outId,
+        in: replacement.id,
+        period: ctx.period,
+        timeRemainingSeconds: ctx.timeRemainingSeconds,
+      }
+    }
+  }
+
+  const replacement = candidates.sort(byMinutesDist)[0]!
   return {
     teamId: ctx.teamId,
     out: outId,

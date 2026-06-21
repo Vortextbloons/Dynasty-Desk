@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { recomputeStandings, computeGB, formatLast10 } from '@/game/league/standingsEngine'
 import { TeamDirectionBadge } from '@/components/team/TeamDirectionBadge'
 import { TeamLogo } from '@/components/team/TeamLogo'
-import { toast } from 'sonner'
+import { formatWinPct } from '@/lib/format'
 import { FastForward, Trophy } from 'lucide-react'
 
 type Tab = 'East' | 'West' | 'League'
@@ -186,15 +186,11 @@ export function StandingsPage() {
                 </button>
               ))}
             </div>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleSimSeason}
-              disabled={simRunning}
-            >
-              <FastForward className="mr-1 size-3.5" />
-              {simRunning ? `Simming ${simProgress?.percentage ?? 0}%...` : 'Sim Season'}
-            </Button>
+            {simRunning && (
+              <span className="text-xs text-[var(--color-muted-foreground)]">
+                Simming {simProgress?.percentage ?? 0}%...
+              </span>
+            )}
           </div>
 
           {simRunning && simProgress && (
@@ -217,12 +213,64 @@ export function StandingsPage() {
             </div>
           )}
 
-          <div className="overflow-x-auto">
+          <div className="md:hidden divide-y divide-[var(--color-line-soft)]">
+            {displayedStandings.map((standing, idx) => {
+              const team = save.league.teams[standing.teamId]
+              if (!team) return null
+              const isUser = standing.teamId === userTeamId
+              const rank = activeTab === 'League' ? idx + 1 : standing.conferenceRank
+              return (
+                <div
+                  key={standing.teamId}
+                  className={`px-4 py-3 space-y-2 ${isUser ? 'bg-[var(--color-primary)]/5' : ''}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-xs text-[var(--color-muted-foreground)] w-5">{rank}</span>
+                      <TeamLogo team={team} size={28} />
+                      <div className="min-w-0">
+                        <div className={`text-sm font-medium ${isUser ? 'text-[var(--color-primary)]' : ''}`}>
+                          {team.abbreviation}
+                        </div>
+                        <div className="text-[10px] text-[var(--color-muted-foreground)] truncate">
+                          {team.city} {team.name}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-mono text-sm">{standing.wins}-{standing.losses}</div>
+                      <div className="text-[10px] text-[var(--color-muted-foreground)]">
+                        {formatWinPct(standing.winPct)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-[10px]">
+                    <TeamDirectionBadge direction={team.direction} />
+                    {standing.eliminated && (
+                      <span className="rounded bg-red-500/15 px-1.5 py-0.5 font-medium text-red-500">
+                        Eliminated
+                      </span>
+                    )}
+                    {standing.clinchedPlayoff && (
+                      <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-medium text-emerald-500">
+                        Clinched
+                      </span>
+                    )}
+                    <span className="text-[var(--color-muted-foreground)]">
+                      L10: {formatLast10(standing.last10)}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-line-soft)] text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-                  <th className="px-5 py-2.5 text-left w-8">#</th>
-                  <th className="px-3 py-2.5 text-left">Team</th>
+                  <th className="px-5 py-2.5 text-left w-8 sticky left-0 z-10 bg-[var(--color-surface-1)]">#</th>
+                  <th className="px-3 py-2.5 text-left sticky left-8 z-10 bg-[var(--color-surface-1)] min-w-[180px]">Team</th>
                   <th className="px-3 py-2.5 text-right">W-L</th>
                   <th className="px-3 py-2.5 text-right">PCT</th>
                   <th className="px-3 py-2.5 text-right">GB</th>
@@ -252,10 +300,10 @@ export function StandingsPage() {
                           : 'hover:bg-[var(--color-surface-2)]'
                       } ${isPlayoffCutoff ? 'border-b-2 border-b-[var(--color-primary)]' : ''}`}
                     >
-                      <td className="px-5 py-2.5 text-xs text-[var(--color-muted-foreground)]">
+                      <td className="px-5 py-2.5 text-xs text-[var(--color-muted-foreground)] sticky left-0 z-10 bg-inherit">
                         {rank}
                       </td>
-                      <td className="px-3 py-2.5">
+                      <td className="px-3 py-2.5 sticky left-8 z-10 bg-inherit min-w-[180px]">
                         <div className="flex items-center gap-2 flex-wrap">
                           <TeamLogo team={team} size={28} />
                           <span className={`text-sm font-medium ${isUser ? 'text-[var(--color-primary)]' : ''}`}>
@@ -271,7 +319,7 @@ export function StandingsPage() {
                         {standing.wins}-{standing.losses}
                       </td>
                       <td className="px-3 py-2.5 text-right font-mono text-sm">
-                        {standing.winPct.toFixed(3)}
+                        {formatWinPct(standing.winPct)}
                       </td>
                       <td className="px-3 py-2.5 text-right font-mono text-sm">
                         {computeGB(leaderWins, leaderLosses, standing.wins, standing.losses)}
@@ -299,12 +347,12 @@ export function StandingsPage() {
                       <td className="px-3 py-2.5">
                         {standing.eliminated && (
                           <span className="inline-flex items-center gap-1 rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
-                            X
+                            Eliminated
                           </span>
                         )}
                         {standing.clinchedPlayoff && (
                           <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-500">
-                            Y
+                            Clinched
                           </span>
                         )}
                       </td>
@@ -331,7 +379,7 @@ export function StandingsPage() {
                     {save.league.teams[userStanding.teamId]?.name}
                   </span>
                   <span className="ml-2 text-[var(--color-muted-foreground)]">
-                    {userStanding.wins}-{userStanding.losses} ({userStanding.winPct.toFixed(3)})
+                    {userStanding.wins}-{userStanding.losses} ({formatWinPct(userStanding.winPct)})
                   </span>
                 </div>
               </div>

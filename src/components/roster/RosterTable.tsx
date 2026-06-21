@@ -1,6 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { RosterRow } from './RosterRow'
 import { RosterEmptyState } from './RosterEmptyState'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
+import { fmtMoney } from '@/lib/format'
 import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 import { cn } from '@/lib/utils'
@@ -74,7 +76,27 @@ export function RosterTable({
   return (
     <Card>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        <div className="md:hidden divide-y divide-[var(--color-line-soft)]">
+          {players.map((player) => {
+            const team = teams.find((t) => t.id === player.teamId)
+            return (
+              <PlayerListItem
+                key={player.id}
+                player={player}
+                team={team}
+                linkTo={`/player/${player.id}`}
+                subtitle={`${player.position} · OVR ${player.ratings.overall}`}
+                trailing={
+                  <span className="text-xs font-mono text-[var(--color-muted-foreground)]">
+                    {fmtMoney(player.contract.salaryByYear[0] ?? 0)}
+                  </span>
+                }
+                className="px-4 py-3"
+              />
+            )
+          })}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)] border-b border-[var(--color-line-soft)]">
@@ -86,6 +108,25 @@ export function RosterTable({
                         className="px-3 py-2 font-medium text-right"
                       >
                         {col.label}
+                      </th>
+                    )
+                  }
+                  if (col.key === 'name') {
+                    return (
+                      <th
+                        key={col.key}
+                        className="text-left px-3 py-2 font-medium sticky left-0 z-10 bg-[var(--color-surface-1)] min-w-[200px]"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => onSort(col.key)}
+                          className="inline-flex items-center gap-1 hover:text-[var(--color-foreground)]"
+                        >
+                          {col.label}
+                          {sortKey === col.key ? (
+                            <span aria-hidden>{sortDir === 'asc' ? '↑' : '↓'}</span>
+                          ) : null}
+                        </button>
                       </th>
                     )
                   }

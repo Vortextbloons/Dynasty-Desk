@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
-import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { PlayerListItem } from '@/components/shared/PlayerListItem'
 import { TeamLogo } from '@/components/team/TeamLogo'
+import { SectionLabel } from '@/components/shared/SectionLabel'
 
 export function GlobalSearch() {
   const [query, setQuery] = useState('')
@@ -76,34 +77,25 @@ export function GlobalSearch() {
         <div className="absolute top-full left-0 right-0 mt-1 rounded-md border border-[var(--color-line-soft)] bg-[var(--color-background)] shadow-lg z-50 max-h-96 overflow-y-auto">
           {players.length > 0 && (
             <div>
-              <div className="px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)] border-b border-[var(--color-line-soft)]">
+              <SectionLabel className="px-3 py-1.5 border-b border-[var(--color-line-soft)]">
                 Players
-              </div>
+              </SectionLabel>
               {players.map((p) => (
-                <button
+                <PlayerListItem
                   key={p.id}
-                  type="button"
+                  player={p}
+                  subtitle={p.position}
                   onClick={() => handleSelect('player', p.id)}
-                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-[var(--color-surface-2)] transition-colors text-left"
-                >
-                  <PlayerHeadshot player={p} size={32} />
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      {p.firstName} {p.lastName}
-                    </div>
-                    <div className="text-[10px] text-[var(--color-muted-foreground)]">
-                      {p.position}
-                    </div>
-                  </div>
-                </button>
+                  className="px-3 py-2"
+                />
               ))}
             </div>
           )}
           {teams.length > 0 && (
             <div>
-              <div className="px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)] border-b border-[var(--color-line-soft)]">
+              <SectionLabel className="px-3 py-1.5 border-b border-[var(--color-line-soft)]">
                 Teams
-              </div>
+              </SectionLabel>
               {teams.map((t) => (
                 <button
                   key={t.id}
