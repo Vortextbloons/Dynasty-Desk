@@ -183,8 +183,19 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 	firstNames := []string{
 		"Luka", "Jayson", "Joel", "Giannis", "Nikola", "Shai", "Anthony", "Kawhi",
 		"Devin", "Trae", "Donovan", "Tyrese", "Jaylen", "Paolo", "Cade", "Scottie",
-		"Alperen", "Chet", "Franz", "Jalen", "Derrick", "James", "Damian", "Jimmy",
-		"Kyrie", "Paul", "De'Aaron", "Bam", "Victor", "Lamelo",
+		"Alperen", "Chet", "Franz", "Jalen", "Derrick", "Damian", "Jimmy", "Kyrie",
+		"Paul", "De'Aaron", "Bam", "Victor", "LaMelo", "Zion",
+		"Dejounte", "Brandon", "Mikal", "Jabari", "Keegan", "Desmond",
+		"Tyler", "Darius", "Jaren", "Evan", "Walker", "Brook",
+		"RJ", "Coby", "Anfernee", "Buddy", "Jordan", "Cameron",
+		"Marcus", "Davion", "Tre", "Keyonte", "Cam", "Keldon",
+		"Deni", "Patrick", "Herbert", "Kyle", "Bruce", "Aaron",
+		"Jeff", "Reggie", "Naz", "Sam", "Donte", "Caleb",
+		"Dillon", "Trey", "Obi", "Jerami", "Malik", "Harrison",
+		"Luke", "Grant", "Kevon", "Ish", "Cory", "Jose",
+		"Naji", "Xavier", "Drew", "Quentin", "Austin", "Dennis",
+		"Goran", "Ivica", "Isaiah", "Onyeka", "Shaedon", "Tari",
+		"Usman", "MarJon", "Christian", "Peyton", "Ayo", "Alex",
 	}
 	lastNames := []string{
 		"Doncic", "Tatum", "Embiid", "Antetokounmpo", "Jokic", "Gilgeous-Alexander",
@@ -192,15 +203,31 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 		"Banchero", "Cunningham", "Barnes", "Sengun", "Holmgren", "Wagner", "Brunson",
 		"White", "Harden", "Lillard", "Butler", "Irving", "George", "Fox", "Adebayo",
 		"Wembanyama", "Ball",
+		"Murray", "Ingram", "Bridges", "Smith", "Bane",
+		"Herro", "Garland", "Jackson", "Mobley", "Kessler", "Lopez",
+		"Barrett", "LaVine", "Simons", "Maxey", "Bogdanovic", "Poole",
+		"Caruso", "Johnson", "Smart", "Jones", "Thomas",
+		"Thompson", "Vassell", "Avdija", "Williams", "Eason",
+		"McConnell", "Lowry", "Gordon", "Green",
+		"Watson", "Reid", "Hauser", "Divincenzo", "Martin",
+		"Nembhard", "Oladipo", "Grimes", "Russell", "Harris",
+		"Prince", "Porter", "Looney", "Beal", "Marshall",
+		"Washington", "Hart", "Reaves", "Schroder", "Zubac",
+		"Stewart", "Okongwu", "Dieng", "Murphy", "Dosunmu",
+		"Craig", "Hayes", "Dragic", "Augustin", "Achiuwa",
+		"Nnaji", "Clarke", "Brooks", "Powell", "Conley",
 	}
 
 	var players []types.StaticPlayer
+	nameIdx := 0
 	idx := 0
 	for _, team := range teams {
 		for i := 0; i < 10; i++ {
 			profile := profiles[i]
-			fn := firstNames[(idx*3+i)%len(firstNames)]
-			ln := lastNames[(idx*3+i)%len(lastNames)]
+
+			fn := firstNames[nameIdx/len(lastNames)%len(firstNames)]
+			ln := lastNames[nameIdx%len(lastNames)]
+			nameIdx++
 
 			isStarter := i < 5
 			rating := clampFloat(95-float64(idx)*0.4-float64(i)*0.8+float64(randInt(r, -2, 2)), 60, 99)
