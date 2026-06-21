@@ -104,7 +104,10 @@ export function BoxScorePage() {
   const homePlayers = Object.values(box.playerStats).filter((p) => p.teamId === game.homeTeamId)
   const awayPlayers = Object.values(box.playerStats).filter((p) => p.teamId === game.awayTeamId)
 
-  const playerLookup = new Map<string, { firstName: string; lastName: string; position: string }>()
+  const playerLookup = new Map<
+    string,
+    { firstName: string; lastName: string; position: string; externalId?: string }
+  >()
   for (const ps of Object.values(box.playerStats)) {
     const p = save.league.players[ps.playerId]
     if (p) {
@@ -112,6 +115,7 @@ export function BoxScorePage() {
         firstName: p.firstName,
         lastName: p.lastName,
         position: p.position,
+        externalId: p.externalId,
       })
     }
   }
@@ -120,7 +124,10 @@ export function BoxScorePage() {
   if (home) teamLookup.set(home.id, { abbreviation: home.abbreviation, name: home.name, colors: home.colors })
   if (away) teamLookup.set(away.id, { abbreviation: away.abbreviation, name: away.name, colors: away.colors })
 
-  const headshotLookup = new Map<string, Pick<Player, 'id' | 'firstName' | 'lastName' | 'position' | 'teamId'>>()
+  const headshotLookup = new Map<
+    string,
+    Pick<Player, 'id' | 'firstName' | 'lastName' | 'position' | 'teamId' | 'externalId'>
+  >()
   for (const ps of Object.values(box.playerStats)) {
     const p = save.league.players[ps.playerId]
     if (p) {
@@ -130,6 +137,7 @@ export function BoxScorePage() {
         lastName: p.lastName,
         position: p.position,
         teamId: p.teamId,
+        externalId: p.externalId,
       })
     }
   }

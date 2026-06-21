@@ -7,6 +7,7 @@ import type {
 } from '@/game/models/draft'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { Position } from '@/game/models/position'
+import type { Player } from '@/game/models/player'
 import type { PlayerRatings } from '@/game/models/ratings'
 import { clampRating } from '@/game/models/ratings'
 import { computeOverall } from '@/game/ratings/overallWeights'
@@ -926,26 +927,78 @@ export function autoPickForTeam(
   const available = getAvailableProspects(league, draft)
   if (available.length === 0) return { error: 'No prospects left.' }
 
+  const pickNumber = draft.currentPickNumber
   const sorted = [...available].sort(
-    (a, b) => draftBoardValue(b) - draftBoardValue(a),
+    (a, b) =>
+      draftBoardValue(league, teamId, b, pickNumber) -
+      draftBoardValue(league, teamId, a, pickNumber),
   )
-  const pick = sorted[rng.nextInt(0, Math.min(4, sorted.length - 1))]!
+  const candidatePool = pickNumber <= 5 ? 3 : pickNumber <= 20 ? 5 : 7
+  const pick =
+    sorted[rng.nextInt(0, Math.min(candidatePool - 1, sorted.length - 1))]!
   return simulateDraftPick(league, draft, teamId, pick.id, false, rng)
 }
 
-function draftBoardValue(prospect: DraftProspect): number {
+function draftBoardValue(
+  league: LeagueState,
+  teamId: string,
+  prospect: DraftProspect,
+  pickNumber: number,
+): number {
   const visibleOverall =
     prospect.visibleRatings.overall ?? prospect.trueRatings.overall - 8
   const visiblePotential =
     (prospect.visiblePotentialRange[0] + prospect.visiblePotentialRange[1]) / 2
   const upside = Math.max(0, visiblePotential - visibleOverall)
+  const need = positionNeedScore(league, teamId, prospect)
+  const isEarlyPick = pickNumber <= 14
+  const isLatePick = pickNumber > 30
+  const upsideWeight = isEarlyPick ? 0.22 : isLatePick ? 0.1 : 0.16
+  const needWeight = isEarlyPick ? 0.08 : isLatePick ? 0.18 : 0.13
+  const riskPenalty = isEarlyPick ? 14 : isLatePick ? 6 : 10
+
   return (
-    visibleOverall * 0.72 +
+    visibleOverall * 0.68 +
     visiblePotential * 0.18 +
-    upside * 0.14 +
+    upside * upsideWeight +
+    need * needWeight +
     prospect.breakoutChance * 12 -
-    prospect.bustRisk * 10
+    prospect.bustRisk * riskPenalty
   )
+}
+
+function positionNeedScore(
+  league: LeagueState,
+  teamId: string,
+  prospect: DraftProspect,
+): number {
+  const team = league.teams[teamId]
+  if (!team) return 0
+
+  const positions = [prospect.position, ...prospect.secondaryPositions]
+  let bestNeed = 0
+  for (const position of positions) {
+    const players = team.roster
+      .map((id) => league.players[id])
+      .filter(
+        (p): p is Player =>
+          p !== undefined &&
+          (p.position === position || p.secondaryPositions.includes(position)),
+      )
+      .sort((a, b) => b.ratings.overall - a.ratings.overall)
+
+    const starter = players[0]?.ratings.overall ?? 45
+    const depth = players[1]?.ratings.overall ?? 42
+    const youngCore = players.some(
+      (p) =>
+        p.age <= 24 && p.ratings.potential >= 82 && p.ratings.overall >= 68,
+    )
+    const need =
+      Math.max(0, 82 - starter) * 0.75 + Math.max(0, 74 - depth) * 0.35
+    bestNeed = Math.max(bestNeed, youngCore ? need * 0.65 : need)
+  }
+
+  return bestNeed
 }
 
 export function autoDraftOffClock(

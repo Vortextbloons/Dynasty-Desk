@@ -3,13 +3,14 @@ import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 
 type TeamColorSource = Pick<StaticTeam, 'colors'>
+export type PlayerHeadshotSource = Pick<Player, 'firstName' | 'lastName' | 'externalId'>
 
 export function PlayerHeadshot({
   player,
   team,
   size = 40,
 }: {
-  player: Player
+  player: PlayerHeadshotSource
   team?: TeamColorSource | null
   size?: number
 }) {

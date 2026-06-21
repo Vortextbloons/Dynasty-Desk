@@ -1,4 +1,5 @@
 import type { PlayerGameStats } from '@/game/models'
+import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
 
 interface Props {
   players: PlayerGameStats[]
@@ -55,16 +56,14 @@ export function BoxScoreTable({ players, playerLookup, title }: Props) {
                 >
                   <td className="px-3 py-1.5 font-medium">
                     <div className="flex items-center gap-2">
-                      {meta?.externalId ? (
-                        <img
-                          src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${meta.externalId}.png`}
-                          alt={name}
-                          className="rounded-md object-cover"
-                          style={{ width: 24, height: 24 }}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.style.display = 'none'
+                      {meta ? (
+                        <PlayerHeadshot
+                          player={{
+                            firstName: meta.firstName,
+                            lastName: meta.lastName,
+                            externalId: meta.externalId,
                           }}
+                          size={24}
                         />
                       ) : null}
                       <span>{name}</span>

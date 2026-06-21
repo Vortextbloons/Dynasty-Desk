@@ -43,8 +43,16 @@ import {
 } from '@/game/league/gameFinalization'
 import { generateStubSchedule } from '@/game/sim/stubSchedule'
 import { generateSchedule } from '@/game/league/scheduleGenerator'
-import { recomputeStandings, initializeStandings } from '@/game/league/standingsEngine'
-import { advanceSeason, advanceToNextUserGame, type SimProgress, type CancelToken } from '@/game/league/simController'
+import {
+  recomputeStandings,
+  initializeStandings,
+} from '@/game/league/standingsEngine'
+import {
+  advanceSeason,
+  advanceToNextUserGame,
+  type SimProgress,
+  type CancelToken,
+} from '@/game/league/simController'
 import type { StaticSnapshot } from '@/game/models'
 import {
   cutPlayer as cutPlayerAction,
@@ -84,7 +92,10 @@ import {
   repairDraftPickOrder,
   syncDraftClock,
 } from '@/game/league/draftEngine'
-import { allocateScoutingPoints as allocateScouting, getScoutingStateForClass } from '@/game/league/scoutingEngine'
+import {
+  allocateScoutingPoints as allocateScouting,
+  getScoutingStateForClass,
+} from '@/game/league/scoutingEngine'
 import {
   submitOffer as submitFAOffer,
   matchOfferSheet,
@@ -94,7 +105,10 @@ import {
 import type { FreeAgentOfferInput } from '@/game/models/freeAgent'
 import { canSignTwoWay, addTwoWayPlayer } from '@/game/management/twoWayEngine'
 import { evaluateTradeForAI } from '@/game/management/tradeAI'
-import { validateTradeLegality, executeTrade as executeTradeEngine } from '@/game/management/tradeEngine'
+import {
+  validateTradeLegality,
+  executeTrade as executeTradeEngine,
+} from '@/game/management/tradeEngine'
 import { findTrades as findTradesEngine } from '@/game/management/tradeFinder'
 import {
   createTradeCompletedEvent,
@@ -145,10 +159,30 @@ interface GameStore {
     offer: FreeAgentOffer,
     exception: ExceptionType,
   ) => ContractActionResult
-  advancePhase: () => Promise<{ newPhase: LeaguePhase; blocked?: boolean; reason?: string } | void>
-  advancePhaseIfReady: () => Promise<{ newPhase: LeaguePhase; blocked?: boolean; reason?: string } | void>
-  allocateScoutingPoints: (prospectId: string, points: number) => { ok: boolean; reason?: string }
-  makeDraftPick: (prospectId: string, isTwoWay?: boolean) => { ok: boolean; reason?: string }
+  advancePhase: () => Promise<{
+    newPhase: LeaguePhase
+    blocked?: boolean
+    reason?: string
+  } | void>
+  advancePhaseIfReady: () => Promise<{
+    newPhase: LeaguePhase
+    blocked?: boolean
+    reason?: string
+  } | void>
+  allocateScoutingPoints: (
+    prospectId: string,
+    points: number,
+  ) => { ok: boolean; reason?: string }
+  makeDraftPick: (
+    prospectId: string,
+    isTwoWay?: boolean,
+  ) => { ok: boolean; reason?: string }
+  advanceDraftPick: () => {
+    ok: boolean
+    reason?: string
+    pickMade?: boolean
+    draftComplete?: boolean
+  }
   autoDraftOffClock: () => {
     ok: boolean
     reason?: string
@@ -158,9 +192,15 @@ interface GameStore {
   }
   ensureDraftProgress: () => void
   skipDraftPick: () => void
-  makeFreeAgentOffer: (playerId: string, offer: FreeAgentOfferInput) => { ok: boolean; reason?: string }
+  makeFreeAgentOffer: (
+    playerId: string,
+    offer: FreeAgentOfferInput,
+  ) => { ok: boolean; reason?: string }
   withdrawOffer: (offerId: string) => void
-  matchOfferSheetAction: (offerId: string) => { matched: boolean; reason?: string }
+  matchOfferSheetAction: (offerId: string) => {
+    matched: boolean
+    reason?: string
+  }
   decideOption: (playerId: string, accept: boolean) => void
   signTwoWay: (playerId: string) => { ok: boolean; reason?: string }
   setStarters: (playerIds: string[]) => void
@@ -187,30 +227,57 @@ interface GameStore {
   saveLineup: () => void
   generateRotationIfMissing: () => void
   regenerateLineupIfAuto: () => void
-  simOneGame: (gameId: string) => Promise<{ gameId: string; boxScore: BoxScoreResult } | { error: string }>
+  simOneGame: (
+    gameId: string,
+  ) => Promise<{ gameId: string; boxScore: BoxScoreResult } | { error: string }>
   simNextGame: () => Promise<{ gameId: string } | { error: string }>
   simDay: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
   simWeek: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
   setSimSpeed: (speed: SimSpeed) => void
   getNextScheduledGameForUser: () => string | null
   ensureSchedule: (count?: number) => string[]
-  generateSeasonSchedule: () => { ok: boolean; reason?: string; gameCount?: number; replacedGames?: boolean }
-  simSeason: () => Promise<{ gamesSimulated: number; cancelled?: boolean; phaseTransitioned?: boolean; nextPhase?: string | null }>
+  generateSeasonSchedule: () => {
+    ok: boolean
+    reason?: string
+    gameCount?: number
+    replacedGames?: boolean
+  }
+  simSeason: () => Promise<{
+    gamesSimulated: number
+    cancelled?: boolean
+    phaseTransitioned?: boolean
+    nextPhase?: string | null
+  }>
   simUntilUserGame: () => Promise<{ gamesSimulated: number }>
   cancelSimulation: () => void
 
   generatePlayoffBracket: () => void
-  simNextPlayoffGame: () => Promise<{ gamesSimulated: number; seriesCompleted: string[]; bracketComplete: boolean }>
+  simNextPlayoffGame: () => Promise<{
+    gamesSimulated: number
+    seriesCompleted: string[]
+    bracketComplete: boolean
+  }>
   simPlayoffSeries: (seriesId: string) => Promise<{ gamesSimulated: number }>
-  simAllPlayoffGames: () => Promise<{ gamesSimulated: number; bracketComplete: boolean }>
+  simAllPlayoffGames: () => Promise<{
+    gamesSimulated: number
+    bracketComplete: boolean
+  }>
   transitionToOffseason: () => void
 
   createTradeProposal: (teamIds: string[]) => TradeProposal | null
-  addAssetToTrade: (proposalId: string, teamId: string, asset: TradeAsset) => void
+  addAssetToTrade: (
+    proposalId: string,
+    teamId: string,
+    asset: TradeAsset,
+  ) => void
   addTeamToTrade: (proposalId: string, teamId: string) => void
   removeTeamFromTrade: (proposalId: string, teamId: string) => void
   importProposal: (proposal: TradeProposal) => void
-  removeAssetFromTrade: (proposalId: string, teamId: string, assetIndex: number) => void
+  removeAssetFromTrade: (
+    proposalId: string,
+    teamId: string,
+    assetIndex: number,
+  ) => void
   setPickProtection: (pickId: string, protection: string | null) => void
   cancelTradeProposal: (proposalId: string) => void
   submitTrade: (proposalId: string) => {
@@ -578,7 +645,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   advancePhaseIfReady: async () => {
     const { save } = get()
     if (!save) return
-    if (!isOffseasonPhaseReadyToAdvance(save.league, save.league.userTeamId)) return
+    if (!isOffseasonPhaseReadyToAdvance(save.league, save.league.userTeamId))
+      return
     return get().advancePhase()
   },
 
@@ -586,8 +654,12 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
     const teamId = save.league.userTeamId
-    const draftClass = getDraftClassForYear(save.league, upcomingDraftYear(save.league))
-    if (!draftClass) return { ok: false, reason: 'Draft class not available yet.' }
+    const draftClass = getDraftClassForYear(
+      save.league,
+      upcomingDraftYear(save.league),
+    )
+    if (!draftClass)
+      return { ok: false, reason: 'Draft class not available yet.' }
     const state = getScoutingStateForClass(save.league, teamId, draftClass)
     if (!state) return { ok: false, reason: 'Scouting state not found.' }
     const prospect = draftClass.prospects.find((p) => p.id === prospectId)
@@ -626,7 +698,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     )
     if ('error' in result) return { ok: false, reason: result.error }
     save.rngState = rng.state
-    autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
     syncDraftClock(save.league, draft)
     save.rngState = rng.state
     set({ save: { ...save } })
@@ -635,6 +706,38 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       void get().advancePhaseIfReady()
     }
     return { ok: true }
+  },
+
+  advanceDraftPick: () => {
+    const { save } = get()
+    if (!save) return { ok: false, reason: 'No active save.' }
+    const draft = getActiveDraft(save.league)
+    if (!draft || draft.status !== 'in_progress') {
+      return { ok: false, reason: 'No draft in progress.' }
+    }
+
+    const owner = getCurrentPickOwner(save.league, draft)
+    if (!owner) return { ok: false, reason: 'No current pick.' }
+    if (owner.teamId === save.league.userTeamId) {
+      return { ok: false, reason: 'Your team is on the clock.' }
+    }
+
+    const rng = new SeededRandom(save.rngState)
+    repairDraftPickOrder(save.league, draft, rng)
+    const result = autoPickForTeam(save.league, draft, owner.teamId, rng)
+    if (!result || 'error' in result) {
+      return { ok: false, reason: result?.error ?? 'Could not make AI pick.' }
+    }
+
+    syncDraftClock(save.league, draft)
+    save.rngState = rng.state
+    set({ save: { ...save } })
+    get().scheduleAutoSave()
+    if ((draft as { status: string }).status === 'complete') {
+      void get().advancePhaseIfReady()
+      return { ok: true, pickMade: true, draftComplete: true }
+    }
+    return { ok: true, pickMade: true, draftComplete: false }
   },
 
   autoDraftOffClock: () => {
@@ -662,21 +765,37 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     if (draftComplete) {
       void get().advancePhaseIfReady()
-      return { ok: true, picksSimulated, onUserClock: false, draftComplete: true }
+      return {
+        ok: true,
+        picksSimulated,
+        onUserClock: false,
+        draftComplete: true,
+      }
     }
 
     if (onUserClock) {
-      return { ok: true, picksSimulated, onUserClock: true, draftComplete: false }
+      return {
+        ok: true,
+        picksSimulated,
+        onUserClock: true,
+        draftComplete: false,
+      }
     }
 
     if (picksSimulated === 0) {
       return {
         ok: false,
-        reason: 'Could not advance the draft. Pick order may not be set up correctly.',
+        reason:
+          'Could not advance the draft. Pick order may not be set up correctly.',
       }
     }
 
-    return { ok: true, picksSimulated, onUserClock: false, draftComplete: false }
+    return {
+      ok: true,
+      picksSimulated,
+      onUserClock: false,
+      draftComplete: false,
+    }
   },
 
   ensureDraftProgress: () => {
@@ -715,7 +834,6 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (owner?.teamId !== save.league.userTeamId) return
     const rng = new SeededRandom(save.rngState)
     autoPickForTeam(save.league, draft, save.league.userTeamId, rng)
-    autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
     syncDraftClock(save.league, draft)
     save.rngState = rng.state
     set({ save: { ...save } })
@@ -728,7 +846,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   makeFreeAgentOffer: (playerId, offer) => {
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
-    if (save.league.phase !== 'free_agency' && save.league.phase !== 'preseason') {
+    if (
+      save.league.phase !== 'free_agency' &&
+      save.league.phase !== 'preseason'
+    ) {
       return { ok: false, reason: 'Not in free agency or preseason.' }
     }
     const player = save.league.players[playerId]
@@ -742,7 +863,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       offer,
     )
     if (!validation.ok) return validation
-    const isRFA = save.league.qualifyingOffers.some((q) => q.playerId === playerId)
+    const isRFA = save.league.qualifyingOffers.some(
+      (q) => q.playerId === playerId,
+    )
     const faOffer = submitFAOffer(
       offer,
       playerId,
@@ -776,7 +899,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const player = save.league.players[offer.playerId]
     const team = save.league.teams[save.league.userTeamId]
     if (!player || !team) return { matched: false, reason: 'Invalid state.' }
-    const result = matchOfferSheet(offer, team, save.league.userTeamId, save.league.currentDate, player)
+    const result = matchOfferSheet(
+      offer,
+      team,
+      save.league.userTeamId,
+      save.league.currentDate,
+      player,
+    )
     if (result.matched) {
       const matchedOffer = { ...offer, teamId: save.league.userTeamId }
       signPlayerFromOffer(save.league, matchedOffer, player)
@@ -888,7 +1017,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const teamId = save.league.userTeamId
     const team = save.league.teams[teamId]
     if (!team) return
-    const existing = team.loadManagement.findIndex((e) => e.playerId === playerId)
+    const existing = team.loadManagement.findIndex(
+      (e) => e.playerId === playerId,
+    )
     if (existing >= 0) {
       team.loadManagement[existing] = { playerId, targetMinutes }
     } else {
@@ -968,7 +1099,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const team = save.league.teams[teamId]
     if (!team) return
     const players = new Map(
-      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+      Object.entries(save.league.players).filter(([id]) =>
+        team.roster.includes(id),
+      ),
     )
     const newLineup = generateAutoRotation(team.roster, players)
     team.lineup = newLineup
@@ -996,7 +1129,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       Object.keys(team.lineup.targetMinutes).length === 0
     if (!needsRotation) return
     const players = new Map(
-      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+      Object.entries(save.league.players).filter(([id]) =>
+        team.roster.includes(id),
+      ),
     )
     const newLineup = generateAutoRotation(team.roster, players)
     team.lineup = newLineup
@@ -1012,7 +1147,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!team) return
     if (!team.lineup.generatedByAutoRotate) return
     const players = new Map(
-      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+      Object.entries(save.league.players).filter(([id]) =>
+        team.roster.includes(id),
+      ),
     )
     team.lineup = generateAutoRotation(team.roster, players)
   },
@@ -1024,7 +1161,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const team = save.league.teams[teamId]
     if (!team) return []
     const players = new Map(
-      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+      Object.entries(save.league.players).filter(([id]) =>
+        team.roster.includes(id),
+      ),
     )
     if (
       team.lineup.starters.length === 0 ||
@@ -1032,7 +1171,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     ) {
       team.lineup = generateAutoRotation(team.roster, players)
     }
-    const allTeams = Object.values(save.league.teams).filter((t): t is NonNullable<typeof t> => Boolean(t))
+    const allTeams = Object.values(save.league.teams).filter(
+      (t): t is NonNullable<typeof t> => Boolean(t),
+    )
     const stub = generateStubSchedule({
       startDate: save.league.currentDate,
       userTeamId: teamId,
@@ -1123,7 +1264,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const nextId = get().getNextScheduledGameForUser()
     if (!nextId) {
       if (!save.league.scheduleGenerated) {
-        return { error: 'No schedule yet. Go to Schedule and generate one first.' }
+        return {
+          error: 'No schedule yet. Go to Schedule and generate one first.',
+        }
       }
       return { error: 'No upcoming games to simulate.' }
     }
@@ -1135,13 +1278,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   simDay: async () => {
     const { save } = get()
     if (!save) return { gamesSimulated: 0, gameIds: [] }
-    if (!save.league.scheduleGenerated && Object.keys(save.league.games).length === 0) {
+    if (
+      !save.league.scheduleGenerated &&
+      Object.keys(save.league.games).length === 0
+    ) {
       const result = get().generateSeasonSchedule()
       if (!result.ok) return { gamesSimulated: 0, gameIds: [] }
     }
     const today = save.league.currentDate
-    const todays = Object.values(save.league.games)
-      .filter((g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === today)
+    const todays = Object.values(save.league.games).filter(
+      (g): g is NonNullable<typeof g> =>
+        g?.status === 'scheduled' && g.date === today,
+    )
     const simIds: string[] = []
     for (const game of todays) {
       const result = await get().simOneGame(game.id)
@@ -1163,7 +1311,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   simWeek: async () => {
     const { save } = get()
     if (!save) return { gamesSimulated: 0, gameIds: [] }
-    if (!save.league.scheduleGenerated && Object.keys(save.league.games).length === 0) {
+    if (
+      !save.league.scheduleGenerated &&
+      Object.keys(save.league.games).length === 0
+    ) {
       const result = get().generateSeasonSchedule()
       if (!result.ok) return { gamesSimulated: 0, gameIds: [] }
     }
@@ -1172,7 +1323,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     for (let day = 0; day < 7; day++) {
       const targetDate = addDays(startDate, day)
       const dayGames = Object.values(save.league.games).filter(
-        (g): g is NonNullable<typeof g> => g?.status === 'scheduled' && g.date === targetDate,
+        (g): g is NonNullable<typeof g> =>
+          g?.status === 'scheduled' && g.date === targetDate,
       )
       for (const game of dayGames) {
         const result = await get().simOneGame(game.id)
@@ -1200,15 +1352,24 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     get().scheduleAutoSave()
   },
 
-  generateSeasonSchedule: (): { ok: boolean; reason?: string; gameCount?: number; replacedGames?: boolean } => {
+  generateSeasonSchedule: (): {
+    ok: boolean
+    reason?: string
+    gameCount?: number
+    replacedGames?: boolean
+  } => {
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
-    if (save.league.scheduleGenerated) return { ok: true, gameCount: Object.keys(save.league.games).length }
+    if (save.league.scheduleGenerated)
+      return { ok: true, gameCount: Object.keys(save.league.games).length }
 
     const existingGames = Object.values(save.league.games)
     const hasFinalGames = existingGames.some((g) => g?.status === 'final')
     if (hasFinalGames) {
-      return { ok: false, reason: 'Cannot regenerate schedule — games have already been played.' }
+      return {
+        ok: false,
+        reason: 'Cannot regenerate schedule — games have already been played.',
+      }
     }
 
     const replacedGames = existingGames.length > 0
@@ -1229,7 +1390,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     save.rngState = rng.state
 
     for (const game of games) {
-      game.isUserTeamGame = game.homeTeamId === save.league.userTeamId || game.awayTeamId === save.league.userTeamId
+      game.isUserTeamGame =
+        game.homeTeamId === save.league.userTeamId ||
+        game.awayTeamId === save.league.userTeamId
       save.league.games[game.id] = game
     }
 
@@ -1266,14 +1429,27 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const cancelToken: CancelToken = { cancelled: false }
     cancelTokenRef = cancelToken
 
-    set({ simRunning: true, simProgress: { current: 0, total: scheduledGames.length, percentage: 0, currentMatchup: '' } })
+    set({
+      simRunning: true,
+      simProgress: {
+        current: 0,
+        total: scheduledGames.length,
+        percentage: 0,
+        currentMatchup: '',
+      },
+    })
 
     const rng = new SeededRandom(save.rngState)
 
     try {
-      const { results } = await advanceSeason(save, rng, (progress) => {
-        set({ simProgress: progress })
-      }, { cancelToken, speed })
+      const { results } = await advanceSeason(
+        save,
+        rng,
+        (progress) => {
+          set({ simProgress: progress })
+        },
+        { cancelToken, speed },
+      )
 
       save.league.standings = recomputeStandings(
         save.league.games,
@@ -1370,7 +1546,15 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const cancelToken: CancelToken = { cancelled: false }
     cancelTokenRef = cancelToken
 
-    set({ simRunning: true, simProgress: { current: 0, total: 1, percentage: 0, currentMatchup: 'Playoff game' } })
+    set({
+      simRunning: true,
+      simProgress: {
+        current: 0,
+        total: 1,
+        percentage: 0,
+        currentMatchup: 'Playoff game',
+      },
+    })
 
     const rng = new SeededRandom(save.rngState)
 
@@ -1381,7 +1565,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       })
 
       if (result.bracketComplete) {
-        const mvpId = computeFinalsMvp(save.league.playoffBracket, save.league.games)
+        const mvpId = computeFinalsMvp(
+          save.league.playoffBracket,
+          save.league.games,
+        )
         if (mvpId) {
           save.league.playoffBracket.finalsMvpPlayerId = mvpId
         }
@@ -1436,7 +1623,15 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     let bracketComplete = false
 
     const totalGames = countRemainingPlayoffGames(save.league.playoffBracket)
-    set({ simRunning: true, simProgress: { current: 0, total: totalGames || 100, percentage: 0, currentMatchup: 'Playoffs' } })
+    set({
+      simRunning: true,
+      simProgress: {
+        current: 0,
+        total: totalGames || 100,
+        percentage: 0,
+        currentMatchup: 'Playoffs',
+      },
+    })
 
     const rng = new SeededRandom(save.rngState)
 
@@ -1446,9 +1641,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         if (cancelToken.cancelled) break
 
         const result = await advancePlayoffSeries(save.league, rng, {
-        injuriesEnabled: save.settings.injuries,
-        fatigueEnabled: save.settings.fatigue,
-      })
+          injuriesEnabled: save.settings.injuries,
+          fatigueEnabled: save.settings.fatigue,
+        })
         totalSimulated += result.gamesSimulated
         bracketComplete = result.bracketComplete
 
@@ -1460,14 +1655,30 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         }
 
         const remaining = countRemainingPlayoffGames(save.league.playoffBracket)
-        const progress = totalGames > 0 ? Math.min(99, Math.round(((totalGames - remaining) / totalGames) * 100)) : 0
-        set({ simProgress: { current: totalSimulated, total: totalGames, percentage: progress, currentMatchup: 'Simulating playoffs...' } })
+        const progress =
+          totalGames > 0
+            ? Math.min(
+                99,
+                Math.round(((totalGames - remaining) / totalGames) * 100),
+              )
+            : 0
+        set({
+          simProgress: {
+            current: totalSimulated,
+            total: totalGames,
+            percentage: progress,
+            currentMatchup: 'Simulating playoffs...',
+          },
+        })
 
         await new Promise<void>((r) => setTimeout(r, 0))
       }
 
       if (bracketComplete) {
-        const mvpId = computeFinalsMvp(save.league.playoffBracket, save.league.games)
+        const mvpId = computeFinalsMvp(
+          save.league.playoffBracket,
+          save.league.games,
+        )
         if (mvpId) {
           save.league.playoffBracket.finalsMvpPlayerId = mvpId
         }
@@ -1528,7 +1739,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   addAssetToTrade: (proposalId, teamId, asset) => {
     const { save } = get()
     if (!save) return
-    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    const proposal = save.league.activeProposals.find(
+      (p) => p.id === proposalId,
+    )
     if (!proposal) return
     const side = proposal.sides.find((s) => s.teamId === teamId)
     if (!side) return
@@ -1547,14 +1760,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   addTeamToTrade: (proposalId, teamId) => {
     const { save } = get()
     if (!save) return
-    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    const proposal = save.league.activeProposals.find(
+      (p) => p.id === proposalId,
+    )
     if (!proposal) return
     if (proposal.sides.some((s) => s.teamId === teamId)) return
     if (proposal.sides.length >= 4) return
-    proposal.sides = [
-      ...proposal.sides,
-      { teamId, outgoing: [], incoming: [] },
-    ]
+    proposal.sides = [...proposal.sides, { teamId, outgoing: [], incoming: [] }]
     reconcileSides(proposal)
     set({ save: { ...save } })
     get().scheduleAutoSave()
@@ -1563,7 +1775,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   removeTeamFromTrade: (proposalId, teamId) => {
     const { save } = get()
     if (!save) return
-    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    const proposal = save.league.activeProposals.find(
+      (p) => p.id === proposalId,
+    )
     if (!proposal) return
     if (proposal.sides.length <= 2) return
     proposal.sides = proposal.sides
@@ -1592,7 +1806,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   removeAssetFromTrade: (proposalId, teamId, assetIndex) => {
     const { save } = get()
     if (!save) return
-    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    const proposal = save.league.activeProposals.find(
+      (p) => p.id === proposalId,
+    )
     if (!proposal) return
     const side = proposal.sides.find((s) => s.teamId === teamId)
     if (!side) return
@@ -1639,18 +1855,33 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         createTradeLockedEvent(save.league.currentDate),
       ]
       set({ save: { ...save } })
-      return { accepted: false, rejectionReason: 'Trade market closed during playoffs' }
+      return {
+        accepted: false,
+        rejectionReason: 'Trade market closed during playoffs',
+      }
     }
     if (save.league.phase === 'draft') {
-      return { accepted: false, rejectionReason: 'Trade market closed during the draft.' }
+      return {
+        accepted: false,
+        rejectionReason: 'Trade market closed during the draft.',
+      }
     }
-    const proposal = save.league.activeProposals.find((p) => p.id === proposalId)
+    const proposal = save.league.activeProposals.find(
+      (p) => p.id === proposalId,
+    )
     if (!proposal) {
       return { accepted: false, rejectionReason: 'Trade not found.' }
     }
-    const legality = validateTradeLegality(proposal, save.league, save.league.rules)
+    const legality = validateTradeLegality(
+      proposal,
+      save.league,
+      save.league.rules,
+    )
     if (!legality.legal) {
-      return { accepted: false, rejectionReason: legality.reason ?? 'Trade is illegal.' }
+      return {
+        accepted: false,
+        rejectionReason: legality.reason ?? 'Trade is illegal.',
+      }
     }
 
     const projectedWins: Record<string, number> = {}
@@ -1798,7 +2029,10 @@ function inferTargetTeamId(
   return null
 }
 
-function isAssetDuplicate(outgoing: TradeAsset[], candidate: TradeAsset): boolean {
+function isAssetDuplicate(
+  outgoing: TradeAsset[],
+  candidate: TradeAsset,
+): boolean {
   if (candidate.type === 'cash') return false
   if (candidate.type === 'player' && candidate.playerId) {
     return outgoing.some(
@@ -1818,7 +2052,9 @@ function isAssetDuplicate(outgoing: TradeAsset[], candidate: TradeAsset): boolea
   return false
 }
 
-function countRemainingPlayoffGames(bracket: import('@/game/models/playoff').PlayoffBracket): number {
+function countRemainingPlayoffGames(
+  bracket: import('@/game/models/playoff').PlayoffBracket,
+): number {
   let count = 0
   const allSeries = [...bracket.east, ...bracket.west]
   if (bracket.finals) allSeries.push(bracket.finals)
@@ -1849,15 +2085,26 @@ function applyPatch(
     if (existing) {
       if (teamPatch.roster !== undefined) existing.roster = teamPatch.roster
       if (teamPatch.lineup) {
-        if (teamPatch.lineup.starters !== undefined) existing.lineup.starters = teamPatch.lineup.starters
-        if (teamPatch.lineup.bench !== undefined) existing.lineup.bench = teamPatch.lineup.bench
-        if (teamPatch.lineup.closingLineup !== undefined) existing.lineup.closingLineup = teamPatch.lineup.closingLineup
-        if (teamPatch.lineup.targetMinutes !== undefined) existing.lineup.targetMinutes = teamPatch.lineup.targetMinutes
-        if (teamPatch.lineup.autoRotation !== undefined) existing.lineup.autoRotation = teamPatch.lineup.autoRotation
-        if (teamPatch.lineup.lastValidatedAt !== undefined) existing.lineup.lastValidatedAt = teamPatch.lineup.lastValidatedAt
-        if (teamPatch.lineup.lastValidationWarnings !== undefined) existing.lineup.lastValidationWarnings = teamPatch.lineup.lastValidationWarnings
-        if (teamPatch.lineup.generatedByAutoRotate !== undefined) existing.lineup.generatedByAutoRotate = teamPatch.lineup.generatedByAutoRotate
-        if (teamPatch.lineup.forceInclude !== undefined) existing.lineup.forceInclude = teamPatch.lineup.forceInclude
+        if (teamPatch.lineup.starters !== undefined)
+          existing.lineup.starters = teamPatch.lineup.starters
+        if (teamPatch.lineup.bench !== undefined)
+          existing.lineup.bench = teamPatch.lineup.bench
+        if (teamPatch.lineup.closingLineup !== undefined)
+          existing.lineup.closingLineup = teamPatch.lineup.closingLineup
+        if (teamPatch.lineup.targetMinutes !== undefined)
+          existing.lineup.targetMinutes = teamPatch.lineup.targetMinutes
+        if (teamPatch.lineup.autoRotation !== undefined)
+          existing.lineup.autoRotation = teamPatch.lineup.autoRotation
+        if (teamPatch.lineup.lastValidatedAt !== undefined)
+          existing.lineup.lastValidatedAt = teamPatch.lineup.lastValidatedAt
+        if (teamPatch.lineup.lastValidationWarnings !== undefined)
+          existing.lineup.lastValidationWarnings =
+            teamPatch.lineup.lastValidationWarnings
+        if (teamPatch.lineup.generatedByAutoRotate !== undefined)
+          existing.lineup.generatedByAutoRotate =
+            teamPatch.lineup.generatedByAutoRotate
+        if (teamPatch.lineup.forceInclude !== undefined)
+          existing.lineup.forceInclude = teamPatch.lineup.forceInclude
       }
       if (teamPatch.finances) {
         existing.finances = teamPatch.finances
@@ -1873,7 +2120,9 @@ function revalidateLineup(save: GameSave, teamId: string) {
   const team = save.league.teams[teamId]
   if (!team) return
   const players = new Map(
-    Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+    Object.entries(save.league.players).filter(([id]) =>
+      team.roster.includes(id),
+    ),
   )
   const result = validateRotation(
     team.roster,

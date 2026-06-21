@@ -165,7 +165,7 @@ def compute_production_impact(stats: dict[str, Any]) -> float:
     ts_pct = float(stats.get("tsPct", 0) or 0)
 
     impact = (
-        55
+        57
         + (ppg - 10) * 0.95
         + (rpg - 4) * 0.65
         + (apg - 3) * 0.9
@@ -181,7 +181,7 @@ def compute_production_impact(stats: dict[str, Any]) -> float:
         impact += 1.5
     if apg >= 6 and usage >= 26:
         impact += 1.5
-    return clamp(impact, 45, 99)
+    return clamp(impact, 48, 99)
 
 
 def compute_real_overall(ratings: dict[str, int], position: str, stats: dict[str, Any]) -> int:
@@ -222,7 +222,29 @@ def compute_real_overall(ratings: dict[str, int], position: str, stats: dict[str
     if mpg >= 26 and gp >= 30 and ppg >= 18 and rpg >= 6 and ts_pct >= 0.6:
         blended = max(blended, 78)
 
-    return clamp_rating(blended + 2.5)
+    if mpg >= 28 and gp >= 40:
+        if ppg >= 18:
+            blended = max(blended, 76)
+        elif ppg >= 16:
+            blended = max(blended, 73)
+        elif ppg >= 14:
+            blended = max(blended, 70)
+    elif mpg >= 22 and gp >= 35:
+        if ppg >= 12:
+            blended = max(blended, 66)
+        elif ppg >= 9:
+            blended = max(blended, 62)
+
+    if blended < 65:
+        final_boost = 4.0
+    elif blended < 75:
+        final_boost = 3.5
+    elif blended < 85:
+        final_boost = 3.0
+    else:
+        final_boost = 2.0
+
+    return clamp_rating(blended + final_boost)
 
 
 # ---------------------------------------------------------------------------

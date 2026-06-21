@@ -4,7 +4,11 @@ import type { RookieContract } from '@/game/models/rookieContract'
 import { emptyTendencies } from '@/game/models/tendencies'
 import { emptyTraits } from '@/game/models/traits'
 import { createContract } from '@/game/models/contract'
-import { emptyMorale, emptyHealth, emptyDevelopment } from '@/game/models/defaults'
+import {
+  emptyMorale,
+  emptyHealth,
+  emptyDevelopment,
+} from '@/game/models/defaults'
 
 export function prospectToPlayer(
   prospect: DraftProspect,
@@ -23,13 +27,16 @@ export function prospectToPlayer(
     heightInches: prospect.heightInches,
     weightLbs: prospect.weightLbs,
     teamId,
-    ratings: { ...prospect.trueRatings },
+    ratings: { ...prospect.trueRatings, potential: prospect.truePotential },
     tendencies: emptyTendencies(),
     traits: emptyTraits(),
     contract: createContract({
       salaryByYear: rookieContract.salaryByYear,
       yearsRemaining: rookieContract.yearsTotal,
-      option: rookieContract.optionType === 'none' ? 'none' : rookieContract.optionType,
+      option:
+        rookieContract.optionType === 'none'
+          ? 'none'
+          : rookieContract.optionType,
       optionYear: rookieContract.optionYear,
       guaranteed: true,
       guaranteedByYear: rookieContract.salaryByYear.map(
