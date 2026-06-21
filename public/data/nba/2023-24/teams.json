@@ -11,8 +11,8 @@
       "primary": "#e03a3e",
       "secondary": "#c1d32f"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "State Farm Arena",
+    "capacity": 18118,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -29,8 +29,8 @@
       "primary": "#007a33",
       "secondary": "#ba9653"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "TD Garden",
+    "capacity": 19156,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -47,8 +47,8 @@
       "primary": "#860038",
       "secondary": "#fdbb30"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Rocket Mortgage FieldHouse",
+    "capacity": 19432,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -65,8 +65,8 @@
       "primary": "#0c2340",
       "secondary": "#c8102e"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Smoothie King Center",
+    "capacity": 16867,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -83,8 +83,8 @@
       "primary": "#ce1141",
       "secondary": "#000000"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "United Center",
+    "capacity": 20917,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -101,8 +101,8 @@
       "primary": "#00538c",
       "secondary": "#002b5e"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "American Airlines Center",
+    "capacity": 19200,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -119,8 +119,8 @@
       "primary": "#0e2240",
       "secondary": "#fec524"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Ball Arena",
+    "capacity": 19520,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -137,8 +137,8 @@
       "primary": "#1d428a",
       "secondary": "#ffc72c"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Chase Center",
+    "capacity": 18064,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -155,8 +155,8 @@
       "primary": "#ce1141",
       "secondary": "#000000"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Toyota Center",
+    "capacity": 18055,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -173,8 +173,8 @@
       "primary": "#c8102e",
       "secondary": "#000000"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Intuit Dome",
+    "capacity": 18000,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -191,8 +191,8 @@
       "primary": "#552583",
       "secondary": "#fdb927"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Crypto.com Arena",
+    "capacity": 18997,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -209,8 +209,8 @@
       "primary": "#98002e",
       "secondary": "#f9a01b"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Kaseya Center",
+    "capacity": 19600,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -227,8 +227,8 @@
       "primary": "#00471b",
       "secondary": "#eee1c6"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Fiserv Forum",
+    "capacity": 17341,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -245,8 +245,8 @@
       "primary": "#0c2340",
       "secondary": "#236192"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Target Center",
+    "capacity": 18798,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -263,8 +263,8 @@
       "primary": "#000000",
       "secondary": "#ffffff"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Barclays Center",
+    "capacity": 17732,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -281,8 +281,8 @@
       "primary": "#006bb6",
       "secondary": "#f58426"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Madison Square Garden",
+    "capacity": 19812,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -299,8 +299,8 @@
       "primary": "#00788c",
       "secondary": "#c4ced4"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Kia Center",
+    "capacity": 18846,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -317,8 +317,8 @@
       "primary": "#002d62",
       "secondary": "#fdbb30"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Gainbridge Fieldhouse",
+    "capacity": 17923,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -335,8 +335,8 @@
       "primary": "#006bb6",
       "secondary": "#ed174c"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Wells Fargo Center",
+    "capacity": 20478,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -353,8 +353,8 @@
       "primary": "#1d1160",
       "secondary": "#e56020"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Footprint Center",
+    "capacity": 18055,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -371,8 +371,8 @@
       "primary": "#00788c",
       "secondary": "#e56020"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Moda Center",
+    "capacity": 19441,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -389,8 +389,8 @@
       "primary": "#5d2d92",
       "secondary": "#63727a"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Golden 1 Center",
+    "capacity": 17608,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -407,8 +407,8 @@
       "primary": "#c4ced4",
       "secondary": "#000000"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Frost Bank Center",
+    "capacity": 18400,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -425,8 +425,8 @@
       "primary": "#007ac1",
       "secondary": "#ef3b24"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Paycom Center",
+    "capacity": 18203,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -443,8 +443,8 @@
       "primary": "#ce1141",
       "secondary": "#000000"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Scotiabank Arena",
+    "capacity": 19800,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -461,8 +461,8 @@
       "primary": "#002b5c",
       "secondary": "#f9a01b"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Delta Center",
+    "capacity": 18306,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -479,8 +479,8 @@
       "primary": "#5d76a9",
       "secondary": "#12173f"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "FedExForum",
+    "capacity": 17794,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -497,8 +497,8 @@
       "primary": "#00788c",
       "secondary": "#ef3b24"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Capital One Arena",
+    "capacity": 20356,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -515,8 +515,8 @@
       "primary": "#c8102e",
       "secondary": "#1d42ba"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Little Caesars Arena",
+    "capacity": 20332,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
@@ -533,8 +533,8 @@
       "primary": "#1d428a",
       "secondary": "#c8102e"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Spectrum Center",
+    "capacity": 19077,
     "marketSize": 5,
     "prestige": 70,
     "fanPatience": 60
