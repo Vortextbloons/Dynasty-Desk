@@ -1,10 +1,8 @@
 {
   "season": "2000-01",
-  "pace": 100.0,
-  "league3PARate": 0.17,
-  "leagueTsPct": 0.489,
-  "leaguePpg": 9.4,
-  "possessionCoefficient": 1.0,
-  "playerCount": 441,
-  "teamCount": 292
+  "pace": 92.4,
+  "league3PARate": 0.19,
+  "leagueTsPct": 0.514,
+  "leaguePpg": 94.8,
+  "possessionCoefficient": 0.92
 }

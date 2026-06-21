@@ -5,12 +5,33 @@ Output: public/data/nba/{season}/season-stats.json
 
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 from typing import Any
 
 from .config import ensure_output_dir
 from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        f = float(value)
+        if math.isnan(f) or math.isinf(f):
+            return default
+        return int(f)
+    except (ValueError, TypeError):
+        return default
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        f = float(value)
+        if math.isnan(f) or math.isinf(f):
+            return default
+        return f
+    except (ValueError, TypeError):
+        return default
 
 try:
     from nba_api.stats.endpoints import leaguedashplayerstats
@@ -108,58 +129,58 @@ def to_player_season_stats(payload: list[dict[str, Any]], season: str, roster: l
     for ext_id, b in base_by_id.items():
         a = adv_by_id.get(ext_id, {})
         rp = roster_by_id.get(ext_id, {})
-        gp = int(b.get("GP") or 0)
+        gp = _safe_int(b.get("GP"))
         out.append(
             {
                 "playerExternalId": ext_id,
                 "season": season,
                 "teamExternalId": str(b.get("TEAM_ID") or (rp.get("teamExternalId") or "")) or None,
-                "gamesPlayed": int(b.get("GP") or 0),
-                "minutes": float(b.get("MIN") or 0) * int(b.get("GP") or 0),
-                "starts": int(b.get("GS") or 0),
-                "points": float(b.get("PTS") or 0) * int(b.get("GP") or 0),
-                "rebounds": float(b.get("REB") or 0) * int(b.get("GP") or 0),
-                "offensiveRebounds": float(b.get("OREB") or 0) * int(b.get("GP") or 0),
-                "defensiveRebounds": float(b.get("DREB") or 0) * int(b.get("GP") or 0),
-                "assists": float(b.get("AST") or 0) * int(b.get("GP") or 0),
-                "steals": float(b.get("STL") or 0) * int(b.get("GP") or 0),
-                "blocks": float(b.get("BLK") or 0) * int(b.get("GP") or 0),
-                "turnovers": float(b.get("TOV") or 0) * int(b.get("GP") or 0),
-                "fouls": float(b.get("PF") or 0) * int(b.get("GP") or 0),
-                "fgm": float(b.get("FGM") or 0) * int(b.get("GP") or 0),
-                "fga": float(b.get("FGA") or 0) * int(b.get("GP") or 0),
-                "tpm": float(b.get("FG3M") or 0) * int(b.get("GP") or 0),
-                "tpa": float(b.get("FG3A") or 0) * int(b.get("GP") or 0),
-                "ftm": float(b.get("FTM") or 0) * int(b.get("GP") or 0),
-                "fta": float(b.get("FTA") or 0) * int(b.get("GP") or 0),
-                "tsPct": float(a.get("TS_PCT") or 0),
-                "efgPct": float(a.get("EFG_PCT") or 0),
-                "per": float(a.get("PER") or 0) or estimate_per(
-                    float(b.get("PTS") or 0) * gp,
-                    float(b.get("REB") or 0) * gp,
-                    float(b.get("AST") or 0) * gp,
-                    float(b.get("STL") or 0) * gp,
-                    float(b.get("BLK") or 0) * gp,
-                    float(b.get("TOV") or 0) * gp,
-                    float(b.get("FGA") or 0) * gp,
-                    float(b.get("FTA") or 0) * gp,
-                    float(b.get("OREB") or 0) * gp,
+                "gamesPlayed": gp,
+                "minutes": _safe_float(b.get("MIN")) * gp,
+                "starts": _safe_int(b.get("GS")),
+                "points": _safe_float(b.get("PTS")) * gp,
+                "rebounds": _safe_float(b.get("REB")) * gp,
+                "offensiveRebounds": _safe_float(b.get("OREB")) * gp,
+                "defensiveRebounds": _safe_float(b.get("DREB")) * gp,
+                "assists": _safe_float(b.get("AST")) * gp,
+                "steals": _safe_float(b.get("STL")) * gp,
+                "blocks": _safe_float(b.get("BLK")) * gp,
+                "turnovers": _safe_float(b.get("TOV")) * gp,
+                "fouls": _safe_float(b.get("PF")) * gp,
+                "fgm": _safe_float(b.get("FGM")) * gp,
+                "fga": _safe_float(b.get("FGA")) * gp,
+                "tpm": _safe_float(b.get("FG3M")) * gp,
+                "tpa": _safe_float(b.get("FG3A")) * gp,
+                "ftm": _safe_float(b.get("FTM")) * gp,
+                "fta": _safe_float(b.get("FTA")) * gp,
+                "tsPct": _safe_float(a.get("TS_PCT")),
+                "efgPct": _safe_float(a.get("EFG_PCT")),
+                "per": _safe_float(a.get("PER")) or estimate_per(
+                    _safe_float(b.get("PTS")) * gp,
+                    _safe_float(b.get("REB")) * gp,
+                    _safe_float(b.get("AST")) * gp,
+                    _safe_float(b.get("STL")) * gp,
+                    _safe_float(b.get("BLK")) * gp,
+                    _safe_float(b.get("TOV")) * gp,
+                    _safe_float(b.get("FGA")) * gp,
+                    _safe_float(b.get("FTA")) * gp,
+                    _safe_float(b.get("OREB")) * gp,
                     gp,
                 ),
-                "usageRate": float(a.get("USG_PCT") or 0) * 100 if a.get("USG_PCT") is not None else 0,
-                "winShares": float(a.get("WS") or 0),
-                "boxPlusMinus": float(a.get("BPM") or 0) or estimate_bpm(
-                    float(b.get("PTS") or 0) * gp,
-                    float(b.get("REB") or 0) * gp,
-                    float(b.get("AST") or 0) * gp,
-                    float(b.get("STL") or 0) * gp,
-                    float(b.get("BLK") or 0) * gp,
-                    float(b.get("TOV") or 0) * gp,
-                    float(b.get("FGA") or 0) * gp,
-                    float(b.get("FTA") or 0) * gp,
+                "usageRate": _safe_float(a.get("USG_PCT")) * 100 if a.get("USG_PCT") is not None else 0,
+                "winShares": _safe_float(a.get("WS")),
+                "boxPlusMinus": _safe_float(a.get("BPM")) or estimate_bpm(
+                    _safe_float(b.get("PTS")) * gp,
+                    _safe_float(b.get("REB")) * gp,
+                    _safe_float(b.get("AST")) * gp,
+                    _safe_float(b.get("STL")) * gp,
+                    _safe_float(b.get("BLK")) * gp,
+                    _safe_float(b.get("TOV")) * gp,
+                    _safe_float(b.get("FGA")) * gp,
+                    _safe_float(b.get("FTA")) * gp,
                     gp,
                 ),
-                "vorp": float(a.get("VORP") or 0),
+                "vorp": _safe_float(a.get("VORP")),
             }
         )
     return out

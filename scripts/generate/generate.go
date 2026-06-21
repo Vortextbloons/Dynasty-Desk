@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"math"
 	"math/rand"
@@ -471,17 +472,46 @@ func eraConfigFor(season string) types.EraConfig {
 	return data.HistoricalEraConfigs["2024-25"]
 }
 
+func hasRealData(season string) bool {
+	rosterPath := filepath.Join(PUBLIC_DATA, "nba", season, "roster.json")
+	data, err := os.ReadFile(rosterPath)
+	if err != nil {
+		return false
+	}
+	var raw []struct {
+		ImportMeta *struct {
+			StatsSource string `json:"statsSource"`
+		} `json:"importMeta,omitempty"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil || len(raw) == 0 {
+		return false
+	}
+	return raw[0].ImportMeta != nil && raw[0].ImportMeta.StatsSource == "nba_api"
+}
+
 func generateSeasonSnapshot(season string) error {
 	r := rand.New(rand.NewSource(seasonSeed(season)))
 	teams := generateTeams(season, r)
-	players := generatePlayers(teams, season, r)
-	seasonStats := generateSeasonStats(players, season, r)
 
 	base := filepath.Join(PUBLIC_DATA, "nba", season)
+
+	realData := hasRealData(season)
 
 	if err := writeJSON(filepath.Join(base, "teams.json"), teams); err != nil {
 		return err
 	}
+	if err := writeJSON(filepath.Join(base, "era-config.json"), eraConfigFor(season)); err != nil {
+		return err
+	}
+
+	if realData {
+		fmt.Printf("[real] skipped %s/ (real data exists)\n", season)
+		return nil
+	}
+
+	players := generatePlayers(teams, season, r)
+	seasonStats := generateSeasonStats(players, season, r)
+
 	if err := writeJSON(filepath.Join(base, "roster.json"), players); err != nil {
 		return err
 	}
@@ -500,10 +530,6 @@ func generateSeasonSnapshot(season string) error {
 		careerStats[i] = types.ComputeCareerStats(p.Id, playerStats, types.EmptyAccolades())
 	}
 	if err := writeJSON(filepath.Join(base, "career-stats.json"), careerStats); err != nil {
-		return err
-	}
-
-	if err := writeJSON(filepath.Join(base, "era-config.json"), eraConfigFor(season)); err != nil {
 		return err
 	}
 

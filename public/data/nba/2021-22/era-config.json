@@ -1,10 +1,8 @@
 {
   "season": "2021-22",
-  "pace": 100.0,
-  "league3PARate": 0.399,
-  "leagueTsPct": 0.524,
-  "leaguePpg": 10.5,
-  "possessionCoefficient": 1.0,
-  "playerCount": 605,
-  "teamCount": 317
+  "pace": 98.2,
+  "league3PARate": 0.39,
+  "leagueTsPct": 0.566,
+  "leaguePpg": 110.7,
+  "possessionCoefficient": 1
 }

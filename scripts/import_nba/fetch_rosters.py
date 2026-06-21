@@ -13,6 +13,18 @@ from typing import Any
 from .config import ensure_output_dir, MAX_WORKERS
 from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
 
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    """Convert a value to int, returning default for NaN or non-numeric values."""
+    import math
+    try:
+        f = float(value)
+        if math.isnan(f) or math.isinf(f):
+            return default
+        return int(f)
+    except (ValueError, TypeError):
+        return default
+
 try:
     from nba_api.stats.endpoints import commonteamroster, leaguestandings
     from nba_api.stats.static import teams as nba_static_teams
@@ -173,9 +185,9 @@ def fetch_bio_stats(season: str) -> dict[str, dict[str, Any]]:
                 "country": row.get("COUNTRY", ""),
                 "birthDate": row.get("BIRTH_DATE", ""),
                 "college": row.get("SCHOOL", ""),
-                "draftYear": int(row.get("DRAFT_YEAR", 0) or 0),
-                "draftRound": int(row.get("DRAFT_ROUND", 0) or 0),
-                "draftPick": int(row.get("DRAFT_NUMBER", 0) or 0),
+                "draftYear": _safe_int(row.get("DRAFT_YEAR", 0)),
+                "draftRound": _safe_int(row.get("DRAFT_ROUND", 0)),
+                "draftPick": _safe_int(row.get("DRAFT_NUMBER", 0)),
             }
         return out
 
@@ -239,7 +251,7 @@ def fetch_roster(season: str, team_external_id: str) -> list[dict[str, Any]]:
                     "height": row.get("HEIGHT", ""),
                     "weight": row.get("WEIGHT", ""),
                     "birthDate": row.get("BIRTH_DATE", ""),
-                    "age": int(row.get("AGE", 25) or 25),
+                    "age": _safe_int(row.get("AGE"), 25),
                     "college": row.get("SCHOOL", ""),
                 }
             )

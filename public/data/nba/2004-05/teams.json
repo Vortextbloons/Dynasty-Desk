@@ -1,23 +1,5 @@
 [
   {
-    "id": "team-atl",
-    "externalId": "1610612737",
-    "city": "Atlanta",
-    "name": "Hawks",
-    "abbreviation": "ATL",
-    "conference": "East",
-    "division": "Southeast",
-    "colors": {
-      "primary": "#e03a3e",
-      "secondary": "#c1d32f"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
     "id": "team-bos",
     "externalId": "1610612738",
     "city": "Boston",
@@ -29,155 +11,24 @@
       "primary": "#007a33",
       "secondary": "#ba9653"
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-cle",
-    "externalId": "1610612739",
-    "city": "Cleveland",
-    "name": "Cavaliers",
-    "abbreviation": "CLE",
-    "conference": "East",
-    "division": "Central",
-    "colors": {
-      "primary": "#860038",
-      "secondary": "#fdbb30"
+    "arena": "TD Garden",
+    "capacity": 19156,
+    "marketSize": 8,
+    "prestige": 90,
+    "fanPatience": 75,
+    "owner": {
+      "teamId": "team-bos",
+      "name": "Riley Sterling",
+      "personality": "win_now",
+      "netWorth": 21724579749,
+      "cash": 69046397,
+      "softCashPressureSeasons": 0
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-nop",
-    "externalId": "1610612740",
-    "city": "New Orleans",
-    "name": "Pelicans",
-    "abbreviation": "NOP",
-    "conference": "West",
-    "division": "Southwest",
-    "colors": {
-      "primary": "#0c2340",
-      "secondary": "#c8102e"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-chi",
-    "externalId": "1610612741",
-    "city": "Chicago",
-    "name": "Bulls",
-    "abbreviation": "CHI",
-    "conference": "East",
-    "division": "Central",
-    "colors": {
-      "primary": "#ce1141",
-      "secondary": "#000000"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-dal",
-    "externalId": "1610612742",
-    "city": "Dallas",
-    "name": "Mavericks",
-    "abbreviation": "DAL",
-    "conference": "West",
-    "division": "Southwest",
-    "colors": {
-      "primary": "#00538c",
-      "secondary": "#002b5e"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-den",
-    "externalId": "1610612743",
-    "city": "Denver",
-    "name": "Nuggets",
-    "abbreviation": "DEN",
-    "conference": "West",
-    "division": "Northwest",
-    "colors": {
-      "primary": "#0e2240",
-      "secondary": "#fec524"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-gsw",
-    "externalId": "1610612744",
-    "city": "San Francisco",
-    "name": "Warriors",
-    "abbreviation": "GSW",
-    "conference": "West",
-    "division": "Pacific",
-    "colors": {
-      "primary": "#1d428a",
-      "secondary": "#ffc72c"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-hou",
-    "externalId": "1610612745",
-    "city": "Houston",
-    "name": "Rockets",
-    "abbreviation": "HOU",
-    "conference": "West",
-    "division": "Southwest",
-    "colors": {
-      "primary": "#ce1141",
-      "secondary": "#000000"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-lac",
-    "externalId": "1610612746",
-    "city": "Los Angeles",
-    "name": "Clippers",
-    "abbreviation": "LAC",
-    "conference": "West",
-    "division": "Pacific",
-    "colors": {
-      "primary": "#c8102e",
-      "secondary": "#000000"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
     "id": "team-lal",
@@ -191,29 +42,55 @@
       "primary": "#552583",
       "secondary": "#fdb927"
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
+    "arena": "Crypto.com Arena",
+    "capacity": 18997,
+    "marketSize": 10,
+    "prestige": 95,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-lal",
+      "name": "Marcus Chen",
+      "personality": "win_now",
+      "netWorth": 19605734311,
+      "cash": 64388036,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
-    "id": "team-mia",
-    "externalId": "1610612748",
-    "city": "Miami",
-    "name": "Heat",
-    "abbreviation": "MIA",
-    "conference": "East",
-    "division": "Southeast",
+    "id": "team-gsw",
+    "externalId": "1610612744",
+    "city": "Golden State",
+    "name": "Warriors",
+    "abbreviation": "GSW",
+    "conference": "West",
+    "division": "Pacific",
     "colors": {
-      "primary": "#98002e",
-      "secondary": "#f9a01b"
+      "primary": "#1d428a",
+      "secondary": "#ffc72c"
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
+    "arena": "Chase Center",
+    "capacity": 18064,
+    "marketSize": 9,
+    "prestige": 88,
+    "fanPatience": 70,
+    "owner": {
+      "teamId": "team-gsw",
+      "name": "Victoria Ashford",
+      "personality": "win_now",
+      "netWorth": 23611706877,
+      "cash": 52390477,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
     "id": "team-mil",
@@ -227,191 +104,55 @@
       "primary": "#00471b",
       "secondary": "#eee1c6"
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
+    "arena": "Fiserv Forum",
+    "capacity": 17341,
+    "marketSize": 4,
+    "prestige": 75,
+    "fanPatience": 70,
+    "owner": {
+      "teamId": "team-mil",
+      "name": "James Whitfield",
+      "personality": "meddler",
+      "netWorth": 22678477147,
+      "cash": 49326581,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
-    "id": "team-min",
-    "externalId": "1610612750",
-    "city": "Minnesota",
-    "name": "Timberwolves",
-    "abbreviation": "MIN",
+    "id": "team-den",
+    "externalId": "1610612743",
+    "city": "Denver",
+    "name": "Nuggets",
+    "abbreviation": "DEN",
     "conference": "West",
     "division": "Northwest",
     "colors": {
-      "primary": "#0c2340",
-      "secondary": "#236192"
+      "primary": "#0e2240",
+      "secondary": "#fec524"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Ball Arena",
+    "capacity": 19520,
     "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-bkn",
-    "externalId": "1610612751",
-    "city": "Brooklyn",
-    "name": "Nets",
-    "abbreviation": "BKN",
-    "conference": "East",
-    "division": "Atlantic",
-    "colors": {
-      "primary": "#000000",
-      "secondary": "#ffffff"
+    "prestige": 80,
+    "fanPatience": 75,
+    "owner": {
+      "teamId": "team-den",
+      "name": "Sofia Ramirez",
+      "personality": "patient",
+      "netWorth": 23089766428,
+      "cash": 46844647,
+      "softCashPressureSeasons": 0
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-nyk",
-    "externalId": "1610612752",
-    "city": "New York",
-    "name": "Knicks",
-    "abbreviation": "NYK",
-    "conference": "East",
-    "division": "Atlantic",
-    "colors": {
-      "primary": "#006bb6",
-      "secondary": "#f58426"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-orl",
-    "externalId": "1610612753",
-    "city": "Orlando",
-    "name": "Magic",
-    "abbreviation": "ORL",
-    "conference": "East",
-    "division": "Southeast",
-    "colors": {
-      "primary": "#00788c",
-      "secondary": "#c4ced4"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-ind",
-    "externalId": "1610612754",
-    "city": "Indiana",
-    "name": "Pacers",
-    "abbreviation": "IND",
-    "conference": "East",
-    "division": "Central",
-    "colors": {
-      "primary": "#002d62",
-      "secondary": "#fdbb30"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-phi",
-    "externalId": "1610612755",
-    "city": "Philadelphia",
-    "name": "76ers",
-    "abbreviation": "PHI",
-    "conference": "East",
-    "division": "Atlantic",
-    "colors": {
-      "primary": "#006bb6",
-      "secondary": "#ed174c"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-phx",
-    "externalId": "1610612756",
-    "city": "Phoenix",
-    "name": "Suns",
-    "abbreviation": "PHX",
-    "conference": "West",
-    "division": "Pacific",
-    "colors": {
-      "primary": "#1d1160",
-      "secondary": "#e56020"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-por",
-    "externalId": "1610612757",
-    "city": "Portland",
-    "name": "Trail Blazers",
-    "abbreviation": "POR",
-    "conference": "West",
-    "division": "Northwest",
-    "colors": {
-      "primary": "#00788c",
-      "secondary": "#e56020"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-sac",
-    "externalId": "1610612758",
-    "city": "Sacramento",
-    "name": "Kings",
-    "abbreviation": "SAC",
-    "conference": "West",
-    "division": "Pacific",
-    "colors": {
-      "primary": "#5d2d92",
-      "secondary": "#63727a"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-sas",
-    "externalId": "1610612759",
-    "city": "San Antonio",
-    "name": "Spurs",
-    "abbreviation": "SAS",
-    "conference": "West",
-    "division": "Southwest",
-    "colors": {
-      "primary": "#c4ced4",
-      "secondary": "#000000"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
     "id": "team-okc",
@@ -425,83 +166,241 @@
       "primary": "#007ac1",
       "secondary": "#ef3b24"
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
+    "arena": "Paycom Center",
+    "capacity": 18203,
+    "marketSize": 3,
+    "prestige": 82,
+    "fanPatience": 80,
+    "owner": {
+      "teamId": "team-okc",
+      "name": "Robert Thornton",
+      "personality": "hands_off",
+      "netWorth": 19423024594,
+      "cash": 45235926,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
-    "id": "team-tor",
-    "externalId": "1610612761",
-    "city": "Toronto",
-    "name": "Raptors",
-    "abbreviation": "TOR",
+    "id": "team-mia",
+    "externalId": "1610612748",
+    "city": "Miami",
+    "name": "Heat",
+    "abbreviation": "MIA",
+    "conference": "East",
+    "division": "Southeast",
+    "colors": {
+      "primary": "#98002e",
+      "secondary": "#f9a01b"
+    },
+    "arena": "Kaseya Center",
+    "capacity": 19600,
+    "marketSize": 8,
+    "prestige": 85,
+    "fanPatience": 65,
+    "owner": {
+      "teamId": "team-mia",
+      "name": "Elena Vasquez",
+      "personality": "spendthrift",
+      "netWorth": 22428843323,
+      "cash": 43510629,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-phi",
+    "externalId": "1610612755",
+    "city": "Philadelphia",
+    "name": "76ers",
+    "abbreviation": "PHI",
     "conference": "East",
     "division": "Atlantic",
+    "colors": {
+      "primary": "#006bb6",
+      "secondary": "#ed174c"
+    },
+    "arena": "Wells Fargo Center",
+    "capacity": 20478,
+    "marketSize": 7,
+    "prestige": 78,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-phi",
+      "name": "William Drake",
+      "personality": "frugal",
+      "netWorth": 19431950897,
+      "cash": 43736615,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-bkn",
+    "externalId": "1610612751",
+    "city": "Brooklyn",
+    "name": "Nets",
+    "abbreviation": "BKN",
+    "conference": "East",
+    "division": "Atlantic",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#ffffff"
+    },
+    "arena": "Barclays Center",
+    "capacity": 17732,
+    "marketSize": 10,
+    "prestige": 60,
+    "fanPatience": 50,
+    "owner": {
+      "teamId": "team-bkn",
+      "name": "Catherine Huang",
+      "personality": "patient",
+      "netWorth": 23813554596,
+      "cash": 61547142,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-nyk",
+    "externalId": "1610612752",
+    "city": "New York",
+    "name": "Knicks",
+    "abbreviation": "NYK",
+    "conference": "East",
+    "division": "Atlantic",
+    "colors": {
+      "primary": "#006bb6",
+      "secondary": "#f58426"
+    },
+    "arena": "Madison Square Garden",
+    "capacity": 19812,
+    "marketSize": 10,
+    "prestige": 80,
+    "fanPatience": 55,
+    "owner": {
+      "teamId": "team-nyk",
+      "name": "Daniel Okafor",
+      "personality": "spendthrift",
+      "netWorth": 20677309250,
+      "cash": 53837335,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-chi",
+    "externalId": "1610612741",
+    "city": "Chicago",
+    "name": "Bulls",
+    "abbreviation": "CHI",
+    "conference": "East",
+    "division": "Central",
     "colors": {
       "primary": "#ce1141",
       "secondary": "#000000"
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-uta",
-    "externalId": "1610612762",
-    "city": "Utah",
-    "name": "Jazz",
-    "abbreviation": "UTA",
-    "conference": "West",
-    "division": "Northwest",
-    "colors": {
-      "primary": "#002b5c",
-      "secondary": "#f9a01b"
+    "arena": "United Center",
+    "capacity": 20917,
+    "marketSize": 9,
+    "prestige": 75,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-chi",
+      "name": "Margaret Bell",
+      "personality": "meddler",
+      "netWorth": 15730639449,
+      "cash": 62562637,
+      "softCashPressureSeasons": 0
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
-    "id": "team-mem",
-    "externalId": "1610612763",
-    "city": "Memphis",
-    "name": "Grizzlies",
-    "abbreviation": "MEM",
-    "conference": "West",
-    "division": "Southwest",
-    "colors": {
-      "primary": "#5d76a9",
-      "secondary": "#12173f"
-    },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
-    "prestige": 70,
-    "fanPatience": 60
-  },
-  {
-    "id": "team-was",
-    "externalId": "1610612764",
-    "city": "Washington",
-    "name": "Wizards",
-    "abbreviation": "WAS",
+    "id": "team-atl",
+    "externalId": "1610612737",
+    "city": "Atlanta",
+    "name": "Hawks",
+    "abbreviation": "ATL",
     "conference": "East",
     "division": "Southeast",
     "colors": {
-      "primary": "#00788c",
-      "secondary": "#ef3b24"
+      "primary": "#e03a3e",
+      "secondary": "#c1d32f"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "State Farm Arena",
+    "capacity": 18118,
+    "marketSize": 7,
+    "prestige": 65,
+    "fanPatience": 55,
+    "owner": {
+      "teamId": "team-atl",
+      "name": "Andrew Sinclair",
+      "personality": "hands_off",
+      "netWorth": 15492046268,
+      "cash": 45539021,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-cle",
+    "externalId": "1610612739",
+    "city": "Cleveland",
+    "name": "Cavaliers",
+    "abbreviation": "CLE",
+    "conference": "East",
+    "division": "Central",
+    "colors": {
+      "primary": "#860038",
+      "secondary": "#fdbb30"
+    },
+    "arena": "Rocket Mortgage FieldHouse",
+    "capacity": 19432,
     "marketSize": 5,
     "prestige": 70,
-    "fanPatience": 60
+    "fanPatience": 65,
+    "owner": {
+      "teamId": "team-cle",
+      "name": "Patricia Kowalski",
+      "personality": "meddler",
+      "netWorth": 19192967620,
+      "cash": 68480965,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
     "id": "team-det",
@@ -515,11 +414,427 @@
       "primary": "#c8102e",
       "secondary": "#1d42ba"
     },
-    "arena": "",
-    "capacity": 0,
-    "marketSize": 5,
+    "arena": "Little Caesars Arena",
+    "capacity": 20332,
+    "marketSize": 6,
+    "prestige": 60,
+    "fanPatience": 55,
+    "owner": {
+      "teamId": "team-det",
+      "name": "Thomas Blackwell",
+      "personality": "frugal",
+      "netWorth": 20575737034,
+      "cash": 50877524,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-ind",
+    "externalId": "1610612754",
+    "city": "Indiana",
+    "name": "Pacers",
+    "abbreviation": "IND",
+    "conference": "East",
+    "division": "Central",
+    "colors": {
+      "primary": "#002d62",
+      "secondary": "#fdbb30"
+    },
+    "arena": "Gainbridge Fieldhouse",
+    "capacity": 17923,
+    "marketSize": 4,
+    "prestige": 65,
+    "fanPatience": 65,
+    "owner": {
+      "teamId": "team-ind",
+      "name": "Diana Petrov",
+      "personality": "patient",
+      "netWorth": 16181124267,
+      "cash": 65175237,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-mem",
+    "externalId": "1610612763",
+    "city": "Memphis",
+    "name": "Grizzlies",
+    "abbreviation": "MEM",
+    "conference": "West",
+    "division": "Southwest",
+    "colors": {
+      "primary": "#5d76a9",
+      "secondary": "#12173f"
+    },
+    "arena": "FedExForum",
+    "capacity": 17794,
+    "marketSize": 3,
+    "prestige": 75,
+    "fanPatience": 70,
+    "owner": {
+      "teamId": "team-mem",
+      "name": "Charles Wellington",
+      "personality": "frugal",
+      "netWorth": 23951697794,
+      "cash": 56667397,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-uta",
+    "externalId": "1610612762",
+    "city": "Utah",
+    "name": "Jazz",
+    "abbreviation": "UTA",
+    "conference": "West",
+    "division": "Northwest",
+    "colors": {
+      "primary": "#002b5c",
+      "secondary": "#f9a01b"
+    },
+    "arena": "Delta Center",
+    "capacity": 18306,
+    "marketSize": 3,
+    "prestige": 65,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-uta",
+      "name": "Amara Jefferson",
+      "personality": "meddler",
+      "netWorth": 15874560322,
+      "cash": 58538846,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-tor",
+    "externalId": "1610612761",
+    "city": "Toronto",
+    "name": "Raptors",
+    "abbreviation": "TOR",
+    "conference": "East",
+    "division": "Atlantic",
+    "colors": {
+      "primary": "#ce1141",
+      "secondary": "#000000"
+    },
+    "arena": "Scotiabank Arena",
+    "capacity": 19800,
+    "marketSize": 7,
+    "prestige": 65,
+    "fanPatience": 55,
+    "owner": {
+      "teamId": "team-tor",
+      "name": "Richard Montoya",
+      "personality": "patient",
+      "netWorth": 21167065201,
+      "cash": 47919019,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-min",
+    "externalId": "1610612750",
+    "city": "Minnesota",
+    "name": "Timberwolves",
+    "abbreviation": "MIN",
+    "conference": "West",
+    "division": "Northwest",
+    "colors": {
+      "primary": "#0c2340",
+      "secondary": "#236192"
+    },
+    "arena": "Target Center",
+    "capacity": 18798,
+    "marketSize": 4,
+    "prestige": 75,
+    "fanPatience": 70,
+    "owner": {
+      "teamId": "team-min",
+      "name": "Grace Nakamura",
+      "personality": "frugal",
+      "netWorth": 22548900689,
+      "cash": 50093600,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-port",
+    "externalId": "1610612757",
+    "city": "Portland",
+    "name": "Trail Blazers",
+    "abbreviation": "POR",
+    "conference": "West",
+    "division": "Northwest",
+    "colors": {
+      "primary": "#00788c",
+      "secondary": "#e56020"
+    },
+    "arena": "Moda Center",
+    "capacity": 19441,
+    "marketSize": 4,
+    "prestige": 60,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-port",
+      "name": "Henry Baldwin",
+      "personality": "frugal",
+      "netWorth": 18913599257,
+      "cash": 52024845,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-sac",
+    "externalId": "1610612758",
+    "city": "Sacramento",
+    "name": "Kings",
+    "abbreviation": "SAC",
+    "conference": "West",
+    "division": "Pacific",
+    "colors": {
+      "primary": "#5d2d92",
+      "secondary": "#63727a"
+    },
+    "arena": "Golden 1 Center",
+    "capacity": 17608,
+    "marketSize": 4,
     "prestige": 70,
-    "fanPatience": 60
+    "fanPatience": 65,
+    "owner": {
+      "teamId": "team-sac",
+      "name": "Lucia Fernández",
+      "personality": "hands_off",
+      "netWorth": 17136838520,
+      "cash": 64487373,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-phx",
+    "externalId": "1610612756",
+    "city": "Phoenix",
+    "name": "Suns",
+    "abbreviation": "PHX",
+    "conference": "West",
+    "division": "Pacific",
+    "colors": {
+      "primary": "#1d1160",
+      "secondary": "#e56020"
+    },
+    "arena": "Footprint Center",
+    "capacity": 18055,
+    "marketSize": 6,
+    "prestige": 75,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-phx",
+      "name": "George Hartley",
+      "personality": "spendthrift",
+      "netWorth": 19484793930,
+      "cash": 58597167,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-lac",
+    "externalId": "1610612746",
+    "city": "Los Angeles",
+    "name": "Clippers",
+    "abbreviation": "LAC",
+    "conference": "West",
+    "division": "Pacific",
+    "colors": {
+      "primary": "#c8102e",
+      "secondary": "#000000"
+    },
+    "arena": "Intuit Dome",
+    "capacity": 18000,
+    "marketSize": 10,
+    "prestige": 70,
+    "fanPatience": 55,
+    "owner": {
+      "teamId": "team-lac",
+      "name": "Zara Patel",
+      "personality": "frugal",
+      "netWorth": 24425267656,
+      "cash": 53326045,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-dal",
+    "externalId": "1610612742",
+    "city": "Dallas",
+    "name": "Mavericks",
+    "abbreviation": "DAL",
+    "conference": "West",
+    "division": "Southwest",
+    "colors": {
+      "primary": "#00538c",
+      "secondary": "#002b5e"
+    },
+    "arena": "American Airlines Center",
+    "capacity": 19200,
+    "marketSize": 8,
+    "prestige": 80,
+    "fanPatience": 65,
+    "owner": {
+      "teamId": "team-dal",
+      "name": "Edward Callahan",
+      "personality": "meddler",
+      "netWorth": 24697395724,
+      "cash": 45501426,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-hou",
+    "externalId": "1610612745",
+    "city": "Houston",
+    "name": "Rockets",
+    "abbreviation": "HOU",
+    "conference": "West",
+    "division": "Southwest",
+    "colors": {
+      "primary": "#ce1141",
+      "secondary": "#000000"
+    },
+    "arena": "Toyota Center",
+    "capacity": 18055,
+    "marketSize": 7,
+    "prestige": 70,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-hou",
+      "name": "Nadia Volkov",
+      "personality": "spendthrift",
+      "netWorth": 18457648815,
+      "cash": 57501009,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-nop",
+    "externalId": "1610612740",
+    "city": "New Orleans",
+    "name": "Pelicans",
+    "abbreviation": "NOP",
+    "conference": "West",
+    "division": "Southwest",
+    "colors": {
+      "primary": "#0c2340",
+      "secondary": "#c8102e"
+    },
+    "arena": "Smoothie King Center",
+    "capacity": 16867,
+    "marketSize": 3,
+    "prestige": 65,
+    "fanPatience": 60,
+    "owner": {
+      "teamId": "team-nop",
+      "name": "Michael Harrington",
+      "personality": "meddler",
+      "netWorth": 15253558422,
+      "cash": 51502990,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-was",
+    "externalId": "1610612764",
+    "city": "Washington",
+    "name": "Wizards",
+    "abbreviation": "WAS",
+    "conference": "East",
+    "division": "Southeast",
+    "colors": {
+      "primary": "#00788c",
+      "secondary": "#ef3b24"
+    },
+    "arena": "Capital One Arena",
+    "capacity": 20356,
+    "marketSize": 7,
+    "prestige": 55,
+    "fanPatience": 50,
+    "owner": {
+      "teamId": "team-was",
+      "name": "Olivia Brennan",
+      "personality": "patient",
+      "netWorth": 15791131242,
+      "cash": 56371065,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   },
   {
     "id": "team-cha",
@@ -533,10 +848,85 @@
       "primary": "#1d428a",
       "secondary": "#c8102e"
     },
-    "arena": "",
-    "capacity": 0,
+    "arena": "Spectrum Center",
+    "capacity": 19077,
+    "marketSize": 4,
+    "prestige": 55,
+    "fanPatience": 55,
+    "owner": {
+      "teamId": "team-cha",
+      "name": "Stephen Cartwright",
+      "personality": "patient",
+      "netWorth": 18835244116,
+      "cash": 48289373,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-orl",
+    "externalId": "1610612753",
+    "city": "Orlando",
+    "name": "Magic",
+    "abbreviation": "ORL",
+    "conference": "East",
+    "division": "Southeast",
+    "colors": {
+      "primary": "#00788c",
+      "secondary": "#c4ced4"
+    },
+    "arena": "Kia Center",
+    "capacity": 18846,
     "marketSize": 5,
+    "prestige": 60,
+    "fanPatience": 55,
+    "owner": {
+      "teamId": "team-orl",
+      "name": "Aisha Koroma",
+      "personality": "frugal",
+      "netWorth": 17336704812,
+      "cash": 55041891,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "id": "team-sas",
+    "externalId": "1610612759",
+    "city": "San Antonio",
+    "name": "Spurs",
+    "abbreviation": "SAS",
+    "conference": "West",
+    "division": "Southwest",
+    "colors": {
+      "primary": "#c4ced4",
+      "secondary": "#000000"
+    },
+    "arena": "Frost Bank Center",
+    "capacity": 18400,
+    "marketSize": 4,
     "prestige": 70,
-    "fanPatience": 60
+    "fanPatience": 75,
+    "owner": {
+      "teamId": "team-sas",
+      "name": "Philip Drummond",
+      "personality": "frugal",
+      "netWorth": 21807288413,
+      "cash": 54467345,
+      "softCashPressureSeasons": 0
+    },
+    "importMeta": {
+      "snapshotSeason": "2004-05",
+      "statsSource": "synthetic",
+      "lastUpdated": "2026-01-01T00:00:00Z"
+    }
   }
 ]

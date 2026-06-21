@@ -1,10 +1,8 @@
 {
   "season": "2022-23",
-  "pace": 100.0,
-  "league3PARate": 0.387,
-  "leagueTsPct": 0.561,
-  "leaguePpg": 10.9,
-  "possessionCoefficient": 1.0,
-  "playerCount": 539,
-  "teamCount": 315
+  "pace": 99.2,
+  "league3PARate": 0.4,
+  "leagueTsPct": 0.581,
+  "leaguePpg": 114.7,
+  "possessionCoefficient": 1
 }

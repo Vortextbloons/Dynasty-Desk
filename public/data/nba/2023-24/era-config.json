@@ -1,10 +1,8 @@
 {
   "season": "2023-24",
-  "pace": 100.0,
-  "league3PARate": 0.395,
-  "leagueTsPct": 0.545,
-  "leaguePpg": 10.6,
-  "possessionCoefficient": 1.0,
-  "playerCount": 572,
-  "teamCount": 321
+  "pace": 99,
+  "league3PARate": 0.4,
+  "leagueTsPct": 0.581,
+  "leaguePpg": 114.9,
+  "possessionCoefficient": 1
 }

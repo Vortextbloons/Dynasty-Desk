@@ -1,10 +1,8 @@
 {
   "season": "2013-14",
-  "pace": 100.0,
-  "league3PARate": 0.259,
-  "leagueTsPct": 0.511,
-  "leaguePpg": 9.7,
-  "possessionCoefficient": 1.0,
-  "playerCount": 482,
-  "teamCount": 312
+  "pace": 93.5,
+  "league3PARate": 0.28,
+  "leagueTsPct": 0.543,
+  "leaguePpg": 101,
+  "possessionCoefficient": 0.96
 }

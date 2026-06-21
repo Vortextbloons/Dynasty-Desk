@@ -1,10 +1,8 @@
 {
   "season": "2017-18",
-  "pace": 100.0,
-  "league3PARate": 0.337,
-  "leagueTsPct": 0.529,
-  "leaguePpg": 10.0,
-  "possessionCoefficient": 1.0,
-  "playerCount": 540,
-  "teamCount": 318
+  "pace": 97.3,
+  "league3PARate": 0.33,
+  "leagueTsPct": 0.557,
+  "leaguePpg": 106.3,
+  "possessionCoefficient": 0.96
 }

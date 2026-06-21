@@ -1,10 +1,8 @@
 {
   "season": "2015-16",
-  "pace": 100.0,
-  "league3PARate": 0.285,
-  "leagueTsPct": 0.525,
-  "leaguePpg": 9.7,
-  "possessionCoefficient": 1.0,
-  "playerCount": 476,
-  "teamCount": 318
+  "pace": 95.8,
+  "league3PARate": 0.27,
+  "leagueTsPct": 0.541,
+  "leaguePpg": 102.7,
+  "possessionCoefficient": 0.96
 }
