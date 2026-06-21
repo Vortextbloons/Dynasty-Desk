@@ -1,13 +1,6 @@
 import type { GameSave } from '@/game/models/save'
 import { db } from '@/db/dexie'
 
-export interface BackupRow {
-  id: string
-  saveId: string
-  data: GameSave
-  createdAt: string
-}
-
 export async function createBackup(save: GameSave): Promise<void> {
   const backupId = `backup-${save.metadata.id}`
   const now = new Date().toISOString()

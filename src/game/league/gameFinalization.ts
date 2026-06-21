@@ -16,6 +16,8 @@ import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import type { SeededRandom } from '@/game/sim/rng'
 import type { SimSpeed } from '@/game/models'
 import { addDays, daysBetween } from '@/lib/utils'
+import { checkRecords } from '@/game/league/recordTracker'
+import { updateRivalry } from '@/game/league/rivalryEngine'
 
 export interface GameSimSettings {
   injuries: boolean
@@ -154,6 +156,21 @@ export function finalizeSimulatedGame(
       backToBackTeams,
     },
     rng,
+  )
+
+  const newRecords = checkRecords(league, boxScore, game.date)
+  for (const record of newRecords) {
+    league.records.push(record)
+  }
+
+  const isPlayoff = league.phase === 'playoffs'
+  updateRivalry(
+    league.rivalries,
+    game.homeTeamId,
+    game.awayTeamId,
+    boxScore,
+    game.date,
+    isPlayoff,
   )
 
   if (league.currentDate < game.date) {

@@ -6,6 +6,8 @@ import { createAwardEvent } from '@/game/league/newsEngine'
 import { endOfSeasonDevelopment } from '@/game/sim/developmentEngine'
 import { computeOverall } from '@/game/ratings/overallWeights'
 import type { SeededRandom } from '@/game/sim/rng'
+import { inductPlayers } from '@/game/league/hallOfFameEngine'
+import { createMilestoneEvent } from '@/game/league/newsEngine'
 
 const MAJOR_AWARDS: AwardType[] = ['mvp', 'dpoy', 'roy', 'smoy', 'mip', 'coty']
 
@@ -67,5 +69,15 @@ export function runLeagueSeasonAwards(league: LeagueState): NewsEvent[] {
     if (!player) continue
     news.push(createAwardEvent(award.award, player, league.currentDate))
   }
+
+  const newHoF = inductPlayers(league.seasonYear, league)
+  for (const entry of newHoF) {
+    league.hallOfFame.push(entry)
+    const player = league.players[entry.playerId]
+    if (player) {
+      news.push(createMilestoneEvent(player, 'Hall of Fame induction', league.currentDate))
+    }
+  }
+
   return news
 }

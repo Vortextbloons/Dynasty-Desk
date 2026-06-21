@@ -4,7 +4,7 @@ import { validateSave } from '@/game/core/saveValidation'
 import { initDB } from './dexie'
 import { downloadTextFile } from '@/lib/download'
 import { migrateToCurrent } from './saveMigration'
-import { createBackup, restoreFromBackup } from './autoBackup'
+import { createBackup, restoreFromBackup, deleteBackup } from './autoBackup'
 
 let dbInitialized = false
 
@@ -61,6 +61,11 @@ export async function listSaves(): Promise<SaveMetadata[]> {
 export async function deleteSave(id: string): Promise<void> {
   await ensureDB()
   await db.saves.delete(id)
+  try {
+    await deleteBackup(id)
+  } catch {
+    // Backup cleanup failure is non-critical
+  }
 }
 
 export async function duplicateSave(
@@ -95,14 +100,18 @@ export async function duplicateSave(
 export async function updateSave(save: GameSave): Promise<void> {
   await ensureDB()
   const now = new Date().toISOString()
-  save.metadata.updatedAt = now
-  save.metadata.currentDate = save.league.currentDate
 
   try {
-    await createBackup(save)
+    const existing = await db.saves.get(save.metadata.id)
+    if (existing?.data) {
+      await createBackup(existing.data as GameSave)
+    }
   } catch {
     // Backup failure should not block the save
   }
+
+  save.metadata.updatedAt = now
+  save.metadata.currentDate = save.league.currentDate
 
   const row: SaveRow = {
     id: save.metadata.id,
@@ -153,7 +162,7 @@ export async function restoreSave(id: string): Promise<GameSave | null> {
   if (!backup) return null
 
   backup.metadata.updatedAt = new Date().toISOString()
-  await createSave(backup)
+  await updateSave(backup)
   return backup
 }
 

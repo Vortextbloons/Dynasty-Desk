@@ -4,7 +4,7 @@ export type ValidationResult =
   | { ok: true; save: GameSave }
   | { ok: false; reason: string }
 
-const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8]
+const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 export function validateSave(input: unknown): ValidationResult {
   if (!input || typeof input !== 'object') {
@@ -143,6 +143,16 @@ export function validateSave(input: unknown): ValidationResult {
 
   if (typeof league.news !== 'undefined' && !Array.isArray(league.news)) {
     return { ok: false, reason: 'League news must be an array.' }
+  }
+
+  if (league.rivalries !== undefined && typeof league.rivalries !== 'object') {
+    return { ok: false, reason: 'League rivalries must be an object.' }
+  }
+  if (league.records !== undefined && !Array.isArray(league.records)) {
+    return { ok: false, reason: 'League records must be an array.' }
+  }
+  if (league.hallOfFame !== undefined && !Array.isArray(league.hallOfFame)) {
+    return { ok: false, reason: 'League hallOfFame must be an array.' }
   }
 
   if (!obj.user || typeof obj.user !== 'object') {

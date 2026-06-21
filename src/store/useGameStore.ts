@@ -307,9 +307,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     await dbRenameSave(id, newName)
     const { save } = get()
     if (save?.metadata.id === id) {
-      save.metadata.name = newName
-      save.league.name = newName
-      set({ save: { ...save } })
+      set({
+        save: {
+          ...save,
+          metadata: { ...save.metadata, name: newName },
+          league: { ...save.league, name: newName },
+        },
+      })
     }
     await get().loadSavesList()
   },
