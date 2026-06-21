@@ -129,6 +129,7 @@ function applyShotEvent(ctx: BoxScoreContext, ev: Extract<SimEvent, { type: 'sho
   if (ev.made) {
     ps.fgm++
     tStats.fgm++
+    ps[bucket].made++
     const pts = isThreePointZone(ev.zone) ? 3 : 2
     ps.points += pts
     if (isThreePointZone(ev.zone)) {

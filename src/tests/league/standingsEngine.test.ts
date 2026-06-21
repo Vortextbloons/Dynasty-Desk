@@ -218,6 +218,61 @@ describe('head-to-head tiebreaker', () => {
     expect(standings.bos!.conferenceRank).toBe(1)
     expect(standings.nyk!.conferenceRank).toBe(2)
   })
+
+  it('H2H decides when W-L, losses, and conference% are identical', () => {
+    const TEAMS_6 = [
+      makeTeam({ id: 'bos', city: 'Boston', name: 'Celtics', conference: 'East', division: 'Atlantic' }),
+      makeTeam({ id: 'nyk', city: 'New York', name: 'Knicks', conference: 'East', division: 'Atlantic' }),
+      makeTeam({ id: 'phi', city: 'Philadelphia', name: '76ers', conference: 'East', division: 'Atlantic' }),
+      makeTeam({ id: 'bkn', city: 'Brooklyn', name: 'Nets', conference: 'East', division: 'Atlantic' }),
+      makeTeam({ id: 'tor', city: 'Toronto', name: 'Raptors', conference: 'East', division: 'Atlantic' }),
+      makeTeam({ id: 'chi', city: 'Chicago', name: 'Bulls', conference: 'East', division: 'Central' }),
+    ]
+    const record = Object.fromEntries(TEAMS_6.map((t) => [t.id, t]))
+    const games: Record<string, ScheduledGame> = {}
+
+    // bos and nyk both finish with same W-L and conference record
+    // bos wins H2H 2-0 vs nyk
+    const matchups = [
+      { home: 'bos', away: 'nyk', homeWins: 2, awayWins: 0 },
+      { home: 'bos', away: 'phi', homeWins: 2, awayWins: 0 },
+      { home: 'nyk', away: 'phi', homeWins: 0, awayWins: 2 },
+      { home: 'bos', away: 'bkn', homeWins: 1, awayWins: 1 },
+      { home: 'nyk', away: 'bkn', homeWins: 1, awayWins: 1 },
+      { home: 'phi', away: 'bkn', homeWins: 1, awayWins: 1 },
+      { home: 'bos', away: 'tor', homeWins: 1, awayWins: 1 },
+      { home: 'nyk', away: 'tor', homeWins: 1, awayWins: 1 },
+      { home: 'phi', away: 'tor', homeWins: 1, awayWins: 1 },
+      { home: 'bkn', away: 'tor', homeWins: 1, awayWins: 1 },
+      { home: 'bos', away: 'chi', homeWins: 1, awayWins: 1 },
+      { home: 'nyk', away: 'chi', homeWins: 1, awayWins: 1 },
+      { home: 'phi', away: 'chi', homeWins: 1, awayWins: 1 },
+      { home: 'bkn', away: 'chi', homeWins: 1, awayWins: 1 },
+      { home: 'tor', away: 'chi', homeWins: 1, awayWins: 1 },
+    ]
+
+    let gameIdx = 0
+    for (const m of matchups) {
+      for (let w = 0; w < m.homeWins; w++) {
+        const g = makeGame({
+          id: `g${gameIdx++}`, homeTeamId: m.home, awayTeamId: m.away,
+          homeScore: 110, awayScore: 100, isConference: true,
+        })
+        games[g.id] = g
+      }
+      for (let w = 0; w < m.awayWins; w++) {
+        const g = makeGame({
+          id: `g${gameIdx++}`, homeTeamId: m.home, awayTeamId: m.away,
+          homeScore: 100, awayScore: 110, isConference: true,
+        })
+        games[g.id] = g
+      }
+    }
+
+    const standings = recomputeStandings(games, record, '2025-26', 82)
+    // bos beat nyk in H2H, so bos should rank higher
+    expect(standings.bos!.conferenceRank).toBeLessThan(standings.nyk!.conferenceRank)
+  })
 })
 
 describe('streak via computeTeamStreak', () => {

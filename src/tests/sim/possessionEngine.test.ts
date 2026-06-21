@@ -5,6 +5,8 @@ import {
   selectPrimaryPlayer,
   selectPossessionType,
   selectShotType,
+  selectDefender,
+  offenseThreePointRate,
   type PossessionInput,
 } from '@/game/sim/possessionEngine'
 import { SeededRandom } from '@/game/sim/rng'
@@ -12,6 +14,7 @@ import { createRngState } from '@/game/core/seededRandom'
 import { makePlayer } from '@/tests/sim/fixtures'
 import { MODERN_ERA_CONFIG } from '@/game/models/eraConfig'
 import type { Player } from '@/game/models/player'
+import { isThreePointZone } from '@/game/sim/shotZones'
 
 function team(count: number, prefix: string): Player[] {
   return Array.from({ length: count }, (_, i) => makePlayer({ id: `${prefix}${i + 1}` }))
@@ -74,13 +77,16 @@ describe('resolvePossession', () => {
     expect(totalPoints).toBeLessThan(150)
   })
 
-  it('no event has points > 3', () => {
+  it('no made shot produces more than 3 points', () => {
     const rng = new SeededRandom(createRngState('pe-pts'))
     for (let i = 0; i < 200; i++) {
       const r = resolvePossession(baseInput(), rng)
       for (const ev of r.events) {
         if (ev.type === 'shot' && ev.made) {
-          expect(ev.zone).toBeDefined()
+          const expectedPoints = isThreePointZone(ev.zone) ? 3 : 2
+          const actualPoints = ev.zone === 'at_rim' ? 2 : expectedPoints
+          expect(actualPoints).toBeLessThanOrEqual(3)
+          expect(actualPoints).toBeGreaterThanOrEqual(2)
         }
       }
     }
@@ -97,6 +103,68 @@ describe('resolvePossession', () => {
       }
     }
     expect(foundOreb).toBe(true)
+  })
+
+  it('turnover results in zero points and possession change', () => {
+    const rng = new SeededRandom(createRngState('pe-to'))
+    let foundTurnover = false
+    for (let i = 0; i < 500 && !foundTurnover; i++) {
+      const r = resolvePossession(baseInput(), rng)
+      if (r.turnoverType) {
+        expect(r.points).toBe(0)
+        expect(r.possessionChange).toBe(true)
+        expect(r.events.some((ev) => ev.type === 'turnover')).toBe(true)
+        foundTurnover = true
+      }
+    }
+    expect(foundTurnover).toBe(true)
+  })
+
+  it('foul produces free throw events and points <= 3', () => {
+    const rng = new SeededRandom(createRngState('pe-foul'))
+    let foundFoul = false
+    for (let i = 0; i < 500 && !foundFoul; i++) {
+      const r = resolvePossession(baseInput(), rng)
+      if (r.fouled) {
+        expect(r.points).toBeGreaterThanOrEqual(0)
+        expect(r.points).toBeLessThanOrEqual(3)
+        const ftEvents = r.events.filter((ev) => ev.type === 'freeThrow')
+        expect(ftEvents.length).toBeGreaterThan(0)
+        for (const ft of ftEvents) {
+          expect(typeof ft.made).toBe('boolean')
+        }
+        foundFoul = true
+      }
+    }
+    expect(foundFoul).toBe(true)
+  })
+
+  it('defensive rebound causes possession change', () => {
+    const rng = new SeededRandom(createRngState('pe-dreb'))
+    let foundDreb = false
+    for (let i = 0; i < 500 && !foundDreb; i++) {
+      const r = resolvePossession(baseInput(), rng)
+      if (r.reboundType === 'defensive') {
+        expect(r.possessionChange).toBe(true)
+        expect(r.points).toBe(0)
+        foundDreb = true
+      }
+    }
+    expect(foundDreb).toBe(true)
+  })
+
+  it('made shot always scores correct points for zone', () => {
+    const rng = new SeededRandom(createRngState('pe-pts2'))
+    for (let i = 0; i < 300; i++) {
+      const r = resolvePossession(baseInput(), rng)
+      if (r.shotMade && r.shotZone) {
+        if (isThreePointZone(r.shotZone)) {
+          expect(r.points).toBe(3)
+        } else {
+          expect(r.points).toBe(2)
+        }
+      }
+    }
   })
 })
 

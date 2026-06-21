@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { findTrades } from '@/game/management/tradeFinder'
+import { validateTradeLegality } from '@/game/management/tradeEngine'
 import { makePlayer, makeTeam, emptyM10LeagueFields } from '@/tests/fixtures'
 import { emptyContract, createContract } from '@/game/models/contract'
 import { getLeagueRules } from '@/game/models/leagueRules'
@@ -173,18 +174,12 @@ describe('findTrades', () => {
     expect(results).toEqual([])
   })
 
-  it('all returned proposals pass legality', () => {
+  it('all returned proposals pass validateTradeLegality', () => {
     const { league, user } = buildLeague()
     const results = findTrades(user, 'star', league, { maxResults: 5, capFlexibility: 'loose' })
     for (const proposal of results) {
-      expect(proposal.sides.length).toBe(2)
-      for (const side of proposal.sides) {
-        for (const asset of side.outgoing) {
-          if (asset.type === 'player' && asset.playerId) {
-            expect(league.players[asset.playerId]).toBeDefined()
-          }
-        }
-      }
+      const result = validateTradeLegality(proposal, league, league.rules)
+      expect(result.legal).toBe(true)
     }
   })
 })

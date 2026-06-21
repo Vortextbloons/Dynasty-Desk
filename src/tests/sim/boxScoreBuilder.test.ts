@@ -203,3 +203,91 @@ describe('checkConsistency', () => {
     expect(result.issues.length).toBe(0)
   })
 })
+
+describe('rebound events', () => {
+  it('counts offensive and defensive rebounds per player and team', () => {
+    const events: SimEvent[] = [
+      { type: 'rebound', playerId: 'h1', teamId: 't-home', offensive: true, period: 1, timeRemainingSeconds: 600, impact: 40 },
+      { type: 'rebound', playerId: 'h2', teamId: 't-home', offensive: false, period: 1, timeRemainingSeconds: 590, impact: 35 },
+      { type: 'rebound', playerId: 'a1', teamId: 't-away', offensive: false, period: 1, timeRemainingSeconds: 580, impact: 35 },
+    ]
+    const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: [] })
+    expect(box.playerStats.h1!.offensiveRebounds).toBe(1)
+    expect(box.playerStats.h1!.defensiveRebounds).toBe(0)
+    expect(box.playerStats.h1!.totalRebounds).toBe(1)
+    expect(box.playerStats.h2!.defensiveRebounds).toBe(1)
+    expect(box.playerStats.h2!.totalRebounds).toBe(1)
+    expect(box.teamStats.home.offensiveRebounds).toBe(1)
+    expect(box.teamStats.home.defensiveRebounds).toBe(1)
+    expect(box.teamStats.home.totalRebounds).toBe(2)
+    expect(box.teamStats.away.defensiveRebounds).toBe(1)
+    expect(box.teamStats.away.totalRebounds).toBe(1)
+  })
+})
+
+describe('foul events', () => {
+  it('counts fouls per player and team', () => {
+    const events: SimEvent[] = [
+      { type: 'foul', playerId: 'h1', teamId: 't-home', kind: 'shooting', onShot: true, period: 1, timeRemainingSeconds: 600 },
+      { type: 'foul', playerId: 'a1', teamId: 't-away', kind: 'non_shooting', onShot: false, period: 1, timeRemainingSeconds: 500 },
+      { type: 'foul', playerId: 'a1', teamId: 't-away', kind: 'non_shooting', onShot: false, period: 1, timeRemainingSeconds: 400 },
+    ]
+    const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: [] })
+    expect(box.playerStats.h1!.fouls).toBe(1)
+    expect(box.playerStats.a1!.fouls).toBe(2)
+    expect(box.teamStats.home.fouls).toBe(1)
+    expect(box.teamStats.away.fouls).toBe(2)
+  })
+})
+
+describe('shot zone buckets', () => {
+  it('populates shot zone tracking per player', () => {
+    const events: SimEvent[] = [
+      { type: 'shot', playerId: 'h1', teamId: 't-home', zone: 'at_rim', shotType: 'drive', made: true, period: 1, timeRemainingSeconds: 600, impact: 75 },
+      { type: 'shot', playerId: 'h1', teamId: 't-home', zone: 'at_rim', shotType: 'drive', made: false, period: 1, timeRemainingSeconds: 500, impact: 50 },
+      { type: 'shot', playerId: 'h2', teamId: 't-home', zone: 'corner_three', shotType: 'catch_and_shoot', made: true, period: 1, timeRemainingSeconds: 400, impact: 85 },
+      { type: 'shot', playerId: 'h2', teamId: 't-home', zone: 'above_break_three', shotType: 'pull_up', made: false, period: 1, timeRemainingSeconds: 300, impact: 60 },
+      { type: 'shot', playerId: 'a1', teamId: 't-away', zone: 'short_mid', shotType: 'pull_up', made: true, period: 1, timeRemainingSeconds: 200, impact: 70 },
+    ]
+    const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: [] })
+    expect(box.playerStats.h1!.shotsAtRim).toEqual({ made: 1, attempted: 2 })
+    expect(box.playerStats.h2!.shotsCornerThree).toEqual({ made: 1, attempted: 1 })
+    expect(box.playerStats.h2!.shotsAboveBreakThree).toEqual({ made: 0, attempted: 1 })
+    expect(box.playerStats.a1!.shotsShortMid).toEqual({ made: 1, attempted: 1 })
+  })
+})
+
+describe('minutes assignment', () => {
+  it('assigns minutes from gameState and caps at 48', () => {
+    const state = makeGameState([])
+    state.minutesPlayed = { h1: 50, h2: 20 }
+    const box = buildBoxScore({ gameState: state, keyPlays: [] })
+    expect(box.playerStats.h1!.minutes).toBe(48)
+    expect(box.playerStats.h2!.minutes).toBe(20)
+  })
+})
+
+describe('bench points', () => {
+  it('sums points from non-starters with minutes > 0', () => {
+    const events: SimEvent[] = [
+      { type: 'shot', playerId: 'h1', teamId: 't-home', zone: 'at_rim', shotType: 'drive', made: true, period: 1, timeRemainingSeconds: 600, impact: 75 },
+      { type: 'shot', playerId: 'h3', teamId: 't-home', zone: 'corner_three', shotType: 'catch_and_shoot', made: true, period: 1, timeRemainingSeconds: 500, impact: 85 },
+    ]
+    const state = makeGameState(events)
+    state.startingLineups.home = ['h1', 'h2', 'h4', 'h5']
+    state.minutesPlayed = { h1: 30, h2: 30, h3: 15, h4: 30, h5: 30 }
+    const box = buildBoxScore({ gameState: state, keyPlays: [] })
+    expect(box.teamStats.home.benchPoints).toBe(3)
+    expect(box.playerStats.h3!.points).toBe(3)
+  })
+})
+
+describe('team points from gameState.score', () => {
+  it('sets teamStats points from final score', () => {
+    const box = buildBoxScore({ gameState: makeGameState([]), keyPlays: [] })
+    expect(box.teamStats.home.points).toBe(5)
+    expect(box.teamStats.away.points).toBe(3)
+    expect(box.homeScore).toBe(5)
+    expect(box.awayScore).toBe(3)
+  })
+})

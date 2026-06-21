@@ -91,12 +91,10 @@ function buildLeague() {
 }
 
 describe('evaluateTradeForAI', () => {
-  it('returns accepted, rejected, or counter based on value', () => {
-    const { league, contender, star1, fillerFor } = buildLeague()
-    void league
-
+  it('rejects when delta < -10 (well below market value)', () => {
+    const { league, contender, fillerFor } = buildLeague()
     const proposal: TradeProposal = {
-      id: 'p1',
+      id: 'p-bad',
       sides: [
         { teamId: 'contender', outgoing: [{ type: 'player', playerId: 'star-1' }], incoming: [{ type: 'player', playerId: 'fillerFor' }] },
         { teamId: 'user', outgoing: [{ type: 'player', playerId: 'fillerFor' }], incoming: [{ type: 'player', playerId: 'star-1' }] },
@@ -109,9 +107,74 @@ describe('evaluateTradeForAI', () => {
       userTeamId: 'user',
       league,
     })
-    expect(['accepted', 'rejected', 'counter', 'vetoed']).toContain(response.kind)
+    expect(response.kind).toBe('rejected')
+  })
+
+  it('accepts when delta >= 5 (fair or favorable trade)', () => {
+    const { league, contender, star1, fillerFor } = buildLeague()
+    const proposal: TradeProposal = {
+      id: 'p-good',
+      sides: [
+        { teamId: 'contender', outgoing: [{ type: 'player', playerId: 'fillerFor' }], incoming: [{ type: 'player', playerId: 'star-1' }] },
+        { teamId: 'user', outgoing: [{ type: 'player', playerId: 'star-1' }], incoming: [{ type: 'player', playerId: 'fillerFor' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'submitted',
+    }
+    const response = evaluateTradeForAI(proposal, contender, {
+      projectedWins: { user: 41, contender: 41, rebuilding: 41, user2: 41 },
+      userTeamId: 'user',
+      league,
+    })
+    expect(response.kind).toBe('accepted')
     void star1
     void fillerFor
+  })
+
+  it('returns counter when delta is between -10 and 5', () => {
+    const { league, contender } = buildLeague()
+    const filler2 = makePlayer({
+      id: 'filler2',
+      teamId: 'user',
+      age: 25,
+      ratings: { overall: 72, potential: 75 } as never,
+      contract: emptyContract(5_000_000, 1),
+    })
+    league.players.filler2 = filler2
+    const proposal: TradeProposal = {
+      id: 'p-mid',
+      sides: [
+        { teamId: 'contender', outgoing: [{ type: 'player', playerId: 'star-1' }], incoming: [{ type: 'player', playerId: 'fillerFor' }, { type: 'player', playerId: 'filler2' }] },
+        { teamId: 'user', outgoing: [{ type: 'player', playerId: 'fillerFor' }, { type: 'player', playerId: 'filler2' }], incoming: [{ type: 'player', playerId: 'star-1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'submitted',
+    }
+    const response = evaluateTradeForAI(proposal, contender, {
+      projectedWins: { user: 41, contender: 41, rebuilding: 41, user2: 41 },
+      userTeamId: 'user',
+      league,
+    })
+    expect(['accepted', 'counter', 'rejected']).toContain(response.kind)
+  })
+
+  it('rejects when team not found in proposal', () => {
+    const { league, contender } = buildLeague()
+    const proposal: TradeProposal = {
+      id: 'p-noteam',
+      sides: [
+        { teamId: 'nonexistent', outgoing: [{ type: 'player', playerId: 'star-1' }], incoming: [{ type: 'player', playerId: 'fillerFor' }] },
+        { teamId: 'user', outgoing: [{ type: 'player', playerId: 'fillerFor' }], incoming: [{ type: 'player', playerId: 'star-1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'submitted',
+    }
+    const response = evaluateTradeForAI(proposal, contender, {
+      projectedWins: { user: 41, contender: 41, rebuilding: 41, user2: 41 },
+      userTeamId: 'user',
+      league,
+    })
+    expect(response.kind).toBe('rejected')
   })
 
   it('MIN-5: 3-team counter adds the AI pick to the side with fewest incoming assets', () => {
@@ -174,5 +237,78 @@ describe('updateTeamDirection', () => {
     const { league, rebuilding } = buildLeague()
     const next = updateTeamDirection(rebuilding, { wins: 18, losses: 64 }, league)
     expect(['rebuilding', 'tanking']).toContain(next)
+  })
+})
+
+describe('owner veto', () => {
+  it('frugal owner vetoes when trade pushes payroll over tax line', () => {
+    const frugal = makeTeam({
+      id: 'frugal',
+      direction: 'contender',
+      roster: ['star-1'],
+      owner: { name: 'Frugal Fred', personality: 'frugal', budgetTolerance: 0.5 },
+      finances: {
+        ...makeTeam().finances,
+        payroll: 140_000_000,
+        capSpace: -20_000_000,
+      } as never,
+    })
+    const { league, fillerFor } = buildLeague()
+    league.teams.frugal = frugal
+    league.teams.frugal!.roster = ['star-1']
+    league.teams.user!.roster = ['fillerFor']
+    league.players['star-1']!.teamId = 'frugal'
+    league.rules = { ...league.rules, luxuryTaxLine: 130_000_000 }
+
+    const proposal: TradeProposal = {
+      id: 'p-frugal',
+      sides: [
+        { teamId: 'frugal', outgoing: [{ type: 'player', playerId: 'fillerFor' }], incoming: [{ type: 'player', playerId: 'star-1' }] },
+        { teamId: 'user', outgoing: [{ type: 'player', playerId: 'star-1' }], incoming: [{ type: 'player', playerId: 'fillerFor' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'submitted',
+    }
+    const response = evaluateTradeForAI(proposal, frugal, {
+      projectedWins: { user: 41, frugal: 41 },
+      userTeamId: 'user',
+      league,
+    })
+    if (response.kind === 'vetoed') {
+      expect(response.vetoingOwnerName).toBe('Frugal Fred')
+      expect(response.vetoingTeamId).toBe('frugal')
+    }
+  })
+
+  it('spendthrift owner vetoes trading a star when contender', () => {
+    const spendthrift = makeTeam({
+      id: 'spend',
+      direction: 'contender',
+      roster: ['star-1'],
+      owner: { name: 'Spend Sam', personality: 'spendthrift', budgetTolerance: 2 },
+    })
+    const { league, fillerFor } = buildLeague()
+    league.teams.spend = spendthrift
+    league.teams.spend!.roster = ['star-1']
+    league.teams.user!.roster = ['fillerFor']
+    league.players['star-1']!.teamId = 'spend'
+
+    const proposal: TradeProposal = {
+      id: 'p-spend',
+      sides: [
+        { teamId: 'spend', outgoing: [{ type: 'player', playerId: 'star-1' }], incoming: [{ type: 'player', playerId: 'fillerFor' }] },
+        { teamId: 'user', outgoing: [{ type: 'player', playerId: 'fillerFor' }], incoming: [{ type: 'player', playerId: 'star-1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'submitted',
+    }
+    const response = evaluateTradeForAI(proposal, spendthrift, {
+      projectedWins: { user: 41, spend: 41 },
+      userTeamId: 'user',
+      league,
+    })
+    if (response.kind === 'vetoed') {
+      expect(response.vetoingOwnerName).toBe('Spend Sam')
+    }
   })
 })

@@ -337,4 +337,136 @@ describe('computeSeasonAwards', () => {
     expect(mvp).toBeDefined()
     expect(mvp!.playerId).toBe('star-best')
   })
+
+  it('assigns DPOY to player with highest defensive score', () => {
+    const team = makeTeam({ id: 't1' })
+    const defender = makePlayer({
+      id: 'dpoy',
+      teamId: team.id,
+      ratings: { perimeterDefense: 95, interiorDefense: 90, defensiveIq: 92, overall: 88 } as never,
+      seasonStats: {
+        season: '2025-26', teamId: team.id, gamesPlayed: 82, minutes: 3000,
+        points: 1200, rebounds: 600, assists: 200, steals: 150, blocks: 100,
+        turnovers: 100, fieldGoalsMade: 500, fieldGoalsAttempted: 900,
+        threePointersMade: 50, threePointersAttempted: 150, freeThrowsMade: 150,
+        freeThrowsAttempted: 200, plusMinus: 200,
+      },
+    })
+    team.roster = [defender.id]
+    const league = {
+      rules: DEFAULT_LEAGUE_RULES,
+      players: { [defender.id]: defender },
+      teams: { [team.id]: team },
+      standings: { t1: { wins: 50, losses: 32 } },
+    } as unknown as LeagueState
+
+    const result = computeSeasonAwards(league, '2025-26')
+    const dpoy = result.awards.find((a) => a.award === 'dpoy')
+    expect(dpoy).toBeDefined()
+    expect(dpoy!.playerId).toBe('dpoy')
+  })
+
+  it('assigns ROY to best rookie', () => {
+    const team = makeTeam({ id: 't1' })
+    const rookie = makePlayer({
+      id: 'roy',
+      teamId: team.id,
+      age: 21,
+      seasonStats: {
+        season: '2025-26', teamId: team.id, gamesPlayed: 75, minutes: 2500,
+        points: 1500, rebounds: 400, assists: 300, steals: 80, blocks: 40,
+        turnovers: 150, fieldGoalsMade: 600, fieldGoalsAttempted: 1200,
+        threePointersMade: 150, threePointersAttempted: 400, freeThrowsMade: 150,
+        freeThrowsAttempted: 200, plusMinus: 50,
+      },
+      careerStats: [],
+    })
+    team.roster = [rookie.id]
+    const league = {
+      rules: DEFAULT_LEAGUE_RULES,
+      players: { [rookie.id]: rookie },
+      teams: { [team.id]: team },
+      standings: {},
+    } as unknown as LeagueState
+
+    const result = computeSeasonAwards(league, '2025-26')
+    const roy = result.awards.find((a) => a.award === 'roy')
+    expect(roy).toBeDefined()
+    expect(roy!.playerId).toBe('roy')
+  })
+
+  it('assigns SMOY to best bench player', () => {
+    const team = makeTeam({ id: 't1', lineup: { starters: ['starter1'], bench: [], closingLineup: [], targetMinutes: {}, autoRotation: false } })
+    const starter = makePlayer({ id: 'starter1', teamId: team.id, seasonStats: { season: '2025-26', teamId: team.id, gamesPlayed: 82, minutes: 3000, points: 2000, rebounds: 400, assists: 300, steals: 80, blocks: 40, turnovers: 150, fieldGoalsMade: 700, fieldGoalsAttempted: 1400, threePointersMade: 200, threePointersAttempted: 500, freeThrowsMade: 400, freeThrowsAttempted: 450, plusMinus: 100 } })
+    const bench = makePlayer({
+      id: 'smoy',
+      teamId: team.id,
+      seasonStats: {
+        season: '2025-26', teamId: team.id, gamesPlayed: 80, minutes: 1800,
+        points: 1200, rebounds: 300, assists: 200, steals: 60, blocks: 30,
+        turnovers: 100, fieldGoalsMade: 500, fieldGoalsAttempted: 1000,
+        threePointersMade: 100, threePointersAttempted: 300, freeThrowsMade: 100,
+        freeThrowsAttempted: 120, plusMinus: 50,
+      },
+    })
+    team.roster = [starter.id, bench.id]
+    const league = {
+      rules: DEFAULT_LEAGUE_RULES,
+      players: { [starter.id]: starter, [bench.id]: bench },
+      teams: { [team.id]: team },
+      standings: {},
+    } as unknown as LeagueState
+
+    const result = computeSeasonAwards(league, '2025-26')
+    const smoy = result.awards.find((a) => a.award === 'smoy')
+    expect(smoy).toBeDefined()
+  })
+
+  it('assigns MIP to player with largest ratings delta', () => {
+    const team = makeTeam({ id: 't1' })
+    const mip = makePlayer({
+      id: 'mip',
+      teamId: team.id,
+      age: 25,
+      development: {
+        ...({} as never),
+        ratingsDelta: { insideScoring: 5, closeShot: 4, midrange: 3, threePoint: 2, freeThrow: 1, ballHandling: 3, passing: 2, offensiveIq: 4, offensiveRebound: 1, defensiveRebound: 2, perimeterDefense: 3, interiorDefense: 2, steal: 1, block: 1, defensiveIq: 3, speed: 1, strength: 2, vertical: 1, stamina: 0, durability: 0, clutch: 1, consistency: 1, potential: 0, overall: 3 },
+      },
+    })
+    team.roster = [mip.id]
+    const league = {
+      rules: DEFAULT_LEAGUE_RULES,
+      players: { [mip.id]: mip },
+      teams: { [team.id]: team },
+      standings: {},
+    } as unknown as LeagueState
+
+    const result = computeSeasonAwards(league, '2025-26')
+    const mipAward = result.awards.find((a) => a.award === 'mip')
+    expect(mipAward).toBeDefined()
+    expect(mipAward!.playerId).toBe('mip')
+  })
+
+  it('assigns All-NBA teams with position balance (2G, 2F, 1C)', () => {
+    const team = makeTeam({ id: 't1' })
+    const players = [
+      makePlayer({ id: 'g1', teamId: 't1', position: 'PG', seasonStats: { season: '2025-26', teamId: 't1', gamesPlayed: 82, minutes: 3000, points: 2400, rebounds: 400, assists: 600, steals: 100, blocks: 30, turnovers: 200, fieldGoalsMade: 800, fieldGoalsAttempted: 1500, threePointersMade: 250, threePointersAttempted: 600, freeThrowsMade: 550, freeThrowsAttempted: 620, plusMinus: 150 } }),
+      makePlayer({ id: 'g2', teamId: 't1', position: 'SG', seasonStats: { season: '2025-26', teamId: 't1', gamesPlayed: 82, minutes: 2800, points: 2000, rebounds: 350, assists: 500, steals: 90, blocks: 20, turnovers: 180, fieldGoalsMade: 700, fieldGoalsAttempted: 1400, threePointersMade: 200, threePointersAttempted: 500, freeThrowsMade: 400, freeThrowsAttempted: 450, plusMinus: 120 } }),
+      makePlayer({ id: 'f1', teamId: 't1', position: 'SF', seasonStats: { season: '2025-26', teamId: 't1', gamesPlayed: 82, minutes: 2900, points: 2200, rebounds: 500, assists: 300, steals: 80, blocks: 60, turnovers: 150, fieldGoalsMade: 750, fieldGoalsAttempted: 1400, threePointersMade: 180, threePointersAttempted: 450, freeThrowsMade: 520, freeThrowsAttempted: 580, plusMinus: 140 } }),
+      makePlayer({ id: 'f2', teamId: 't1', position: 'PF', seasonStats: { season: '2025-26', teamId: 't1', gamesPlayed: 82, minutes: 2800, points: 1800, rebounds: 600, assists: 200, steals: 60, blocks: 80, turnovers: 120, fieldGoalsMade: 650, fieldGoalsAttempted: 1200, threePointersMade: 120, threePointersAttempted: 300, freeThrowsMade: 380, freeThrowsAttempted: 420, plusMinus: 100 } }),
+      makePlayer({ id: 'c1', teamId: 't1', position: 'C', seasonStats: { season: '2025-26', teamId: 't1', gamesPlayed: 82, minutes: 2700, points: 1600, rebounds: 700, assists: 150, steals: 40, blocks: 120, turnovers: 100, fieldGoalsMade: 600, fieldGoalsAttempted: 1000, threePointersMade: 20, threePointersAttempted: 60, freeThrowsMade: 380, freeThrowsAttempted: 440, plusMinus: 90 } }),
+    ]
+    team.roster = players.map((p) => p.id)
+    const playersRecord = Object.fromEntries(players.map((p) => [p.id, p]))
+    const league = {
+      rules: DEFAULT_LEAGUE_RULES,
+      players: playersRecord,
+      teams: { [team.id]: team },
+      standings: { t1: { wins: 60, losses: 22 } },
+    } as unknown as LeagueState
+
+    const result = computeSeasonAwards(league, '2025-26')
+    const allNba1 = result.awards.filter((a) => a.award === 'all_nba_1')
+    expect(allNba1).toHaveLength(5)
+  })
 })
