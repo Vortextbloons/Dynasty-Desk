@@ -6,6 +6,7 @@ Ported from src/game/ratings/playerRatingEngine.ts.
 
 from __future__ import annotations
 
+import hashlib
 import random
 import sys
 from pathlib import Path
@@ -141,6 +142,67 @@ def compute_overall(ratings: dict[str, int], position: str) -> int:
     return int(round(total))
 
 
+def compute_production_impact(stats: dict[str, Any]) -> float:
+    """Estimate top-line player impact from real production.
+
+    The weighted skill overall is intentionally position-specific, but by itself it
+    compresses heliocentric stars and older elite players into the high 70s. This
+    impact layer lets real NBA production lift the final overall without inflating
+    every individual skill rating.
+    """
+    gp = int(stats.get("gamesPlayed", 0) or 0)
+    minutes = float(stats.get("minutes", 0) or 0)
+    if gp == 0 or minutes == 0:
+        return 0
+
+    ppg = float(stats.get("points", 0) or 0) / max(1, gp)
+    rpg = float(stats.get("rebounds", 0) or 0) / max(1, gp)
+    apg = float(stats.get("assists", 0) or 0) / max(1, gp)
+    mpg = minutes / max(1, gp)
+    per = float(stats.get("per", 0) or 0)
+    bpm = float(stats.get("boxPlusMinus", 0) or 0)
+    usage = float(stats.get("usageRate", 0) or 0)
+    ts_pct = float(stats.get("tsPct", 0) or 0)
+
+    impact = (
+        55
+        + (ppg - 10) * 0.95
+        + (rpg - 4) * 0.65
+        + (apg - 3) * 0.9
+        + (per - 15) * 0.8
+        + bpm * 1.4
+        + (usage - 20) * 0.3
+        + (mpg - 24) * 0.3
+        + (ts_pct - 0.57) * 45
+    )
+    if ppg >= 24 and ts_pct >= 0.59:
+        impact += 3
+    elif ppg >= 24 and ts_pct >= 0.56:
+        impact += 1.5
+    if apg >= 6 and usage >= 26:
+        impact += 1.5
+    return clamp(impact, 45, 99)
+
+
+def compute_real_overall(ratings: dict[str, int], position: str, stats: dict[str, Any]) -> int:
+    skill_overall = compute_overall(ratings, position)
+    production_impact = compute_production_impact(stats)
+    if production_impact == 0:
+        return skill_overall
+
+    # Stars should be recognized by their actual production, while role players
+    # still mostly follow the granular skill model.
+    blended = skill_overall * 0.65 + production_impact * 0.35
+    if production_impact >= 90:
+        blended = max(blended, production_impact - 3)
+    elif production_impact >= 82:
+        blended = max(blended, production_impact - 2)
+    elif production_impact >= 78:
+        blended = max(blended, production_impact - 1)
+
+    return clamp_rating(blended + 2.5)
+
+
 # ---------------------------------------------------------------------------
 # Position mapping
 # ---------------------------------------------------------------------------
@@ -265,7 +327,7 @@ def derive_ratings(stats: dict[str, Any], position: str, season: str, rng: rando
         potential_raw -= 5
     ratings["potential"] = clamp_rating(potential_raw)
 
-    ratings["overall"] = compute_overall(ratings, position)
+    ratings["overall"] = compute_real_overall(ratings, position, stats)
     return ratings
 
 
@@ -485,7 +547,8 @@ def compute_for_season(season: str, force: bool = False) -> None:
         if pid:
             stats_by_id[pid] = s
 
-    rng = random.Random(hash(season) + 42)
+    seed = int(hashlib.sha256(season.encode("utf-8")).hexdigest()[:12], 16) + 42
+    rng = random.Random(seed)
 
     computed = 0
     for player in roster:
