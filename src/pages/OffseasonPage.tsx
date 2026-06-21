@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
@@ -21,30 +22,21 @@ export function OffseasonPage() {
   const save = useGameStore((s) => s.save)
   const advancePhase = useGameStore((s) => s.advancePhase)
   const decideOption = useGameStore((s) => s.decideOption)
+  const navigate = useNavigate()
   const [advancing, setAdvancing] = useState(false)
+  const autoAdvancedRef = useRef(false)
 
-  if (!save) {
-    return <div className="p-6 text-sm text-[var(--color-muted-foreground)]">No active save.</div>
-  }
+  const league = save?.league
+  const teamId = league?.userTeamId
 
-  const league = save.league
-  const teamId = league.userTeamId
+  const isOffseasonPhase =
+    league && OFFSEASON_PHASES.includes(league.phase as (typeof OFFSEASON_PHASES)[number])
 
-  if (!OFFSEASON_PHASES.includes(league.phase as (typeof OFFSEASON_PHASES)[number])) {
-    return (
-      <div>
-        <PageHeader title="Offseason" description="Offseason hub" />
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          Offseason tools are available after the playoffs. Current phase: {league.phase.replace(/_/g, ' ')}.
-        </p>
-      </div>
-    )
-  }
-
-  const advanceGuard = canAdvancePhase(league)
-  const pendingOptions = getPlayersWithPendingOptions(league, teamId)
+  const advanceGuard = league ? canAdvancePhase(league) : { ok: false, reason: 'No save' } as const
+  const pendingOptions = league && teamId ? getPlayersWithPendingOptions(league, teamId) : []
 
   const handleAdvance = async () => {
+    if (!league) return
     setAdvancing(true)
     try {
       const result = await advancePhase()
@@ -54,12 +46,46 @@ export function OffseasonPage() {
       }
       if (result?.newPhase) {
         toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
+        if (result.newPhase === 'draft') {
+          void navigate('/draft')
+        } else if (result.newPhase === 'regular_season') {
+          void navigate('/dashboard')
+        }
       }
     } catch {
       toast.error('Failed to advance phase.')
     } finally {
       setAdvancing(false)
     }
+  }
+
+  useEffect(() => {
+    if (autoAdvancedRef.current) return
+    if (!league || !teamId) return
+    if (league.phase !== 'offseason') return
+    const guard = canAdvancePhase(league)
+    if (!guard.ok) return
+    const hasPendingOptions = getPlayersWithPendingOptions(league, teamId).length > 0
+    const hasPendingQOs = league.qualifyingOffers.some((q) => q.teamId === teamId)
+    if (!hasPendingOptions && !hasPendingQOs) {
+      autoAdvancedRef.current = true
+      void handleAdvance()
+    }
+  }, [league, teamId])
+
+  if (!save) {
+    return <div className="p-6 text-sm text-[var(--color-muted-foreground)]">No active save.</div>
+  }
+
+  if (!isOffseasonPhase || !league || !teamId) {
+    return (
+      <div>
+        <PageHeader title="Offseason" description="Offseason hub" />
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          Offseason tools are available after the playoffs. Current phase: {league?.phase.replace(/_/g, ' ') ?? 'unknown'}.
+        </p>
+      </div>
+    )
   }
 
   return (

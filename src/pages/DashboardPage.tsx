@@ -29,6 +29,7 @@ function fmt(n: number): string {
 
 function OffseasonDashboardCard({ league }: { league: LeagueState }) {
   const advancePhase = useGameStore((s) => s.advancePhase)
+  const navigate = useNavigate()
   const [advancing, setAdvancing] = useState(false)
   const advanceGuard = canAdvancePhase(league)
 
@@ -42,6 +43,10 @@ function OffseasonDashboardCard({ league }: { league: LeagueState }) {
       }
       if (result?.newPhase === 'regular_season') {
         toast.success('New season started!')
+        void navigate('/dashboard')
+      } else if (result?.newPhase === 'draft') {
+        toast.success('Advanced to draft')
+        void navigate('/draft')
       } else if (result?.newPhase) {
         toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
       }
@@ -285,6 +290,7 @@ export function DashboardPage() {
     } else if (result.phaseTransitioned) {
       const label = result.nextPhase === 'play_in' ? 'Play-In' : 'Playoffs'
       toast.success(`Regular season complete! ${result.gamesSimulated} games simulated. Moving to ${label}.`)
+      void navigate('/playoffs')
     } else if (result.gamesSimulated > 0) {
       toast.success(`Season sim complete. ${result.gamesSimulated} games simulated.`)
     }

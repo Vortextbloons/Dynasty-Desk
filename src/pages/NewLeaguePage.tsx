@@ -300,6 +300,11 @@ export function NewLeaguePage() {
                           snapshotId: effectiveSeasonId,
                         },
                       )
+                      useGameStore.getState().generateRotationIfMissing()
+                      const scheduleResult = useGameStore.getState().generateSeasonSchedule()
+                      if (!scheduleResult.ok) {
+                        toast.error(scheduleResult.reason ?? 'Failed to generate schedule.')
+                      }
                       void navigate('/dashboard')
                     } catch (err) {
                       const msg = err instanceof Error ? err.message : 'Failed to create league'

@@ -178,6 +178,7 @@ interface GameStore {
   autoRotate: () => void
   saveLineup: () => void
   generateRotationIfMissing: () => void
+  regenerateLineupIfAuto: () => void
   simOneGame: (gameId: string) => Promise<{ gameId: string; boxScore: BoxScoreResult } | { error: string }>
   simNextGame: () => Promise<{ gameId: string } | { error: string }>
   simDay: () => Promise<{ gamesSimulated: number; gameIds: string[] }>
@@ -537,6 +538,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (!result.ok) return result
 
     applyPatch(save, result.patch)
+    get().regenerateLineupIfAuto()
     set({ save: { ...save } })
     get().scheduleAutoSave()
     return result
@@ -965,6 +967,19 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     get().scheduleAutoSave()
   },
 
+  regenerateLineupIfAuto: () => {
+    const { save } = get()
+    if (!save) return
+    const teamId = save.league.userTeamId
+    const team = save.league.teams[teamId]
+    if (!team) return
+    if (!team.lineup.generatedByAutoRotate) return
+    const players = new Map(
+      Object.entries(save.league.players).filter(([id]) => team.roster.includes(id)),
+    )
+    team.lineup = generateAutoRotation(team.roster, players)
+  },
+
   ensureSchedule: (count) => {
     const { save } = get()
     if (!save) return []
@@ -1053,6 +1068,12 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     save.league.news.push(...result.post.news)
     save.rngState = seededRng.state
+    save.league.standings = recomputeStandings(
+      save.league.games,
+      save.league.teams,
+      save.league.rules.seasonLabel,
+      save.league.rules.regularSeasonGames,
+    )
 
     set({ save: { ...save } })
     get().scheduleAutoSave()
@@ -1664,6 +1685,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       createTradeCompletedEvent(proposal, save.league),
     ]
 
+    get().regenerateLineupIfAuto()
     set({ save: { ...save } })
     get().scheduleAutoSave()
     return { accepted: true }
