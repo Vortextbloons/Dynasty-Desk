@@ -75,6 +75,7 @@ import {
   getCurrentPickOwner,
   getDraftClassForYear,
   repairDraftPickOrder,
+  syncDraftClock,
 } from '@/game/league/draftEngine'
 import { allocateScoutingPoints as allocateScouting, getScoutingStateForClass } from '@/game/league/scoutingEngine'
 import {
@@ -140,7 +141,14 @@ interface GameStore {
   advancePhase: () => Promise<{ newPhase: LeaguePhase; blocked?: boolean; reason?: string } | void>
   allocateScoutingPoints: (prospectId: string, points: number) => { ok: boolean; reason?: string }
   makeDraftPick: (prospectId: string, isTwoWay?: boolean) => { ok: boolean; reason?: string }
-  autoDraftOffClock: () => { ok: boolean; reason?: string; picksSimulated?: number }
+  autoDraftOffClock: () => {
+    ok: boolean
+    reason?: string
+    picksSimulated?: number
+    onUserClock?: boolean
+    draftComplete?: boolean
+  }
+  ensureDraftProgress: () => void
   skipDraftPick: () => void
   makeFreeAgentOffer: (playerId: string, offer: FreeAgentOfferInput) => { ok: boolean; reason?: string }
   withdrawOffer: (offerId: string) => void
@@ -615,23 +623,52 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const startPick = draft.currentPickNumber
     const rng = new SeededRandom(save.rngState)
     repairDraftPickOrder(save.league, draft, rng)
+    syncDraftClock(save.league, draft)
     autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
+    syncDraftClock(save.league, draft)
     save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
 
     const owner = getCurrentPickOwner(save.league, draft)
-    const reachedUser = owner?.teamId === save.league.userTeamId
+    const onUserClock = owner?.teamId === save.league.userTeamId
     const picksSimulated = draft.currentPickNumber - startPick
+    const draftComplete = draft.status === 'complete'
 
-    if (picksSimulated === 0 && !reachedUser && draft.status === 'in_progress') {
+    if (draftComplete) {
+      return { ok: true, picksSimulated, onUserClock: false, draftComplete: true }
+    }
+
+    if (onUserClock) {
+      return { ok: true, picksSimulated, onUserClock: true, draftComplete: false }
+    }
+
+    if (picksSimulated === 0) {
       return {
         ok: false,
         reason: 'Could not advance the draft. Pick order may not be set up correctly.',
       }
     }
 
-    return { ok: true, picksSimulated }
+    return { ok: true, picksSimulated, onUserClock: false, draftComplete: false }
+  },
+
+  ensureDraftProgress: () => {
+    const { save } = get()
+    if (!save || save.league.phase !== 'draft') return
+    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
+    if (!draft) return
+
+    const rng = new SeededRandom(save.rngState)
+    const repaired = repairDraftPickOrder(save.league, draft, rng)
+    const beforePick = draft.currentPickNumber
+    syncDraftClock(save.league, draft)
+    save.rngState = rng.state
+
+    if (repaired || draft.currentPickNumber !== beforePick || draft.status === 'complete') {
+      set({ save: { ...save } })
+      get().scheduleAutoSave()
+    }
   },
 
   skipDraftPick: () => {

@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import {
   getCurrentPickOwner,
   getAvailableProspects,
-  countDraftSlots,
+  totalDraftSlotsForSeason,
 } from '@/game/league/draftEngine'
 import { Lock } from 'lucide-react'
 
@@ -18,6 +19,7 @@ export function DraftPage() {
   const makeDraftPick = useGameStore((s) => s.makeDraftPick)
   const autoDraftOffClock = useGameStore((s) => s.autoDraftOffClock)
   const skipDraftPick = useGameStore((s) => s.skipDraftPick)
+  const ensureDraftProgress = useGameStore((s) => s.ensureDraftProgress)
 
   const draft = useMemo(() => {
     if (!save) return null
@@ -34,6 +36,10 @@ export function DraftPage() {
     const key = `${save.league.userTeamId}-${draft.draftClassId}`
     return save.league.scoutingState[key] ?? null
   }, [save, draft])
+
+  useEffect(() => {
+    ensureDraftProgress()
+  }, [ensureDraftProgress, save?.metadata.id, save?.league.phase])
 
   if (!save) {
     return <div className="p-6 text-sm text-[var(--color-muted-foreground)]">No active save.</div>
@@ -54,8 +60,9 @@ export function DraftPage() {
   const isUserPick = owner?.teamId === save.league.userTeamId
   const userTeam = save.league.teams[save.league.userTeamId]
   const available = getAvailableProspects(save.league, draft)
-
-  const totalSlots = countDraftSlots(save.league, draft.seasonYear)
+  const teamCount = Object.keys(save.league.teams).length
+  const totalSlots = totalDraftSlotsForSeason(save.league, draft.seasonYear)
+  const draftComplete = draft.status === 'complete'
 
   const handlePick = (prospectId: string, isTwoWay: boolean) => {
     const result = makeDraftPick(prospectId, isTwoWay)
@@ -67,9 +74,25 @@ export function DraftPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow={`${draft.seasonYear} NBA Draft`}
-        title={`Round ${draft.currentPickNumber <= 30 ? 1 : 2}`}
-        description={`Pick ${draft.currentPickNumber} / ${totalSlots} · Order: ${draft.orderSource === 'lottery' ? 'Lottery' : 'Inverse record'}`}
+        title={`Round ${draft.currentPickNumber <= teamCount ? 1 : 2}`}
+        description={
+          draftComplete
+            ? `Draft complete · ${draft.picks.length} / ${totalSlots} picks made`
+            : `Pick ${draft.currentPickNumber} / ${totalSlots} · Order: ${draft.orderSource === 'lottery' ? 'Lottery' : 'Inverse record'}`
+        }
       />
+
+      {draftComplete ? (
+        <Card>
+          <CardContent className="p-4 text-sm">
+            The draft is complete. Advance from the{' '}
+            <Link to="/offseason" className="text-[var(--color-primary)] hover:underline">
+              offseason hub
+            </Link>{' '}
+            when you are ready.
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card className="border-amber-500/30 bg-amber-500/5">
         <CardContent className="p-3 flex items-center gap-2 text-sm">
@@ -78,7 +101,7 @@ export function DraftPage() {
         </CardContent>
       </Card>
 
-      {isUserPick && userTeam && (
+      {!draftComplete && isUserPick && userTeam && (
         <MyPickPanel
           pickNumber={draft.currentPickNumber}
           teamName={`${userTeam.city} ${userTeam.name}`}
@@ -89,7 +112,7 @@ export function DraftPage() {
         />
       )}
 
-      {!isUserPick && (
+      {!draftComplete && !isUserPick && (
         <Card>
           <CardContent className="p-4 flex items-center justify-between">
             <span className="text-sm">Waiting for other teams to pick…</span>
@@ -99,8 +122,12 @@ export function DraftPage() {
                 const result = autoDraftOffClock()
                 if (!result.ok) {
                   toast.error(result.reason ?? 'Could not sim to your pick.')
-                } else if (result.picksSimulated === 0) {
-                  toast.message('Already on your pick.')
+                } else if (result.draftComplete) {
+                  toast.success('Draft complete.')
+                } else if (result.onUserClock) {
+                  toast.success('Your pick is up.')
+                } else if (result.picksSimulated && result.picksSimulated > 0) {
+                  toast.success(`Simmed ${result.picksSimulated} picks.`)
                 }
               }}
             >

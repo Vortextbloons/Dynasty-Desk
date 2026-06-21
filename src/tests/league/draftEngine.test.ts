@@ -15,6 +15,9 @@ import {
   formatSeasonLabel,
   parseSeasonStartYear,
   countDraftSlots,
+  repairDraftPickOrder,
+  syncDraftClock,
+  totalDraftSlotsForSeason,
 } from '@/game/league/draftEngine'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 import { SeededRandom } from '@/game/sim/rng'
@@ -213,6 +216,47 @@ describe('draftEngine', () => {
     )
     expect(numbered.length).toBe(8)
     expect(countDraftSlots(league, 2027)).toBe(8)
+    expect(totalDraftSlotsForSeason(league, 2027)).toBe(8)
+  })
+
+  it('repairs partially numbered drafts and resumes the clock', () => {
+    const league = makeMiniLeague()
+    const seasonLabel = '2027-28'
+    league.draftPicks = Object.keys(league.teams).flatMap((teamId) => [
+      {
+        id: `r1-${teamId}`,
+        season: seasonLabel,
+        round: 1,
+        pickNumber: 0,
+        originalTeamId: teamId,
+        currentTeamId: teamId,
+        prospectId: null,
+      },
+      {
+        id: `r2-${teamId}`,
+        season: seasonLabel,
+        round: 2,
+        pickNumber: 0,
+        originalTeamId: teamId,
+        currentTeamId: teamId,
+        prospectId: null,
+      },
+    ])
+
+    const order = runLottery(league, rng)
+    assignPickNumbers(league, [order[0]!], seasonLabel)
+    expect(countDraftSlots(league, 2027)).toBe(2)
+
+    const draftClass = generateDraftClass(2027, DEFAULT_LEAGUE_RULES, [], rng)
+    const draft = startDraft(league, draftClass, order, 'lottery')
+    draft.currentPickNumber = 17
+
+    const repaired = repairDraftPickOrder(league, draft, rng)
+    expect(repaired).toBe(true)
+    expect(countDraftSlots(league, 2027)).toBe(8)
+    expect(draft.currentPickNumber).toBeGreaterThan(0)
+    expect(draft.currentPickNumber).toBeLessThanOrEqual(8)
+    expect(draft.status).toBe('in_progress')
   })
 })
 

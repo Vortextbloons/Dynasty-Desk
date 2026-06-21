@@ -181,6 +181,50 @@ export function countDraftSlots(league: LeagueState, seasonYear: number): number
   ).length
 }
 
+export function totalDraftSlotsForSeason(
+  league: LeagueState,
+  seasonYear: number,
+): number {
+  const seasonLabel = formatSeasonLabel(seasonYear)
+  return league.draftPicks.filter((p) => p.season === seasonLabel).length
+}
+
+export function draftTeamCount(league: LeagueState): number {
+  return Object.keys(league.teams).length
+}
+
+export function pickRoundForSlot(
+  league: LeagueState,
+  pickNumber: number,
+): 1 | 2 {
+  const firstRoundSlots = draftTeamCount(league)
+  return pickNumber <= firstRoundSlots ? 1 : 2
+}
+
+/** Align current pick + completion status with numbered, unpicked assets. */
+export function syncDraftClock(league: LeagueState, draft: Draft): void {
+  const seasonLabel = formatSeasonLabel(draft.seasonYear)
+  const openPickNumbers = league.draftPicks
+    .filter(
+      (p) =>
+        p.season === seasonLabel &&
+        !p.prospectId &&
+        p.pickNumber > 0,
+    )
+    .map((p) => p.pickNumber)
+    .sort((a, b) => a - b)
+
+  if (openPickNumbers.length === 0) {
+    draft.status = 'complete'
+    draft.completedAt = draft.completedAt ?? league.currentDate
+    return
+  }
+
+  draft.status = 'in_progress'
+  draft.completedAt = undefined
+  draft.currentPickNumber = openPickNumbers[0]!
+}
+
 function buildRealProspect(
   real: RealProspectData,
   classId: string,
@@ -415,9 +459,21 @@ export function repairDraftPickOrder(
   draft: Draft,
   rng: SeededRandom,
 ): boolean {
-  if (countDraftSlots(league, draft.seasonYear) > 0) return false
-
   const seasonLabel = formatSeasonLabel(draft.seasonYear)
+  const seasonPicks = league.draftPicks.filter((p) => p.season === seasonLabel)
+  const total = seasonPicks.length
+  const assigned = seasonPicks.filter((p) => p.pickNumber > 0).length
+  const unpicked = seasonPicks.filter((p) => !p.prospectId).length
+  const openNumbered = seasonPicks.filter(
+    (p) => !p.prospectId && p.pickNumber > 0,
+  ).length
+
+  const needsRepair =
+    total > 0 &&
+    (assigned < total || (unpicked > 0 && openNumbered === 0))
+
+  if (!needsRepair) return false
+
   const order =
     draft.lotteryResults && draft.lotteryResults.length > 0
       ? draft.lotteryResults
@@ -427,10 +483,17 @@ export function repairDraftPickOrder(
 
   if (order.length === 0) return false
 
+  for (const pick of seasonPicks) {
+    if (!pick.prospectId) {
+      pick.pickNumber = 0
+    }
+  }
+
   assignPickNumbers(league, order, seasonLabel)
   if (!draft.lotteryResults || draft.lotteryResults.length === 0) {
     draft.lotteryResults = order
   }
+  syncDraftClock(league, draft)
   return true
 }
 
@@ -583,19 +646,13 @@ export function simulateDraftPick(
     prospectId,
     pickedByTeamId: teamId,
     pickNumber: draft.currentPickNumber,
-    round: draft.currentPickNumber <= 30 ? 1 : 2,
+    round: pickRoundForSlot(league, draft.currentPickNumber),
     isTwoWay,
   }
 
   draft.picks.push(result)
   pickAsset.prospectId = prospectId
-  draft.currentPickNumber++
-
-  const totalSlots = countDraftSlots(league, draft.seasonYear)
-  if (draft.currentPickNumber > totalSlots) {
-    draft.status = 'complete'
-    draft.completedAt = league.currentDate
-  }
+  syncDraftClock(league, draft)
 
   return result
 }
@@ -616,17 +673,11 @@ export function forfeitDraftPick(league: LeagueState, draft: Draft): boolean {
     prospectId: '__forfeited__',
     pickedByTeamId: owner.teamId,
     pickNumber: draft.currentPickNumber,
-    round: draft.currentPickNumber <= 30 ? 1 : 2,
+    round: pickRoundForSlot(league, draft.currentPickNumber),
     isTwoWay: false,
   })
 
-  draft.currentPickNumber++
-
-  const totalSlots = countDraftSlots(league, draft.seasonYear)
-  if (draft.currentPickNumber > totalSlots) {
-    draft.status = 'complete'
-    draft.completedAt = league.currentDate
-  }
+  syncDraftClock(league, draft)
 
   return true
 }
