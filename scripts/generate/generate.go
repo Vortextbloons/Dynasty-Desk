@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"dynasty-desk-gen/data"
-	"dynasty-desk-gen/logic"
+	"dynasty-desk-gen/data/logic"
 	"dynasty-desk-gen/types"
 )
 
