@@ -102,14 +102,12 @@ export function TradeSideColumn({
               <div className="text-[10px] uppercase tracking-[0.22em] text-amber-500">
                 Outgoing ({fmt(outgoingSalary)})
               </div>
-              {isUserSide && (
-                <button
-                  onClick={() => setPickerOpen(true)}
-                  className="text-[10px] text-[var(--color-primary)] hover:underline"
-                >
-                  + Add
-                </button>
-              )}
+              <button
+                onClick={() => setPickerOpen(true)}
+                className="text-[10px] text-[var(--color-primary)] hover:underline"
+              >
+                + Add
+              </button>
             </div>
             <div className="space-y-1">
               {outgoing.length === 0 ? (
@@ -124,6 +122,7 @@ export function TradeSideColumn({
                     playerMap={playerMap}
                     pickMap={pickMap}
                     isUserSide={isUserSide}
+                    editable
                     targetTeam={asset.toTeamId ? allTeams.find((t) => t.id === asset.toTeamId) : undefined}
                     rules={rules}
                     team={team}
@@ -164,21 +163,19 @@ export function TradeSideColumn({
         </div>
       </CardContent>
 
-      {isUserSide && (
-        <AssetPickerDialog
-          open={pickerOpen}
-          onOpenChange={setPickerOpen}
-          players={team.roster
-            .map((id) => playerMap.get(id))
-            .filter((p): p is Player => Boolean(p))}
-          picks={picks.filter((p) => p.currentTeamId === team.id)}
-          allowCash={allowCash}
-          maxCash={rulesMaxCash}
-          targetTeams={targetTeams}
-          defaultTargetTeamId={defaultTargetTeamId}
-          onSelect={onAdd}
-        />
-      )}
+      <AssetPickerDialog
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        players={team.roster
+          .map((id) => playerMap.get(id))
+          .filter((p): p is Player => Boolean(p))}
+        picks={picks.filter((p) => p.currentTeamId === team.id)}
+        allowCash={allowCash}
+        maxCash={rulesMaxCash}
+        targetTeams={targetTeams}
+        defaultTargetTeamId={defaultTargetTeamId}
+        onSelect={onAdd}
+      />
     </Card>
   )
 }
@@ -188,6 +185,7 @@ function AssetRow({
   playerMap,
   pickMap,
   isUserSide,
+  editable = false,
   targetTeam,
   rules,
   team,
@@ -198,6 +196,7 @@ function AssetRow({
   playerMap: Map<string, Player>
   pickMap: Map<string, DraftPick>
   isUserSide: boolean
+  editable?: boolean
   targetTeam?: Team
   rules: LeagueRules
   team: Team
@@ -228,7 +227,7 @@ function AssetRow({
             → <span className="font-mono">{targetTeam.abbreviation}</span>
           </div>
         )}
-        {isUserSide && (
+        {editable && (
           <button
             onClick={onRemove}
             className="text-[10px] text-red-500 hover:underline ml-1"
@@ -242,7 +241,7 @@ function AssetRow({
   if (asset.type === 'pick' && asset.pickId) {
     const pick = pickMap.get(asset.pickId)
     if (!pick) return null
-    const canEditProtection = isUserSide && pick.currentTeamId === team.id
+    const canEditProtection = pick.currentTeamId === team.id
     return (
       <div className="flex items-center justify-between rounded-md border border-[var(--color-line-soft)] bg-[var(--color-surface-2)] px-2 py-1.5">
         <div className="text-xs">
@@ -262,7 +261,7 @@ function AssetRow({
               → <span className="font-mono">{targetTeam.abbreviation}</span>
             </div>
           )}
-          {isUserSide && (
+          {editable && (
             <button
               onClick={onRemove}
               className="text-[10px] text-red-500 hover:underline"
@@ -285,7 +284,7 @@ function AssetRow({
               → <span className="font-mono">{targetTeam.abbreviation}</span>
             </div>
           )}
-          {isUserSide && (
+          {editable && (
             <button
               onClick={onRemove}
               className="text-[10px] text-red-500 hover:underline"

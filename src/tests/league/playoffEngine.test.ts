@@ -9,6 +9,8 @@ import {
   getPlayoffSeeds,
   isBracketComplete,
   getSeriesById,
+  tryGeneratePlayoffBracket,
+  countRemainingRegularSeasonGames,
 } from '@/game/league/playoffEngine'
 import { SeededRandom } from '@/game/sim/rng'
 import type { LeagueState } from '@/game/models/league'
@@ -144,6 +146,45 @@ beforeEach(() => {
 })
 
 describe('generatePlayoffBracket', () => {
+  it('blocks bracket generation when regular-season games remain', () => {
+    const league = makeLeague({ rules: { hasPlayIn: false, playoffFormat: 'top8' } })
+    league.games = {
+      'g1': {
+        id: 'g1',
+        season: '2025-26',
+        date: '2026-04-10',
+        homeTeamId: 'east-1',
+        awayTeamId: 'east-2',
+        status: 'scheduled',
+        homeScore: null,
+        awayScore: null,
+        boxScoreId: null,
+        isConference: true,
+        isDivision: false,
+        seasonYear: 2026,
+        isUserTeamGame: true,
+      },
+    }
+
+    const result = tryGeneratePlayoffBracket(league, league.rules)
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.reason).toContain('regular-season')
+    }
+    expect(countRemainingRegularSeasonGames(league)).toBe(1)
+  })
+
+  it('blocks bracket generation when a team has not played a full slate', () => {
+    const league = makeLeague({ rules: { hasPlayIn: false, playoffFormat: 'top8' } })
+    league.standings['east-1']!.gamesPlayed = 10
+
+    const result = tryGeneratePlayoffBracket(league, league.rules)
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.reason).toContain('only played 10 of 82')
+    }
+  })
+
   it('produces correct number of series per conference', () => {
     const league = makeLeague({ rules: { hasPlayIn: false, playoffFormat: 'top8' } })
     const bracket = generatePlayoffBracket(league, league.rules)

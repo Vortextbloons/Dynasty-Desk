@@ -340,7 +340,7 @@ function sumSalary(
   return total
 }
 
-function computeCapHitForPlayer(player: Player, _rules: LeagueRules): number {
+export function computeCapHitForPlayer(player: Player, _rules: LeagueRules): number {
   const salary = player.contract.salaryByYear[0] ?? 0
   const signingBonus = player.contract.signingBonusByYear[0] ?? 0
   const likelyBonus = player.contract.likelyBonusesByYear[0] ?? 0
@@ -390,14 +390,14 @@ export function executeTrade(
     news: [...league.news],
   }
 
-  const playerMoves: { player: Player; toTeamId: string }[] = []
+  const playerMoves: { player: Player; toTeamId: string; fromTeamId: string | null }[] = []
   for (const side of proposal.sides) {
     for (const asset of side.outgoing) {
       if (asset.type === 'player' && asset.playerId) {
         const player = newLeague.players[asset.playerId]
         if (!player) continue
         const toTeamId = resolveAssetTarget(asset, side.teamId, proposal)
-        if (toTeamId) playerMoves.push({ player, toTeamId })
+        if (toTeamId) playerMoves.push({ player, toTeamId, fromTeamId: player.teamId })
       }
     }
   }
@@ -421,7 +421,7 @@ export function executeTrade(
   newLeague.recentlyTraded ??= {}
   for (const move of playerMoves) {
     newLeague.recentlyTraded[move.player.id] = league.rules.seasonLabel
-    const fromTeam = move.player.teamId ? newLeague.teams[move.player.teamId] : null
+    const fromTeam = move.fromTeamId ? newLeague.teams[move.fromTeamId] : null
     const toTeam = newLeague.teams[move.toTeamId]
     const fromName = fromTeam ? `${fromTeam.city} ${fromTeam.name}` : null
     const toName = toTeam ? `${toTeam.city} ${toTeam.name}` : null

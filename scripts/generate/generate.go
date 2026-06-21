@@ -41,6 +41,10 @@ func clampFloat(v, min, max float64) float64 {
 	return v
 }
 
+func roundTo2(v float64) float64 {
+	return math.Round(v*100) / 100
+}
+
 func clampInt(v, min, max int) int {
 	if v < min {
 		return min
@@ -296,29 +300,29 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 					Potential:        clampInt(ri+boolToInt(isStar)*5+randInt(r, -3, 3), 50, 99),
 				},
 				Tendencies: types.PlayerTendencies{
-					UsageRate:                  clampFloat(20+float64(boolToInt(isStar))*8+float64(randInt(r, -3, 3)), 10, 40),
-					PassRate:                   clampFloat(15+float64(boolToInt(profile.Pos == types.PositionPG))*10+float64(randInt(r, -3, 3)), 5, 35),
-					ShotRate:                   clampFloat(25+float64(boolToInt(isStar))*5+float64(randInt(r, -3, 3)), 10, 50),
-					DriveRate:                  clampFloat(10+float64(boolToInt(profile.Pos == types.PositionPG))*8+float64(randInt(r, -3, 3)), 5, 35),
-					PostUpRate:                 clampFloat(5+float64(boolToInt(profile.Pos == types.PositionC || profile.Pos == types.PositionPF))*8+float64(randInt(r, -2, 2)), 0, 30),
-					RimFrequency:               clampFloat(25+float64(randInt(r, -5, 5)), 10, 50),
-					ShortMidFrequency:          clampFloat(15+float64(randInt(r, -3, 3)), 5, 30),
-					LongMidFrequency:           clampFloat(10+float64(randInt(r, -3, 3)), 0, 20),
-					CornerThreeFrequency:       clampFloat(5+float64(randInt(r, -2, 2)), 0, 15),
-					AboveBreakThreeFrequency:   clampFloat(15+float64(randInt(r, -3, 3)), 5, 30),
-					ThreePointRate:             clampFloat(30+float64(randInt(r, -5, 10)), 15, 60),
-					FreeThrowRate:              clampFloat(25+float64(randInt(r, -3, 3)), 10, 50),
-					TurnoverRate:               clampFloat(12+float64(randInt(r, -2, 4)), 5, 25),
-					IsolationRate:              clampFloat(10+float64(boolToInt(isStar))*8+float64(randInt(r, -3, 3)), 0, 35),
-					PickAndRollBallHandlerRate: clampFloat(20+float64(boolToInt(profile.Pos == types.PositionPG))*15+float64(randInt(r, -3, 3)), 5, 50),
-					PickAndRollRollManRate:     clampFloat(10+float64(boolToInt(profile.Pos == types.PositionC))*15+float64(randInt(r, -3, 3)), 0, 30),
-					SpotUpRate:                 clampFloat(20+float64(randInt(r, -3, 3)), 5, 40),
-					TransitionRate:             clampFloat(15+float64(randInt(r, -3, 3)), 5, 30),
-					CutRate:                    clampFloat(10+float64(randInt(r, -2, 2)), 0, 25),
-					FoulRate:                   clampFloat(2+float64(randInt(r, -1, 1)), 0, 6),
-					StealAttemptRate:           clampFloat(5+float64(randInt(r, -2, 2)), 0, 12),
-					BlockAttemptRate:           clampFloat(5+float64(randInt(r, -2, 2)), 0, 12),
-					CrashOffensiveGlassRate:    clampFloat(10+float64(randInt(r, -3, 3)), 0, 25),
+					UsageRate:                  roundTo2(clampFloat(20+float64(boolToInt(isStar))*8+float64(randInt(r, -3, 3)), 10, 40)),
+					PassRate:                   roundTo2(clampFloat(15+float64(boolToInt(profile.Pos == types.PositionPG))*10+float64(randInt(r, -3, 3)), 5, 35)),
+					ShotRate:                   roundTo2(clampFloat(25+float64(boolToInt(isStar))*5+float64(randInt(r, -3, 3)), 10, 50)),
+					DriveRate:                  roundTo2(clampFloat(10+float64(boolToInt(profile.Pos == types.PositionPG))*8+float64(randInt(r, -3, 3)), 5, 35)),
+					PostUpRate:                 roundTo2(clampFloat(5+float64(boolToInt(profile.Pos == types.PositionC || profile.Pos == types.PositionPF))*8+float64(randInt(r, -2, 2)), 0, 30)),
+					RimFrequency:               roundTo2(clampFloat(25+float64(randInt(r, -5, 5)), 10, 50)),
+					ShortMidFrequency:          roundTo2(clampFloat(15+float64(randInt(r, -3, 3)), 5, 30)),
+					LongMidFrequency:           roundTo2(clampFloat(10+float64(randInt(r, -3, 3)), 0, 20)),
+					CornerThreeFrequency:       roundTo2(clampFloat(5+float64(randInt(r, -2, 2)), 0, 15)),
+					AboveBreakThreeFrequency:   roundTo2(clampFloat(15+float64(randInt(r, -3, 3)), 5, 30)),
+					ThreePointRate:             roundTo2(clampFloat(30+float64(randInt(r, -5, 10)), 15, 60)),
+					FreeThrowRate:              roundTo2(clampFloat(25+float64(randInt(r, -3, 3)), 10, 50)),
+					TurnoverRate:               roundTo2(clampFloat(12+float64(randInt(r, -2, 4)), 5, 25)),
+					IsolationRate:              roundTo2(clampFloat(10+float64(boolToInt(isStar))*8+float64(randInt(r, -3, 3)), 0, 35)),
+					PickAndRollBallHandlerRate: roundTo2(clampFloat(20+float64(boolToInt(profile.Pos == types.PositionPG))*15+float64(randInt(r, -3, 3)), 5, 50)),
+					PickAndRollRollManRate:     roundTo2(clampFloat(10+float64(boolToInt(profile.Pos == types.PositionC))*15+float64(randInt(r, -3, 3)), 0, 30)),
+					SpotUpRate:                 roundTo2(clampFloat(20+float64(randInt(r, -3, 3)), 5, 40)),
+					TransitionRate:             roundTo2(clampFloat(15+float64(randInt(r, -3, 3)), 5, 30)),
+					CutRate:                    roundTo2(clampFloat(10+float64(randInt(r, -2, 2)), 0, 25)),
+					FoulRate:                   roundTo2(clampFloat(2+float64(randInt(r, -1, 1)), 0, 6)),
+					StealAttemptRate:           roundTo2(clampFloat(5+float64(randInt(r, -2, 2)), 0, 12)),
+					BlockAttemptRate:           roundTo2(clampFloat(5+float64(randInt(r, -2, 2)), 0, 12)),
+					CrashOffensiveGlassRate:    roundTo2(clampFloat(10+float64(randInt(r, -3, 3)), 0, 25)),
 				},
 				Traits: types.PlayerTraits{
 					WorkEthic:            clampInt(50+randInt(r, -10, 10), 30, 99),

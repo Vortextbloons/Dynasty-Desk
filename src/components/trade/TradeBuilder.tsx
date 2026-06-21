@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { Team } from '@/game/models/team'
 import type { LeagueState } from '@/game/models/league'
 import type { TradeProposal, TradeAsset } from '@/game/models/trade'
-import { validateTradeLegality } from '@/game/management/tradeEngine'
+import { validateTradeLegality, computeCapHitForPlayer } from '@/game/management/tradeEngine'
 import { computeTradeValueDelta } from '@/game/management/tradeValueModel'
 import { evaluateTradeForAI } from '@/game/management/tradeAI'
 import { TradeSideColumn } from './TradeSideColumn'
@@ -17,13 +17,7 @@ interface TradeBuilderProps {
   onAddAsset: (teamId: string, asset: TradeAsset) => void
   onRemoveAsset: (teamId: string, index: number) => void
   onSaveProtection: (pickId: string, protection: string | null) => void
-  onSubmit: () => {
-    accepted: boolean
-    counterOffer?: TradeProposal
-    rejectionReason?: string
-    vetoReason?: string
-    vetoingOwnerName?: string
-  }
+  onSubmit: () => void
   onCancel: () => void
   onSaveDraft: () => void
 }
@@ -114,17 +108,7 @@ export function TradeBuilder({
   }
 
   function handleSubmit() {
-    const result = onSubmit()
-    if (result.vetoReason) {
-       
-      alert(`Vetoed: ${result.vetoReason}`)
-    } else if (result.counterOffer) {
-       
-      alert('AI proposed a counter-offer — check the active proposals.')
-    } else if (result.rejectionReason) {
-       
-      alert(`Rejected: ${result.rejectionReason}`)
-    }
+    onSubmit()
   }
 
   return (
@@ -234,7 +218,7 @@ function sumOutgoingSalary(
   for (const asset of side.outgoing) {
     if (asset.type === 'player' && asset.playerId) {
       const p = league.players[asset.playerId]
-      if (p) total += p.contract.salaryByYear[0] ?? 0
+      if (p) total += computeCapHitForPlayer(p, league.rules)
     }
   }
   return total
@@ -248,7 +232,7 @@ function sumIncomingSalary(
   for (const asset of incoming) {
     if (asset.type === 'player' && asset.playerId) {
       const p = league.players[asset.playerId]
-      if (p) total += p.contract.salaryByYear[0] ?? 0
+      if (p) total += computeCapHitForPlayer(p, league.rules)
     }
   }
   return total

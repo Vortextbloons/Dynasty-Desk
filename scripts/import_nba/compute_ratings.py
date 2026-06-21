@@ -111,6 +111,10 @@ def clamp(v: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, v))
 
 
+def round_dict(d: dict[str, Any], decimals: int = 2) -> dict[str, Any]:
+    return {k: round(v, decimals) if isinstance(v, float) else v for k, v in d.items()}
+
+
 def clamp_rating(v: float) -> int:
     return int(clamp(v, 0, 100))
 
@@ -417,7 +421,7 @@ def derive_tendencies(stats: dict[str, Any], ratings: dict[str, int], position: 
     is_big = position in ("C", "PF")
     is_guard = position in ("PG", "SG")
 
-    return {
+    tendencies = {
         "usageRate": clamp(usage + j(0, 1), 10, 40),
         "passRate": clamp(pass_rate + j(0, 2), 5, 35),
         "shotRate": clamp(fga / max(1, gp) / 48 * 100 + j(0, 2), 10, 50),
@@ -442,6 +446,7 @@ def derive_tendencies(stats: dict[str, Any], ratings: dict[str, int], position: 
         "blockAttemptRate": clamp(5 + ratings.get("block", 50) * 0.08 + j(0, 1), 0, 12),
         "crashOffensiveGlassRate": clamp(10 + ratings.get("offensiveRebound", 50) * 0.12 + j(0, 2), 0, 25),
     }
+    return round_dict(tendencies)
 
 
 # ---------------------------------------------------------------------------

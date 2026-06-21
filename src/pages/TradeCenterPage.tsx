@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { TradeBuilder } from '@/components/trade/TradeBuilder'
@@ -38,6 +39,28 @@ export function TradeCenterPage() {
     if (!proposal || !selectedTeam) return
     if (proposal.sides.length >= 4) return
     addTeamToTrade(proposal.id, selectedTeam)
+  }
+
+  function handleSubmit() {
+    if (!proposal) return
+    const result = submitTrade(proposal.id)
+    if (result.accepted) {
+      toast.success('Trade completed.')
+      setProposalId(null)
+      return
+    }
+    if (result.counterOffer) {
+      setProposalId(result.counterOffer.id)
+      toast.info('AI proposed a counter-offer — review and resubmit.')
+      return
+    }
+    if (result.vetoReason) {
+      toast.error(`Vetoed: ${result.vetoReason}`)
+      return
+    }
+    if (result.rejectionReason) {
+      toast.error(`Rejected: ${result.rejectionReason}`)
+    }
   }
 
   if (!save || !league) {
@@ -144,7 +167,7 @@ export function TradeCenterPage() {
             }}
             onRemoveAsset={(teamId, idx) => removeAssetFromTrade(proposal.id, teamId, idx)}
             onSaveProtection={(pickId, protection) => setPickProtection(pickId, protection)}
-            onSubmit={() => submitTrade(proposal.id)}
+            onSubmit={handleSubmit}
             onSaveDraft={() => setProposalId(null)}
             onCancel={() => {
               cancelTradeProposal(proposal.id)

@@ -79,6 +79,43 @@ function getGamesOnDate(
   )
 }
 
+function getRegularSeasonGamesOnDate(
+  games: Record<string, ScheduledGame>,
+  date: string,
+): ScheduledGame[] {
+  return Object.values(games).filter(
+    (g): g is ScheduledGame =>
+      !!g &&
+      !g.playoffSeriesId &&
+      g.status === 'scheduled' &&
+      g.date === date,
+  )
+}
+
+/** Sim all scheduled regular-season games on a date; primary game sims last when provided. */
+export async function simGamesOnDate(
+  save: GameSave,
+  date: string,
+  rng: SeededRandom,
+  session: SimSessionState,
+  primaryGameId?: string,
+): Promise<SimResult[]> {
+  const dayGames = getRegularSeasonGamesOnDate(save.league.games, date)
+  const order = primaryGameId
+    ? [
+        ...dayGames.filter((g) => g.id !== primaryGameId),
+        ...dayGames.filter((g) => g.id === primaryGameId),
+      ]
+    : dayGames
+
+  const results: SimResult[] = []
+  for (const game of order) {
+    const result = await simSingleGame(save, game, rng, session)
+    if (result) results.push(result)
+  }
+  return results
+}
+
 function getUserGames(
   games: Record<string, ScheduledGame>,
   userTeamId: string,

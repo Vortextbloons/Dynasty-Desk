@@ -21,6 +21,7 @@ import {
   prepareDraftClass,
   extendDraftClassToSlotCount,
 } from './draftEngine'
+import { advanceContractYears } from '@/game/management/contractActions'
 import {
   expireContracts,
   generateCompensationPicks,
@@ -68,6 +69,7 @@ export function beginOffseason(league: LeagueState, rng: SeededRandom): void {
     autoAllocateAIScouting(league, draftClass, league.userTeamId, rng)
   }
 
+  advanceContractYears(league)
   const expired = expireContracts(league)
   logOffseasonEvent(league, 'contract_expired', `${expired.length} contracts expired`, expired)
 
@@ -464,9 +466,8 @@ export function decideOption(
     return
   }
 
-  if (player.contract.optionYear && player.contract.yearsRemaining > 0) {
-    const optIdx = player.contract.optionYear - 1
-    player.contract.yearsRemaining = optIdx + 1
+  if (player.contract.option !== 'none') {
+    player.contract.yearsRemaining = 1
     player.contract.option = 'none'
     player.contract.optionYear = null
   }

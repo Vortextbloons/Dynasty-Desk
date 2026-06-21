@@ -6,8 +6,11 @@ import {
   buyoutPlayer,
   extendPlayer,
   signFreeAgent,
+  advanceContractYears,
 } from '@/game/management/contractActions'
-import { emptyContract } from '@/game/models/contract'
+import { emptyContract, createContract } from '@/game/models/contract'
+import { expireContracts } from '@/game/management/freeAgencyEngine'
+import type { LeagueState } from '@/game/models/league'
 import { DEFAULT_LEAGUE_RULES, getLeagueRules } from '@/game/models/leagueRules'
 import type { Player } from '@/game/models/player'
 import type { PlayerSeasonStat } from '@/game/models/player'
@@ -768,5 +771,116 @@ describe('signFreeAgent', () => {
     expect(result.patch.players['player-1']!.teamId).toBe('team-1')
     expect(result.patch.teams['team-1']!.roster).toContain('player-1')
     expect(result.patch.teams['team-1']!.finances!.payroll).toBe(10_000_000)
+  })
+})
+
+function makeMinimalLeagueForContractAdvance(
+  player: Player,
+  teamId = 'team-1',
+): LeagueState {
+  const team = makeTeam({ id: teamId })
+  team.roster = [player.id]
+  return {
+    id: 'league',
+    name: 'Test',
+    currentDate: '2026-07-01',
+    seasonYear: 2026,
+    phase: 'offseason',
+    rules,
+    eraConfig: {
+      season: '2025-26',
+      pace: 100,
+      league3PARate: 0.35,
+      leagueTsPct: 0.57,
+      leaguePpg: 112,
+      possessionCoefficient: 1,
+    },
+    snapshotId: 'snap',
+    teams: { [teamId]: team },
+    players: { [player.id]: player },
+    games: {},
+    standings: {},
+    scheduleGenerated: false,
+    transactions: [],
+    news: [],
+    awardsHistory: [],
+    draftPicks: [],
+    draftClasses: {},
+    drafts: {},
+    scoutingState: {},
+    freeAgentOffers: [],
+    qualifyingOffers: [],
+    compensationPicks: [],
+    offseasonLog: [],
+    rosterSizeCap: 20,
+    champions: [],
+    awards: [],
+    activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
+    userTeamId: teamId,
+  }
+}
+
+describe('advanceContractYears', () => {
+  it('decrements years remaining and shifts salary arrays', () => {
+    const player = makePlayer({
+      id: 'p1',
+      teamId: 'team-1',
+      contract: createContract({
+        salaryByYear: [5_000_000, 6_000_000],
+        yearsRemaining: 2,
+      }),
+    })
+    const league = makeMinimalLeagueForContractAdvance(player)
+
+    advanceContractYears(league)
+
+    expect(player.contract.yearsRemaining).toBe(1)
+    expect(player.contract.salaryByYear).toEqual([6_000_000])
+  })
+
+  it('skips players with a pending option at yearsRemaining 1', () => {
+    const player = makePlayer({
+      id: 'p1',
+      teamId: 'team-1',
+      contract: createContract({
+        salaryByYear: [10_000_000],
+        yearsRemaining: 1,
+        option: 'team',
+        optionYear: 4,
+      }),
+    })
+    const league = makeMinimalLeagueForContractAdvance(player)
+
+    advanceContractYears(league)
+
+    expect(player.contract.yearsRemaining).toBe(1)
+    expect(player.contract.salaryByYear).toEqual([10_000_000])
+  })
+
+  it('expires a two-year contract after two offseason ticks', () => {
+    const player = makePlayer({
+      id: 'p1',
+      teamId: 'team-1',
+      contract: createContract({
+        salaryByYear: [5_000_000, 5_000_000],
+        yearsRemaining: 2,
+      }),
+    })
+    const league = makeMinimalLeagueForContractAdvance(player)
+
+    advanceContractYears(league)
+    expect(player.contract.yearsRemaining).toBe(1)
+    expect(player.teamId).toBe('team-1')
+
+    advanceContractYears(league)
+    expect(player.contract.yearsRemaining).toBe(0)
+
+    const expired = expireContracts(league)
+    expect(expired).toContain('p1')
+    expect(player.teamId).toBeNull()
+    expect(league.teams['team-1']!.roster).not.toContain('p1')
   })
 })

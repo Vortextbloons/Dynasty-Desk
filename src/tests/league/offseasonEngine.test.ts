@@ -8,6 +8,7 @@ import {
   mergeCompensationPicksIntoDraftPicks,
   upcomingDraftYear,
   isOffseasonPhaseReadyToAdvance,
+  decideOption,
 } from '@/game/league/offseasonEngine'
 import {
   prepareDraftClass,
@@ -24,7 +25,8 @@ import {
   FORFEITED_PROSPECT_ID,
 } from '@/game/league/draftEngine'
 import { finalizeStrandedFreeAgents, identifyFreeAgents } from '@/game/management/freeAgencyEngine'
-import { makeTeam, makeRoster, emptyM10LeagueFields } from '@/tests/fixtures'
+import { makeTeam, makeRoster, emptyM10LeagueFields, makePlayer } from '@/tests/fixtures'
+import { createContract } from '@/game/models/contract'
 import type { LeagueState } from '@/game/models/league'
 import type { Draft } from '@/game/models/draft'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
@@ -83,6 +85,50 @@ function makeOffseasonLeague(phase: LeagueState['phase'] = 'offseason'): LeagueS
 
 describe('offseasonEngine', () => {
   const rng = new SeededRandom({ seed: 'offseason-test', position: 0 })
+
+  it('beginOffseason expires contracts when the final year completes', () => {
+    const league = makeOffseasonLeague('playoffs')
+    const expiring = makePlayer({
+      id: 'expiring',
+      teamId: 'user',
+      contract: createContract({
+        salaryByYear: [5_000_000],
+        yearsRemaining: 1,
+      }),
+    })
+    league.players.expiring = expiring
+    league.teams.user!.roster.push('expiring')
+
+    beginOffseason(league, rng)
+
+    expect(expiring.teamId).toBeNull()
+    expect(expiring.contract.yearsRemaining).toBe(0)
+    expect(league.teams.user!.roster).not.toContain('expiring')
+  })
+
+  it('decideOption accept keeps one option year instead of resetting contract length', () => {
+    const league = makeOffseasonLeague('offseason')
+    const player = makePlayer({
+      id: 'opt-player',
+      teamId: 'user',
+      contract: createContract({
+        salaryByYear: [12_000_000],
+        yearsRemaining: 1,
+        option: 'player',
+        optionYear: 4,
+      }),
+    })
+    league.players['opt-player'] = player
+    league.teams.user!.roster.push('opt-player')
+
+    decideOption(league, 'opt-player', true, 'user', rng)
+
+    expect(player.contract.yearsRemaining).toBe(1)
+    expect(player.contract.option).toBe('none')
+    expect(player.contract.optionYear).toBeNull()
+    expect(player.contract.salaryByYear).toEqual([12_000_000])
+    expect(player.teamId).toBe('user')
+  })
 
   it('beginOffseason prepares draft class and scouting without duplicate championship work', () => {
     const league = makeOffseasonLeague('playoffs')

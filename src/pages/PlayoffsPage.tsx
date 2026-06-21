@@ -9,7 +9,7 @@ import { PlayInSection } from '@/components/playoffs/PlayInSection'
 import { FinalsCard } from '@/components/playoffs/FinalsCard'
 import { ChampionCard } from '@/components/playoffs/ChampionCard'
 import { PlayoffBracketChart } from '@/components/charts/PlayoffBracketChart'
-import { cn } from '@/lib/utils'
+import { getPlayoffBracketBlockReason } from '@/game/league/playoffEngine'
 import { Trophy, Play, Square, FastForward } from 'lucide-react'
 
 type Tab = 'East' | 'West' | 'Finals'
@@ -29,14 +29,20 @@ export function PlayoffsPage() {
   const bracket = save?.league.playoffBracket
   const teams = save?.league.teams ?? {}
 
+  const playoffBlockReason = useMemo(() => {
+    if (!save) return null
+    return getPlayoffBracketBlockReason(save.league)
+  }, [save])
+
   const canGenerate = useMemo(() => {
     if (!save) return false
     const phase = save.league.phase
     return (
       (phase === 'regular_season' || phase === 'play_in' || phase === 'playoffs') &&
-      !save.league.playoffBracket
+      !save.league.playoffBracket &&
+      !playoffBlockReason
     )
-  }, [save])
+  }, [save, playoffBlockReason])
 
   const allSeries = useMemo(() => {
     if (!bracket) return []
@@ -109,6 +115,11 @@ export function PlayoffsPage() {
               <Button onClick={generatePlayoffBracket} size="sm">
                 Generate Bracket
               </Button>
+            )}
+            {!bracket && playoffBlockReason && (
+              <span className="text-xs text-[var(--color-muted-foreground)]">
+                {playoffBlockReason}
+              </span>
             )}
             {bracket && bracket.status !== 'complete' && (
               <>

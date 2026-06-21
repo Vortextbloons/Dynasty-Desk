@@ -188,7 +188,73 @@ function makeSeriesId(
   return `${prefix}-r${round}-${index}`
 }
 
+export function countRemainingRegularSeasonGames(league: LeagueState): number {
+  return Object.values(league.games).filter(
+    (g) => g && !g.playoffSeriesId && g.status === 'scheduled',
+  ).length
+}
+
+export function isRegularSeasonComplete(league: LeagueState): boolean {
+  if (!league.scheduleGenerated && Object.keys(league.games).length === 0) {
+    return false
+  }
+  if (countRemainingRegularSeasonGames(league) > 0) return false
+  const required = league.rules.regularSeasonGames
+  for (const standing of Object.values(league.standings)) {
+    if (!standing) continue
+    if (standing.gamesPlayed < required) return false
+  }
+  return Object.keys(league.standings).length > 0
+}
+
+export function getPlayoffBracketBlockReason(league: LeagueState): string | null {
+  if (!league.scheduleGenerated && Object.keys(league.games).length === 0) {
+    return 'Generate the season schedule before starting playoffs.'
+  }
+  const remaining = countRemainingRegularSeasonGames(league)
+  if (remaining > 0) {
+    return `${remaining} regular-season game${remaining === 1 ? '' : 's'} remain unplayed.`
+  }
+  const required = league.rules.regularSeasonGames
+  for (const [teamId, standing] of Object.entries(league.standings)) {
+    if (!standing || standing.gamesPlayed >= required) continue
+    const team = league.teams[teamId]
+    const label = team ? `${team.city} ${team.name}` : teamId
+    return `${label} has only played ${standing.gamesPlayed} of ${required} games.`
+  }
+  if (Object.keys(league.standings).length === 0) {
+    return 'Standings are not ready for playoffs.'
+  }
+  return null
+}
+
+export type GeneratePlayoffBracketResult =
+  | { ok: true; bracket: PlayoffBracket }
+  | { ok: false; reason: string }
+
+export function tryGeneratePlayoffBracket(
+  league: LeagueState,
+  rules: LeagueRules,
+): GeneratePlayoffBracketResult {
+  const blockReason = getPlayoffBracketBlockReason(league)
+  if (blockReason) {
+    return { ok: false, reason: blockReason }
+  }
+  return { ok: true, bracket: buildPlayoffBracket(league, rules) }
+}
+
 export function generatePlayoffBracket(
+  league: LeagueState,
+  rules: LeagueRules,
+): PlayoffBracket {
+  const result = tryGeneratePlayoffBracket(league, rules)
+  if (!result.ok) {
+    throw new Error(result.reason)
+  }
+  return result.bracket
+}
+
+function buildPlayoffBracket(
   league: LeagueState,
   rules: LeagueRules,
 ): PlayoffBracket {

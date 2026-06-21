@@ -1,5 +1,6 @@
 import type { Contract } from '@/game/models/contract'
 import { createContract } from '@/game/models/contract'
+import type { LeagueState } from '@/game/models/league'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { Player } from '@/game/models/player'
 import type { Team, LineupSettings } from '@/game/models/team'
@@ -420,4 +421,24 @@ function computeGuaranteedRemaining(contract: Contract): number {
     }
   }
   return total
+}
+
+function shiftContractYearArrays(contract: Contract): void {
+  contract.salaryByYear = contract.salaryByYear.slice(1)
+  contract.signingBonusByYear = contract.signingBonusByYear.slice(1)
+  contract.likelyBonusesByYear = contract.likelyBonusesByYear.slice(1)
+  contract.unlikelyBonusesByYear = contract.unlikelyBonusesByYear.slice(1)
+  contract.guaranteedByYear = contract.guaranteedByYear.slice(1)
+}
+
+/** Tick contract years at season end; does not release players (see expireContracts). */
+export function advanceContractYears(league: LeagueState): void {
+  for (const player of Object.values(league.players)) {
+    if (!player?.teamId) continue
+    const c = player.contract
+    if (c.yearsRemaining <= 0) continue
+    if (c.option !== 'none' && c.yearsRemaining === 1) continue
+    shiftContractYearArrays(c)
+    c.yearsRemaining -= 1
+  }
 }

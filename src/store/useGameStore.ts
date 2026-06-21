@@ -21,7 +21,6 @@ import {
   getActiveSaveId,
   setActiveSaveId,
 } from '@/game/core/activeSavePersistence'
-import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import type { TrainingFocus } from '@/game/models/training'
 import type { TeamStrategy } from '@/game/models/team'
 import type { NewsEvent, NewsType, NewsImportance } from '@/game/models/news'
@@ -38,8 +37,6 @@ import type { BoxScoreResult } from '@/game/models/sim'
 import { SeededRandom } from '@/game/sim/rng'
 import {
   createSimSessionState,
-  finalizationTargetFromSave,
-  simulateAndFinalizeGame,
 } from '@/game/league/gameFinalization'
 import { generateStubSchedule } from '@/game/sim/stubSchedule'
 import { generateSchedule } from '@/game/league/scheduleGenerator'
@@ -50,6 +47,7 @@ import {
 import {
   advanceSeason,
   advanceToNextUserGame,
+  simGamesOnDate,
   type SimProgress,
   type CancelToken,
 } from '@/game/league/simController'
@@ -69,7 +67,7 @@ import { validateRotation } from '@/game/management/rotationValidator'
 import { generateAutoRotation } from '@/game/management/autoRotation'
 import { addDays } from '@/lib/utils'
 import {
-  generatePlayoffBracket as generateBracket,
+  tryGeneratePlayoffBracket,
   advancePlayoffSeries,
   simulateSeries as simSeries,
 } from '@/game/league/playoffEngine'
@@ -254,7 +252,7 @@ interface GameStore {
   simUntilUserGame: () => Promise<{ gamesSimulated: number }>
   cancelSimulation: () => void
 
-  generatePlayoffBracket: () => void
+  generatePlayoffBracket: () => { ok: boolean; reason?: string }
   simNextPlayoffGame: () => Promise<{
     gamesSimulated: number
     seriesCompleted: string[]
@@ -1248,6 +1246,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (game.status === 'final' && game.boxScore) {
       return { gameId, boxScore: game.boxScore }
     }
+    if (game.playoffSeriesId) {
+      return { error: 'Use playoff sim controls for postseason games.' }
+    }
 
     const home = save.league.teams[game.homeTeamId]
     const away = save.league.teams[game.awayTeamId]
@@ -1265,18 +1266,16 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     const seededRng = new SeededRandom(save.rngState)
     const session = createSimSessionState(save.league)
-    const target = finalizationTargetFromSave(save)
-    const result = await simulateAndFinalizeGame(
-      target,
-      game,
+    const results = await simGamesOnDate(
+      save,
+      game.date,
       seededRng,
       session,
-      normalizeModernSimSpeed(save.settings.simSpeed),
+      gameId,
     )
-    if (!result) return { error: 'Could not simulate game.' }
+    const primary = results.find((r) => r.gameId === gameId)
+    if (!primary) return { error: 'Could not simulate game.' }
 
-    save.league.news.push(...result.post.news)
-    save.rngState = seededRng.state
     save.league.standings = recomputeStandings(
       save.league.games,
       save.league.teams,
@@ -1286,7 +1285,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     set({ save: { ...save } })
     get().scheduleAutoSave()
-    return { gameId, boxScore: result.boxScore }
+    return { gameId, boxScore: primary.boxScore }
   },
 
   simNextGame: async () => {
@@ -1317,16 +1316,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       if (!result.ok) return { gamesSimulated: 0, gameIds: [] }
     }
     const today = save.league.currentDate
-    const todays = Object.values(save.league.games).filter(
-      (g): g is NonNullable<typeof g> =>
-        g?.status === 'scheduled' && g.date === today,
-    )
-    const simIds: string[] = []
-    for (const game of todays) {
-      const result = await get().simOneGame(game.id)
-      if (!('error' in result)) simIds.push(result.gameId)
-    }
-    if (simIds.length > 0) {
+    const seededRng = new SeededRandom(save.rngState)
+    const session = createSimSessionState(save.league)
+    const results = await simGamesOnDate(save, today, seededRng, session)
+    if (results.length > 0) {
       save.league.standings = recomputeStandings(
         save.league.games,
         save.league.teams,
@@ -1336,7 +1329,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       set({ save: { ...save } })
       get().scheduleAutoSave()
     }
-    return { gamesSimulated: simIds.length, gameIds: simIds }
+    return {
+      gamesSimulated: results.length,
+      gameIds: results.map((r) => r.gameId),
+    }
   },
 
   simWeek: async () => {
@@ -1351,16 +1347,12 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
     const simIds: string[] = []
     const startDate = save.league.currentDate
+    const seededRng = new SeededRandom(save.rngState)
+    const session = createSimSessionState(save.league)
     for (let day = 0; day < 7; day++) {
       const targetDate = addDays(startDate, day)
-      const dayGames = Object.values(save.league.games).filter(
-        (g): g is NonNullable<typeof g> =>
-          g?.status === 'scheduled' && g.date === targetDate,
-      )
-      for (const game of dayGames) {
-        const result = await get().simOneGame(game.id)
-        if (!('error' in result)) simIds.push(result.gameId)
-      }
+      const results = await simGamesOnDate(save, targetDate, seededRng, session)
+      simIds.push(...results.map((r) => r.gameId))
     }
     if (simIds.length > 0) {
       save.league.standings = recomputeStandings(
@@ -1496,12 +1488,16 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           (g) => g?.status === 'scheduled',
         ).length
         if (remainingScheduled === 0) {
-          nextPhase = save.league.rules.hasPlayIn ? 'play_in' : 'playoffs'
-          save.league.phase = nextPhase as LeaguePhase
-          phaseTransitioned = true
-
-          const bracket = generateBracket(save.league, save.league.rules)
-          save.league.playoffBracket = bracket
+          const playoffResult = tryGeneratePlayoffBracket(
+            save.league,
+            save.league.rules,
+          )
+          if (playoffResult.ok) {
+            nextPhase = save.league.rules.hasPlayIn ? 'play_in' : 'playoffs'
+            save.league.phase = nextPhase as LeaguePhase
+            phaseTransitioned = true
+            save.league.playoffBracket = playoffResult.bracket
+          }
         }
       }
 
@@ -1553,19 +1549,24 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   generatePlayoffBracket: () => {
     const { save } = get()
-    if (!save) return
+    if (!save) return { ok: false, reason: 'No active save.' }
 
-    const bracket = generateBracket(save.league, save.league.rules)
-    save.league.playoffBracket = bracket
+    const result = tryGeneratePlayoffBracket(save.league, save.league.rules)
+    if (!result.ok) {
+      return { ok: false, reason: result.reason }
+    }
 
-    if (bracket.status === 'bracket') {
+    save.league.playoffBracket = result.bracket
+
+    if (result.bracket.status === 'bracket') {
       save.league.phase = 'playoffs'
-    } else if (bracket.status === 'play_in') {
+    } else if (result.bracket.status === 'play_in') {
       save.league.phase = 'play_in'
     }
 
     set({ save: { ...save } })
     get().scheduleAutoSave()
+    return { ok: true }
   },
 
   simNextPlayoffGame: async () => {
