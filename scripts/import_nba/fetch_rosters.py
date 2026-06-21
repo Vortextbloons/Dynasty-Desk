@@ -6,10 +6,11 @@ Output: public/data/nba/{season}/teams.json + roster.json
 from __future__ import annotations
 
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-from .config import ensure_output_dir
+from .config import ensure_output_dir, MAX_WORKERS
 from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
 
 try:
@@ -25,18 +26,38 @@ except Exception as exc:  # pragma: no cover - import-time guard
 
 
 CURRENT_TEAM_COUNT = 30
-CONFERENCE_MAP = {
-    "East": "East",
-    "West": "West",
-}
 
-DIVISION_MAP = {
-    "Atlantic": "Atlantic",
-    "Central": "Central",
-    "Southeast": "Southeast",
-    "Northwest": "Northwest",
-    "Pacific": "Pacific",
-    "Southwest": "Southwest",
+TEAM_CONFERENCES = {
+    "1610612738": ("East", "Atlantic"),   # Celtics
+    "1610612747": ("West", "Pacific"),    # Lakers
+    "1610612744": ("West", "Pacific"),    # Warriors
+    "1610612749": ("East", "Central"),    # Bucks
+    "1610612743": ("West", "Northwest"),  # Nuggets
+    "1610612760": ("West", "Northwest"),  # Thunder
+    "1610612748": ("East", "Southeast"),  # Heat
+    "1610612755": ("East", "Atlantic"),   # 76ers
+    "1610612751": ("East", "Atlantic"),   # Nets
+    "1610612752": ("East", "Atlantic"),   # Knicks
+    "1610612741": ("East", "Central"),    # Bulls
+    "1610612737": ("East", "Southeast"),  # Hawks
+    "1610612739": ("East", "Central"),    # Cavaliers
+    "1610612765": ("East", "Central"),    # Pistons
+    "1610612754": ("East", "Central"),    # Pacers
+    "1610612763": ("West", "Southwest"),  # Grizzlies
+    "1610612762": ("West", "Northwest"),  # Jazz
+    "1610612761": ("East", "Atlantic"),   # Raptors
+    "1610612750": ("West", "Northwest"),  # Timberwolves
+    "1610612757": ("West", "Northwest"),  # Trail Blazers
+    "1610612758": ("West", "Pacific"),    # Kings
+    "1610612756": ("West", "Pacific"),    # Suns
+    "1610612746": ("West", "Pacific"),    # Clippers
+    "1610612742": ("West", "Southwest"),  # Mavericks
+    "1610612745": ("West", "Southwest"),  # Rockets
+    "1610612740": ("West", "Southwest"),  # Pelicans
+    "1610612764": ("East", "Southeast"),  # Wizards
+    "1610612766": ("East", "Southeast"),  # Hornets
+    "1610612753": ("East", "Southeast"),  # Magic
+    "1610612759": ("West", "Southwest"),  # Spurs
 }
 
 TEAM_COLORS = {
@@ -79,20 +100,20 @@ def fetch_team_definitions() -> list[dict[str, Any]]:
         return cached
 
     def _do_fetch() -> list[dict[str, Any]]:
-        df = nba_static_teams.get_teams()
+        data = nba_static_teams.get_teams()
         out: list[dict[str, Any]] = []
-        for _, row in df.iterrows():
+        for row in data:
+            ext_id = str(int(row["id"]))
+            conf, div = TEAM_CONFERENCES.get(ext_id, ("East", "Atlantic"))
             out.append(
                 {
-                    "externalId": str(int(row["id"])),
+                    "externalId": ext_id,
                     "city": row["city"],
                     "name": row["nickname"],
                     "abbreviation": row["abbreviation"],
-                    "conference": CONFERENCE_MAP.get(row["conference"], row["conference"]),
-                    "division": DIVISION_MAP.get(row["division"], row["division"]),
+                    "conference": conf,
+                    "division": div,
                     "fullName": row["full_name"],
-                    "arena": row.get("arena", ""),
-                    "capacity": int(row.get("capacity", 0)) if row.get("capacity") else 0,
                 }
             )
         return out
@@ -196,20 +217,27 @@ def run(season: str) -> None:
         )
 
     write_json(out / "teams.json", teams_out)
-    print(f"  ✓ wrote teams.json ({len(teams_out)} teams)")
+    print(f"  [OK] wrote teams.json ({len(teams_out)} teams)")
 
-    print(f"[{season}] fetching rosters")
-    roster_out: list[dict[str, Any]] = []
-    for t in teams:
-        team_id = t["externalId"]
+    print(f"[{season}] fetching rosters ({MAX_WORKERS} workers)")
+    team_ids = [t["externalId"] for t in teams]
+
+    def _fetch_one(team_id: str) -> tuple[str, list[dict[str, Any]]]:
         rate_limit_sleep()
-        players = fetch_roster(season, team_id)
-        for p in players:
-            roster_out.append(
-                {
-                    **p,
-                    "teamInternalId": team_internal_ids[team_id],
-                }
-            )
+        return team_id, fetch_roster(season, team_id)
+
+    roster_out: list[dict[str, Any]] = []
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+        futures = {pool.submit(_fetch_one, tid): tid for tid in team_ids}
+        done = 0
+        for future in as_completed(futures):
+            done += 1
+            team_id, players = future.result()
+            internal_id = team_internal_ids[team_id]
+            for p in players:
+                roster_out.append({**p, "teamInternalId": internal_id})
+            if done % 10 == 0 or done == len(team_ids):
+                print(f"  ... {done}/{len(team_ids)} teams fetched")
+
     write_json(out / "roster.json", roster_out)
-    print(f"  ✓ wrote roster.json ({len(roster_out)} players)")
+    print(f"  [OK] wrote roster.json ({len(roster_out)} players)")

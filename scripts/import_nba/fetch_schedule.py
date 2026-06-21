@@ -54,4 +54,4 @@ def run(season: str) -> None:
         "season": season,
         "games": games,
     })
-    print(f"  ✓ wrote {len(games)} games")
+    print(f"  [OK] wrote {len(games)} games")

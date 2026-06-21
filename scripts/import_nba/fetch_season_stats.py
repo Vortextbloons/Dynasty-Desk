@@ -112,4 +112,4 @@ def run(season: str, roster: list[dict[str, Any]]) -> None:
     payload = fetch_league_dash(season)
     rows = to_player_season_stats(payload, season, roster)
     write_json(out / "season-stats.json", rows)
-    print(f"  ✓ wrote season-stats.json ({len(rows)} players)")
+    print(f"  [OK] wrote season-stats.json ({len(rows)} players)")

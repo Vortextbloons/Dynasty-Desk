@@ -43,7 +43,7 @@ def with_retry(fn: Callable[[], T]) -> T:
         try:
             result = fn()
             if attempt > 0:
-                print(f"  ✓ recovered after {attempt} retries")
+                print(f"  [OK] recovered after {attempt} retries")
             return result
         except Exception as exc:  # noqa: BLE001
             last_err = exc
@@ -61,6 +61,10 @@ def rate_limit_sleep() -> None:
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, default=str), encoding="utf-8")
+
+
+def read_json(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def season_label(season: str) -> str:

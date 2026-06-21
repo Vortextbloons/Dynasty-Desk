@@ -58,4 +58,4 @@ def run(force: bool = False) -> None:
         print(f"  · champions.json exists, skipping (use --force to overwrite)")
         return
     write_json(out, {"version": "0.2.0", "updatedAt": "", "champions": CHAMPIONS_HISTORY})
-    print(f"  ✓ wrote champions.json ({len(CHAMPIONS_HISTORY)} entries)")
+    print(f"  [OK] wrote champions.json ({len(CHAMPIONS_HISTORY)} entries)")

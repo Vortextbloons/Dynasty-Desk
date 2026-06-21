@@ -43,7 +43,7 @@ def compute_career_stats(seasons: list[str] | None = None) -> None:
         careers = [career_map[pid] for pid in player_ids if pid in career_map]
         out = ensure_output_dir(season)
         write_json(out / "career-stats.json", careers)
-        print(f"  ✓ computed {len(careers)} career stat files for {season}")
+        print(f"  [OK] computed {len(careers)} career stat files for {season}")
 
 
 def run(seasons: list[str] | None = None) -> None:

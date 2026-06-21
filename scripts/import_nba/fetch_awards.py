@@ -1,16 +1,21 @@
 """Fetch historical award winners.
 
 Output: public/data/shared/awards-history.json
+
+Uses CommonAllPlayers + PlayerAwards per star player.
+Falls back to empty list on failure.
 """
 
 from __future__ import annotations
 
+import sys
 from typing import Any
 
-from .util import read_cache, with_retry, write_cache, write_json, write_json  # noqa: F401
+from .config import SHARED_ROOT
+from .util import rate_limit_sleep, read_cache, with_retry, write_cache, write_json
 
 try:
-    from nba_api.stats.endpoints import awardwinners
+    from nba_api.stats.endpoints import commonallplayers, playerawards
 except Exception as exc:  # pragma: no cover
     print(
         f"Could not import nba_api: {exc}\n"
@@ -19,50 +24,85 @@ except Exception as exc:  # pragma: no cover
     )
     raise
 
+# Only fetch awards for top players to avoid thousands of API calls
+TOP_PLAYER_IDS = [
+    "2544",   # LeBron James
+    "201566", # Kevin Durant
+    "203999", # Nikola Jokic
+    "203507", # Giannis Antetokounmpo
+    "1628973", # Trae Young
+    "1628369", # Jayson Tatum
+    "1628983", # Shai Gilgeous-Alexander
+    "1630169", # Anthony Edwards
+    "203954",  # Joel Embiid
+    "1626164", # Devin Booker
+    "1628378", # Donovan Mitchell
+    "1629029", # Luka Doncic
+    "1627759", # Jaylen Brown
+    "1631000", # Paolo Banchero
+    "1630596", # Cade Cunningham
+    "6450",    # Kawhi Leonard
+    "101162",  # Chris Paul
+    "201939",  # Stephen Curry
+    "201935",  # James Harden
+    "201569",  # Russell Westbrook
+]
 
-def fetch_award_winners(season: str) -> list[dict[str, Any]]:
-    cached = read_cache("award_winners", season=season)
-    if cached is not None:
-        return cached
+AWARD_KEYWORDS = {
+    "Most Valuable Player": "mvp",
+    "Defensive Player of the Year": "dpoy",
+    "Rookie of the Year": "roy",
+    "Rookie": "roy",
+    "Sixth Man of the Year": "smoy",
+    "Most Improved Player": "mip",
+    "Finals MVP": "finals_mvp",
+    "Finals Most Valuable Player": "finals_mvp",
+}
 
+
+def fetch_awards_for_player(player_id: str) -> list[dict[str, Any]]:
     def _do_fetch() -> list[dict[str, Any]]:
+        resp = playerawards.PlayerAwards(player_id=player_id)
+        df = resp.get_data_frames()[0]
         out: list[dict[str, Any]] = []
-        for award_type in (
-            "mvp",
-            "dpoy",
-            "roy",
-            "smoy",
-            "mip",
-            "finals_mvp",
-        ):
-            try:
-                resp = awardwinners.AwardWinners(season=season, award_type=award_type.upper())
-            except Exception:
+        for _, row in df.iterrows():
+            desc = str(row.get("DESCRIPTION", ""))
+            award_type = None
+            for keyword, atype in AWARD_KEYWORDS.items():
+                if keyword.lower() in desc.lower():
+                    award_type = atype
+                    break
+            if not award_type:
                 continue
-            df = resp.get_data_frames()[0]
-            for _, row in df.iterrows():
-                out.append(
-                    {
-                        "season": season,
-                        "award": award_type,
-                        "playerExternalId": str(int(row["PERSON_ID"])),
-                        "teamExternalId": str(int(row["TEAM_ID"])) if row.get("TEAM_ID") is not None else "",
-                    }
-                )
+            season = str(row.get("SEASON", ""))
+            if not season:
+                continue
+            out.append({
+                "season": season,
+                "award": award_type,
+                "playerExternalId": player_id,
+                "teamExternalId": str(int(row.get("TEAM_ID", 0))) if row.get("TEAM_ID") else "",
+                "playerName": f"{row.get('FIRST_NAME', '')} {row.get('LAST_NAME', '')}".strip(),
+            })
         return out
 
-    payload = with_retry(_do_fetch)
-    write_cache("award_winners", payload, season=season)
-    return payload
+    return with_retry(_do_fetch)
 
 
 def run(seasons: list[str]) -> None:
-    from .config import SHARED_ROOT
-
-    out = SHARED_ROOT / "awards-history.json"
+    SHARED_ROOT.mkdir(parents=True, exist_ok=True)
+    print("[awards] fetching award winners for top players")
     all_awards: list[dict[str, Any]] = []
-    for season in seasons:
-        print(f"[{season}] fetching award winners")
-        all_awards.extend(fetch_award_winners(season))
-    write_json(out, {"version": "0.2.0", "updatedAt": "", "awards": all_awards})
-    print(f"  ✓ wrote awards-history.json ({len(all_awards)} entries)")
+    for pid in TOP_PLAYER_IDS:
+        rate_limit_sleep()
+        try:
+            awards = fetch_awards_for_player(pid)
+            all_awards.extend(awards)
+        except Exception as exc:
+            print(f"  ! failed for player {pid}: {exc}")
+    write_json(SHARED_ROOT / "awards-history.json", {
+        "version": "0.2.0",
+        "updatedAt": "",
+        "awards": all_awards,
+    })
+    print(f"  [OK] wrote awards-history.json ({len(all_awards)} entries)")

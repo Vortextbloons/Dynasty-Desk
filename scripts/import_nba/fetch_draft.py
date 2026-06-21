@@ -73,4 +73,4 @@ def run() -> None:
         "version": "0.1.0",
         "picks": picks,
     })
-    print(f"  ✓ wrote {len(picks)} draft picks")
+    print(f"  [OK] wrote {len(picks)} draft picks")
