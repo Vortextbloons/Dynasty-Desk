@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { Player } from '@/game/models'
 import type { StaticTeam } from '@/game/models'
 import { PlayerTableCell } from '@/components/shared/PlayerTableCell'
