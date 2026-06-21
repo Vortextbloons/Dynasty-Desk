@@ -106,11 +106,16 @@ export async function runCalibrationSuite(
     return bOvr - aOvr
   })
   const top10Ids = new Set(sortedByOvr.slice(0, 10).map((p) => p.id))
+  const top30Ids = new Set(sortedByOvr.slice(0, 30).map((p) => p.id))
   let top10Fga = 0
+  let top30Fga = 0
   let benchFga = 0
   for (const [playerId, fga] of playerFga) {
     if (top10Ids.has(playerId)) {
       top10Fga += fga
+    }
+    if (top30Ids.has(playerId)) {
+      top30Fga += fga
     } else {
       benchFga += fga
     }
@@ -124,7 +129,7 @@ export async function runCalibrationSuite(
     homeWinRate: homeWins / games,
     starUsageDistribution: {
       top10: totalFgaAll > 0 ? top10Fga / totalFgaAll : 0,
-      top30: totalFgaAll > 0 ? (top10Fga + benchFga) / totalFgaAll : 0,
+      top30: totalFgaAll > 0 ? top30Fga / totalFgaAll : 0,
       bench: totalFgaAll > 0 ? benchFga / totalFgaAll : 0,
     },
     blowoutRate: blowouts / games,

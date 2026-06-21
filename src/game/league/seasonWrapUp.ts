@@ -2,13 +2,13 @@ import type { LeagueState } from '@/game/models/league'
 import type { NewsEvent } from '@/game/models/news'
 import type { AwardType } from '@/game/models/award'
 import { computeSeasonAwards, computeAwardRaces } from '@/game/league/awardsEngine'
-import { createAwardEvent } from '@/game/league/newsEngine'
+import { createAwardEvent, createMilestoneEvent, createCoachPressureEvent } from '@/game/league/newsEngine'
 import { endOfSeasonDevelopment } from '@/game/sim/developmentEngine'
 import { computeOverall } from '@/game/ratings/overallWeights'
 import type { SeededRandom } from '@/game/sim/rng'
 import { inductPlayers } from '@/game/league/hallOfFameEngine'
-import { createMilestoneEvent } from '@/game/league/newsEngine'
 import { checkSeasonRecords } from '@/game/league/recordTracker'
+import { evaluateCoachPressure } from '@/game/management/coachPressureEngine'
 
 const MAJOR_AWARDS: AwardType[] = ['mvp', 'dpoy', 'roy', 'smoy', 'mip', 'coty']
 
@@ -100,5 +100,16 @@ export function runLeagueSeasonAwards(league: LeagueState): NewsEvent[] {
     }
   }
 
+  return news
+}
+
+export function runLeagueCoachPressureNews(league: LeagueState): NewsEvent[] {
+  const news: NewsEvent[] = []
+  for (const team of Object.values(league.teams)) {
+    const pressure = evaluateCoachPressure(team, league)
+    if (pressure === 'low') continue
+    const teamName = `${team.city} ${team.name}`
+    news.push(createCoachPressureEvent(team.id, teamName, pressure, league.currentDate))
+  }
   return news
 }

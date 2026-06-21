@@ -192,13 +192,14 @@ describe('formatLast10', () => {
 })
 
 describe('head-to-head tiebreaker', () => {
-  it('computes head-to-head wins in tiebreaker', () => {
+  it('bos ranked above nyk when bos won h2h series', () => {
     const g1 = makeGame({ id: 'g1', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100, isConference: true })
     const g2 = makeGame({ id: 'g2', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100, isConference: true, date: '2025-10-22' })
     const games = { [g1.id]: g1, [g2.id]: g2 }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.tiebreaker.headToHeadWins).toBe(2)
-    expect(standings['nyk']!.tiebreaker.headToHeadWins).toBe(0)
+    // bos is 2-0, nyk is 0-2 — bos ranks higher by wins, not h2h
+    expect(standings['bos']!.conferenceRank).toBe(1)
+    expect(standings['nyk']!.conferenceRank).toBe(2)
   })
 
   it('uses head-to-head wins as tiebreaker when W-L and conference pct are tied', () => {

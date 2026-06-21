@@ -213,16 +213,14 @@ export function recomputeStandings(
     s.last10 = data.results.slice(-10).join('')
 
     const confGames = s.conferenceWins + s.conferenceLosses
-    const h2hMap = allH2h.get(tid)
-    const h2hTotal = h2hMap ? Array.from(h2hMap.values()).reduce((a, b) => a + b, 0) : 0
     s.tiebreaker = {
-      headToHeadWins: h2hTotal,
+      headToHeadWins: 0,
       conferenceWinPct: confGames > 0 ? s.conferenceWins / confGames : 0,
       pointDifferential: s.pointDifferential,
     }
   }
 
-  assignConferenceRanks(standings, teams)
+  assignConferenceRanks(standings, teams, allH2h)
   computeMagicNumbers(standings, teams, totalGamesPerTeam)
   computeClinchAndElimination(standings, teams)
 
@@ -233,6 +231,7 @@ function sortAndRank(
   standings: Record<string, TeamStanding>,
   teamIds: string[],
   rankField: 'conferenceRank' | 'divisionRank',
+  allH2h: Map<string, Map<string, number>>,
 ): void {
   teamIds.sort((a, b) => {
     const sa = standings[a]
@@ -243,8 +242,10 @@ function sortAndRank(
     if (sa.tiebreaker.conferenceWinPct !== sb.tiebreaker.conferenceWinPct) {
       return sb.tiebreaker.conferenceWinPct - sa.tiebreaker.conferenceWinPct
     }
-    if (sa.tiebreaker.headToHeadWins !== sb.tiebreaker.headToHeadWins) {
-      return sb.tiebreaker.headToHeadWins - sa.tiebreaker.headToHeadWins
+    const aH2hWins = allH2h.get(a)?.get(b) ?? 0
+    const bH2hWins = allH2h.get(b)?.get(a) ?? 0
+    if (aH2hWins !== bH2hWins) {
+      return bH2hWins - aH2hWins
     }
     return sb.pointDifferential - sa.pointDifferential
   })
@@ -258,6 +259,7 @@ function sortAndRank(
 function assignConferenceRanks(
   standings: Record<string, TeamStanding>,
   teams: Record<string, Team>,
+  allH2h: Map<string, Map<string, number>>,
 ): void {
   const conferences: Record<string, string[]> = { East: [], West: [] }
   for (const [tid, team] of Object.entries(teams)) {
@@ -266,7 +268,7 @@ function assignConferenceRanks(
   }
 
   for (const teamIds of Object.values(conferences)) {
-    sortAndRank(standings, teamIds, 'conferenceRank')
+    sortAndRank(standings, teamIds, 'conferenceRank', allH2h)
   }
 
   const divisions: Record<string, string[]> = {}
@@ -278,7 +280,7 @@ function assignConferenceRanks(
   }
 
   for (const teamIds of Object.values(divisions)) {
-    sortAndRank(standings, teamIds, 'divisionRank')
+    sortAndRank(standings, teamIds, 'divisionRank', allH2h)
   }
 }
 

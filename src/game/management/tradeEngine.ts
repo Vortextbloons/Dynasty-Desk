@@ -12,6 +12,7 @@ import type {
 import { computeApronStatus } from './capEngine'
 import { computeFullTaxBill } from './luxuryTaxEngine'
 import { recomputeStepienFlags } from './tradeStepien'
+import { createRosterChangeEvent } from '@/game/league/newsEngine'
 
 export type ApronStatus = 'below' | 'first' | 'second'
 
@@ -420,6 +421,14 @@ export function executeTrade(
   if (!newLeague.recentlyTraded) newLeague.recentlyTraded = {}
   for (const move of playerMoves) {
     newLeague.recentlyTraded[move.player.id] = league.rules.seasonLabel
+    const fromTeam = move.player.teamId ? newLeague.teams[move.player.teamId] : null
+    const toTeam = newLeague.teams[move.toTeamId]
+    const fromName = fromTeam ? `${fromTeam.city} ${fromTeam.name}` : null
+    const toName = toTeam ? `${toTeam.city} ${toTeam.name}` : null
+    const playerName = `${move.player.firstName} ${move.player.lastName}`
+    newLeague.news.push(
+      createRosterChangeEvent(move.player.id, playerName, fromName, toName, 'was traded', newLeague.currentDate),
+    )
   }
 
   for (const side of proposal.sides) {

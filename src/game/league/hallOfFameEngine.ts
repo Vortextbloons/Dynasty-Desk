@@ -133,7 +133,7 @@ function deriveAccolades(playerId: string, league: LeagueState): PlayerAccolades
         case 'finals_mvp': accolades.finalsMvp++; break
         case 'all_nba_1':
         case 'all_nba_2':
-        case 'all_nba_3': accolades.allNba++; accolades.allStar++; break
+        case 'all_nba_3': accolades.allNba++; break
         case 'all_defense_1':
         case 'all_defense_2': accolades.allDefense++; break
       }

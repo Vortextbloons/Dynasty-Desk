@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { buildBoxScore, checkConsistency } from '@/game/sim/boxScoreBuilder'
-import type { GameState, SimEvent } from '@/game/models/sim'
+import type { GameState, SimEvent, BoxScoreResult } from '@/game/models/sim'
 
 function makeGameState(events: SimEvent[]): GameState {
   return {
@@ -194,7 +194,7 @@ describe('checkConsistency', () => {
       playerStats: {
         h1: { playerId: 'h1', teamId: 'h', started: true, minutes: 30, points: 2, fgm: 1, fga: 2, tpm: 0, tpa: 0, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 1, totalRebounds: 1, assists: 1, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 1, attempted: 2 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 0, attempted: 0 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
         h2: { playerId: 'h2', teamId: 'h', started: true, minutes: 30, points: 3, fgm: 1, fga: 2, tpm: 1, tpa: 2, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 1, totalRebounds: 1, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 0, attempted: 0 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 1, attempted: 2 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
-        a1: { playerId: 'a1', teamId: 'a', started: true, minutes: 30, points: 3, fgm: 1, fga: 3, tpm: 1, tpa: 1, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveReounds: 1, totalRebounds: 1, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 0, attempted: 0 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 1, attempted: 1 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
+        a1: { playerId: 'a1', teamId: 'a', started: true, minutes: 30, points: 3, fgm: 1, fga: 3, tpm: 1, tpa: 1, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 1, totalRebounds: 1, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 0, attempted: 0 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 1, attempted: 1 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
       },
       keyPlays: [],
     } as unknown as BoxScoreResult
