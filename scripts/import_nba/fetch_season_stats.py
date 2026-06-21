@@ -51,11 +51,46 @@ def fetch_league_dash(season: str) -> list[dict[str, Any]]:
     return payload
 
 
+def clamp(v: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, v))
+
+
 def jsonable_rows(df: Any) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for _, row in df.iterrows():
         rows.append({k: (None if (hasattr(v, "item") and not isinstance(v, (list, dict))) else v) for k, v in row.to_dict().items()})
     return rows
+
+
+def estimate_per(pts: float, reb: float, ast: float, stl: float, blk: float, tov: float,
+                  fga: float, fta: float, oreb: float, gp: int) -> float:
+    """Estimate PER from box score stats (Hollinger approximation)."""
+    if gp == 0:
+        return 0
+    mpg = pts / max(1, gp)  # rough proxy
+    factor = 2 / 3 - 0.5 * (ast / max(1, pts)) * (2 / 3)
+    vop = pts / max(1, fga + 0.44 * fta + tov)
+    drbp = (reb + blk) / max(1, reb + blk + 0)
+    per_unadj = (pts + reb + ast + stl + blk - tov * 2 - fga * (vop - 0.5)) / max(1, gp)
+    # Scale to typical PER range (0-30, league avg ~15)
+    return clamp(per_unadj * 1.2 + 10, 0, 35)
+
+
+def estimate_bpm(pts: float, reb: float, ast: float, stl: float, blk: float,
+                  tov: float, fga: float, fta: float, gp: int) -> float:
+    """Estimate BPM from box score stats (rough approximation)."""
+    if gp == 0:
+        return 0
+    ppg = pts / gp
+    rpg = reb / gp
+    apg = ast / gp
+    spg = stl / gp
+    bpg = blk / gp
+    topg = tov / gp
+    fg_pct = (pts - (fta * 0.75)) / max(1, fga * 2)  # rough
+    # Simple BPM-like formula
+    bpm = (ppg * 0.09 + rpg * 0.11 + apg * 0.16 + spg * 1.5 + bpg * 1.5 - topg * 0.9 - 12)
+    return clamp(bpm, -8, 15)
 
 
 def to_player_season_stats(payload: list[dict[str, Any]], season: str, roster: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -71,6 +106,7 @@ def to_player_season_stats(payload: list[dict[str, Any]], season: str, roster: l
     for ext_id, b in base_by_id.items():
         a = adv_by_id.get(ext_id, {})
         rp = roster_by_id.get(ext_id, {})
+        gp = int(b.get("GP") or 0)
         out.append(
             {
                 "playerExternalId": ext_id,
@@ -96,10 +132,31 @@ def to_player_season_stats(payload: list[dict[str, Any]], season: str, roster: l
                 "fta": float(b.get("FTA") or 0) * int(b.get("GP") or 0),
                 "tsPct": float(a.get("TS_PCT") or 0),
                 "efgPct": float(a.get("EFG_PCT") or 0),
-                "per": float(a.get("PER") or 0),
+                "per": float(a.get("PER") or 0) or estimate_per(
+                    float(b.get("PTS") or 0) * gp,
+                    float(b.get("REB") or 0) * gp,
+                    float(b.get("AST") or 0) * gp,
+                    float(b.get("STL") or 0) * gp,
+                    float(b.get("BLK") or 0) * gp,
+                    float(b.get("TOV") or 0) * gp,
+                    float(b.get("FGA") or 0) * gp,
+                    float(b.get("FTA") or 0) * gp,
+                    float(b.get("OREB") or 0) * gp,
+                    gp,
+                ),
                 "usageRate": float(a.get("USG_PCT") or 0) * 100 if a.get("USG_PCT") is not None else 0,
                 "winShares": float(a.get("WS") or 0),
-                "boxPlusMinus": float(a.get("BPM") or 0),
+                "boxPlusMinus": float(a.get("BPM") or 0) or estimate_bpm(
+                    float(b.get("PTS") or 0) * gp,
+                    float(b.get("REB") or 0) * gp,
+                    float(b.get("AST") or 0) * gp,
+                    float(b.get("STL") or 0) * gp,
+                    float(b.get("BLK") or 0) * gp,
+                    float(b.get("TOV") or 0) * gp,
+                    float(b.get("FGA") or 0) * gp,
+                    float(b.get("FTA") or 0) * gp,
+                    gp,
+                ),
                 "vorp": float(a.get("VORP") or 0),
             }
         )
