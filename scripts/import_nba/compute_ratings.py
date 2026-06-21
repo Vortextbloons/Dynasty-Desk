@@ -393,7 +393,7 @@ SALARY_TIERS = [
 
 
 def derive_contract(overall: int, age: int, rng: random.Random) -> dict[str, Any]:
-    """Estimate contract from overall rating and age."""
+    """Estimate contract from overall rating and age. Matches TS Contract interface."""
     base_salary = 1_500_000
     for min_ovr, salary in SALARY_TIERS:
         if overall >= min_ovr:
@@ -412,27 +412,41 @@ def derive_contract(overall: int, age: int, rng: random.Random) -> dict[str, Any
     for i in range(years):
         salary_by_year.append(int(base_salary * (1.08 ** i)))
 
-    total_value = sum(salary_by_year)
-    guaranteed = salary_by_year.copy()
-    if years > 3:
-        guaranteed[-1] = 0
+    signing_bonus = int(base_salary * 0.05)
+    signing_bonus_by_year = [int(signing_bonus / years)] * years
+    signing_bonus_by_year[-1] = signing_bonus - sum(signing_bonus_by_year[:-1]) if years > 1 else signing_bonus
 
-    bird_rights = years_in_league >= 7
-    early_bird = years_in_league >= 4
+    # Option type
+    if years >= 4:
+        option = "player"
+        option_year = years - 1
+    else:
+        option = "none"
+        option_year = None
+
+    # Guaranteed: all years except last for 4+ year deals
+    guaranteed = years <= 3
+    guaranteed_by_year = [True] * years
+    if years > 3:
+        guaranteed_by_year[-1] = False
 
     return {
         "salaryByYear": salary_by_year,
-        "totalValue": total_value,
         "yearsRemaining": years,
-        "guaranteed": guaranteed,
+        "option": option,
+        "optionYear": option_year,
         "noTradeClause": False,
-        "tradeKickerPct": 0.0,
+        "signingBonusByYear": signing_bonus_by_year,
+        "likelyBonusesByYear": [0] * years,
+        "unlikelyBonusesByYear": [0] * years,
+        "guaranteed": guaranteed,
+        "guaranteedByYear": guaranteed_by_year,
+        "tradeKickers": [],
         "poisonPill": False,
-        "playerOption": years >= 4,
-        "teamOption": False,
-        "signingBonus": int(base_salary * 0.05),
-        "birdRights": bird_rights,
-        "earlyBird": early_bird,
+        "birdRights": years_in_league >= 7,
+        "earlyBird": years_in_league >= 4,
+        "baseYearCompensation": False,
+        "deferredMoney": [],
     }
 
 
