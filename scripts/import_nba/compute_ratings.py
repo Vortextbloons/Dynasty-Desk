@@ -190,6 +190,13 @@ def compute_real_overall(ratings: dict[str, int], position: str, stats: dict[str
     if production_impact == 0:
         return skill_overall
 
+    gp = int(stats.get("gamesPlayed", 0) or 0)
+    minutes = float(stats.get("minutes", 0) or 0)
+    ppg = float(stats.get("points", 0) or 0) / max(1, gp)
+    rpg = float(stats.get("rebounds", 0) or 0) / max(1, gp)
+    mpg = minutes / max(1, gp)
+    ts_pct = float(stats.get("tsPct", 0) or 0)
+
     # Stars should be recognized by their actual production, while role players
     # still mostly follow the granular skill model.
     blended = skill_overall * 0.65 + production_impact * 0.35
@@ -199,6 +206,21 @@ def compute_real_overall(ratings: dict[str, int], position: str, stats: dict[str
         blended = max(blended, production_impact - 2)
     elif production_impact >= 78:
         blended = max(blended, production_impact - 1)
+
+    if mpg >= 28:
+        if ppg >= 26 and gp >= 40:
+            blended = max(blended, 88)
+        elif ppg >= 24 and gp >= 40:
+            blended = max(blended, 84)
+        elif ppg >= 22 and gp >= 40:
+            blended = max(blended, 80)
+        elif ppg >= 24 and gp >= 20:
+            blended = max(blended, 78)
+        elif ppg >= 22 and gp >= 20:
+            blended = max(blended, 76)
+
+    if mpg >= 26 and gp >= 30 and ppg >= 18 and rpg >= 6 and ts_pct >= 0.6:
+        blended = max(blended, 78)
 
     return clamp_rating(blended + 2.5)
 

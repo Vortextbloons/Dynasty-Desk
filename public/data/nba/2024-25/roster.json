@@ -2515,7 +2515,7 @@
       "clutch": 59,
       "consistency": 79,
       "potential": 96,
-      "overall": 76
+      "overall": 82
     },
     "tendencies": {
       "usageRate": 29.212115703889495,
@@ -2555,20 +2555,20 @@
     },
     "contract": {
       "salaryByYear": [
-        26000000,
-        28080000,
-        30326400,
-        32752512
+        35000000,
+        37800000,
+        40824000,
+        44089920
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        325000,
-        325000,
-        325000,
-        325000
+        437500,
+        437500,
+        437500,
+        437500
       ],
       "likelyBonusesByYear": [
         0,
@@ -2639,7 +2639,7 @@
       "clutch": 60,
       "consistency": 65,
       "potential": 93,
-      "overall": 71
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 24.505632259026164,
@@ -2679,20 +2679,20 @@
     },
     "contract": {
       "salaryByYear": [
-        18000000,
-        19440000,
-        20995200,
-        22674816
+        35000000,
+        37800000,
+        40824000,
+        44089920
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        225000,
-        225000,
-        225000,
-        225000
+        437500,
+        437500,
+        437500,
+        437500
       ],
       "likelyBonusesByYear": [
         0,
@@ -6209,7 +6209,7 @@
       "clutch": 62,
       "consistency": 81,
       "potential": 98,
-      "overall": 83
+      "overall": 86
     },
     "tendencies": {
       "usageRate": 30.65816913389178,
@@ -6249,20 +6249,20 @@
     },
     "contract": {
       "salaryByYear": [
-        35000000,
-        37800000,
-        40824000,
-        44089920
+        45000000,
+        48600000,
+        52488000,
+        56687040
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        437500,
-        437500,
-        437500,
-        437500
+        562500,
+        562500,
+        562500,
+        562500
       ],
       "likelyBonusesByYear": [
         0,
@@ -12674,7 +12674,7 @@
       "clutch": 59,
       "consistency": 84,
       "potential": 91,
-      "overall": 73
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 19.767348899690873,
@@ -12714,20 +12714,20 @@
     },
     "contract": {
       "salaryByYear": [
-        18000000,
-        19440000,
-        20995200,
-        22674816
+        35000000,
+        37800000,
+        40824000,
+        44089920
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        225000,
-        225000,
-        225000,
-        225000
+        437500,
+        437500,
+        437500,
+        437500
       ],
       "likelyBonusesByYear": [
         0,
@@ -30930,7 +30930,7 @@
       "clutch": 56,
       "consistency": 58,
       "potential": 98,
-      "overall": 68
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 30.52292684005125,
@@ -30970,16 +30970,16 @@
     },
     "contract": {
       "salaryByYear": [
-        12000000,
-        12960000
+        35000000,
+        37800000
       ],
       "yearsRemaining": 2,
       "option": "none",
       "optionYear": null,
       "noTradeClause": false,
       "signingBonusByYear": [
-        300000,
-        300000
+        875000,
+        875000
       ],
       "likelyBonusesByYear": [
         0,
@@ -32690,7 +32690,7 @@
       "clutch": 60,
       "consistency": 80,
       "potential": 100,
-      "overall": 89
+      "overall": 90
     },
     "tendencies": {
       "usageRate": 28.444631078719844,
@@ -32730,20 +32730,20 @@
     },
     "contract": {
       "salaryByYear": [
-        45000000,
-        48600000,
-        52488000,
-        56687040
+        55000000,
+        59400000,
+        64152000,
+        69284160
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        562500,
-        562500,
-        562500,
-        562500
+        687500,
+        687500,
+        687500,
+        687500
       ],
       "likelyBonusesByYear": [
         0,
@@ -33994,7 +33994,7 @@
       "clutch": 59,
       "consistency": 81,
       "potential": 90,
-      "overall": 77
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 22.96378969674189,
@@ -34034,20 +34034,20 @@
     },
     "contract": {
       "salaryByYear": [
-        26000000,
-        28080000,
-        30326400,
-        32752512
+        35000000,
+        37800000,
+        40824000,
+        44089920
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        325000,
-        325000,
-        325000,
-        325000
+        437500,
+        437500,
+        437500,
+        437500
       ],
       "likelyBonusesByYear": [
         0,
@@ -35070,7 +35070,7 @@
       "clutch": 61,
       "consistency": 77,
       "potential": 100,
-      "overall": 83
+      "overall": 86
     },
     "tendencies": {
       "usageRate": 29.66365629524431,
@@ -35110,16 +35110,16 @@
     },
     "contract": {
       "salaryByYear": [
-        35000000,
-        37800000
+        45000000,
+        48600000
       ],
       "yearsRemaining": 2,
       "option": "none",
       "optionYear": null,
       "noTradeClause": false,
       "signingBonusByYear": [
-        875000,
-        875000
+        1125000,
+        1125000
       ],
       "likelyBonusesByYear": [
         0,
@@ -44659,7 +44659,7 @@
       "clutch": 59,
       "consistency": 80,
       "potential": 98,
-      "overall": 79
+      "overall": 82
     },
     "tendencies": {
       "usageRate": 27.043764337349536,
@@ -44699,20 +44699,20 @@
     },
     "contract": {
       "salaryByYear": [
-        26000000,
-        28080000,
-        30326400,
-        32752512
+        35000000,
+        37800000,
+        40824000,
+        44089920
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        325000,
-        325000,
-        325000,
-        325000
+        437500,
+        437500,
+        437500,
+        437500
       ],
       "likelyBonusesByYear": [
         0,
@@ -44783,7 +44783,7 @@
       "clutch": 60,
       "consistency": 84,
       "potential": 96,
-      "overall": 75
+      "overall": 82
     },
     "tendencies": {
       "usageRate": 24.25347505005907,
@@ -44823,20 +44823,20 @@
     },
     "contract": {
       "salaryByYear": [
-        26000000,
-        28080000,
-        30326400,
-        32752512
+        35000000,
+        37800000,
+        40824000,
+        44089920
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        325000,
-        325000,
-        325000,
-        325000
+        437500,
+        437500,
+        437500,
+        437500
       ],
       "likelyBonusesByYear": [
         0,
@@ -53409,7 +53409,7 @@
       "clutch": 58,
       "consistency": 64,
       "potential": 92,
-      "overall": 71
+      "overall": 80
     },
     "tendencies": {
       "usageRate": 24.655050186682285,
@@ -53449,20 +53449,20 @@
     },
     "contract": {
       "salaryByYear": [
-        18000000,
-        19440000,
-        20995200,
-        22674816
+        35000000,
+        37800000,
+        40824000,
+        44089920
       ],
       "yearsRemaining": 4,
       "option": "player",
       "optionYear": 3,
       "noTradeClause": false,
       "signingBonusByYear": [
-        225000,
-        225000,
-        225000,
-        225000
+        437500,
+        437500,
+        437500,
+        437500
       ],
       "likelyBonusesByYear": [
         0,
@@ -55506,7 +55506,7 @@
       "clutch": 62,
       "consistency": 81,
       "potential": 97,
-      "overall": 79
+      "overall": 82
     },
     "tendencies": {
       "usageRate": 28.692877165527843,
@@ -55546,16 +55546,16 @@
     },
     "contract": {
       "salaryByYear": [
-        26000000,
-        28080000
+        35000000,
+        37800000
       ],
       "yearsRemaining": 2,
       "option": "none",
       "optionYear": null,
       "noTradeClause": false,
       "signingBonusByYear": [
-        650000,
-        650000
+        875000,
+        875000
       ],
       "likelyBonusesByYear": [
         0,

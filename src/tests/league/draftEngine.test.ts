@@ -61,7 +61,11 @@ function makeMiniLeague(): LeagueState {
       pointDifferentialPerGame: 0,
       gamesRemaining: 0,
       magicNumber: 0,
-      tiebreaker: { headToHeadWins: 0, conferenceWinPct: 0, pointDifferential: 0 },
+      tiebreaker: {
+        headToHeadWins: 0,
+        conferenceWinPct: 0,
+        pointDifferential: 0,
+      },
     }
   }
   return {
@@ -71,7 +75,14 @@ function makeMiniLeague(): LeagueState {
     seasonYear: 2026,
     phase: 'offseason',
     rules: DEFAULT_LEAGUE_RULES,
-    eraConfig: { season: '2025-26', pace: 100, league3PARate: 0.35, leagueTsPct: 0.57, leaguePpg: 112, possessionCoefficient: 1 },
+    eraConfig: {
+      season: '2025-26',
+      pace: 100,
+      league3PARate: 0.35,
+      leagueTsPct: 0.57,
+      leaguePpg: 112,
+      possessionCoefficient: 1,
+    },
     snapshotId: 's',
     teams,
     players: {},
@@ -107,6 +118,39 @@ describe('draftEngine', () => {
     const dc = generateDraftClass(2026, DEFAULT_LEAGUE_RULES, [], rng)
     expect(dc.prospects).toHaveLength(60)
     expect(dc.generatedBy).toBe('hybrid')
+  })
+
+  it('varies class strength across seasons', () => {
+    const topOveralls = Array.from({ length: 80 }, (_, i) => {
+      const dc = generateDraftClass(
+        2026 + i,
+        DEFAULT_LEAGUE_RULES,
+        [],
+        new SeededRandom({ seed: `draft-variety-${i}`, position: 0 }),
+      )
+      return Math.max(...dc.prospects.map((p) => p.trueRatings.overall))
+    })
+
+    expect(Math.min(...topOveralls)).toBeLessThanOrEqual(78)
+    expect(Math.max(...topOveralls)).toBeGreaterThanOrEqual(84)
+    expect(new Set(topOveralls).size).toBeGreaterThan(5)
+  })
+
+  it('keeps most synthetic rookies out of instant-star range', () => {
+    const dc = generateDraftClass(
+      2026,
+      DEFAULT_LEAGUE_RULES,
+      [],
+      new SeededRandom({ seed: 'draft-distribution', position: 0 }),
+    )
+    const instantStars = dc.prospects.filter((p) => p.trueRatings.overall >= 85)
+    const firstRoundReady = dc.prospects.filter(
+      (p) => p.trueRatings.overall >= 70,
+    )
+
+    expect(instantStars.length).toBeLessThanOrEqual(1)
+    expect(firstRoundReady.length).toBeGreaterThanOrEqual(5)
+    expect(firstRoundReady.length).toBeLessThanOrEqual(25)
   })
 
   it('modern era uses lottery', () => {
@@ -363,7 +407,14 @@ describe('simulateDraftPick', () => {
     }))
     const draft = startDraft(league, dc, order, 'inverse_wl')
     const prospect = dc.prospects[0]!
-    const result = simulateDraftPick(league, draft, order[0]!.teamId, prospect.id, false, rng)
+    const result = simulateDraftPick(
+      league,
+      draft,
+      order[0]!.teamId,
+      prospect.id,
+      false,
+      rng,
+    )
     expect('error' in result).toBe(false)
     expect(draft.currentPickNumber).toBe(2)
   })
@@ -385,7 +436,14 @@ describe('simulateDraftPick', () => {
     const draft = startDraft(league, dc, order, 'inverse_wl')
     const prospect = dc.prospects[0]!
     const wrongTeam = order[1]!.teamId
-    const result = simulateDraftPick(league, draft, wrongTeam, prospect.id, false, rng)
+    const result = simulateDraftPick(
+      league,
+      draft,
+      wrongTeam,
+      prospect.id,
+      false,
+      rng,
+    )
     expect('error' in result).toBe(true)
   })
 
@@ -404,7 +462,14 @@ describe('simulateDraftPick', () => {
       prospectId: null,
     }))
     const draft = startDraft(league, dc, order, 'inverse_wl')
-    const result = simulateDraftPick(league, draft, order[0]!.teamId, 'fake-prospect', false, rng)
+    const result = simulateDraftPick(
+      league,
+      draft,
+      order[0]!.teamId,
+      'fake-prospect',
+      false,
+      rng,
+    )
     expect('error' in result).toBe(true)
   })
 })
@@ -454,7 +519,14 @@ describe('getAvailableProspects', () => {
     const draft = startDraft(league, dc, order, 'inverse_wl')
     const allBefore = getAvailableProspects(league, draft)
     expect(allBefore).toHaveLength(60)
-    simulateDraftPick(league, draft, order[0]!.teamId, dc.prospects[0]!.id, false, rng)
+    simulateDraftPick(
+      league,
+      draft,
+      order[0]!.teamId,
+      dc.prospects[0]!.id,
+      false,
+      rng,
+    )
     const after = getAvailableProspects(league, draft)
     expect(after).toHaveLength(59)
   })
@@ -464,15 +536,17 @@ describe('assignPickNumbers', () => {
   it('assigns first round picks by draft order', () => {
     const league = makeMiniLeague()
     const order = runInverseWLDraftOrder(league)
-    league.draftPicks = [{
-      id: 'pick-1',
-      season: '2026-27',
-      round: 1,
-      pickNumber: 0,
-      originalTeamId: order[0]!.teamId,
-      currentTeamId: order[0]!.teamId,
-      prospectId: null,
-    }]
+    league.draftPicks = [
+      {
+        id: 'pick-1',
+        season: '2026-27',
+        round: 1,
+        pickNumber: 0,
+        originalTeamId: order[0]!.teamId,
+        currentTeamId: order[0]!.teamId,
+        prospectId: null,
+      },
+    ]
     assignPickNumbers(league, order, '2026-27')
     const pick = league.draftPicks[0]!
     expect(pick.pickNumber).toBe(1)

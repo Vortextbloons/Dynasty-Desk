@@ -1,5 +1,10 @@
 import type { LeagueState } from '@/game/models/league'
-import type { DraftClass, DraftProspect, Draft, DraftPickResult } from '@/game/models/draft'
+import type {
+  DraftClass,
+  DraftProspect,
+  Draft,
+  DraftPickResult,
+} from '@/game/models/draft'
 import type { LeagueRules } from '@/game/models/leagueRules'
 import type { Position } from '@/game/models/position'
 import type { PlayerRatings } from '@/game/models/ratings'
@@ -17,6 +22,132 @@ import type { DraftPick } from '@/game/models/draft'
 
 export const BASE_DRAFT_PROSPECTS = 60
 const POSITIONS: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
+const RATING_KEYS: (keyof PlayerRatings)[] = [
+  'insideScoring',
+  'closeShot',
+  'midrange',
+  'threePoint',
+  'freeThrow',
+  'ballHandling',
+  'passing',
+  'offensiveIq',
+  'offensiveRebound',
+  'defensiveRebound',
+  'perimeterDefense',
+  'interiorDefense',
+  'steal',
+  'block',
+  'defensiveIq',
+  'speed',
+  'strength',
+  'vertical',
+  'stamina',
+  'durability',
+  'clutch',
+  'consistency',
+]
+
+type DraftClassProfileId = 'weak' | 'normal' | 'strong' | 'generational'
+type ProspectTierId =
+  | 'franchise'
+  | 'all_star'
+  | 'starter'
+  | 'rotation'
+  | 'second_round'
+  | 'longshot'
+
+interface DraftClassProfile {
+  id: DraftClassProfileId
+  topTalentBonus: number
+  depthBonus: number
+  tierCounts: Partial<Record<ProspectTierId, number>>
+}
+
+interface ProspectTier {
+  id: ProspectTierId
+  overallRange: [number, number]
+  potentialRange: [number, number]
+  bustRisk: [number, number]
+  breakoutChance: [number, number]
+}
+
+const PROSPECT_TIERS: Record<ProspectTierId, ProspectTier> = {
+  franchise: {
+    id: 'franchise',
+    overallRange: [77, 83],
+    potentialRange: [92, 99],
+    bustRisk: [0.05, 0.13],
+    breakoutChance: [0.24, 0.38],
+  },
+  all_star: {
+    id: 'all_star',
+    overallRange: [72, 79],
+    potentialRange: [86, 96],
+    bustRisk: [0.08, 0.18],
+    breakoutChance: [0.18, 0.3],
+  },
+  starter: {
+    id: 'starter',
+    overallRange: [66, 74],
+    potentialRange: [78, 91],
+    bustRisk: [0.12, 0.24],
+    breakoutChance: [0.12, 0.24],
+  },
+  rotation: {
+    id: 'rotation',
+    overallRange: [60, 69],
+    potentialRange: [72, 85],
+    bustRisk: [0.16, 0.3],
+    breakoutChance: [0.08, 0.18],
+  },
+  second_round: {
+    id: 'second_round',
+    overallRange: [55, 65],
+    potentialRange: [66, 82],
+    bustRisk: [0.22, 0.38],
+    breakoutChance: [0.06, 0.18],
+  },
+  longshot: {
+    id: 'longshot',
+    overallRange: [50, 60],
+    potentialRange: [60, 78],
+    bustRisk: [0.3, 0.48],
+    breakoutChance: [0.03, 0.13],
+  },
+}
+
+const DRAFT_CLASS_PROFILES: DraftClassProfile[] = [
+  {
+    id: 'weak',
+    topTalentBonus: -4,
+    depthBonus: -3,
+    tierCounts: { all_star: 1, starter: 5, rotation: 14, second_round: 22 },
+  },
+  {
+    id: 'normal',
+    topTalentBonus: 0,
+    depthBonus: 0,
+    tierCounts: { all_star: 3, starter: 9, rotation: 18, second_round: 20 },
+  },
+  {
+    id: 'strong',
+    topTalentBonus: 2,
+    depthBonus: 2,
+    tierCounts: { all_star: 4, starter: 12, rotation: 20, second_round: 16 },
+  },
+  {
+    id: 'generational',
+    topTalentBonus: 3,
+    depthBonus: 1,
+    tierCounts: {
+      franchise: 1,
+      all_star: 2,
+      starter: 8,
+      rotation: 18,
+      second_round: 20,
+    },
+  },
+]
 
 interface RealProspectData {
   externalId?: string
@@ -74,7 +205,9 @@ export async function loadRealDraftData(
   seasonYear: number,
 ): Promise<RealProspectData[]> {
   try {
-    const res = await fetch(`${import.meta.env.BASE_URL}data/draft/real-draft-classes.json`)
+    const res = await fetch(
+      `${import.meta.env.BASE_URL}data/draft/real-draft-classes.json`,
+    )
     if (!res.ok) return []
     const data = (await res.json()) as RealDraftClassesFile
     return data.classes[String(seasonYear)]?.prospects ?? []
@@ -91,6 +224,8 @@ export function generateDraftClass(
 ): DraftClass {
   const season = formatSeasonLabel(seasonYear)
   const classId = `draft-class-${seasonYear}`
+  const profile = pickDraftClassProfile(rng)
+  const syntheticPlan = buildSyntheticTierPlan(profile)
   const usedNames = new Set<string>()
   const prospects: DraftProspect[] = []
 
@@ -101,7 +236,10 @@ export function generateDraftClass(
 
   while (prospects.length < BASE_DRAFT_PROSPECTS) {
     const position = POSITIONS[prospects.length % POSITIONS.length]!
-    prospects.push(buildSyntheticProspect(classId, position, usedNames, rng))
+    const tier = syntheticPlan[prospects.length - realData.length] ?? 'longshot'
+    prospects.push(
+      buildSyntheticProspect(classId, position, tier, profile, usedNames, rng),
+    )
   }
 
   return {
@@ -154,15 +292,28 @@ export function extendDraftClassToSlotCount(
   seasonYear: number,
   rng: SeededRandom,
 ): void {
-  const target = Math.max(BASE_DRAFT_PROSPECTS, countDraftSlots(league, seasonYear))
+  const target = Math.max(
+    BASE_DRAFT_PROSPECTS,
+    countDraftSlots(league, seasonYear),
+  )
   const usedNames = new Set(
     draftClass.prospects.map((p) => `${p.firstName} ${p.lastName}`),
   )
+  const profile = pickDraftClassProfile(rng)
+  const syntheticPlan = buildSyntheticTierPlan(profile)
 
   while (draftClass.prospects.length < target) {
     const position = POSITIONS[draftClass.prospects.length % POSITIONS.length]!
+    const tier = syntheticPlan[draftClass.prospects.length] ?? 'longshot'
     draftClass.prospects.push(
-      buildSyntheticProspect(draftClass.id, position, usedNames, rng),
+      buildSyntheticProspect(
+        draftClass.id,
+        position,
+        tier,
+        profile,
+        usedNames,
+        rng,
+      ),
     )
   }
 
@@ -174,7 +325,10 @@ export function isCompensationDraftPick(pick: DraftPick): boolean {
   return pick.id.startsWith('comp-')
 }
 
-export function countDraftSlots(league: LeagueState, seasonYear: number): number {
+export function countDraftSlots(
+  league: LeagueState,
+  seasonYear: number,
+): number {
   const seasonLabel = formatSeasonLabel(seasonYear)
   return league.draftPicks.filter(
     (p) => p.season === seasonLabel && p.pickNumber > 0,
@@ -206,10 +360,7 @@ export function syncDraftClock(league: LeagueState, draft: Draft): void {
   const seasonLabel = formatSeasonLabel(draft.seasonYear)
   const openPickNumbers = league.draftPicks
     .filter(
-      (p) =>
-        p.season === seasonLabel &&
-        !p.prospectId &&
-        p.pickNumber > 0,
+      (p) => p.season === seasonLabel && !p.prospectId && p.pickNumber > 0,
     )
     .map((p) => p.pickNumber)
     .sort((a, b) => a - b)
@@ -230,13 +381,17 @@ function buildRealProspect(
   classId: string,
   rng: SeededRandom,
 ): DraftProspect {
-  const archetype = DRAFT_ARCHETYPES.find((a) => a.id === real.archetype) ?? pickArchetypeForPosition(real.position)
+  const archetype =
+    DRAFT_ARCHETYPES.find((a) => a.id === real.archetype) ??
+    pickArchetypeForPosition(real.position)
   const variance = rng.nextInt(-5, 5)
   const trueRatings = real.ratings
     ? fillRatings(real.ratings, real.position)
     : buildRatingsFromArchetype(archetype, variance)
   trueRatings.overall = computeOverall(trueRatings, real.position)
-  const truePotential = real.potential ?? rng.nextInt(archetype.potentialRange[0], archetype.potentialRange[1])
+  const truePotential =
+    real.potential ??
+    rng.nextInt(archetype.potentialRange[0], archetype.potentialRange[1])
 
   return createProspect({
     classId,
@@ -261,14 +416,27 @@ function buildRealProspect(
 function buildSyntheticProspect(
   classId: string,
   position: Position,
+  tierId: ProspectTierId,
+  profile: DraftClassProfile,
   usedNames: Set<string>,
   rng: SeededRandom,
 ): DraftProspect {
   const archetype = pickArchetypeForPosition(position)
   const variance = rng.nextInt(-8, 8)
   const trueRatings = buildRatingsFromArchetype(archetype, variance)
-  trueRatings.overall = computeOverall(trueRatings, position)
-  const truePotential = rng.nextInt(archetype.potentialRange[0], archetype.potentialRange[1])
+  const tier = PROSPECT_TIERS[tierId]
+  const ratingBonus =
+    tier.id === 'franchise' || tier.id === 'all_star'
+      ? profile.topTalentBonus
+      : profile.depthBonus
+  const targetOverall = rng.nextInt(
+    tier.overallRange[0] + ratingBonus,
+    tier.overallRange[1] + ratingBonus,
+  )
+  tuneRatingsToOverall(trueRatings, position, targetOverall, rng)
+  const truePotential = clampRating(
+    rng.nextInt(tier.potentialRange[0], tier.potentialRange[1]) + ratingBonus,
+  )
   const { firstName, lastName } = pickRandomName(usedNames, rng)
 
   return createProspect({
@@ -283,11 +451,55 @@ function buildSyntheticProspect(
     archetype: archetype.label,
     trueRatings,
     truePotential,
-    bustRisk: archetype.bustRisk + rng.nextFloat(0, 0.05),
-    breakoutChance: archetype.breakoutChance + rng.nextFloat(0, 0.05),
+    bustRisk: rng.nextFloat(tier.bustRisk[0], tier.bustRisk[1]),
+    breakoutChance: rng.nextFloat(
+      tier.breakoutChance[0],
+      tier.breakoutChance[1],
+    ),
     source: 'synthetic',
     rng,
   })
+}
+
+function pickDraftClassProfile(rng: SeededRandom): DraftClassProfile {
+  return rng.weightedPick(DRAFT_CLASS_PROFILES, [18, 52, 23, 7])
+}
+
+function buildSyntheticTierPlan(profile: DraftClassProfile): ProspectTierId[] {
+  const plan: ProspectTierId[] = []
+  for (const tier of [
+    'franchise',
+    'all_star',
+    'starter',
+    'rotation',
+    'second_round',
+  ] as ProspectTierId[]) {
+    const count = profile.tierCounts[tier] ?? 0
+    for (let i = 0; i < count; i++) plan.push(tier)
+  }
+  while (plan.length < BASE_DRAFT_PROSPECTS) plan.push('longshot')
+  return plan
+}
+
+function tuneRatingsToOverall(
+  ratings: PlayerRatings,
+  position: Position,
+  targetOverall: number,
+  rng: SeededRandom,
+): void {
+  for (let step = 0; step < 8; step++) {
+    const current = computeOverall(ratings, position)
+    const delta = targetOverall - current
+    if (Math.abs(delta) <= 1) break
+    const adjustment = Math.trunc(delta / 2) || Math.sign(delta)
+    for (const key of RATING_KEYS) {
+      const value = ratings[key]
+      if (typeof value !== 'number') continue
+      const jitter = rng.nextInt(-1, 1)
+      ratings[key] = clampRating(value + adjustment + jitter)
+    }
+  }
+  ratings.overall = computeOverall(ratings, position)
 }
 
 function createProspect(opts: {
@@ -345,7 +557,10 @@ function createProspect(opts: {
   }
 }
 
-function fillRatings(partial: Partial<PlayerRatings>, position: Position): PlayerRatings {
+function fillRatings(
+  partial: Partial<PlayerRatings>,
+  position: Position,
+): PlayerRatings {
   const archetype = pickArchetypeForPosition(position)
   const base = buildRatingsFromArchetype(archetype, 0)
   return { ...base, ...partial, overall: partial.overall ?? base.overall }
@@ -362,7 +577,10 @@ export function formatTeamDisplayName(
   return team.name || team.abbreviation || teamId
 }
 
-function sortTeamsByRecordAsc(league: LeagueState, teamIds: string[]): string[] {
+function sortTeamsByRecordAsc(
+  league: LeagueState,
+  teamIds: string[],
+): string[] {
   return [...teamIds].sort((a, b) => {
     const sa = league.standings[a]
     const sb = league.standings[b]
@@ -469,8 +687,7 @@ export function repairDraftPickOrder(
   ).length
 
   const needsRepair =
-    total > 0 &&
-    (assigned < total || (unpicked > 0 && openNumbered === 0))
+    total > 0 && (assigned < total || (unpicked > 0 && openNumbered === 0))
 
   if (!needsRepair) return false
 
@@ -520,7 +737,10 @@ export function assignPickNumbers(
   assignCompensationPickNumbers(league, seasonLabel)
 }
 
-function assignCompensationPickNumbers(league: LeagueState, seasonLabel: string): void {
+function assignCompensationPickNumbers(
+  league: LeagueState,
+  seasonLabel: string,
+): void {
   const compPicks = league.draftPicks
     .filter((p) => p.season === seasonLabel && isCompensationDraftPick(p))
     .sort((a, b) => a.id.localeCompare(b.id))
@@ -563,10 +783,15 @@ export function getDraftClassForYear(
   league: LeagueState,
   seasonYear: number,
 ): DraftClass | undefined {
-  return Object.values(league.draftClasses).find((c) => c?.seasonYear === seasonYear)
+  return Object.values(league.draftClasses).find(
+    (c) => c?.seasonYear === seasonYear,
+  )
 }
 
-export function getDraftForYear(league: LeagueState, seasonYear: number): Draft | undefined {
+export function getDraftForYear(
+  league: LeagueState,
+  seasonYear: number,
+): Draft | undefined {
   return Object.values(league.drafts).find((d) => d?.seasonYear === seasonYear)
 }
 
@@ -702,10 +927,25 @@ export function autoPickForTeam(
   if (available.length === 0) return { error: 'No prospects left.' }
 
   const sorted = [...available].sort(
-    (a, b) => b.trueRatings.overall - a.trueRatings.overall,
+    (a, b) => draftBoardValue(b) - draftBoardValue(a),
   )
   const pick = sorted[rng.nextInt(0, Math.min(4, sorted.length - 1))]!
   return simulateDraftPick(league, draft, teamId, pick.id, false, rng)
+}
+
+function draftBoardValue(prospect: DraftProspect): number {
+  const visibleOverall =
+    prospect.visibleRatings.overall ?? prospect.trueRatings.overall - 8
+  const visiblePotential =
+    (prospect.visiblePotentialRange[0] + prospect.visiblePotentialRange[1]) / 2
+  const upside = Math.max(0, visiblePotential - visibleOverall)
+  return (
+    visibleOverall * 0.72 +
+    visiblePotential * 0.18 +
+    upside * 0.14 +
+    prospect.breakoutChance * 12 -
+    prospect.bustRisk * 10
+  )
 }
 
 export function autoDraftOffClock(

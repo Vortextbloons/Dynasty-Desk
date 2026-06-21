@@ -54,11 +54,22 @@ NBA data is imported at build time, never fetched at runtime:
 # Generate NBA snapshot (requires Go)
 npm run data:build
 
-# Or use the Python pipeline
-npm run data:build:python
+# Import real NBA data through the Python pipeline
+npm run data:import
+
+# Import only the current real-data baseline season
+npm run data:import:real
 ```
 
 Output ships as static JSON in `public/data/nba/`.
+
+Current `2024-25` snapshot quality:
+
+- `534` players with real names, heights, weights, and NBA external IDs
+- `30` teams with real NBA external IDs, arena data, capacities, and colors
+- Rating range: `49-98`
+- `25` players rated `85+`, `68` players rated `70-84`, `441` players below `70`
+- Team logos and player headshots use NBA CDN IDs with local colored fallbacks
 
 ## Project Structure
 
