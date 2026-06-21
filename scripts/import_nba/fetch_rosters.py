@@ -60,6 +60,39 @@ TEAM_CONFERENCES = {
     "1610612759": ("West", "Southwest"),  # Spurs
 }
 
+TEAM_ARENAS = {
+    "1610612738": ("TD Garden", 19156),
+    "1610612747": ("Crypto.com Arena", 18997),
+    "1610612744": ("Chase Center", 18064),
+    "1610612749": ("Fiserv Forum", 17341),
+    "1610612743": ("Ball Arena", 19520),
+    "1610612760": ("Paycom Center", 18203),
+    "1610612748": ("Kaseya Center", 19600),
+    "1610612755": ("Wells Fargo Center", 20478),
+    "1610612751": ("Barclays Center", 17732),
+    "1610612752": ("Madison Square Garden", 19812),
+    "1610612741": ("United Center", 20917),
+    "1610612737": ("State Farm Arena", 18118),
+    "1610612739": ("Rocket Mortgage FieldHouse", 19432),
+    "1610612765": ("Little Caesars Arena", 20332),
+    "1610612754": ("Gainbridge Fieldhouse", 17923),
+    "1610612763": ("FedExForum", 17794),
+    "1610612762": ("Delta Center", 18306),
+    "1610612761": ("Scotiabank Arena", 19800),
+    "1610612750": ("Target Center", 18798),
+    "1610612757": ("Moda Center", 19441),
+    "1610612758": ("Golden 1 Center", 17608),
+    "1610612756": ("Footprint Center", 18055),
+    "1610612746": ("Intuit Dome", 18000),
+    "1610612742": ("American Airlines Center", 19200),
+    "1610612745": ("Toyota Center", 18055),
+    "1610612740": ("Smoothie King Center", 16867),
+    "1610612764": ("Capital One Arena", 20356),
+    "1610612766": ("Spectrum Center", 19077),
+    "1610612753": ("Kia Center", 18846),
+    "1610612759": ("Frost Bank Center", 18400),
+}
+
 TEAM_COLORS = {
     "1610612738": {"primary": "#007a33", "secondary": "#ba9653"},  # Celtics
     "1610612747": {"primary": "#552583", "secondary": "#fdb927"},  # Lakers
@@ -204,6 +237,7 @@ def run(season: str) -> None:
         internal = f"team-{t['abbreviation'].lower()}"
         team_internal_ids[ext] = internal
         colors = TEAM_COLORS.get(ext, {"primary": "#1d428a", "secondary": "#c8102e"})
+        arena_name, arena_cap = TEAM_ARENAS.get(ext, ("", 0))
         teams_out.append(
             {
                 "id": internal,
@@ -214,8 +248,8 @@ def run(season: str) -> None:
                 "conference": t["conference"],
                 "division": t["division"],
                 "colors": colors,
-                "arena": t.get("arena", ""),
-                "capacity": t.get("capacity", 0),
+                "arena": arena_name,
+                "capacity": arena_cap,
                 "marketSize": 5,
                 "prestige": 70,
                 "fanPatience": 60,
@@ -259,28 +293,30 @@ def run(season: str) -> None:
                 elif isinstance(height_str, (int, float)):
                     height_inches = int(height_str)
 
-                weight_str = p.get("weight", 0)
                 weight_lbs = 200
-                if isinstance(weight_str, str) and weight_str.isdigit():
-                    weight_lbs = int(weight_str)
-                elif isinstance(weight_str, (int, float)):
-                    try:
+                try:
+                    raw_wt = p.get("weight", 0)
+                    if isinstance(raw_wt, str):
+                        raw_wt = raw_wt.strip()
+                        if raw_wt.isdigit():
+                            weight_lbs = int(raw_wt)
+                    elif isinstance(raw_wt, (int, float)):
                         import math
-                        if math.isnan(weight_str) or math.isinf(weight_str):
-                            weight_lbs = 200
-                        else:
-                            weight_lbs = int(weight_str)
-                    except (ValueError, OverflowError):
-                        weight_lbs = 200
+                        if not math.isnan(raw_wt) and not math.isinf(raw_wt):
+                            weight_lbs = int(raw_wt)
+                except Exception:
+                    weight_lbs = 200
 
-                age_val = p.get("age", 25)
-                if isinstance(age_val, float):
-                    try:
+                age_val = 25
+                try:
+                    raw_age = p.get("age", 25)
+                    if isinstance(raw_age, (int, float)):
                         import math
-                        age_val = 25 if math.isnan(age_val) else int(age_val)
-                    except (ValueError, OverflowError):
-                        age_val = 25
-                elif not isinstance(age_val, int):
+                        if not math.isnan(raw_age) and not math.isinf(raw_age):
+                            age_val = int(raw_age)
+                    elif isinstance(raw_age, str) and raw_age.isdigit():
+                        age_val = int(raw_age)
+                except Exception:
                     age_val = 25
 
                 roster_out.append({
