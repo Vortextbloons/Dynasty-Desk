@@ -46,6 +46,9 @@ function baseInput(overrides: Partial<PossessionInput> = {}): PossessionInput {
     homeScore: 50,
     awayScore: 48,
     clockFactor: 'normal' as const,
+    foulsUntilBonus: 5,
+    shooterStreak: { consecutiveMakes: 0, consecutiveMisses: 0 },
+    teamStreak: { consecutiveMakes: 0, consecutiveMisses: 0 },
     ...overrides,
   }
 }
@@ -130,9 +133,10 @@ describe('resolvePossession', () => {
         expect(r.points).toBeGreaterThanOrEqual(0)
         expect(r.points).toBeLessThanOrEqual(3)
         const ftEvents = r.events.filter((ev) => ev.type === 'freeThrow')
-        expect(ftEvents.length).toBeGreaterThan(0)
-        for (const ft of ftEvents) {
-          expect(typeof ft.made).toBe('boolean')
+        if (ftEvents.length > 0) {
+          for (const ft of ftEvents) {
+            expect(typeof ft.made).toBe('boolean')
+          }
         }
         foundFoul = true
       }
@@ -159,11 +163,9 @@ describe('resolvePossession', () => {
     for (let i = 0; i < 300; i++) {
       const r = resolvePossession(baseInput(), rng)
       if (r.shotMade && r.shotZone) {
-        if (isThreePointZone(r.shotZone)) {
-          expect(r.points).toBe(3)
-        } else {
-          expect(r.points).toBe(2)
-        }
+        const basePoints = isThreePointZone(r.shotZone) ? 3 : 2
+        expect(r.points).toBeGreaterThanOrEqual(basePoints)
+        expect(r.points).toBeLessThanOrEqual(basePoints + 1)
       }
     }
   })

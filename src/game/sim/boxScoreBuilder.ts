@@ -146,6 +146,7 @@ function applyShotEvent(ctx: BoxScoreContext, ev: Extract<SimEvent, { type: 'sho
   } else if (ev.blockedBy) {
     const blk = ctx.getStats(ev.blockedBy, ctx.oppositeTeam(ev.teamId))
     blk.blocks++
+    ctx.teamStatsFor(ctx.oppositeTeam(ev.teamId)).blocks++
   }
 }
 

@@ -2,7 +2,7 @@ import type { GameSave } from '@/game/models/save'
 import type { Player } from '@/game/models/player'
 import type { NewsEvent } from '@/game/models/news'
 import type { Team } from '@/game/models/team'
-import { updateFatigue, recoverFatigue, isHighUsagePlayer } from '@/game/sim/fatigueEngine'
+import { updateFatigue, recoverFatigue, isHighUsagePlayer, isCrunchTime } from '@/game/sim/fatigueEngine'
 import {
   rollForInjury,
   applyInjuryToHealth,
@@ -183,11 +183,13 @@ export function accumulateGameFatigue(
   currentFatigue: number,
   minutesDelta: number,
   pace: Team['strategy']['offense']['pace'],
+  crunchTime = false,
 ): number {
   return updateFatigue(
     currentFatigue,
     minutesDelta,
     pace,
     isHighUsagePlayer(player),
+    crunchTime,
   )
 }

@@ -24,15 +24,21 @@ import {
 } from '@/game/sim/substitutionEngine'
 import { rankKeyPlays } from '@/game/sim/keyPlays'
 import { isInjured } from '@/game/management/rotationValidator'
+import { rollForInjury, applyInjuryToHealth } from '@/game/sim/injuryEngine'
 import {
   QUARTER_SECONDS,
   OT_SECONDS,
   MAX_POSSESSIONS_PER_PERIOD,
-  SUB_INTERVAL_SECONDS,
   BASE_TIME_SECONDS,
   BONUS_FOULS_REGULATION,
   BONUS_FOULS_OT,
   BONUS_FOULS_LAST_TWO_MIN,
+  CRUNCH_TIME_MINUTES,
+  BLOWOUT_MARGIN_Q4_LATE_720,
+  BLOWOUT_MARGIN_Q4_LATE_540,
+  BLOWOUT_MARGIN_Q4_LATE_420,
+  BLOWOUT_MARGIN_Q4_LATE_180,
+  BLOWOUT_MARGIN_Q4_LATE_60,
 } from '@/game/sim/simConstants'
 import {
   buildLiveGameSnapshot,
@@ -42,8 +48,26 @@ import { LIVE_SIM_POSSESSION_DELAY_MS } from '@/game/league/scheduleConstants'
 import {
   getClockFactor,
   shouldIntentionalFoul,
+  shouldCallTimeout,
 } from '@/game/sim/clockEngine'
-import { resolveTechnical, isFlagrantEjection, isTechnicalEjection } from '@/game/sim/foulModel'
+import { resolveTechnical, isTechnicalEjection } from '@/game/sim/foulModel'
+import {
+  updatePlayerStreaks,
+  updateTeamStreaks,
+} from '@/game/sim/streakTracker'
+import {
+  applyMomentum,
+  decayMomentum,
+  addRunPoints,
+  checkForRun,
+  momentumModifier as getMomentumModifier,
+  type MomentumState,
+} from '@/game/sim/momentumEngine'
+import {
+  checkRolePlayerEruption,
+  checkSuperstarStinker,
+  checkInjuryOnContact,
+} from '@/game/sim/randomEventsEngine'
 import { FOUL_OUT_LIMIT } from '@/game/sim/simConstants'
 
 export interface SimulateGameInput {
@@ -118,12 +142,25 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
     minutesPlayed: {},
     gameFatigue: {},
     events: [],
+    playerStreaks: {},
+    teamStreaks: [{ consecutiveMakes: 0, consecutiveMisses: 0 }, { consecutiveMakes: 0, consecutiveMisses: 0 }],
+    momentum: [50, 50],
+    runCounter: [{ points: 0, since: 0 }, { points: 0, since: 0 }],
+    eruptionPlayerId: null,
+    stinkerPlayerId: null,
     injuriesEnabled: input.injuriesEnabled,
     fatigueEnabled: input.fatigueEnabled,
     overtimeOccurred: false,
     overtimeTiebreakerUsed: false,
     homeWin: null,
   }
+
+  const homeBenchIds = input.homePlayers.filter(p => !startingHome.includes(p.id)).map(p => p.id)
+  const awayBenchIds = input.awayPlayers.filter(p => !startingAway.includes(p.id)).map(p => p.id)
+  const homeStars = input.homePlayers.filter(p => p.ratings.overall >= 80).map(p => p.id)
+  const awayStars = input.awayPlayers.filter(p => p.ratings.overall >= 80).map(p => p.id)
+  state.eruptionPlayerId = checkRolePlayerEruption(input.rng, [...homeBenchIds, ...awayBenchIds])
+  state.stinkerPlayerId = checkSuperstarStinker(input.rng, [...homeStars, ...awayStars])
 
   for (let period = 1 as 1 | 2 | 3 | 4; period <= 4; period = (period + 1) as 1 | 2 | 3 | 4) {
     state.clock = { period, timeRemainingSeconds: QUARTER_SECONDS }
@@ -134,10 +171,11 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
     await playPeriod(state, input, homeById, awayById, period)
   }
 
-  if (state.score.home === state.score.away && input.rng.chance(0.05)) {
+  if (state.score.home === state.score.away) {
     let otPeriod = 5 as 5 | 6 | 7
     while (state.score.home === state.score.away && otPeriod <= 7) {
       state.overtimeOccurred = true
+      state.teamFoulsThisQuarter = { home: 0, away: 0 }
       state.clock = { period: otPeriod, timeRemainingSeconds: OT_SECONDS }
       state.events.push({ type: 'endOfPeriod', period: otPeriod - 1 })
       await playPeriod(state, input, homeById, awayById, otPeriod)
@@ -156,7 +194,7 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
   state.status = 'final'
   state.homeWin = state.score.home > state.score.away
 
-  const keyPlays = rankKeyPlays(state.events, 5)
+  const keyPlays = rankKeyPlays(state.events, 5, state)
   return { gameState: state, keyPlays, gameFatigue: state.gameFatigue }
 }
 
@@ -170,8 +208,7 @@ async function playPeriod(
   const periodSeconds = period >= 5 ? OT_SECONDS : QUARTER_SECONDS
   let secondsRemaining = periodSeconds
   let possessionsThisHalf = 0
-  let lastSubHome = 0
-  let lastSubAway = 0
+  let lastPlayWasSteal = false
 
   while (secondsRemaining > 0 && possessionsThisHalf < MAX_POSSESSIONS_PER_PERIOD) {
     const offTeam = state.possession
@@ -267,16 +304,79 @@ async function playPeriod(
       }
     }
 
+    const homePlayerIds = state.lineupOnCourt.home.filter(id => input.homePlayers.some(p => p.id === id))
+    const awayPlayerIds = state.lineupOnCourt.away.filter(id => input.awayPlayers.some(p => p.id === id))
+    const techTeam = input.rng.chance(0.5) ? 'home' : 'away'
+    const techPlayerIds = techTeam === 'home' ? homePlayerIds : awayPlayerIds
+    const tech = resolveTechnical(input.rng, techPlayerIds)
+    if (tech) {
+      const techTeamId = techTeam === 'home' ? input.home.id : input.away.id
+      const ftTeam = techTeam === 'home' ? 'away' : 'home'
+      const ftTeamId = ftTeam === 'home' ? input.home.id : input.away.id
+      const ftPlayers = ftTeam === 'home' ? input.homePlayers : input.awayPlayers
+      const ftShooter = ftPlayers[0]
+      state.events.push({
+        type: 'foul',
+        playerId: tech.playerId,
+        teamId: techTeamId,
+        kind: 'technical',
+        onShot: false,
+        period,
+        timeRemainingSeconds: secondsRemaining,
+      })
+      state.fouls[techTeam].byPlayer[tech.playerId] = (state.fouls[techTeam].byPlayer[tech.playerId] ?? 0) + 1
+      const ps = state.playerStats[tech.playerId]
+      if (ps) ps.technicals = (ps.technicals ?? 0) + 1
+      if (ps && isTechnicalEjection(ps.technicals)) {
+        const sub = pickEjectionSub(state, tech.playerId, techTeam, techTeamId, period, secondsRemaining)
+        if (sub) applySubs(state, [sub])
+      }
+      if (ftShooter) {
+        const ftPct = ftShooter.ratings.freeThrow / 100
+        const made = input.rng.chance(ftPct)
+        if (made) {
+          if (ftTeam === 'home') state.score.home++
+          else state.score.away++
+        }
+        state.events.push({
+          type: 'freeThrow',
+          playerId: ftShooter.id,
+          teamId: ftTeamId,
+          attempt: 1,
+          made,
+          period,
+          timeRemainingSeconds: secondsRemaining,
+        })
+      }
+    }
+
     const offenseLineupForSim = clutch && margin <= 5 && offTeam === 'home'
       ? swapToClosing(state, offTeam, input.homeLineup, homeById)
       : clutch && margin <= 5 && offTeam === 'away'
         ? swapToClosing(state, offTeam, input.awayLineup, awayById)
         : offActive
 
+    if (clutch && shouldCallTimeout(period, secondsRemaining, margin)) {
+      state.events.push({
+        type: 'substitution',
+        teamId: offTeam === 'home' ? input.home.id : input.away.id,
+        out: '',
+        in: '',
+        period,
+        timeRemainingSeconds: secondsRemaining,
+      })
+    }
+
+    const defenseLineupForSim = clutch && margin <= 5 && defTeam === 'home'
+      ? swapToClosing(state, defTeam, input.homeLineup, homeById)
+      : clutch && margin <= 5 && defTeam === 'away'
+        ? swapToClosing(state, defTeam, input.awayLineup, awayById)
+        : defActive
+
     const result = resolvePossession(
       {
         offense: offenseLineupForSim,
-        defense: defActive,
+        defense: defenseLineupForSim,
         offenseTeamId: offTeam === 'home' ? input.home.id : input.away.id,
         defenseTeamId: defTeam === 'home' ? input.home.id : input.away.id,
         homeOffense: offTeam === 'home',
@@ -297,6 +397,14 @@ async function playPeriod(
         awayScore: state.score.away,
         clockFactor,
         foulsUntilBonus: getFoulsUntilBonus(state, defTeam),
+        shooterStreak: offenseLineupForSim[0] ? (state.playerStreaks[offenseLineupForSim[0].id] ?? { consecutiveMakes: 0, consecutiveMisses: 0 }) : undefined,
+        teamStreak: state.teamStreaks[offTeam === 'home' ? 0 : 1],
+        eruptionPlayerId: state.eruptionPlayerId,
+        stinkerPlayerId: state.stinkerPlayerId,
+        momentumShotBonus: getMomentumModifier(state.momentum[offTeam === 'home' ? 0 : 1]).shot,
+        momentumTovBonus: getMomentumModifier(state.momentum[offTeam === 'home' ? 0 : 1]).tov,
+        playerStreaks: state.playerStreaks,
+        lastPlayWasSteal,
       },
       input.rng,
     )
@@ -307,29 +415,118 @@ async function playPeriod(
       else state.score.away += result.points
     }
 
+    if (result.shotMade !== undefined && result.shooterId) {
+      const shooterStreak = state.playerStreaks[result.shooterId] ?? { consecutiveMakes: 0, consecutiveMisses: 0 }
+      updatePlayerStreaks(shooterStreak, result.shotMade)
+      state.playerStreaks[result.shooterId] = shooterStreak
+      const teamIdx = offTeam === 'home' ? 0 : 1
+      updateTeamStreaks(state.teamStreaks[teamIdx], result.shotMade)
+
+      const isHome = offTeam === 'home'
+      const oppTeamIdx = teamIdx === 0 ? 1 : 0
+      if (result.shotMade) {
+        const zone = result.shotZone
+        const eventType = zone && zone.endsWith('three') ? 'made_3' : 'made_2'
+        applyMomentum(state as unknown as MomentumState, teamIdx, eventType, isHome)
+        addRunPoints(state as unknown as MomentumState, teamIdx, result.points, secondsRemaining)
+        checkForRun(state as unknown as MomentumState, teamIdx, secondsRemaining)
+      } else {
+        applyMomentum(state as unknown as MomentumState, oppTeamIdx, 'miss_opponent', !isHome)
+      }
+      if (result.turnoverType) {
+        applyMomentum(state as unknown as MomentumState, oppTeamIdx, 'tov_opponent', !isHome)
+      }
+      if (result.fouled) {
+        applyMomentum(state as unknown as MomentumState, teamIdx, 'and1', isHome)
+      }
+    }
+
+    decayMomentum(state as unknown as MomentumState, result.timeElapsedSeconds)
+
+    for (const ev of result.events) {
+      if (ev.type === 'foul' && ev.kind !== 'offensive' && ev.kind !== 'technical') {
+        const foulTeam = ev.teamId === input.home.id ? 'home' : 'away'
+        state.teamFoulsThisQuarter[foulTeam]++
+        state.fouls[foulTeam].byPlayer[ev.playerId] = (state.fouls[foulTeam].byPlayer[ev.playerId] ?? 0) + 1
+        const playerFouls = state.fouls[foulTeam].byPlayer[ev.playerId] ?? 0
+        if (playerFouls >= FOUL_OUT_LIMIT) {
+          const sub = pickEjectionSub(state, ev.playerId, foulTeam, ev.teamId, period, secondsRemaining)
+          if (sub) applySubs(state, [sub])
+        }
+      }
+    }
+
+    if (input.injuriesEnabled) {
+      for (const ev of result.events) {
+        if (ev.type === 'foul' && ev.kind === 'shooting' && ev.fouledPlayerId) {
+          const isAtRim = result.shotZone === 'at_rim'
+          if (checkInjuryOnContact(input.rng, isAtRim)) {
+            const injuredTeam = ev.teamId === input.home.id ? 'home' : 'away'
+            const injuredPlayers = injuredTeam === 'home' ? input.homePlayers : input.awayPlayers
+            const injuredPlayer = injuredPlayers.find(p => p.id === ev.fouledPlayerId)
+            if (injuredPlayer && injuredPlayer.health.status !== 'season_ending') {
+              const injury = rollForInjury(injuredPlayer, { minutes: state.minutesPlayed[injuredPlayer.id] ?? 0, fatigue: state.gameFatigue[injuredPlayer.id] ?? 0, contact: true, backToBack: false, injuriesEnabled: true }, input.rng, state.date)
+              if (injury) {
+                injuredPlayer.health = applyInjuryToHealth(injuredPlayer.health, injury)
+              }
+            }
+          }
+        }
+      }
+    }
+
     secondsRemaining = Math.max(0, secondsRemaining - result.timeElapsedSeconds)
 
-    const elapsed = periodSeconds - secondsRemaining
-    if (elapsed - lastSubHome >= SUB_INTERVAL_SECONDS) {
-      const subs = planSubstitutionsFor(state, input, 'home', period, secondsRemaining, homeById)
-      applySubs(state, subs)
-      lastSubHome = elapsed
-    }
-    if (elapsed - lastSubAway >= SUB_INTERVAL_SECONDS) {
-      const subs = planSubstitutionsFor(state, input, 'away', period, secondsRemaining, awayById)
-      applySubs(state, subs)
-      lastSubAway = elapsed
+    const isDeadBall = result.turnoverType || result.fouled || result.endOfPeriod || result.possessionChange
+    if (isDeadBall) {
+      const subsHome = planSubstitutionsFor(state, input, 'home', period, secondsRemaining, homeById)
+      applySubs(state, subsHome)
+      const subsAway = planSubstitutionsFor(state, input, 'away', period, secondsRemaining, awayById)
+      applySubs(state, subsAway)
+
+      if (isBlowout(state)) {
+        const blowoutSubsHome = planBlowoutSubs(state, input, 'home', period, secondsRemaining)
+        applySubs(state, blowoutSubsHome)
+        const blowoutSubsAway = planBlowoutSubs(state, input, 'away', period, secondsRemaining)
+        applySubs(state, blowoutSubsAway)
+      }
     }
 
     distributeMinutes(state, result.timeElapsedSeconds)
     if (input.fatigueEnabled) {
-      updateGameFatigue(state, input, result.timeElapsedSeconds / 60)
+      const crunchTime = period >= 4 && secondsRemaining <= CRUNCH_TIME_MINUTES * 60
+      updateGameFatigue(state, input, result.timeElapsedSeconds / 60, crunchTime)
     }
 
     if (result.possessionChange) {
       state.possession = defTeam
       state.arrow = offTeam
       possessionsThisHalf++
+    }
+
+    lastPlayWasSteal = result.stealerId !== undefined
+
+    if (secondsRemaining <= 3 && secondsRemaining > 0 && clockFactor !== 'runOutClock') {
+      const heavePlayer = offenseLineupForSim[0]
+      if (heavePlayer) {
+        const heavePct = 0.05
+        const made = input.rng.chance(heavePct)
+        const pts = made ? 3 : 0
+        if (offTeam === 'home') state.score.home += pts
+        else state.score.away += pts
+        state.events.push({
+          type: 'shot',
+          playerId: heavePlayer.id,
+          teamId: offTeam === 'home' ? input.home.id : input.away.id,
+          zone: 'above_break_three',
+          shotType: 'pull_up',
+          made,
+          period,
+          timeRemainingSeconds: secondsRemaining,
+          impact: made ? 90 : 0,
+        })
+        secondsRemaining = 0
+      }
     }
 
     if (input.simSpeed === 'normal' && input.onTick) {
@@ -430,6 +627,7 @@ function updateGameFatigue(
   state: GameState,
   input: SimulateGameInput,
   minutesDelta: number,
+  crunchTime = false,
 ): void {
   for (const id of state.lineupOnCourt.home) {
     const p = input.homePlayers.find((pl) => pl.id === id)
@@ -439,6 +637,7 @@ function updateGameFatigue(
       state.gameFatigue[id] ?? p.fatigue,
       minutesDelta,
       input.home.strategy.offense.pace,
+      crunchTime,
     )
   }
   for (const id of state.lineupOnCourt.away) {
@@ -449,6 +648,7 @@ function updateGameFatigue(
       state.gameFatigue[id] ?? p.fatigue,
       minutesDelta,
       input.away.strategy.offense.pace,
+      crunchTime,
     )
   }
 }
@@ -465,6 +665,52 @@ function distributeMinutes(state: GameState, seconds: number): void {
 
 function playerMap(players: Player[]): Map<string, Player> {
   return new Map(players.map((p) => [p.id, p]))
+}
+
+function planBlowoutSubs(
+  state: GameState,
+  input: SimulateGameInput,
+  team: 'home' | 'away',
+  period: number,
+  timeRemainingSeconds: number,
+): PlannedSub[] {
+  const subs: PlannedSub[] = []
+  const lineup = team === 'home' ? input.homeLineup : input.awayLineup
+  const teamId = team === 'home' ? input.home.id : input.away.id
+  const onCourt = state.lineupOnCourt[team]
+  const starters = new Set(lineup.starters)
+
+  for (const id of onCourt) {
+    if (!starters.has(id)) continue
+    const mins = state.minutesPlayed[id] ?? 0
+    if (mins >= 24) {
+      const bench = lineup.bench.filter(bid => !onCourt.includes(bid))
+      const firstBench = bench[0]
+      if (firstBench) {
+        subs.push({
+          teamId,
+          out: id,
+          in: firstBench,
+          period,
+          timeRemainingSeconds,
+        })
+      }
+    }
+  }
+  return subs
+}
+
+function isBlowout(state: GameState): boolean {
+  if (state.clock.period < 4) return false
+  const diff = Math.abs(state.score.home - state.score.away)
+  const clock = state.clock.timeRemainingSeconds
+  return (
+    (diff >= BLOWOUT_MARGIN_Q4_LATE_720 && clock < 720) ||
+    (diff >= BLOWOUT_MARGIN_Q4_LATE_540 && clock < 540) ||
+    (diff >= BLOWOUT_MARGIN_Q4_LATE_420 && clock < 420) ||
+    (diff >= BLOWOUT_MARGIN_Q4_LATE_180 && clock < 180) ||
+    (diff >= BLOWOUT_MARGIN_Q4_LATE_60 && clock < 60)
+  )
 }
 
 function ensureFive(
@@ -524,4 +770,28 @@ function getFoulsUntilBonus(state: GameState, team: 'home' | 'away'): number {
       ? BONUS_FOULS_LAST_TWO_MIN
       : BONUS_FOULS_REGULATION
   return Math.max(0, foulsNeeded - foulsThisQuarter)
+}
+
+function pickEjectionSub(
+  state: GameState,
+  ejectedId: string,
+  team: 'home' | 'away',
+  teamId: string,
+  period: number,
+  timeRemainingSeconds: number,
+): PlannedSub | null {
+  const onCourt = state.lineupOnCourt[team]
+  const idx = onCourt.indexOf(ejectedId)
+  if (idx === -1) return null
+  const allPlayerIds = Object.keys(state.playerStats)
+  const bench = allPlayerIds.filter(id => !onCourt.includes(id) && id !== ejectedId)
+  if (bench.length === 0) return null
+  const replacement = bench[0]!
+  return {
+    teamId,
+    out: ejectedId,
+    in: replacement,
+    period,
+    timeRemainingSeconds,
+  }
 }

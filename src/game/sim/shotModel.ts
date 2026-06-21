@@ -36,6 +36,13 @@ export interface ShotContext {
   moraleModifier?: number
   clutchModifier?: number
   strategyThreePointBonus?: number
+  hotHandModifier?: number
+  teamStreakModifier?: number
+  isFinalShot?: boolean
+  gameTyingBonus?: number
+  consistencyVariance?: number
+  playoffIntensityBonus?: number
+  momentumBonus?: number
 }
 
 export interface ResolvedShot {
@@ -65,7 +72,7 @@ export function makeChance(ctx: ShotContext): number {
   const fatigueAdj = applyFatiguePenalty(ctx.shooterFatigue, 'shooting')
 
   const clutchAdj = ctx.inClosingMinutes
-    ? ((ctx.shooter.ratings.clutch - 70) / 30) * CLUTCH_BONUS + (ctx.clutchModifier ?? 0)
+    ? (ctx.clutchModifier ?? 0)
     : 0
 
   const lateAdj = ctx.lateShot
@@ -76,6 +83,13 @@ export function makeChance(ctx: ShotContext): number {
   const moraleAdj = ctx.moraleModifier ?? 0
   const strat3Adj =
     isThreePointZone(ctx.zone) ? (ctx.strategyThreePointBonus ?? 0) : 0
+  const hotHandAdj = ctx.hotHandModifier ?? 0
+  const teamStreakAdj = ctx.teamStreakModifier ?? 0
+  const finalShotAdj = ctx.isFinalShot ? 0.04 : 0
+  const gameTyingAdj = ctx.gameTyingBonus ?? 0
+  const consistencyAdj = ctx.consistencyVariance ?? 0
+  const playoffAdj = ctx.playoffIntensityBonus ?? 0
+  const momentumAdj = ctx.momentumBonus ?? 0
 
   const raw =
     base +
@@ -89,7 +103,14 @@ export function makeChance(ctx: ShotContext): number {
     lateAdj +
     homeAdj +
     moraleAdj +
-    strat3Adj
+    strat3Adj +
+    hotHandAdj +
+    teamStreakAdj +
+    finalShotAdj +
+    gameTyingAdj +
+    consistencyAdj +
+    playoffAdj +
+    momentumAdj
 
   return clamp(raw, 0.05, 0.95)
 }

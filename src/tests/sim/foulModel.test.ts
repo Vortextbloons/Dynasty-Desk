@@ -4,6 +4,9 @@ import {
   shootingFoulChance,
   nonShootingFoulChance,
   resolveFoul,
+  resolveTechnical,
+  isFlagrantEjection,
+  isTechnicalEjection,
 } from '@/game/sim/foulModel'
 import { positionFoulDrawnFactor } from '@/game/sim/shotZones'
 import { SeededRandom } from '@/game/sim/rng'
@@ -66,31 +69,51 @@ describe('nonShootingFoulChance', () => {
 })
 
 describe('resolveFoul', () => {
-  it('always returns shooting foul on shot', () => {
+  it('returns shooting or flagrant foul on shot', () => {
     const rng = new SeededRandom(createRngState('foul'))
     const def = makePlayer({ id: 'd' })
     const off = makePlayer({ id: 'o' })
     for (let i = 0; i < 20; i++) {
       const r = resolveFoul(def, off, true, rng)
-      expect(r.kind).toBe('shooting')
+      expect(['shooting', 'flagrant']).toContain(r.kind)
       expect(r.onShot).toBe(true)
       expect(r.playerId).toBe('d')
       expect(r.fouledPlayerId).toBe('o')
     }
   })
 
-  it('returns non-shooting or offensive when not on shot', () => {
+  it('returns non-shooting, offensive, or flagrant when not on shot', () => {
     const rng = new SeededRandom(createRngState('foul2'))
     const def = makePlayer({ id: 'd' })
     const off = makePlayer({ id: 'o' })
     let nonShooting = 0
     let offensive = 0
+    let flagrant = 0
     for (let i = 0; i < 1000; i++) {
       const r = resolveFoul(def, off, false, rng)
       if (r.kind === 'non_shooting') nonShooting++
       if (r.kind === 'offensive') offensive++
+      if (r.kind === 'flagrant') flagrant++
     }
-    expect(nonShooting + offensive).toBe(1000)
-    expect(nonShooting).toBeGreaterThan(800)
+    expect(nonShooting + offensive + flagrant).toBe(1000)
+    expect(nonShooting).toBeGreaterThan(700)
+  })
+
+  it('resolveTechnical returns null most of the time', () => {
+    const rng = new SeededRandom(createRngState('tech'))
+    let techCount = 0
+    for (let i = 0; i < 1000; i++) {
+      const r = resolveTechnical(rng, ['p1', 'p2', 'p3'])
+      if (r) techCount++
+    }
+    expect(techCount).toBeGreaterThan(0)
+    expect(techCount).toBeLessThan(50)
+  })
+
+  it('ejection thresholds work', () => {
+    expect(isFlagrantEjection(1)).toBe(false)
+    expect(isFlagrantEjection(2)).toBe(true)
+    expect(isTechnicalEjection(1)).toBe(false)
+    expect(isTechnicalEjection(2)).toBe(true)
   })
 })

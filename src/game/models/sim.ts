@@ -20,6 +20,7 @@ export type FoulKind =
   | 'offensive'
   | 'loose_ball'
   | 'flagrant'
+  | 'technical'
 
 export type ShotType =
   | 'catch_and_shoot'
@@ -179,6 +180,11 @@ export interface FoulCounts {
   byPlayer: Record<string, number>
 }
 
+export interface TeamStreaks {
+  consecutiveMakes: number
+  consecutiveMisses: number
+}
+
 export interface BoxScoreResult {
   homeTeamId: string
   awayTeamId: string
@@ -242,6 +248,13 @@ export interface GameState {
   minutesPlayed: Record<string, number>
   gameFatigue: Record<string, number>
   events: SimEvent[]
+
+  playerStreaks: Record<string, { consecutiveMakes: number; consecutiveMisses: number }>
+  teamStreaks: [TeamStreaks, TeamStreaks]
+  momentum: [number, number]
+  runCounter: [{ points: number; since: number }, { points: number; since: number }]
+  eruptionPlayerId: string | null
+  stinkerPlayerId: string | null
 
   injuriesEnabled: boolean
   fatigueEnabled: boolean

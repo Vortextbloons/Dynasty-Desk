@@ -476,7 +476,7 @@
     }
   },
   {
-    "id": "p-min-JM",
+    "id": "p-min-JM-2",
     "externalId": "1629162",
     "firstName": "Jordan",
     "lastName": "McLaughlin",
@@ -719,7 +719,7 @@
     }
   },
   {
-    "id": "p-min-JM",
+    "id": "p-min-JM-3",
     "externalId": "1631169",
     "firstName": "Josh",
     "lastName": "Minott",
@@ -1316,7 +1316,7 @@
   {
     "id": "p-min-MM",
     "externalId": "1628420",
-    "firstName": "Monté",
+    "firstName": "Mont\u00e9",
     "lastName": "Morris",
     "age": 29,
     "position": "SG",
@@ -2425,7 +2425,7 @@
     }
   },
   {
-    "id": "p-mil-MB",
+    "id": "p-mil-MB-2",
     "externalId": "1627736",
     "firstName": "Malik",
     "lastName": "Beasley",
@@ -4292,7 +4292,7 @@
   {
     "id": "p-dal-DE",
     "externalId": "203957",
-    "firstName": "Danté",
+    "firstName": "Dant\u00e9",
     "lastName": "Exum",
     "age": 28,
     "position": "SG",
@@ -6232,7 +6232,7 @@
     "id": "p-dal-LD",
     "externalId": "1629029",
     "firstName": "Luka",
-    "lastName": "Dončić",
+    "lastName": "Don\u010di\u0107",
     "age": 25,
     "position": "SF",
     "secondaryPositions": [],
@@ -7583,7 +7583,7 @@
     }
   },
   {
-    "id": "p-hou-JS",
+    "id": "p-hou-JS-2",
     "externalId": "1631095",
     "firstName": "Jabari",
     "lastName": "Smith Jr.",
@@ -8426,7 +8426,7 @@
     }
   },
   {
-    "id": "p-hou-JG",
+    "id": "p-hou-JG-2",
     "externalId": "201145",
     "firstName": "Jeff",
     "lastName": "Green",
@@ -9674,7 +9674,7 @@
     "id": "p-nop-JV",
     "externalId": "202685",
     "firstName": "Jonas",
-    "lastName": "Valančiūnas",
+    "lastName": "Valan\u010di\u016bnas",
     "age": 32,
     "position": "C",
     "secondaryPositions": [],
@@ -12670,7 +12670,7 @@
     "id": "p-lac-MD",
     "externalId": "1631217",
     "firstName": "Moussa",
-    "lastName": "Diabaté",
+    "lastName": "Diabat\u00e9",
     "age": 22,
     "position": "SF",
     "secondaryPositions": [],
@@ -13925,7 +13925,7 @@
     "id": "p-chi-NV",
     "externalId": "202696",
     "firstName": "Nikola",
-    "lastName": "Vučević",
+    "lastName": "Vu\u010devi\u0107",
     "age": 33,
     "position": "C",
     "secondaryPositions": [],
@@ -14180,7 +14180,7 @@
     }
   },
   {
-    "id": "p-chi-AD",
+    "id": "p-chi-AD-2",
     "externalId": "1630245",
     "firstName": "Ayo",
     "lastName": "Dosunmu",
@@ -17888,7 +17888,7 @@
     "id": "p-bos-KP",
     "externalId": "204001",
     "firstName": "Kristaps",
-    "lastName": "Porziņģis",
+    "lastName": "Porzi\u0146\u0123is",
     "age": 28,
     "position": "SF",
     "secondaryPositions": [],
@@ -23103,10 +23103,10 @@
     }
   },
   {
-    "id": "p-gsw-DŠ",
+    "id": "p-gsw-D\u0160",
     "externalId": "203967",
     "firstName": "Dario",
-    "lastName": "Šarić",
+    "lastName": "\u0160ari\u0107",
     "age": 30,
     "position": "SF",
     "secondaryPositions": [],
@@ -24842,7 +24842,7 @@
     "id": "p-atl-BB",
     "externalId": "203992",
     "firstName": "Bogdan",
-    "lastName": "Bogdanović",
+    "lastName": "Bogdanovi\u0107",
     "age": 31,
     "position": "SG",
     "secondaryPositions": [],
@@ -25823,8 +25823,8 @@
   {
     "id": "p-atl-VK",
     "externalId": "1630249",
-    "firstName": "Vít",
-    "lastName": "Krejčí",
+    "firstName": "V\u00edt",
+    "lastName": "Krej\u010d\u00ed",
     "age": 24,
     "position": "SG",
     "secondaryPositions": [],
@@ -27418,10 +27418,10 @@
     }
   },
   {
-    "id": "p-bkn-DS",
+    "id": "p-bkn-DS-2",
     "externalId": "203471",
     "firstName": "Dennis",
-    "lastName": "Schröder",
+    "lastName": "Schr\u00f6der",
     "age": 30,
     "position": "SG",
     "secondaryPositions": [],
@@ -27547,7 +27547,7 @@
     }
   },
   {
-    "id": "p-bkn-DS",
+    "id": "p-bkn-DS-3",
     "externalId": "1630549",
     "firstName": "Day'Ron",
     "lastName": "Sharpe",
@@ -28137,7 +28137,7 @@
     }
   },
   {
-    "id": "p-bkn-NC",
+    "id": "p-bkn-NC-2",
     "externalId": "1629651",
     "firstName": "Nic",
     "lastName": "Claxton",
@@ -29352,7 +29352,7 @@
     }
   },
   {
-    "id": "p-lal-JH",
+    "id": "p-lal-JH-2",
     "externalId": "1629637",
     "firstName": "Jaxson",
     "lastName": "Hayes",
@@ -30997,7 +30997,7 @@
     "id": "p-mia-NJ",
     "externalId": "1631107",
     "firstName": "Nikola",
-    "lastName": "Jović",
+    "lastName": "Jovi\u0107",
     "age": 21,
     "position": "SF",
     "secondaryPositions": [],
@@ -34097,7 +34097,7 @@
     "id": "p-den-NJ",
     "externalId": "203999",
     "firstName": "Nikola",
-    "lastName": "Jokić",
+    "lastName": "Joki\u0107",
     "age": 29,
     "position": "C",
     "secondaryPositions": [],
@@ -34709,7 +34709,7 @@
     }
   },
   {
-    "id": "p-den-JH",
+    "id": "p-den-JH-2",
     "externalId": "1630643",
     "firstName": "Jay",
     "lastName": "Huff",
@@ -34838,10 +34838,10 @@
     }
   },
   {
-    "id": "p-den-VČ",
+    "id": "p-den-V\u010c",
     "externalId": "1628427",
     "firstName": "Vlatko",
-    "lastName": "Čančar",
+    "lastName": "\u010can\u010dar",
     "age": 27,
     "position": "SF",
     "secondaryPositions": [],
@@ -35805,7 +35805,7 @@
     }
   },
   {
-    "id": "p-orl-JI",
+    "id": "p-orl-JI-2",
     "externalId": "204060",
     "firstName": "Joe",
     "lastName": "Ingles",
@@ -38920,7 +38920,7 @@
     }
   },
   {
-    "id": "p-phi-RC",
+    "id": "p-phi-RC-2",
     "externalId": "203496",
     "firstName": "Robert",
     "lastName": "Covington",
@@ -40626,7 +40626,7 @@
     }
   },
   {
-    "id": "p-ind-AN",
+    "id": "p-ind-AN-2",
     "externalId": "1630174",
     "firstName": "Aaron",
     "lastName": "Nesmith",
@@ -41355,7 +41355,7 @@
     }
   },
   {
-    "id": "p-ind-OT",
+    "id": "p-ind-OT-2",
     "externalId": "1631131",
     "firstName": "Oscar",
     "lastName": "Tshiebwe",
@@ -42367,7 +42367,7 @@
     }
   },
   {
-    "id": "p-phx-BB",
+    "id": "p-phx-BB-2",
     "externalId": "1629626",
     "firstName": "Bol",
     "lastName": "Bol",
@@ -42747,7 +42747,7 @@
     "id": "p-phx-JN",
     "externalId": "203994",
     "firstName": "Jusuf",
-    "lastName": "Nurkić",
+    "lastName": "Nurki\u0107",
     "age": 29,
     "position": "C",
     "secondaryPositions": [],
@@ -44703,7 +44703,7 @@
     }
   },
   {
-    "id": "p-por-MB",
+    "id": "p-por-MB-2",
     "externalId": "1627763",
     "firstName": "Malcolm",
     "lastName": "Brogdon",
@@ -47728,7 +47728,7 @@
     }
   },
   {
-    "id": "p-tor-GT",
+    "id": "p-tor-GT-2",
     "externalId": "1629018",
     "firstName": "Gary",
     "lastName": "Trent Jr.",
@@ -51720,7 +51720,7 @@
     }
   },
   {
-    "id": "p-sac-KE",
+    "id": "p-sac-KE-2",
     "externalId": "1631165",
     "firstName": "Keon",
     "lastName": "Ellis",
@@ -53297,7 +53297,7 @@
     }
   },
   {
-    "id": "p-was-JB",
+    "id": "p-was-JB-2",
     "externalId": "1631262",
     "firstName": "Jules",
     "lastName": "Bernard",
@@ -57101,7 +57101,7 @@
     }
   },
   {
-    "id": "p-uta-TH",
+    "id": "p-uta-TH-2",
     "externalId": "1629659",
     "firstName": "Talen",
     "lastName": "Horton-Tucker",
@@ -57820,7 +57820,7 @@
     }
   },
   {
-    "id": "p-uta-JC",
+    "id": "p-uta-JC-2",
     "externalId": "1628381",
     "firstName": "John",
     "lastName": "Collins",
@@ -58559,7 +58559,7 @@
     }
   },
   {
-    "id": "p-uta-KL",
+    "id": "p-uta-KL-2",
     "externalId": "1631254",
     "firstName": "Kenneth",
     "lastName": "Lofton Jr.",
@@ -59382,7 +59382,7 @@
     }
   },
   {
-    "id": "p-okc-JW",
+    "id": "p-okc-JW-2",
     "externalId": "1631114",
     "firstName": "Jalen",
     "lastName": "Williams",
@@ -64346,7 +64346,7 @@
     }
   },
   {
-    "id": "p-cha-MB",
+    "id": "p-cha-MB-2",
     "externalId": "1629716",
     "firstName": "Marques",
     "lastName": "Bolden",
@@ -64475,7 +64475,7 @@
     }
   },
   {
-    "id": "p-cha-LB",
+    "id": "p-cha-LB-2",
     "externalId": "1641778",
     "firstName": "Leaky",
     "lastName": "Black",
@@ -65070,7 +65070,7 @@
     }
   },
   {
-    "id": "p-cha-BM",
+    "id": "p-cha-BM-2",
     "externalId": "1641706",
     "firstName": "Brandon",
     "lastName": "Miller",

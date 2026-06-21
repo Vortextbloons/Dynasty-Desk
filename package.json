@@ -22,7 +22,9 @@
     "data:cache:clear": "node -e \"const fs=require('fs'); fs.rmSync('.raw_nba_cache',{recursive:true,force:true}); fs.mkdirSync('.raw_nba_cache',{recursive:true}); console.log('Cleared .raw_nba_cache');\"",
     "data:headshots": "npx tsx scripts/import/importHeadshots.ts",
     "data:logos": "echo 'Logos loaded from cdn.nba.com at runtime'",
-    "calibrate": "npx tsx scripts/calibrate.ts"
+    "calibrate": "npx tsx scripts/calibrate.ts",
+    "calibrate:2k": "npx tsx scripts/calibrate.ts --compare-2k",
+    "fetch:2k": "npx tsx scripts/fetch2k.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

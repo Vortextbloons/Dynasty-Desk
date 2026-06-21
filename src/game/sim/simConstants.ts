@@ -116,6 +116,13 @@ export const LOW_CRASH_TRANSITION_PENALTY = -0.01
 export const FOUL_LIMIT = 5
 export const MIN_BENCH_FOR_SUB = 1
 export const SUB_INTERVAL_SECONDS = 60
+export const CRUNCH_TIME_MINUTES = 6
+export const BLOWOUT_MARGIN_Q4_LATE_720 = 30
+export const BLOWOUT_MARGIN_Q4_LATE_540 = 25
+export const BLOWOUT_MARGIN_Q4_LATE_420 = 20
+export const BLOWOUT_MARGIN_Q4_LATE_180 = 15
+export const BLOWOUT_MARGIN_Q4_LATE_60 = 10
+export const PERFORMANCE_COMPRESSION_FACTOR = 0.2
 
 // --- Game Clock ---
 export const QUARTER_SECONDS = 720

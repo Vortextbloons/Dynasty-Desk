@@ -7,6 +7,7 @@ import {
   FATIGUE_SHOOTING_DEFENSE_SCALE,
   FATIGUE_TO_FOUL_SCALE,
   FATIGUE_RECOVERY_PER_DAY,
+  CRUNCH_TIME_MINUTES,
 } from '@/game/sim/simConstants'
 
 export type FatigueStat = 'shooting' | 'defense' | 'turnovers' | 'fouls'
@@ -23,11 +24,21 @@ export function updateFatigue(
   minutesPlayed: number,
   pace: 'slow' | 'balanced' | 'fast' = 'balanced',
   isHighUsage = false,
+  isCrunchTime = false,
 ): number {
   const paceMult = PACE_MULTIPLIER[pace] ?? 1
   const usageMult = isHighUsage ? FATIGUE_HIGH_USAGE_MULTIPLIER : 1
-  const gain = minutesPlayed * FATIGUE_GAIN_PER_MINUTE * paceMult * usageMult
+  let gain = minutesPlayed * FATIGUE_GAIN_PER_MINUTE * paceMult * usageMult
+  if (isCrunchTime) {
+    gain *= 0.5
+  }
   return clamp(currentFatigue + gain, 0, 100)
+}
+
+export function isCrunchTime(period: number, secondsRemaining: number): boolean {
+  if (period >= 5) return true
+  if (period === 4 && secondsRemaining <= CRUNCH_TIME_MINUTES * 60) return true
+  return false
 }
 
 /** Penalty applied to makeChance / defense / turnover rates. Negative = worse. */

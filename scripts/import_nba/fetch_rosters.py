@@ -312,7 +312,7 @@ def run(season: str) -> None:
         return team_id, fetch_roster(season, team_id)
 
     roster_out: list[dict[str, Any]] = []
-    player_counter: dict[str, int] = {}
+    initials_counter: dict[str, int] = {}
     failed_teams: list[str] = []
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         futures = {pool.submit(_fetch_one, tid): tid for tid in team_ids}
@@ -331,13 +331,13 @@ def run(season: str) -> None:
             internal_id = team_internal_ids[team_id]
             abbr = abbr_by_team_id.get(team_id, "UNK")
             for p in players:
-                key = f"{p['firstName']} {p['lastName']}"
-                n = player_counter.get(key, 0) + 1
-                player_counter[key] = n
-                suffix = f"-{n}" if n > 1 else ""
                 fn = p.get("firstName", "?") or "?"
                 ln = p.get("lastName", "?") or "?"
-                pid = f"p-{abbr.lower()}-{fn[0]}{ln[0]}{suffix}"
+                initials_key = f"{abbr.lower()}-{fn[0]}{ln[0]}"
+                n = initials_counter.get(initials_key, 0) + 1
+                initials_counter[initials_key] = n
+                suffix = f"-{n}" if n > 1 else ""
+                pid = f"p-{initials_key}{suffix}"
 
                 height_str = p.get("height", "")
                 height_inches = 78

@@ -380,7 +380,7 @@
     "id": "p-dal-KP",
     "externalId": "204001",
     "firstName": "Kristaps",
-    "lastName": "Porziņģis",
+    "lastName": "Porzi\u0146\u0123is",
     "age": 23,
     "position": "SF",
     "secondaryPositions": [],
@@ -883,7 +883,7 @@
     }
   },
   {
-    "id": "p-dal-JB",
+    "id": "p-dal-JB-2",
     "externalId": "1628973",
     "firstName": "Jalen",
     "lastName": "Brunson",
@@ -2007,7 +2007,7 @@
     "id": "p-dal-LD",
     "externalId": "1629029",
     "firstName": "Luka",
-    "lastName": "Dončić",
+    "lastName": "Don\u010di\u0107",
     "age": 20,
     "position": "SF",
     "secondaryPositions": [],
@@ -15021,7 +15021,7 @@
     "id": "p-orl-NV",
     "externalId": "202696",
     "firstName": "Nikola",
-    "lastName": "Vučević",
+    "lastName": "Vu\u010devi\u0107",
     "age": 28,
     "position": "C",
     "secondaryPositions": [],
@@ -16283,7 +16283,7 @@
     }
   },
   {
-    "id": "p-orl-MF",
+    "id": "p-orl-MF-2",
     "externalId": "1628982",
     "firstName": "Melvin",
     "lastName": "Frazier Jr.",
@@ -17513,7 +17513,7 @@
     }
   },
   {
-    "id": "p-phi-JE",
+    "id": "p-phi-JE-2",
     "externalId": "203954",
     "firstName": "Joel",
     "lastName": "Embiid",
@@ -18118,7 +18118,7 @@
     }
   },
   {
-    "id": "p-phi-JB",
+    "id": "p-phi-JB-2",
     "externalId": "1628413",
     "firstName": "Jonah",
     "lastName": "Bolden",
@@ -21431,7 +21431,7 @@
     }
   },
   {
-    "id": "p-mia-DW",
+    "id": "p-mia-DW-2",
     "externalId": "203079",
     "firstName": "Dion",
     "lastName": "Waiters",
@@ -24218,7 +24218,7 @@
     }
   },
   {
-    "id": "p-phx-DB",
+    "id": "p-phx-DB-2",
     "externalId": "1627733",
     "firstName": "Dragan",
     "lastName": "Bender",
@@ -25577,7 +25577,7 @@
     }
   },
   {
-    "id": "p-hou-CC",
+    "id": "p-hou-CC-2",
     "externalId": "203991",
     "firstName": "Clint",
     "lastName": "Capela",
@@ -29009,7 +29009,7 @@
     }
   },
   {
-    "id": "p-atl-JA",
+    "id": "p-atl-JA-2",
     "externalId": "1629121",
     "firstName": "Jaylen",
     "lastName": "Adams",
@@ -32277,7 +32277,7 @@
     }
   },
   {
-    "id": "p-chi-RA",
+    "id": "p-chi-RA-2",
     "externalId": "1627853",
     "firstName": "Ryan",
     "lastName": "Arcidiacono",
@@ -36468,7 +36468,7 @@
     }
   },
   {
-    "id": "p-min-JT",
+    "id": "p-min-JT-2",
     "externalId": "1629123",
     "firstName": "Jared",
     "lastName": "Terrell",
@@ -37951,10 +37951,10 @@
     }
   },
   {
-    "id": "p-min-DŠ",
+    "id": "p-min-D\u0160",
     "externalId": "203967",
     "firstName": "Dario",
-    "lastName": "Šarić",
+    "lastName": "\u0160ari\u0107",
     "age": 25,
     "position": "SF",
     "secondaryPositions": [],
@@ -39441,7 +39441,7 @@
   {
     "id": "p-den-MM",
     "externalId": "1628420",
-    "firstName": "Monté",
+    "firstName": "Mont\u00e9",
     "lastName": "Morris",
     "age": 24,
     "position": "SG",
@@ -39680,7 +39680,7 @@
     "id": "p-den-NJ",
     "externalId": "203999",
     "firstName": "Nikola",
-    "lastName": "Jokić",
+    "lastName": "Joki\u0107",
     "age": 24,
     "position": "C",
     "secondaryPositions": [],
@@ -39796,7 +39796,7 @@
     }
   },
   {
-    "id": "p-den-TL",
+    "id": "p-den-TL-2",
     "externalId": "1628399",
     "firstName": "Tyler",
     "lastName": "Lydon",
@@ -39915,7 +39915,7 @@
     }
   },
   {
-    "id": "p-den-MP",
+    "id": "p-den-MP-2",
     "externalId": "203486",
     "firstName": "Mason",
     "lastName": "Plumlee",
@@ -42011,7 +42011,7 @@
     "id": "p-por-JN",
     "externalId": "203994",
     "firstName": "Jusuf",
-    "lastName": "Nurkić",
+    "lastName": "Nurki\u0107",
     "age": 24,
     "position": "C",
     "secondaryPositions": [],
@@ -43712,7 +43712,7 @@
     "id": "p-okc-DS",
     "externalId": "203471",
     "firstName": "Dennis",
-    "lastName": "Schröder",
+    "lastName": "Schr\u00f6der",
     "age": 25,
     "position": "SG",
     "secondaryPositions": [],
@@ -44579,7 +44579,7 @@
   {
     "id": "p-uta-DE",
     "externalId": "203957",
-    "firstName": "Danté",
+    "firstName": "Dant\u00e9",
     "lastName": "Exum",
     "age": 23,
     "position": "SG",
@@ -46807,7 +46807,7 @@
     "id": "p-sac-BB",
     "externalId": "203992",
     "firstName": "Bogdan",
-    "lastName": "Bogdanović",
+    "lastName": "Bogdanovi\u0107",
     "age": 26,
     "position": "SG",
     "secondaryPositions": [],
@@ -49755,7 +49755,7 @@
     }
   },
   {
-    "id": "p-was-TB",
+    "id": "p-was-TB-2",
     "externalId": "1628418",
     "firstName": "Thomas",
     "lastName": "Bryant",
@@ -52114,7 +52114,7 @@
     "id": "p-mem-JV",
     "externalId": "202685",
     "firstName": "Jonas",
-    "lastName": "Valančiūnas",
+    "lastName": "Valan\u010di\u016bnas",
     "age": 27,
     "position": "C",
     "secondaryPositions": [],
@@ -54571,7 +54571,7 @@
     }
   },
   {
-    "id": "p-sas-DM",
+    "id": "p-sas-DM-2",
     "externalId": "202700",
     "firstName": "Donatas",
     "lastName": "Motiejunas",
@@ -55320,7 +55320,7 @@
     }
   },
   {
-    "id": "p-tor-KL",
+    "id": "p-tor-KL-2",
     "externalId": "200768",
     "firstName": "Kyle",
     "lastName": "Lowry",
@@ -56084,7 +56084,7 @@
     }
   },
   {
-    "id": "p-tor-JL",
+    "id": "p-tor-JL-2",
     "externalId": "202391",
     "firstName": "Jeremy",
     "lastName": "Lin",

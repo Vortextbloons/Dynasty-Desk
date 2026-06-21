@@ -3938,7 +3938,7 @@
     }
   },
   {
-    "id": "p-bkn-DC",
+    "id": "p-bkn-DC-2",
     "externalId": "201967",
     "firstName": "Dante",
     "lastName": "Cunningham",
@@ -7003,7 +7003,7 @@
     }
   },
   {
-    "id": "p-mia-DW",
+    "id": "p-mia-DW-2",
     "externalId": "203079",
     "firstName": "Dion",
     "lastName": "Waiters",
@@ -7246,7 +7246,7 @@
     }
   },
   {
-    "id": "p-mia-DW",
+    "id": "p-mia-DW-3",
     "externalId": "1628476",
     "firstName": "Derrick",
     "lastName": "Walton Jr.",
@@ -8875,7 +8875,7 @@
   {
     "id": "p-den-MM",
     "externalId": "1628420",
-    "firstName": "Monté",
+    "firstName": "Mont\u00e9",
     "lastName": "Morris",
     "age": 23,
     "position": "SG",
@@ -9114,7 +9114,7 @@
     "id": "p-den-NJ",
     "externalId": "203999",
     "firstName": "Nikola",
-    "lastName": "Jokić",
+    "lastName": "Joki\u0107",
     "age": 23,
     "position": "C",
     "secondaryPositions": [],
@@ -9230,7 +9230,7 @@
     }
   },
   {
-    "id": "p-den-TL",
+    "id": "p-den-TL-2",
     "externalId": "1628399",
     "firstName": "Tyler",
     "lastName": "Lydon",
@@ -11174,7 +11174,7 @@
     }
   },
   {
-    "id": "p-atl-JM",
+    "id": "p-atl-JM-2",
     "externalId": "203705",
     "firstName": "Josh",
     "lastName": "Magette",
@@ -11554,7 +11554,7 @@
     "id": "p-atl-DS",
     "externalId": "203471",
     "firstName": "Dennis",
-    "lastName": "Schröder",
+    "lastName": "Schr\u00f6der",
     "age": 24,
     "position": "SG",
     "secondaryPositions": [],
@@ -14279,7 +14279,7 @@
     }
   },
   {
-    "id": "p-cle-JC",
+    "id": "p-cle-JC-2",
     "externalId": "101181",
     "firstName": "Jose",
     "lastName": "Calderon",
@@ -19864,7 +19864,7 @@
     }
   },
   {
-    "id": "p-min-AB",
+    "id": "p-min-AB-2",
     "externalId": "201166",
     "firstName": "Aaron",
     "lastName": "Brooks",
@@ -27659,7 +27659,7 @@
     "id": "p-nyk-KP",
     "externalId": "204001",
     "firstName": "Kristaps",
-    "lastName": "Porziņģis",
+    "lastName": "Porzi\u0146\u0123is",
     "age": 22,
     "position": "SF",
     "secondaryPositions": [],
@@ -29613,7 +29613,7 @@
     "id": "p-orl-NV",
     "externalId": "202696",
     "firstName": "Nikola",
-    "lastName": "Vučević",
+    "lastName": "Vu\u010devi\u0107",
     "age": 27,
     "position": "C",
     "secondaryPositions": [],
@@ -31217,10 +31217,10 @@
     }
   },
   {
-    "id": "p-phi-DŠ",
+    "id": "p-phi-D\u0160",
     "externalId": "203967",
     "firstName": "Dario",
-    "lastName": "Šarić",
+    "lastName": "\u0160ari\u0107",
     "age": 24,
     "position": "SF",
     "secondaryPositions": [],
@@ -35805,7 +35805,7 @@
     }
   },
   {
-    "id": "p-bos-JB",
+    "id": "p-bos-JB-2",
     "externalId": "1628444",
     "firstName": "Jabari",
     "lastName": "Bird",
@@ -39083,7 +39083,7 @@
     }
   },
   {
-    "id": "p-phx-DB",
+    "id": "p-phx-DB-2",
     "externalId": "1627733",
     "firstName": "Dragan",
     "lastName": "Bender",
@@ -42905,7 +42905,7 @@
     "id": "p-por-JN",
     "externalId": "203994",
     "firstName": "Jusuf",
-    "lastName": "Nurkić",
+    "lastName": "Nurki\u0107",
     "age": 23,
     "position": "C",
     "secondaryPositions": [],
@@ -46562,7 +46562,7 @@
     }
   },
   {
-    "id": "p-mem-MC",
+    "id": "p-mem-MC-2",
     "externalId": "201144",
     "firstName": "Mike",
     "lastName": "Conley",
@@ -50309,7 +50309,7 @@
   {
     "id": "p-uta-DE",
     "externalId": "203957",
-    "firstName": "Danté",
+    "firstName": "Dant\u00e9",
     "lastName": "Exum",
     "age": 22,
     "position": "SG",
@@ -52661,7 +52661,7 @@
     "id": "p-tor-JV",
     "externalId": "202685",
     "firstName": "Jonas",
-    "lastName": "Valančiūnas",
+    "lastName": "Valan\u010di\u016bnas",
     "age": 26,
     "position": "C",
     "secondaryPositions": [],
@@ -54089,7 +54089,7 @@
     "id": "p-sac-BB",
     "externalId": "203992",
     "firstName": "Bogdan",
-    "lastName": "Bogdanović",
+    "lastName": "Bogdanovi\u0107",
     "age": 25,
     "position": "SG",
     "secondaryPositions": [],
@@ -60673,7 +60673,7 @@
     }
   },
   {
-    "id": "p-cha-MM",
+    "id": "p-cha-MM-2",
     "externalId": "1628493",
     "firstName": "Mangok",
     "lastName": "Mathiang",
