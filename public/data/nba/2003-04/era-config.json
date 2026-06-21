@@ -1,8 +1,10 @@
 {
   "season": "2003-04",
-  "pace": 91,
-  "league3PARate": 0.22,
-  "leagueTsPct": 0.515,
-  "leaguePpg": 93.4,
-  "possessionCoefficient": 0.92
+  "pace": 100.0,
+  "league3PARate": 0.187,
+  "leagueTsPct": 0.487,
+  "leaguePpg": 9.3,
+  "possessionCoefficient": 1.0,
+  "playerCount": 442,
+  "teamCount": 291
 }

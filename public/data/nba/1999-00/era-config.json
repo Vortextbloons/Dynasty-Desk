@@ -1,8 +1,10 @@
 {
   "season": "1999-00",
-  "pace": 93.3,
-  "league3PARate": 0.19,
-  "leagueTsPct": 0.52,
-  "leaguePpg": 97.5,
-  "possessionCoefficient": 0.92
+  "pace": 100.0,
+  "league3PARate": 0.167,
+  "leagueTsPct": 0.495,
+  "leaguePpg": 9.5,
+  "possessionCoefficient": 1.0,
+  "playerCount": 439,
+  "teamCount": 296
 }
