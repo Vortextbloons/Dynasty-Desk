@@ -54,6 +54,33 @@ function setup() {
 }
 
 describe('simulateGame', () => {
+  it('invokes onTick during normal-speed simulation', async () => {
+    const { home, away, homePlayers, awayPlayers } = setup()
+    const rng = new SeededRandom(createRngState('gs-tick'))
+    let tickCount = 0
+    const { gameState } = await simulateGame({
+      id: 'g-tick',
+      home,
+      away,
+      homeLineup: home.lineup,
+      awayLineup: away.lineup,
+      homePlayers,
+      awayPlayers,
+      rules: DEFAULT_LEAGUE_RULES,
+      era: MODERN_ERA_CONFIG,
+      rng,
+      date: '2025-10-21',
+      injuriesEnabled: false,
+      fatigueEnabled: false,
+      simSpeed: 'normal',
+      onTick: async () => {
+        tickCount++
+      },
+    })
+    expect(tickCount).toBeGreaterThan(20)
+    expect(gameState.status).toBe('final')
+  })
+
   it('produces a final game in [80, 140] for both teams', async () => {
     const { home, away, homePlayers, awayPlayers } = setup()
     const rng = new SeededRandom(createRngState('gs-1'))

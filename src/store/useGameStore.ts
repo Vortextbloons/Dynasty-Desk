@@ -51,6 +51,11 @@ import {
   type SimProgress,
   type CancelToken,
 } from '@/game/league/simController'
+import {
+  snapshotToViewState,
+  type LiveGameSimViewState,
+} from '@/game/sim/liveGameSnapshot'
+import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import type { StaticSnapshot } from '@/game/models'
 import {
   cutPlayer as cutPlayerAction,
@@ -129,6 +134,7 @@ interface GameStore {
   lastSavedAt: string | null
   simProgress: SimProgress | null
   simRunning: boolean
+  liveGameSim: LiveGameSimViewState | null
 
   initFromSnapshot: (
     snapshot: StaticSnapshot,
@@ -299,6 +305,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   lastSavedAt: null,
   simProgress: null,
   simRunning: false,
+  liveGameSim: null,
 
   initFromSnapshot: async (
     snapshot,
@@ -1266,13 +1273,52 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
     const seededRng = new SeededRandom(save.rngState)
     const session = createSimSessionState(save.league)
-    const results = await simGamesOnDate(
-      save,
-      game.date,
-      seededRng,
-      session,
-      gameId,
-    )
+    const watchLive = normalizeModernSimSpeed(save.settings.simSpeed) === 'normal'
+
+    const onTick = watchLive
+      ? async (snapshot) => {
+          set({
+            liveGameSim: snapshotToViewState(
+              snapshot,
+              home.abbreviation,
+              away.abbreviation,
+              save.league.players,
+            ),
+          })
+        }
+      : undefined
+
+    if (watchLive) {
+      set({
+        liveGameSim: {
+          gameId,
+          homeAbbr: home.abbreviation,
+          awayAbbr: away.abbreviation,
+          homeScore: 0,
+          awayScore: 0,
+          periodLabel: 'Q1',
+          clock: '12:00',
+          playLines: [],
+        },
+      })
+    }
+
+    let results
+    try {
+      results = await simGamesOnDate(
+        save,
+        game.date,
+        seededRng,
+        session,
+        gameId,
+        onTick,
+      )
+    } finally {
+      if (watchLive) {
+        set({ liveGameSim: null })
+      }
+    }
+
     const primary = results.find((r) => r.gameId === gameId)
     if (!primary) return { error: 'Could not simulate game.' }
 

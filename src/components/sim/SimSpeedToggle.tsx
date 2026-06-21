@@ -6,7 +6,7 @@ import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 
 const OPTIONS: { value: SimSpeed; label: string; icon: typeof Zap }[] = [
   { value: 'instant', label: 'Instant', icon: Zap },
-  { value: 'normal', label: 'Normal', icon: Clock },
+  { value: 'normal', label: 'Fast Forward', icon: Clock },
 ]
 
 export function SimSpeedToggle() {

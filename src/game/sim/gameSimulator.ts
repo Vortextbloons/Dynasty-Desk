@@ -114,6 +114,10 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
   }
 
   for (let period = 1 as 1 | 2 | 3 | 4; period <= 4; period = (period + 1) as 1 | 2 | 3 | 4) {
+    state.clock = { period, timeRemainingSeconds: QUARTER_SECONDS }
+    state.events.push({ type: 'endOfPeriod', period: period - 1 })
+    await playPeriod(state, input, homeById, awayById, period)
+  }
 
   if (state.score.home === state.score.away && input.rng.chance(0.05)) {
     let otPeriod = 5 as 5 | 6 | 7
@@ -404,13 +408,8 @@ function ensureFive(
   return fallback.slice(0, 5)
 }
 
-async function yieldIfNormal(
-  speed: 'instant' | 'normal',
-  count: number,
-): Promise<void> {
-  if (speed === 'normal' && count % 5 === 0) {
-    await new Promise<void>((resolve) => setTimeout(resolve, 0))
-  }
+async function simDelay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 function recordTiebreakerPoint(

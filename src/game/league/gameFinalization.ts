@@ -15,6 +15,7 @@ import { buildBoxScore } from '@/game/sim/boxScoreBuilder'
 import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import type { SeededRandom } from '@/game/sim/rng'
 import type { SimSpeed } from '@/game/models'
+import type { LiveGameSnapshot } from '@/game/sim/liveGameSnapshot'
 import { addDays, daysBetween } from '@/lib/utils'
 import { checkRecords } from '@/game/league/recordTracker'
 import { updateRivalry } from '@/game/league/rivalryEngine'
@@ -200,6 +201,7 @@ export async function simulateAndFinalizeGame(
   rng: SeededRandom,
   session: SimSessionState,
   simSpeed: SimSpeed = 'instant',
+  onTick?: (snapshot: LiveGameSnapshot) => void | Promise<void>,
 ): Promise<{ boxScore: BoxScoreResult; post: PostGameResult } | null> {
   const { league } = target
   const home = league.teams[game.homeTeamId]
@@ -231,6 +233,7 @@ export async function simulateAndFinalizeGame(
     injuriesEnabled: target.settings.injuries,
     fatigueEnabled: target.settings.fatigue,
     simSpeed: normalizeModernSimSpeed(simSpeed),
+    onTick: normalizeModernSimSpeed(simSpeed) === 'normal' ? onTick : undefined,
   })
 
   const boxScore = buildBoxScore({ gameState, keyPlays })

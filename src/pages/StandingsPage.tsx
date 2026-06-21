@@ -92,7 +92,9 @@ export function StandingsPage() {
       return
     }
     if (save.settings.simSpeed === 'normal') {
-      toast.info('Tip: Switch to instant speed for faster bulk sim.', { duration: 5000 })
+      toast.info('Tip: Switch to Instant for bulk sim without the fast-forward viewer.', {
+        duration: 5000,
+      })
     }
     const result = await simSeason()
     if (result.cancelled) {

@@ -39,6 +39,9 @@ coverage/
 AGENTS.md
 plans/
 
+# NBA raw cache (local import cache, not needed in repo)
+.raw_nba_cache/
+
 # Opencode skills (borrowed from mattpocock/skills)
 .opencode
 opencode.json

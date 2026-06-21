@@ -28,6 +28,35 @@ export interface LiveGamePlayLine {
   isScoring: boolean
 }
 
+export interface LiveGameSimViewState {
+  gameId: string
+  homeAbbr: string
+  awayAbbr: string
+  homeScore: number
+  awayScore: number
+  periodLabel: string
+  clock: string
+  playLines: LiveGamePlayLine[]
+}
+
+export function snapshotToViewState(
+  snapshot: LiveGameSnapshot,
+  homeAbbr: string,
+  awayAbbr: string,
+  players: Record<string, Player | undefined>,
+): LiveGameSimViewState {
+  return {
+    gameId: snapshot.gameId,
+    homeAbbr,
+    awayAbbr,
+    homeScore: snapshot.homeScore,
+    awayScore: snapshot.awayScore,
+    periodLabel: formatQuarter(snapshot.period),
+    clock: formatClock(snapshot.timeRemainingSeconds),
+    playLines: formatLivePlayLines(snapshot.recentEvents, players),
+  }
+}
+
 export function buildLiveGameSnapshot(state: GameState): LiveGameSnapshot {
   const recentEvents = state.events.filter(isFeedWorthySimEvent).slice(-14)
   return {

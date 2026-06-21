@@ -3,6 +3,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { MobileSidebar } from './MobileSidebar'
 import { SimProgressOverlay } from '@/components/feedback/SimProgressOverlay'
+import { LiveGameSimOverlay } from '@/components/feedback/LiveGameSimOverlay'
 import { SaveIndicator } from '@/components/feedback/SaveIndicator'
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay'
 
@@ -32,6 +33,7 @@ export function AppShell({ children, hideChrome = false }: AppShellProps) {
         </main>
       </div>
       <SimProgressOverlay />
+      <LiveGameSimOverlay />
       <TutorialOverlay />
     </div>
   )

@@ -10,6 +10,7 @@ import {
   simulateAndFinalizeGame,
   type SimSessionState,
 } from '@/game/league/gameFinalization'
+import type { LiveGameSnapshot } from '@/game/sim/liveGameSnapshot'
 import { GAMES_PER_FRAME_INSTANT, GAMES_PER_FRAME_NORMAL, NORMAL_SIM_DELAY_MS } from './scheduleConstants'
 
 export interface SimResult {
@@ -42,6 +43,7 @@ async function simSingleGame(
   game: ScheduledGame,
   rng: SeededRandom,
   session: SimSessionState,
+  onTick?: (snapshot: LiveGameSnapshot) => void | Promise<void>,
 ): Promise<SimResult | null> {
   if (game.status === 'final') return null
 
@@ -53,6 +55,7 @@ async function simSingleGame(
     rng,
     session,
     speed,
+    onTick,
   )
   if (!result) return null
 
@@ -99,6 +102,7 @@ export async function simGamesOnDate(
   rng: SeededRandom,
   session: SimSessionState,
   primaryGameId?: string,
+  onTick?: (snapshot: LiveGameSnapshot) => void | Promise<void>,
 ): Promise<SimResult[]> {
   const dayGames = getRegularSeasonGamesOnDate(save.league.games, date)
   const order = primaryGameId
@@ -110,7 +114,8 @@ export async function simGamesOnDate(
 
   const results: SimResult[] = []
   for (const game of order) {
-    const result = await simSingleGame(save, game, rng, session)
+    const tick = game.id === primaryGameId ? onTick : undefined
+    const result = await simSingleGame(save, game, rng, session, tick)
     if (result) results.push(result)
   }
   return results
