@@ -33,6 +33,7 @@ def _fetch_season(season: str, skip_schedule: bool) -> None:
     fetch_rosters = _import("fetch_rosters").run
     fetch_season_stats = _import("fetch_season_stats").run
     compute_era_config = _import("compute_era_config").run
+    compute_ratings = _import("compute_ratings").run
 
     print(f"\n=== {season} ===")
     fetch_rosters(season)
@@ -44,6 +45,7 @@ def _fetch_season(season: str, skip_schedule: bool) -> None:
 
     fetch_season_stats(season, roster)
     compute_era_config([season])
+    compute_ratings([season], force=True)
 
     if not skip_schedule:
         try:

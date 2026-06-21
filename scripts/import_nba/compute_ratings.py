@@ -1,0 +1,541 @@
+"""Derive ratings, tendencies, traits, and contracts from real NBA stats.
+
+Reads roster.json + season-stats.json, produces complete StaticPlayer-compatible roster.json.
+Ported from src/game/ratings/playerRatingEngine.ts.
+"""
+
+from __future__ import annotations
+
+import random
+import sys
+from pathlib import Path
+from typing import Any
+
+from .config import NBA_ROOT, ensure_output_dir
+from .util import read_json, write_json
+
+try:
+    import numpy as np
+except ImportError:
+    np = None  # type: ignore
+
+# ---------------------------------------------------------------------------
+# Era configs (from src/game/models/eraConfig.ts)
+# ---------------------------------------------------------------------------
+MODERN_PPG = 114.7
+MODERN_3PA_RATE = 0.39
+
+ERA_CONFIGS: dict[str, dict[str, float]] = {
+    "1990-91": {"leaguePpg": 106.7, "league3PARate": 0.10, "pace": 96.4},
+    "1991-92": {"leaguePpg": 106.5, "league3PARate": 0.11, "pace": 95.4},
+    "1992-93": {"leaguePpg": 105.3, "league3PARate": 0.12, "pace": 94.7},
+    "1993-94": {"leaguePpg": 101.5, "league3PARate": 0.13, "pace": 95.1},
+    "1994-95": {"leaguePpg": 101.4, "league3PARate": 0.15, "pace": 94.7},
+    "1995-96": {"leaguePpg": 99.5, "league3PARate": 0.17, "pace": 94.1},
+    "1996-97": {"leaguePpg": 99.1, "league3PARate": 0.18, "pace": 91.1},
+    "1997-98": {"leaguePpg": 95.6, "league3PARate": 0.18, "pace": 90.7},
+    "1998-99": {"leaguePpg": 95.1, "league3PARate": 0.18, "pace": 91.1},
+    "1999-00": {"leaguePpg": 97.5, "league3PARate": 0.19, "pace": 93.3},
+    "2000-01": {"leaguePpg": 94.8, "league3PARate": 0.19, "pace": 92.4},
+    "2001-02": {"leaguePpg": 95.1, "league3PARate": 0.21, "pace": 91.5},
+    "2002-03": {"leaguePpg": 95.1, "league3PARate": 0.22, "pace": 91.5},
+    "2003-04": {"leaguePpg": 93.4, "league3PARate": 0.22, "pace": 91.0},
+    "2004-05": {"leaguePpg": 97.2, "league3PARate": 0.23, "pace": 90.9},
+    "2005-06": {"leaguePpg": 97.0, "league3PARate": 0.24, "pace": 90.5},
+    "2006-07": {"leaguePpg": 98.7, "league3PARate": 0.25, "pace": 90.4},
+    "2007-08": {"leaguePpg": 99.9, "league3PARate": 0.26, "pace": 91.7},
+    "2008-09": {"leaguePpg": 100.0, "league3PARate": 0.27, "pace": 92.2},
+    "2009-10": {"leaguePpg": 100.4, "league3PARate": 0.27, "pace": 92.7},
+    "2010-11": {"leaguePpg": 99.6, "league3PARate": 0.27, "pace": 92.1},
+    "2011-12": {"leaguePpg": 96.3, "league3PARate": 0.26, "pace": 91.3},
+    "2012-13": {"leaguePpg": 98.1, "league3PARate": 0.28, "pace": 92.7},
+    "2013-14": {"leaguePpg": 101.0, "league3PARate": 0.28, "pace": 93.5},
+    "2014-15": {"leaguePpg": 100.0, "league3PARate": 0.27, "pace": 93.5},
+    "2015-16": {"leaguePpg": 102.7, "league3PARate": 0.27, "pace": 95.8},
+    "2016-17": {"leaguePpg": 105.6, "league3PARate": 0.31, "pace": 96.4},
+    "2017-18": {"leaguePpg": 106.3, "league3PARate": 0.33, "pace": 97.3},
+    "2018-19": {"leaguePpg": 111.2, "league3PARate": 0.36, "pace": 100.0},
+    "2019-20": {"leaguePpg": 111.8, "league3PARate": 0.38, "pace": 100.3},
+    "2020-21": {"leaguePpg": 112.1, "league3PARate": 0.39, "pace": 99.8},
+    "2021-22": {"leaguePpg": 110.7, "league3PARate": 0.39, "pace": 98.2},
+    "2022-23": {"leaguePpg": 114.7, "league3PARate": 0.40, "pace": 99.2},
+    "2023-24": {"leaguePpg": 114.9, "league3PARate": 0.40, "pace": 99.0},
+    "2024-25": {"leaguePpg": 114.7, "league3PARate": 0.39, "pace": 99.2},
+}
+
+DEFAULT_ERA = {"leaguePpg": 114.7, "league3PARate": 0.39, "pace": 99.2}
+
+
+def get_era(season: str) -> dict[str, float]:
+    return ERA_CONFIGS.get(season, DEFAULT_ERA)
+
+
+# ---------------------------------------------------------------------------
+# Overall weights (from src/game/ratings/overallWeights.ts)
+# ---------------------------------------------------------------------------
+OVERALL_WEIGHTS: dict[str, dict[str, float]] = {
+    "PG": {
+        "ballHandling": 0.15, "passing": 0.15, "perimeterDefense": 0.12,
+        "threePoint": 0.12, "speed": 0.10, "offensiveIq": 0.10,
+        "midrange": 0.06, "freeThrow": 0.05, "consistency": 0.05,
+        "defensiveIq": 0.05, "steal": 0.05,
+    },
+    "SG": {
+        "threePoint": 0.15, "perimeterDefense": 0.12, "midrange": 0.10,
+        "ballHandling": 0.10, "speed": 0.08, "offensiveIq": 0.08,
+        "steal": 0.07, "freeThrow": 0.06, "consistency": 0.05,
+        "defensiveIq": 0.05, "insideScoring": 0.05, "closeShot": 0.05,
+        "offensiveRebound": 0.04,
+    },
+    "SF": {
+        "threePoint": 0.12, "midrange": 0.10, "perimeterDefense": 0.12,
+        "defensiveIq": 0.08, "offensiveIq": 0.08, "speed": 0.07,
+        "ballHandling": 0.06, "insideScoring": 0.06, "offensiveRebound": 0.05,
+        "defensiveRebound": 0.05, "freeThrow": 0.05, "consistency": 0.05,
+        "strength": 0.05, "steal": 0.06,
+    },
+    "PF": {
+        "insideScoring": 0.15, "defensiveRebound": 0.12, "offensiveRebound": 0.08,
+        "interiorDefense": 0.10, "midrange": 0.08, "threePoint": 0.07,
+        "strength": 0.08, "offensiveIq": 0.06, "defensiveIq": 0.06,
+        "freeThrow": 0.04, "consistency": 0.05, "closeShot": 0.06,
+        "vertical": 0.05,
+    },
+    "C": {
+        "insideScoring": 0.18, "defensiveRebound": 0.15, "interiorDefense": 0.12,
+        "offensiveRebound": 0.08, "strength": 0.10, "closeShot": 0.07,
+        "offensiveIq": 0.06, "defensiveIq": 0.05, "freeThrow": 0.04,
+        "consistency": 0.05, "vertical": 0.05, "block": 0.05,
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def clamp(v: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, v))
+
+
+def clamp_rating(v: float) -> int:
+    return int(clamp(v, 0, 100))
+
+
+def sample_weight(minutes: float, games: int) -> float:
+    mw = min(1.0, minutes / 2000)
+    gw = min(1.0, games / 60)
+    return 0.6 * mw + 0.4 * gw
+
+
+def blend_to_mean(value: float, weight: float, mean: float) -> float:
+    w = clamp(weight, 0, 1)
+    return value * w + mean * (1 - w)
+
+
+def compute_overall(ratings: dict[str, int], position: str) -> int:
+    weights = OVERALL_WEIGHTS.get(position, OVERALL_WEIGHTS["SF"])
+    total = 0.0
+    for key, weight in weights.items():
+        val = ratings.get(key, 50)
+        total += val * weight
+    return int(round(total))
+
+
+# ---------------------------------------------------------------------------
+# Position mapping
+# ---------------------------------------------------------------------------
+POS_MAP = {"G": "SG", "F": "SF", "C": "C", "PG": "PG", "SG": "SG", "SF": "SF", "PF": "PF"}
+
+
+def map_position(raw: str) -> str:
+    return POS_MAP.get(raw, "SF")
+
+
+# ---------------------------------------------------------------------------
+# Rating derivation (ported from playerRatingEngine.ts)
+# ---------------------------------------------------------------------------
+def derive_ratings(stats: dict[str, Any], position: str, season: str, rng: random.Random) -> dict[str, int]:
+    """Derive 23 ratings from real season stats."""
+    era = get_era(season)
+    gp = int(stats.get("gamesPlayed", 0) or 0)
+    minutes = float(stats.get("minutes", 0) or 0)
+
+    if gp == 0 or minutes == 0:
+        return _default_ratings(position, rng)
+
+    ppg = float(stats.get("points", 0) or 0) / max(1, gp)
+    rpg = float(stats.get("rebounds", 0) or 0) / max(1, gp)
+    apg = float(stats.get("assists", 0) or 0) / max(1, gp)
+    spg = float(stats.get("steals", 0) or 0) / max(1, gp)
+    bpg = float(stats.get("blocks", 0) or 0) / max(1, gp)
+    topg = float(stats.get("turnovers", 0) or 0) / max(1, gp)
+    mpg = minutes / max(1, gp)
+    fga = float(stats.get("fga", 0) or 0)
+    tpa = float(stats.get("tpa", 0) or 0)
+    tpm = float(stats.get("tpm", 0) or 0)
+    fta = float(stats.get("fta", 0) or 0)
+    ftm = float(stats.get("ftm", 0) or 0)
+    ts_pct = float(stats.get("tsPct", 0) or 0)
+    efg_pct = float(stats.get("efgPct", 0) or 0)
+    per = float(stats.get("per", 0) or 0)
+    bpm = float(stats.get("boxPlusMinus", 0) or 0)
+    usage = float(stats.get("usageRate", 0) or 0)
+
+    three_pct = tpm / max(1, tpa)
+    ft_pct = ftm / max(1, fta)
+
+    # Era normalize PPG
+    ppg_norm = ppg * (MODERN_PPG / max(1, era["leaguePpg"]))
+    three_parate = tpa / max(1, fga) * (MODERN_3PA_RATE / max(0.01, era["league3PARate"]))
+
+    weight = sample_weight(minutes, gp)
+    j = rng.gauss
+
+    def blend(raw: float, mean: float) -> float:
+        return blend_to_mean(raw, weight, mean)
+
+    def jitter(v: float, sigma: float = 1.5) -> float:
+        return v + j(0, sigma)
+
+    # Shooting
+    ts_component = (ts_pct - 0.5) * 200
+    three_component = (three_pct - 0.3) * 200
+    ft_component = (ft_pct - 0.7) * 100
+    three_raw = 65 + ts_component * 0.3 + three_component * 0.4 + ft_component * 0.2
+
+    # Playmaking
+    pass_raw = 60 + (apg - 3) * 4 + per * 0.5
+
+    # Rebounding
+    reb_raw = 60 + (rpg - 4) * 4
+    oreb_raw = reb_raw * 0.7
+    dreb_raw = reb_raw * 1.1
+
+    # Defense
+    stock = (spg + bpg) * 6
+    def_raw = 60 + stock + bpm * 1.5
+
+    # Inside scoring
+    inside_raw = 60 + (ppg_norm - 14) * 1.8 + ts_pct * 30
+    if position in ("C", "PF"):
+        inside_raw += 4
+    elif position in ("PG", "SG"):
+        inside_raw -= 2
+
+    # Athleticism
+    ath = 60 + (usage - 18) * 0.4 + mpg * 0.4 + per * 0.6
+
+    ratings = {
+        "insideScoring": clamp_rating(jitter(blend(inside_raw, 55))),
+        "closeShot": clamp_rating(jitter(blend(60 + (ppg - 10) * 1.2, 60))),
+        "midrange": clamp_rating(jitter(blend(60 + (efg_pct - 0.5) * 80, 55))),
+        "threePoint": clamp_rating(jitter(blend(three_raw, 55))),
+        "freeThrow": clamp_rating(jitter(blend(60 + (ft_pct - 0.78) * 200, 70))),
+        "ballHandling": clamp_rating(jitter(blend(60 + (usage - 18) * 0.6, 55))),
+        "passing": clamp_rating(jitter(blend(pass_raw, 55))),
+        "offensiveIq": clamp_rating(jitter(blend(60 + per * 0.8 + bpm * 1.5, 60))),
+        "offensiveRebound": clamp_rating(jitter(blend(oreb_raw, 45))),
+        "defensiveRebound": clamp_rating(jitter(blend(dreb_raw, 60))),
+        "perimeterDefense": clamp_rating(jitter(blend(def_raw, 55))),
+        "interiorDefense": clamp_rating(jitter(blend(
+            def_raw + 5 if position in ("C", "PF") else def_raw - 3,
+            60 if position in ("C", "PF") else 50,
+        ))),
+        "steal": clamp_rating(jitter(blend(60 + spg * 8, 55))),
+        "block": clamp_rating(jitter(blend(60 + bpg * 10, 50))),
+        "defensiveIq": clamp_rating(jitter(blend(60 + bpm * 1.5, 60))),
+        "speed": clamp_rating(jitter(blend(ath + (5 if position == "PG" else 0), 60))),
+        "strength": clamp_rating(jitter(blend(
+            ath + 5 if position in ("C", "PF") else ath,
+            65 if position in ("C", "PF") else 55,
+        ))),
+        "vertical": clamp_rating(jitter(blend(60 + (5 if position == "C" else 0), 55))),
+        "stamina": clamp_rating(jitter(blend(60 + mpg * 0.8, 65))),
+        "durability": clamp_rating(jitter(blend(60 + gp * 0.4, 65))),
+        "clutch": clamp_rating(jitter(blend(60 + bpm * 0.5, 60))),
+        "consistency": clamp_rating(jitter(blend(60 + gp * 0.2, 60))),
+    }
+
+    # Potential: based on age + recent performance
+    age = int(stats.get("age", 25) or 25)
+    potential_raw = max(per, inside_raw) + 5
+    if age < 24:
+        potential_raw += 5
+    elif age > 30:
+        potential_raw -= 5
+    ratings["potential"] = clamp_rating(potential_raw)
+
+    ratings["overall"] = compute_overall(ratings, position)
+    return ratings
+
+
+def _default_ratings(position: str, rng: random.Random) -> dict[str, int]:
+    """Replacement-level ratings for players with no stats."""
+    base = {
+        "insideScoring": 50, "closeShot": 50, "midrange": 50, "threePoint": 50,
+        "freeThrow": 60, "ballHandling": 50, "passing": 50, "offensiveIq": 50,
+        "offensiveRebound": 50, "defensiveRebound": 50, "perimeterDefense": 50,
+        "interiorDefense": 50, "steal": 50, "block": 50, "defensiveIq": 50,
+        "speed": 55, "strength": 55, "vertical": 55, "stamina": 60,
+        "durability": 65, "clutch": 50, "consistency": 55, "potential": 60,
+    }
+    if position == "C":
+        base["interiorDefense"] = 60
+        base["insideScoring"] = 55
+        base["vertical"] = 60
+    elif position == "PG":
+        base["ballHandling"] = 60
+        base["passing"] = 60
+        base["speed"] = 65
+
+    for k in base:
+        base[k] = clamp_rating(base[k] + rng.gauss(0, 1))
+    base["overall"] = compute_overall(base, position)
+    return base
+
+
+# ---------------------------------------------------------------------------
+# Tendency derivation
+# ---------------------------------------------------------------------------
+def derive_tendencies(stats: dict[str, Any], ratings: dict[str, int], position: str, rng: random.Random) -> dict[str, float]:
+    """Derive 24 tendencies from real stats + ratings."""
+    gp = max(1, int(stats.get("gamesPlayed", 0) or 1))
+    ppg = float(stats.get("points", 0) or 0) / gp
+    fga = float(stats.get("fga", 0) or 0)
+    tpa = float(stats.get("tpa", 0) or 0)
+    fta = float(stats.get("fta", 0) or 0)
+    tov = float(stats.get("turnovers", 0) or 0)
+    apg = float(stats.get("assists", 0) or 0)
+    usage = float(stats.get("usageRate", 0) or 15)
+
+    j = rng.gauss
+
+    three_rate = (tpa / max(1, fga)) * 100
+    ft_rate = (fta / max(1, fga)) * 100
+    tov_rate = (tov / max(1, fga + 0.44 * fta + tov)) * 100 if (fga + 0.44 * fta + tov) > 0 else 12
+    pass_rate = (apg / max(1, apg + ppg * 0.5 + 1)) * 40
+
+    is_big = position in ("C", "PF")
+    is_guard = position in ("PG", "SG")
+
+    return {
+        "usageRate": clamp(usage + j(0, 1), 10, 40),
+        "passRate": clamp(pass_rate + j(0, 2), 5, 35),
+        "shotRate": clamp(fga / max(1, gp) / 48 * 100 + j(0, 2), 10, 50),
+        "driveRate": clamp(10 + (8 if is_guard else 0) + j(0, 2), 5, 35),
+        "postUpRate": clamp(5 + (8 if is_big else 0) + j(0, 2), 0, 30),
+        "rimFrequency": clamp(ratings.get("insideScoring", 50) / 100 * 40 + j(0, 3), 10, 50),
+        "shortMidFrequency": clamp(15 + j(0, 2), 5, 30),
+        "longMidFrequency": clamp(10 + j(0, 2), 0, 20),
+        "cornerThreeFrequency": clamp(ratings.get("threePoint", 50) / 100 * 15 + j(0, 2), 0, 15),
+        "aboveBreakThreeFrequency": clamp(ratings.get("threePoint", 50) / 100 * 25 + j(0, 2), 5, 30),
+        "threePointRate": clamp(three_rate + j(0, 3), 15, 60),
+        "freeThrowRate": clamp(ft_rate + j(0, 2), 10, 50),
+        "turnoverRate": clamp(tov_rate + j(0, 2), 5, 25),
+        "isolationRate": clamp(usage * 0.3 + j(0, 2), 0, 35),
+        "pickAndRollBallHandlerRate": clamp(20 + (15 if is_guard else 0) + j(0, 3), 5, 50),
+        "pickAndRollRollManRate": clamp(10 + (15 if position == "C" else 0) + j(0, 3), 0, 30),
+        "spotUpRate": clamp(20 + j(0, 2), 5, 40),
+        "transitionRate": clamp(15 + j(0, 2), 5, 30),
+        "cutRate": clamp(10 + j(0, 2), 0, 25),
+        "foulRate": clamp(2 + j(0, 0.5), 0, 6),
+        "stealAttemptRate": clamp(5 + ratings.get("steal", 50) * 0.08 + j(0, 1), 0, 12),
+        "blockAttemptRate": clamp(5 + ratings.get("block", 50) * 0.08 + j(0, 1), 0, 12),
+        "crashOffensiveGlassRate": clamp(10 + ratings.get("offensiveRebound", 50) * 0.12 + j(0, 2), 0, 25),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Trait derivation (archetype-based)
+# ---------------------------------------------------------------------------
+def derive_traits(ratings: dict[str, int], stats: dict[str, Any], position: str, rng: random.Random) -> dict[str, int]:
+    """Derive 9 personality traits from archetype + ratings."""
+    usage = float(stats.get("usageRate", 15) or 15)
+    gp = int(stats.get("gamesPlayed", 0) or 0)
+    consistency = ratings.get("consistency", 55)
+    age = int(stats.get("age", 25) or 25)
+    potential = ratings.get("potential", 60)
+
+    j = rng.gauss
+
+    work_ethic = clamp(50 + gp / 82 * 10 + consistency * 0.2 + j(0, 5), 20, 99)
+    loyalty = clamp(50 + j(0, 10), 20, 99)
+    ego = clamp(50 + usage * 0.3 + j(0, 8), 20, 99)
+    greed = clamp(50 + usage * 0.2 + j(0, 6), 20, 99)
+    leadership = clamp(50 + (age - 22) * 0.8 + j(0, 6), 20, 99)
+    coachability = clamp(50 + potential * 0.2 - ego * 0.1 + j(0, 5), 20, 99)
+    injury_risk = clamp(50 - ratings.get("durability", 65) * 0.3 + j(0, 8), 10, 99)
+    shot_creation = clamp_rating(60 + (usage - 18) * 0.8 + j(0, 4))
+    defensive_versatility = clamp_rating(60 + ratings.get("defensiveIq", 55) * 0.3 + ratings.get("steal", 50) * 0.2 + j(0, 4))
+
+    return {
+        "workEthic": clamp_rating(work_ethic),
+        "loyalty": clamp_rating(loyalty),
+        "ego": clamp_rating(ego),
+        "greed": clamp_rating(greed),
+        "leadership": clamp_rating(leadership),
+        "coachability": clamp_rating(coachability),
+        "injuryRisk": clamp_rating(injury_risk),
+        "shotCreation": shot_creation,
+        "defensiveVersatility": defensive_versatility,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Contract derivation
+# ---------------------------------------------------------------------------
+SALARY_TIERS = [
+    (95, 65_000_000), (90, 55_000_000), (85, 45_000_000),
+    (80, 35_000_000), (75, 26_000_000), (70, 18_000_000),
+    (65, 12_000_000), (60, 7_000_000), (55, 3_000_000),
+    (50, 1_500_000),
+]
+
+
+def derive_contract(overall: int, age: int, rng: random.Random) -> dict[str, Any]:
+    """Estimate contract from overall rating and age."""
+    base_salary = 1_500_000
+    for min_ovr, salary in SALARY_TIERS:
+        if overall >= min_ovr:
+            base_salary = salary
+            break
+
+    years_in_league = max(0, age - 19)
+    if years_in_league <= 3:
+        years = 1
+    elif years_in_league <= 6:
+        years = 2
+    else:
+        years = 4
+
+    salary_by_year = []
+    for i in range(years):
+        salary_by_year.append(int(base_salary * (1.08 ** i)))
+
+    total_value = sum(salary_by_year)
+    guaranteed = salary_by_year.copy()
+    if years > 3:
+        guaranteed[-1] = 0
+
+    bird_rights = years_in_league >= 7
+    early_bird = years_in_league >= 4
+
+    return {
+        "salaryByYear": salary_by_year,
+        "totalValue": total_value,
+        "yearsRemaining": years,
+        "guaranteed": guaranteed,
+        "noTradeClause": False,
+        "tradeKickerPct": 0.0,
+        "poisonPill": False,
+        "playerOption": years >= 4,
+        "teamOption": False,
+        "signingBonus": int(base_salary * 0.05),
+        "birdRights": bird_rights,
+        "earlyBird": early_bird,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Main entry point
+# ---------------------------------------------------------------------------
+def compute_for_season(season: str, force: bool = False) -> None:
+    """Compute ratings/tendencies/traits/contracts for a season."""
+    out = ensure_output_dir(season)
+    roster_path = out / "roster.json"
+    stats_path = out / "season-stats.json"
+
+    if not roster_path.exists():
+        print(f"  ! {season}: no roster.json, skipping")
+        return
+    if not stats_path.exists():
+        print(f"  ! {season}: no season-stats.json, skipping")
+        return
+
+    roster = read_json(roster_path)
+    stats_list = read_json(stats_path)
+
+    if not roster:
+        print(f"  ! {season}: empty roster, skipping")
+        return
+
+    # Check if already computed (unless force)
+    if not force and roster and "ratings" in (roster[0] if roster else {}):
+        print(f"  [SKIP] {season}: ratings already computed (use --force to recompute)")
+        return
+
+    # Build stats lookup by externalId
+    stats_by_id: dict[str, dict[str, Any]] = {}
+    for s in stats_list:
+        pid = s.get("playerExternalId", "")
+        if pid:
+            stats_by_id[pid] = s
+
+    rng = random.Random(hash(season) + 42)
+
+    computed = 0
+    for player in roster:
+        ext_id = player.get("externalId", "")
+        pos = map_position(player.get("position", "SF"))
+        player["position"] = pos
+
+        # Set internal ID if missing
+        if "id" not in player:
+            team_abbr = player.get("teamInternalId", "unk").replace("team-", "")
+            player["id"] = f"p-{team_abbr}-{player.get('firstName', '?')[0]}{player.get('lastName', '?')[0]}-{ext_id}"
+
+        # Convert height/weight
+        height_str = player.get("height", "")
+        if isinstance(height_str, str) and "-" in height_str:
+            parts = height_str.split("-")
+            player["heightInches"] = int(parts[0]) * 12 + int(parts[1])
+        elif isinstance(height_str, (int, float)):
+            player["heightInches"] = int(height_str)
+        elif "heightInches" not in player:
+            player["heightInches"] = 78
+
+        weight_str = player.get("weight", 0)
+        if isinstance(weight_str, str):
+            player["weightLbs"] = int(weight_str) if weight_str.isdigit() else 200
+        elif isinstance(weight_str, (int, float)):
+            player["weightLbs"] = int(weight_str)
+        elif "weightLbs" not in player:
+            player["weightLbs"] = 200
+
+        # Set secondaryPositions
+        if "secondaryPositions" not in player:
+            player["secondaryPositions"] = []
+
+        # Get stats
+        stats = stats_by_id.get(ext_id, {})
+
+        # Derive all fields
+        player["ratings"] = derive_ratings(stats, pos, season, rng)
+        player["tendencies"] = derive_tendencies(stats, player["ratings"], pos, rng)
+        player["traits"] = derive_traits(player["ratings"], stats, pos, rng)
+        player["contract"] = derive_contract(
+            player["ratings"]["overall"],
+            int(stats.get("age", player.get("age", 25)) or 25),
+            rng,
+        )
+
+        player["importMeta"] = {
+            "snapshotSeason": season,
+            "statsSource": "nba_api",
+            "lastUpdated": "2026-01-01T00:00:00Z",
+        }
+
+        computed += 1
+
+    write_json(roster_path, roster)
+    print(f"  [OK] computed ratings for {computed} players in {season}")
+
+
+def run(seasons: list[str] | None = None, force: bool = False) -> None:
+    """Compatibility wrapper for run_all.py."""
+    from .config import DEFAULT_SEASONS
+    if seasons is None:
+        seasons = DEFAULT_SEASONS
+    print("[ratings] deriving ratings from real stats")
+    for season in seasons:
+        compute_for_season(season, force=force)

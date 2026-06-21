@@ -227,6 +227,7 @@ def run(season: str) -> None:
         return team_id, fetch_roster(season, team_id)
 
     roster_out: list[dict[str, Any]] = []
+    player_counter: dict[str, int] = {}
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         futures = {pool.submit(_fetch_one, tid): tid for tid in team_ids}
         done = 0
@@ -234,8 +235,47 @@ def run(season: str) -> None:
             done += 1
             team_id, players = future.result()
             internal_id = team_internal_ids[team_id]
+            abbr = next((t["abbreviation"] for t in teams if t["externalId"] == team_id), "UNK")
             for p in players:
-                roster_out.append({**p, "teamInternalId": internal_id})
+                key = f"{p['firstName']} {p['lastName']}"
+                n = player_counter.get(key, 0) + 1
+                player_counter[key] = n
+                suffix = f"-{n}" if n > 1 else ""
+                fn = p.get("firstName", "?") or "?"
+                ln = p.get("lastName", "?") or "?"
+                pid = f"p-{abbr.lower()}-{fn[0]}{ln[0]}{suffix}"
+
+                height_str = p.get("height", "")
+                height_inches = 78
+                if isinstance(height_str, str) and "-" in height_str:
+                    parts = height_str.split("-")
+                    height_inches = int(parts[0]) * 12 + int(parts[1])
+                elif isinstance(height_str, (int, float)):
+                    height_inches = int(height_str)
+
+                weight_str = p.get("weight", 0)
+                weight_lbs = 200
+                if isinstance(weight_str, str) and weight_str.isdigit():
+                    weight_lbs = int(weight_str)
+                elif isinstance(weight_str, (int, float)):
+                    try:
+                        weight_lbs = int(weight_str)
+                    except (ValueError, OverflowError):
+                        weight_lbs = 200
+
+                roster_out.append({
+                    "id": pid,
+                    "externalId": p["externalId"],
+                    "firstName": p["firstName"],
+                    "lastName": p["lastName"],
+                    "age": p.get("age") or 25,
+                    "position": p.get("position", "F"),
+                    "secondaryPositions": [],
+                    "heightInches": height_inches,
+                    "weightLbs": weight_lbs,
+                    "teamId": internal_id,
+                    "teamExternalId": team_id,
+                })
             if done % 10 == 0 or done == len(team_ids):
                 print(f"  ... {done}/{len(team_ids)} teams fetched")
 
