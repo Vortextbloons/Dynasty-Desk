@@ -73,6 +73,7 @@ describe('simulateGame', () => {
       injuriesEnabled: false,
       fatigueEnabled: false,
       simSpeed: 'normal',
+      possessionDelayMs: 0,
       onTick: async () => {
         tickCount++
       },

@@ -53,6 +53,8 @@ export interface SimulateGameInput {
   fatigueEnabled: boolean
   simSpeed: 'instant' | 'normal'
   onTick?: (snapshot: LiveGameSnapshot) => void | Promise<void>
+  /** Override possession delay in normal mode (tests use 0). */
+  possessionDelayMs?: number
 }
 
 export interface SimulateGameOutput {
@@ -257,7 +259,7 @@ async function playPeriod(
 
     if (input.simSpeed === 'normal' && input.onTick) {
       await input.onTick(buildLiveGameSnapshot(state))
-      await simDelay(LIVE_SIM_POSSESSION_DELAY_MS)
+      await simDelay(input.possessionDelayMs ?? LIVE_SIM_POSSESSION_DELAY_MS)
     }
   }
 
