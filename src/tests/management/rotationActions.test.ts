@@ -33,6 +33,13 @@ describe('rotationActions', () => {
     ])
   })
 
+  it('getAvailablePlayerIds dedupes duplicate roster entries', () => {
+    const lineup = makeLineup()
+    expect(
+      getAvailablePlayerIds(['p-den-CJ', 'p3', 'p-den-CJ', 'p4'], lineup),
+    ).toEqual(['p-den-CJ', 'p3', 'p4'])
+  })
+
   it('assignToStarter adds player and default minutes', () => {
     const lineup = assignToStarter(makeLineup(), 'p1')
     expect(lineup.starters).toEqual(['p1'])

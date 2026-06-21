@@ -15,7 +15,7 @@ export function getAvailablePlayerIds(
   lineup: LineupSettings,
 ): string[] {
   const inRotation = getRotationPlayerIds(lineup)
-  return roster.filter((id) => !inRotation.has(id))
+  return uniquePlayerIds(roster.filter((id) => !inRotation.has(id)))
 }
 
 /** Preserve order; drop duplicate player ids (first occurrence wins). */

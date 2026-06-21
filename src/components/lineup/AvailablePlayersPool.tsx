@@ -4,6 +4,7 @@ import { Search } from 'lucide-react'
 import type { Player } from '@/game/models/player'
 import type { Position } from '@/game/models/position'
 import { RotationPlayerRow } from './RotationPlayerRow'
+import { uniquePlayerIds } from '@/game/management/rotationActions'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { cn } from '@/lib/utils'
 
@@ -27,7 +28,7 @@ export function AvailablePlayersPool({
   const { setNodeRef, isOver } = useDroppable({ id: POOL_DROP_ID })
 
   const filtered = useMemo(() => {
-    let list = playerIds
+    let list = uniquePlayerIds(playerIds)
       .map((id) => players.get(id))
       .filter((p): p is Player => Boolean(p))
 
