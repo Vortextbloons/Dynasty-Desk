@@ -148,3 +148,11 @@ export function createStaticDataLoader(
 }
 
 export const staticDataLoader = createStaticDataLoader()
+
+export async function loadStaticSnapshot(id: string): Promise<StaticSnapshot | null> {
+  try {
+    return await staticDataLoader.loadSnapshot(id)
+  } catch {
+    return null
+  }
+}

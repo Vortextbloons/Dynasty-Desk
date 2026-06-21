@@ -1,3 +1,5 @@
+// Note: M2 spec listed this in src/db/, but implementation placed it in src/game/core/
+// for better separation of validation logic from persistence concerns.
 import type { GameSave } from '@/game/models'
 
 export type ValidationResult =

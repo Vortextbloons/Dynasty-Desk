@@ -21,6 +21,30 @@ export function transitionToOffseason(
 
   const bracket = league.playoffBracket
   const allTeamIds = Object.keys(league.teams)
+
+  const totalRevenueAwarded = applyRevenueBonuses(league, allTeamIds)
+
+  if (bracket?.status === 'complete') {
+    crownChampion(league, bracket)
+  }
+
+  const awardNews = runLeagueSeasonAwards(league)
+  league.news.push(...awardNews)
+
+  fireOffseasonBeginsNews(league)
+
+  updateAllTeamDirections(league, allTeamIds)
+
+  return {
+    phase: 'offseason',
+    championId: bracket?.championTeamId,
+    finalsMvpId: bracket?.finalsMvpPlayerId,
+    revenueAwarded: totalRevenueAwarded,
+  }
+}
+
+function applyRevenueBonuses(league: LeagueState, allTeamIds: string[]): number {
+  const bracket = league.playoffBracket
   let totalRevenueAwarded = 0
 
   if (bracket?.status === 'complete') {
@@ -36,80 +60,84 @@ export function transitionToOffseason(
       team.finances.cashReserves += bonus
       totalRevenueAwarded += bonus
     }
-
-    if (bracket.championTeamId) {
-      const seasonLabel = league.rules.seasonLabel
-
-      if (bracket.finalsMvpPlayerId) {
-        const existingSeason = league.awardsHistory.find((a) => a.season === seasonLabel)
-        if (existingSeason) {
-          existingSeason.awards.push({
-            season: seasonLabel,
-            award: 'finals_mvp',
-            playerId: bracket.finalsMvpPlayerId,
-            teamId: bracket.championTeamId,
-          })
-        } else {
-          league.awardsHistory.push({
-            season: seasonLabel,
-            awards: [{
-              season: seasonLabel,
-              award: 'finals_mvp',
-              playerId: bracket.finalsMvpPlayerId,
-              teamId: bracket.championTeamId,
-            }],
-            champions: [],
-          })
-        }
-
-        const mvpPlayer = league.players[bracket.finalsMvpPlayerId]
-        const mvpName = mvpPlayer
-          ? `${mvpPlayer.firstName} ${mvpPlayer.lastName}`
-          : 'Player'
-
-        league.news.push({
-          id: `news-finals-mvp-${league.seasonYear}`,
-          date: league.currentDate,
-          type: 'finals_mvp',
-          headline: `${mvpName} wins Finals MVP`,
-          body: `${mvpName} has been named Finals MVP for the ${seasonLabel} season.`,
-          teamIds: [bracket.championTeamId],
-          playerIds: [bracket.finalsMvpPlayerId],
-          importance: 'high',
-        })
-      }
-
-      league.champions.push({
-        season: seasonLabel,
-        championTeamId: bracket.championTeamId,
-        runnerUpTeamId: bracket.runnerUpTeamId ?? '',
-        finalsMvpPlayerId: bracket.finalsMvpPlayerId ?? '',
-        seriesResult: `${bracket.finals?.higherSeedWins ?? 0}-${bracket.finals?.lowerSeedWins ?? 0}`,
-      })
-
-      const championTeam = league.teams[bracket.championTeamId]
-      const championName = championTeam
-        ? `${championTeam.city} ${championTeam.name}`
-        : 'Champion'
-
-      league.news.push({
-        id: `news-championship-${league.seasonYear}`,
-        date: league.currentDate,
-        type: 'championship',
-        headline: `${championName} win the championship!`,
-        body: `${championName} have won the ${seasonLabel} NBA championship.`,
-        teamIds: [bracket.championTeamId],
-        playerIds: bracket.finalsMvpPlayerId ? [bracket.finalsMvpPlayerId] : [],
-        importance: 'high',
-      })
-    }
   }
 
-  const awardNews = runLeagueSeasonAwards(league)
-  league.news.push(...awardNews)
+  return totalRevenueAwarded
+}
 
-  fireOffseasonBeginsNews(league)
+function crownChampion(
+  league: LeagueState,
+  bracket: NonNullable<LeagueState['playoffBracket']>,
+): void {
+  if (bracket.status !== 'complete' || !bracket.championTeamId) return
 
+  const seasonLabel = league.rules.seasonLabel
+
+  if (bracket.finalsMvpPlayerId) {
+    const existingSeason = league.awardsHistory.find((a) => a.season === seasonLabel)
+    if (existingSeason) {
+      existingSeason.awards.push({
+        season: seasonLabel,
+        award: 'finals_mvp',
+        playerId: bracket.finalsMvpPlayerId,
+        teamId: bracket.championTeamId,
+      })
+    } else {
+      league.awardsHistory.push({
+        season: seasonLabel,
+        awards: [{
+          season: seasonLabel,
+          award: 'finals_mvp',
+          playerId: bracket.finalsMvpPlayerId,
+          teamId: bracket.championTeamId,
+        }],
+        champions: [],
+      })
+    }
+
+    const mvpPlayer = league.players[bracket.finalsMvpPlayerId]
+    const mvpName = mvpPlayer
+      ? `${mvpPlayer.firstName} ${mvpPlayer.lastName}`
+      : 'Player'
+
+    league.news.push({
+      id: `news-finals-mvp-${league.seasonYear}`,
+      date: league.currentDate,
+      type: 'finals_mvp',
+      headline: `${mvpName} wins Finals MVP`,
+      body: `${mvpName} has been named Finals MVP for the ${seasonLabel} season.`,
+      teamIds: [bracket.championTeamId],
+      playerIds: [bracket.finalsMvpPlayerId],
+      importance: 'high',
+    })
+  }
+
+  league.champions.push({
+    season: seasonLabel,
+    championTeamId: bracket.championTeamId,
+    runnerUpTeamId: bracket.runnerUpTeamId ?? '',
+    finalsMvpPlayerId: bracket.finalsMvpPlayerId ?? '',
+    seriesResult: `${bracket.finals?.higherSeedWins ?? 0}-${bracket.finals?.lowerSeedWins ?? 0}`,
+  })
+
+  const championTeam = league.teams[bracket.championTeamId]
+  const championName = championTeam
+    ? `${championTeam.city} ${championTeam.name}`
+    : 'Champion'
+
+  league.news.push({
+    id: `news-championship-${league.seasonYear}`,
+    date: league.currentDate,
+    type: 'championship',
+    headline: `${championName} win the championship!`,
+    body: `${championName} have won the ${seasonLabel} NBA championship.`,
+    teamIds: [bracket.championTeamId],
+    playerIds: bracket.finalsMvpPlayerId ? [bracket.finalsMvpPlayerId] : [],
+    importance: 'high',
+  })
+}
+
+function updateAllTeamDirections(league: LeagueState, allTeamIds: string[]): void {
   for (const teamId of allTeamIds) {
     const team = league.teams[teamId]
     if (!team) continue
@@ -136,13 +164,6 @@ export function transitionToOffseason(
       team.direction = next
       team.directionAutoUpdatedAt = new Date().toISOString()
     }
-  }
-
-  return {
-    phase: 'offseason',
-    championId: bracket?.championTeamId,
-    finalsMvpId: bracket?.finalsMvpPlayerId,
-    revenueAwarded: totalRevenueAwarded,
   }
 }
 

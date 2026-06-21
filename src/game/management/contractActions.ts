@@ -88,6 +88,16 @@ function deadMoneyContract(deadMoney: number, years = 1): Contract {
   })
 }
 
+export function waivePlayer(
+  playerId: string,
+  player: Player,
+  team: Team,
+  players: Record<string, Player>,
+  rules: LeagueRules,
+): ContractActionResult {
+  return cutPlayer(playerId, player, team, players, rules)
+}
+
 export function cutPlayer(
   playerId: string,
   player: Player,

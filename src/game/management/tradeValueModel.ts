@@ -35,7 +35,6 @@ export function computePlayerValue(
   const positionBonus = POSITION_BONUS[player.position] ?? 1
   const need = context.positionNeed[player.position] ?? 0
   void team
-  void positionBonus
 
   let contenderBonus = 0
   let rebuilderPenalty = 0
@@ -60,7 +59,8 @@ export function computePlayerValue(
     ratings.overall * 0.5 +
     ratings.potential * 0.15 +
     (40 - player.age) * 0.5 +
-    need * 5 -
+    need * 5 +
+    positionBonus * need * 10 -
     (yearZeroSalary / 1_000_000) * 0.4 -
     injuryRisk * 5 +
     contenderBonus +

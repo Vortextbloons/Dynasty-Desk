@@ -593,4 +593,95 @@ describe('CRIT fixes', () => {
     expect(result.legal).toBe(false)
     expect(result.reason).toMatch(/Trade exception tpe-missing not found/)
   })
+
+  it('BYC scales cap hit by 50% for matching', () => {
+    const a1 = p('a1', 20_000_000, 2, 'a')
+    a1.contract.baseYearCompensation = true
+    const b1 = p('b1', 10_000_000, 2, 'b')
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'byc1',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = validateTradeLegality(proposal, league, rules)
+    expect(result.legal).toBe(true)
+    expect(a1.contract.baseYearCompensation).toBe(true)
+  })
+
+  it('BYC reduces outgoing salary so unequal swap becomes illegal', () => {
+    const a1 = p('a1', 20_000_000, 2, 'a')
+    a1.contract.baseYearCompensation = true
+    const b1 = p('b1', 20_000_000, 2, 'b')
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'byc2',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = validateTradeLegality(proposal, league, rules)
+    expect(result.legal).toBe(false)
+    expect(result.reason).toMatch(/Salary match failed/)
+  })
+
+  it('2nd apron team cannot reacquire player traded in last season', () => {
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a1 = p('a1', 10_000_000, 2, 'a')
+    const b1 = p('b1', 10_000_000, 2, 'b')
+    const a = t('a', rules.secondApron, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    league.recentlyTraded = { b1: '2024-25' }
+    const proposal: TradeProposal = {
+      id: 'reacq1',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = validateTradeLegality(proposal, league, rules)
+    expect(result.legal).toBe(false)
+    expect(result.reason).toMatch(/2nd-apron/)
+  })
+
+  it('executeTrade updates recentlyTraded for moved players', () => {
+    const a1 = p('a1', 10_000_000, 1, 'a')
+    const b1 = p('b1', 10_000_000, 1, 'b')
+    const extraA = fillRoster('a', 12, 1_000_000)
+    const extraB = fillRoster('b', 12, 1_000_000)
+    const a = t('a', 100_000_000, ['a1', ...extraA.map((e) => e.id)])
+    const b = t('b', 100_000_000, ['b1', ...extraB.map((e) => e.id)])
+    const league = baseLeague([a, b], [a1, b1, ...extraA, ...extraB])
+    const proposal: TradeProposal = {
+      id: 'rt1',
+      sides: [
+        { teamId: 'a', outgoing: [{ type: 'player', playerId: 'a1' }], incoming: [{ type: 'player', playerId: 'b1' }] },
+        { teamId: 'b', outgoing: [{ type: 'player', playerId: 'b1' }], incoming: [{ type: 'player', playerId: 'a1' }] },
+      ],
+      createdAt: '2025-10-21',
+      status: 'draft',
+    }
+    const result = executeTrade(proposal, league, rules)
+    expect(result.league.recentlyTraded?.['a1']).toBe('2025-26')
+    expect(result.league.recentlyTraded?.['b1']).toBe('2025-26')
+  })
 })

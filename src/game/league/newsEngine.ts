@@ -202,9 +202,58 @@ export function markAllNewsRead(news: NewsEvent[]): NewsEvent[] {
   return news.map((n) => ({ ...n, read: true }))
 }
 
-export function shouldPublishGameNews(
-  homeScore: number,
-  awayScore: number,
-): boolean {
-  return Math.abs(homeScore - awayScore) >= 20
+export function createRecordBrokenEvent(
+  record: { category: string; value: number; playerId?: string },
+  playerId: string,
+  date: string,
+): NewsEvent {
+  const catLabel = record.category.replace(/_/g, ' ')
+  return baseNews(
+    'record_broken',
+    `New record: ${catLabel} — ${record.value}`,
+    `A new ${catLabel} record has been set with a value of ${record.value}.`,
+    {
+      date,
+      playerIds: [playerId],
+      importance: 'high',
+    },
+  )
 }
+
+export function createCoachPressureEvent(
+  teamId: string,
+  teamName: string,
+  pressureLevel: 'medium' | 'high',
+  date: string,
+): NewsEvent {
+  return baseNews(
+    'coach_pressure',
+    `${teamName} coaching seat ${pressureLevel === 'high' ? 'hot' : 'warm'}`,
+    `${teamName} management is ${pressureLevel === 'high' ? 'seriously' : 'quietly'} evaluating the coaching situation.`,
+    { date, teamIds: [teamId], importance: pressureLevel === 'high' ? 'high' : 'medium' },
+  )
+}
+
+export function createRosterChangeEvent(
+  playerId: string,
+  playerName: string,
+  fromTeamName: string | null,
+  toTeamName: string | null,
+  reason: string,
+  date: string,
+): NewsEvent {
+  const from = fromTeamName ? ` from ${fromTeamName}` : ''
+  const to = toTeamName ? ` to ${toTeamName}` : ''
+  return baseNews(
+    'roster_change',
+    `${playerName} ${reason}${from}${to}`,
+    `${playerName} has ${reason}${from}${to}.`,
+    {
+      date,
+      playerIds: [playerId],
+      teamIds: [],
+      importance: 'medium',
+    },
+  )
+}
+

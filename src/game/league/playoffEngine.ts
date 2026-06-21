@@ -195,6 +195,7 @@ export function generatePlayoffBracket(
   const { standings, teams, seasonYear } = league
   const seriesLength = rules.playoffSeriesLength as 1 | 3 | 5 | 7
   const seedCount = rules.hasPlayIn ? 10 : rules.playoffTeamsPerConference
+  const playoffYear = seasonYear + 1
 
   const eastSeeds = getSeedsByConference(standings, teams, 'East', seedCount)
   const westSeeds = getSeedsByConference(standings, teams, 'West', seedCount)
@@ -220,14 +221,14 @@ export function generatePlayoffBracket(
     const eastTop6 = eastSeeds.slice(0, 6)
     const westTop6 = westSeeds.slice(0, 6)
 
-    bracket.east = createBracketRounds(eastTop6, 'East', seriesLength, true)
-    bracket.west = createBracketRounds(westTop6, 'West', seriesLength, true)
+    bracket.east = createBracketRounds(eastTop6, 'East', seriesLength, true, playoffYear)
+    bracket.west = createBracketRounds(westTop6, 'West', seriesLength, true, playoffYear)
   } else {
-    bracket.east = createBracketRounds(eastSeeds, 'East', seriesLength, false)
-    bracket.west = createBracketRounds(westSeeds, 'West', seriesLength, false)
+    bracket.east = createBracketRounds(eastSeeds, 'East', seriesLength, false, playoffYear)
+    bracket.west = createBracketRounds(westSeeds, 'West', seriesLength, false, playoffYear)
   }
 
-  const finalsStartDate = usePlayIn ? '2026-06-05' : '2026-05-25'
+  const finalsStartDate = usePlayIn ? `${playoffYear}-06-05` : `${playoffYear}-05-25`
   bracket.finals = {
     id: 'finals-r4-1',
     conference: 'Finals',
@@ -299,9 +300,10 @@ function createBracketRounds(
   conference: 'East' | 'West',
   seriesLength: 1 | 3 | 5 | 7,
   hasPlayIn: boolean,
+  playoffYear: number,
 ): PlayoffSeries[] {
   const result: PlayoffSeries[] = []
-  const startDate = hasPlayIn ? '2026-04-19' : '2026-04-15'
+  const startDate = hasPlayIn ? `${playoffYear}-04-19` : `${playoffYear}-04-15`
 
   if (hasPlayIn && topSeeds.length < 6) {
     throw new Error(`Play-in bracket requires at least 6 teams per conference, got ${topSeeds.length}`)

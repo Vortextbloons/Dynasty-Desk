@@ -18,6 +18,7 @@ import type { SimSpeed } from '@/game/models'
 import { addDays, daysBetween } from '@/lib/utils'
 import { checkRecords } from '@/game/league/recordTracker'
 import { updateRivalry } from '@/game/league/rivalryEngine'
+import { createRecordBrokenEvent } from '@/game/league/newsEngine'
 
 export interface GameSimSettings {
   injuries: boolean
@@ -167,6 +168,9 @@ export function finalizeSimulatedGame(
       league.records[existingIdx] = record
     } else {
       league.records.push(record)
+    }
+    if (record.playerId) {
+      league.news.push(createRecordBrokenEvent(record, record.playerId, game.date))
     }
   }
 

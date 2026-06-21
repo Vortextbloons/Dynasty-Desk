@@ -18,6 +18,12 @@ export function inductPlayers(
     if (rosteredIds.has(player.id)) continue
     if (player.careerStats.length === 0) continue
 
+    const lastCareerSeason = player.careerStats.at(-1)
+    if (lastCareerSeason) {
+      const lastSeason = parseSeasonYear(lastCareerSeason.season)
+      if (lastSeason > 0 && seasonYear - lastSeason < 4) continue
+    }
+
     const eligible = checkEligibility(player, league)
     if (!eligible) continue
 
@@ -127,7 +133,7 @@ function deriveAccolades(playerId: string, league: LeagueState): PlayerAccolades
         case 'finals_mvp': accolades.finalsMvp++; break
         case 'all_nba_1':
         case 'all_nba_2':
-        case 'all_nba_3': accolades.allNba++; break
+        case 'all_nba_3': accolades.allNba++; accolades.allStar++; break
         case 'all_defense_1':
         case 'all_defense_2': accolades.allDefense++; break
       }
@@ -147,6 +153,11 @@ function deriveAccolades(playerId: string, league: LeagueState): PlayerAccolades
   }
 
   return accolades
+}
+
+function parseSeasonYear(season: string): number {
+  const m = season.match(/^(\d{4})/)
+  return m ? Number(m[1]) : 0
 }
 
 function checkEligibility(player: Player, league: LeagueState): boolean {

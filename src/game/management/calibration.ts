@@ -47,6 +47,8 @@ export async function runCalibrationSuite(
   let homeWins = 0
   let blowouts = 0
   let closeGames = 0
+  const playerFga = new Map<string, number>()
+  let totalFgaAll = 0
 
   for (let i = 0; i < NUM_GAMES; i++) {
     const gameRng = new SeededRandom(rng.state)
@@ -86,11 +88,33 @@ export async function runCalibrationSuite(
     if (gs.homeWin) homeWins++
     if (margin >= 20) blowouts++
     if (margin <= 5) closeGames++
+
+    for (const [playerId, stats] of Object.entries(gs.playerStats)) {
+      const current = playerFga.get(playerId) ?? 0
+      playerFga.set(playerId, current + stats.fga)
+      totalFgaAll += stats.fga
+    }
   }
 
   const games = NUM_GAMES
   const avg = scores.reduce((a, b) => a + b, 0) / games
   const variance = scores.reduce((sum, s) => sum + (s - avg) ** 2, 0) / games
+
+  const sortedByOvr = [...snapshot.players].sort((a, b) => {
+    const aOvr = a.ratings.overall ?? 50
+    const bOvr = b.ratings.overall ?? 50
+    return bOvr - aOvr
+  })
+  const top10Ids = new Set(sortedByOvr.slice(0, 10).map((p) => p.id))
+  let top10Fga = 0
+  let benchFga = 0
+  for (const [playerId, fga] of playerFga) {
+    if (top10Ids.has(playerId)) {
+      top10Fga += fga
+    } else {
+      benchFga += fga
+    }
+  }
 
   return {
     leagueScoring: { avg, stdDev: Math.sqrt(variance) },
@@ -98,7 +122,11 @@ export async function runCalibrationSuite(
     freeThrowRate: totalFtAttempted > 0 ? totalFtMade / totalFtAttempted : 0,
     turnoverRate: totalPossessions > 0 ? totalTurnovers / totalPossessions : 0,
     homeWinRate: homeWins / games,
-    starUsageDistribution: { top10: 0, top30: 0, bench: 0 },
+    starUsageDistribution: {
+      top10: totalFgaAll > 0 ? top10Fga / totalFgaAll : 0,
+      top30: totalFgaAll > 0 ? (top10Fga + benchFga) / totalFgaAll : 0,
+      bench: totalFgaAll > 0 ? benchFga / totalFgaAll : 0,
+    },
     blowoutRate: blowouts / games,
     closeGameRate: closeGames / games,
   }

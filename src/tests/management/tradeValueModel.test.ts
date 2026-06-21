@@ -4,6 +4,7 @@ import {
   computePlayerValue,
   computePickValue,
   computeTradeValueDelta,
+  type TradeValueContext,
 } from '@/game/management/tradeValueModel'
 import { makePlayer, makeTeam } from '@/tests/fixtures'
 import { emptyContract, createContract } from '@/game/models/contract'
@@ -84,6 +85,18 @@ describe('computePlayerValue', () => {
     const a = computePlayerValue(noClause, team, ctx)
     const b = computePlayerValue(ntc, team, ctx)
     expect(a).toBeGreaterThan(b)
+  })
+
+  it('applies positionBonus * need to player value', () => {
+    const player = makePlayer({ id: 'pg-test', position: 'PG', ratings: { overall: 70, potential: 70 } as never })
+    const team = makeTeam()
+    const ctxNoNeed: TradeValueContext = { teamDirection: 'middle', positionNeed: { PG: 0, SG: 0, SF: 0, PF: 0, C: 0 } }
+    const ctxNeed: TradeValueContext = { teamDirection: 'middle', positionNeed: { PG: 1, SG: 0, SF: 0, PF: 0, C: 0 } }
+    const valNoNeed = computePlayerValue(player, team, ctxNoNeed)
+    const valNeed = computePlayerValue(player, team, ctxNeed)
+    expect(Number.isFinite(valNoNeed)).toBe(true)
+    expect(Number.isFinite(valNeed)).toBe(true)
+    expect(valNeed).toBeGreaterThan(valNoNeed)
   })
 })
 

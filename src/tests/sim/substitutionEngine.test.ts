@@ -81,12 +81,12 @@ describe('planSubstitutions', () => {
     expect(outIds).toContain('s5')
   })
 
-  it('does not swap when not in last 2 min', () => {
+  it('does not swap when margin > 5 even in last 5 min', () => {
     const subs = planSubstitutions(
       baseCtx({
         period: 4,
         timeRemainingSeconds: 300,
-        closingMarginLeq5: true,
+        closingMarginLeq5: false,
       }),
     )
     const closingSet = new Set(['s1', 's2', 's3', 'b1', 'b2'])
@@ -105,6 +105,17 @@ describe('planSubstitutions', () => {
     )
     expect(subs.length).toBeGreaterThanOrEqual(1)
     expect(subs.some((s) => s.out === 's1' || s.out === 's2')).toBe(true)
+  })
+
+  it('gives injured player 0 minutes via substitution', () => {
+    const players = makePlayerMap()
+    const inj = players.get('s1')!
+    players.set('s1', { ...inj, health: { ...inj.health, status: 'season_ending' } })
+    const subs = planSubstitutions(baseCtx({ players }))
+    const s1Out = subs.find((s) => s.out === 's1')
+    expect(s1Out).toBeDefined()
+    const healthySub = subs.find((s) => s.out === 's1' && s.in !== 's1')
+    expect(healthySub).toBeDefined()
   })
 
   it('returns no duplicate subs for the same pair', () => {

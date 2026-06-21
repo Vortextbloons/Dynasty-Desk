@@ -115,13 +115,13 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
     await yieldIfNormal(input.simSpeed, ++possessionsSinceYield)
   }
 
-  let otPeriod = 5 as 5 | 6 | 7
-  while (state.score.home === state.score.away && otPeriod <= 7) {
-    state.overtimeOccurred = true
-    state.clock = { period: otPeriod, timeRemainingSeconds: OT_SECONDS }
-    state.events.push({ type: 'endOfPeriod', period: otPeriod - 1 })
-    playPeriod(state, input, homeById, awayById, otPeriod)
-    otPeriod = (otPeriod + 1) as 5 | 6 | 7
+  if (state.score.home === state.score.away) {
+    if (input.rng.chance(0.05)) {
+      state.overtimeOccurred = true
+      state.clock = { period: 5, timeRemainingSeconds: OT_SECONDS }
+      state.events.push({ type: 'endOfPeriod', period: 4 })
+      playPeriod(state, input, homeById, awayById, 5)
+    }
   }
 
   if (state.score.home === state.score.away) {

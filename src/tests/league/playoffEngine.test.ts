@@ -213,6 +213,24 @@ describe('generatePlayoffBracket', () => {
     expect(bracket.status).toBe('bracket')
   })
 
+  it('uses dynamic dates derived from seasonYear', () => {
+    const league = makeLeague({ rules: { hasPlayIn: false, playoffFormat: 'top8' }, seasonYear: 2030 })
+    const bracket = generatePlayoffBracket(league, league.rules)
+
+    const eastR1 = bracket.east.filter((s) => s.round === 1).sort((a, b) => a.startDate.localeCompare(b.startDate))
+    expect(eastR1[0]!.startDate).toBe('2031-04-15')
+    expect(bracket.finals!.startDate).toBe('2031-05-25')
+  })
+
+  it('uses play-in dates when applicable', () => {
+    const league = makeLeague({ rules: { hasPlayIn: true, playoffFormat: 'playin_then_top8' }, seasonYear: 2028 })
+    const bracket = generatePlayoffBracket(league, league.rules)
+
+    const eastR1 = bracket.east.filter((s) => s.round === 1).sort((a, b) => a.startDate.localeCompare(b.startDate))
+    expect(eastR1[0]!.startDate).toBe('2029-04-19')
+    expect(bracket.finals!.startDate).toBe('2029-06-05')
+  })
+
   it('auto-advances byes when only six seeds exist', () => {
     const league = makeLeague({
       rules: {

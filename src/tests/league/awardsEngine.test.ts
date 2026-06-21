@@ -293,4 +293,48 @@ describe('computeSeasonAwards', () => {
     const result = computeSeasonAwards(league, '2025-26')
     expect(result.awards.some((a) => a.award === 'mvp' && a.playerId === 'mvp')).toBe(true)
   })
+
+  it('best-record team player gets 1.2x MVP multiplier', () => {
+    const seasonStats = {
+      season: '2025-26',
+      teamId: '',
+      gamesPlayed: 82,
+      minutes: 3000,
+      points: 2400,
+      rebounds: 500,
+      assists: 400,
+      steals: 100,
+      blocks: 50,
+      turnovers: 200,
+      fieldGoalsMade: 800,
+      fieldGoalsAttempted: 1500,
+      threePointersMade: 250,
+      threePointersAttempted: 600,
+      freeThrowsMade: 550,
+      freeThrowsAttempted: 620,
+      plusMinus: 150,
+    }
+
+    const team1 = makeTeam({ id: 'best' })
+    const team2 = makeTeam({ id: 'good' })
+    const star1 = makePlayer({ id: 'star-best', teamId: 'best', seasonStats: { ...seasonStats, teamId: 'best' } })
+    const star2 = makePlayer({ id: 'star-good', teamId: 'good', seasonStats: { ...seasonStats, teamId: 'good' } })
+    team1.roster = [star1.id]
+    team2.roster = [star2.id]
+
+    const league = {
+      rules: DEFAULT_LEAGUE_RULES,
+      players: { [star1.id]: star1, [star2.id]: star2 },
+      teams: { [team1.id]: team1, [team2.id]: team2 },
+      standings: {
+        best: { wins: 65, losses: 17 },
+        good: { wins: 55, losses: 27 },
+      },
+    } as unknown as LeagueState
+
+    const result = computeSeasonAwards(league, '2025-26')
+    const mvp = result.awards.find((a) => a.award === 'mvp')
+    expect(mvp).toBeDefined()
+    expect(mvp!.playerId).toBe('star-best')
+  })
 })

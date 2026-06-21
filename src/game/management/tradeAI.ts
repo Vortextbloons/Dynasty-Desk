@@ -2,6 +2,7 @@ import type { Player } from '@/game/models/player'
 import type { Team, TeamDirection } from '@/game/models/team'
 import type { LeagueState } from '@/game/models/league'
 import type { TradeProposal } from '@/game/models/trade'
+import type { Position } from '@/game/models/position'
 import { computeTradeValueDelta, type TradeValueContext } from './tradeValueModel'
 import { computeCapHit } from './capEngine'
 import { updateAITeamDirection } from './aiTeamDirectionEngine'
@@ -28,9 +29,10 @@ export function evaluateTradeForAI(
   const leaguePicks = league.draftPicks
   const teams = league.teams
 
+  const positionNeed = computePositionNeed(aiTeam, leaguePlayers)
   const ctx: TradeValueContext = {
     teamDirection: aiTeam.direction,
-    positionNeed: { PG: 0, SG: 0, SF: 0, PF: 0, C: 0 },
+    positionNeed,
   }
 
   const { perSideValue } = computeTradeValueDelta(
@@ -236,4 +238,28 @@ function deterministicRoll(seed: string, threshold: number): boolean {
   }
   const value = (hash & 0xfffffff) / 0xfffffff
   return value < threshold
+}
+
+function computePositionNeed(team: Team, players: Record<string, Player>): Record<Position, number> {
+  const need: Record<Position, number> = { PG: 0, SG: 0, SF: 0, PF: 0, C: 0 }
+  const positionCounts: Record<Position, number[]> = { PG: [], SG: [], SF: [], PF: [], C: [] }
+
+  for (const pid of team.roster) {
+    const p = players[pid]
+    if (!p) continue
+    positionCounts[p.position]?.push(p.ratings.overall ?? 50)
+  }
+
+  const maxPerPos = 3
+  for (const pos of Object.keys(need) as Position[]) {
+    const count = positionCounts[pos]?.length ?? 0
+    const avgOvr = positionCounts[pos]?.length
+      ? positionCounts[pos]!.reduce((a, b) => a + b, 0) / positionCounts[pos]!.length
+      : 0
+    const countGap = Math.max(0, maxPerPos - count) / maxPerPos
+    const qualityGap = Math.max(0, 70 - avgOvr) / 70
+    need[pos] = Math.min(1, countGap * 0.6 + qualityGap * 0.4)
+  }
+
+  return need
 }

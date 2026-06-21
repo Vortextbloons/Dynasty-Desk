@@ -1,6 +1,8 @@
 import type { OwnerProfile } from '@/game/models/owner'
 import type { TeamFinances } from '@/game/models/team'
 import type { NewsEvent } from '@/game/models/news'
+
+export { evaluateTradeForAI as maybeVetoTrade } from './tradeAI'
 import {
   SOFT_CASH_RATIO_THRESHOLD,
   SOFT_CASH_SEASONS_TO_TRIGGER,

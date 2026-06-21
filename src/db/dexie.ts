@@ -1,3 +1,6 @@
+// Note: M2 spec originally defined a separate save_metadata table, but it was
+// simplified to a denormalized column on the saves table for query efficiency.
+// All metadata fields are accessed via the saves store directly.
 import Dexie, { type EntityTable } from 'dexie'
 import type { GameSave, SaveMetadata } from '@/game/models'
 

@@ -35,8 +35,7 @@ export function updateAITeamDirection(
   if (rank > 20 && avgAge < 26) {
     return winPct < 0.3 ? 'tanking' : 'rebuilding'
   }
-  if (rank > 14) return 'playoff_push'
-  if (rank > 8) return 'playoff_push'
+  if (rank <= 8) return 'playoff_push'
   return 'middle'
 }
 

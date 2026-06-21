@@ -174,14 +174,16 @@ function isBenchPlayer(p: Player, team: LeagueState['teams'][string]): boolean {
   return !inStartingFive && mpg <= 30 && mpg >= 15
 }
 
-function mvpScore(p: Player, teamWins: number, teamLosses: number): number {
+function mvpScore(p: Player, teamWins: number, teamLosses: number, bestRecord = false): number {
   const s = p.seasonStats
   const g = Math.max(1, s.gamesPlayed)
   const perGame = s.points / g + s.rebounds / g * 1.2 + s.assists / g * 1.5
   const total = teamWins + teamLosses
   const winBoost = total > 0 ? (teamWins / total) * 12 : 6
   const minutesFactor = Math.min(1, (s.minutes / g) / 34)
-  return perGame * minutesFactor + winBoost + p.ratings.overall * 0.05
+  let score = perGame * minutesFactor + winBoost + p.ratings.overall * 0.05
+  if (bestRecord) score *= 1.2
+  return score
 }
 
 function dpoyScore(p: Player): number {
@@ -199,6 +201,10 @@ function dpoyScore(p: Player): number {
 
 function buildCandidates(league: LeagueState): PlayerAwardCandidate[] {
   const out: PlayerAwardCandidate[] = []
+  let bestWins = 0
+  for (const standing of Object.values(league.standings)) {
+    if (standing.wins > bestWins) bestWins = standing.wins
+  }
   for (const p of Object.values(league.players)) {
     if (!p.teamId || p.seasonStats.gamesPlayed < 10) continue
     const team = league.teams[p.teamId]
@@ -206,12 +212,13 @@ function buildCandidates(league: LeagueState): PlayerAwardCandidate[] {
     const standing = league.standings[p.teamId]
     const wins = standing?.wins ?? 41
     const losses = standing?.losses ?? 41
+    const isBestRecord = standing?.wins === bestWins && bestWins > 0
     const mpg =
       p.seasonStats.minutes / Math.max(1, p.seasonStats.gamesPlayed)
     out.push({
       playerId: p.id,
       teamId: p.teamId,
-      score: mvpScore(p, wins, losses),
+      score: mvpScore(p, wins, losses, isBestRecord),
       statLine: statLineFromSeason(p),
       position: p.position,
       games: p.seasonStats.gamesPlayed,

@@ -149,4 +149,57 @@ describe('checkConsistency', () => {
     expect(result.ok).toBe(false)
     expect(result.issues.some((i) => i.includes('Home points'))).toBe(true)
   })
+
+  it('detects mismatches in FT, 3P, assists, steals, blocks, fouls', () => {
+    const box = {
+      homeTeamId: 'h',
+      awayTeamId: 'a',
+      homeScore: 100,
+      awayScore: 90,
+      homeWin: true,
+      overtimeOccurred: false,
+      teamStats: {
+        home: { teamId: 'h', points: 10, fgm: 0, fga: 0, tpm: 0, tpa: 0, ftm: 5, fta: 6, offensiveRebounds: 0, defensiveRebounds: 0, totalRebounds: 0, assists: 3, turnovers: 0, steals: 2, blocks: 1, fouls: 4, fastBreakPoints: 0, pointsInPaint: 0, secondChancePoints: 0, benchPoints: 0 },
+        away: { teamId: 'a', points: 10, fgm: 0, fga: 0, tpm: 2, tpa: 5, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 0, totalRebounds: 0, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, fastBreakPoints: 0, pointsInPaint: 0, secondChancePoints: 0, benchPoints: 0 },
+      },
+      playerStats: {
+        p1: { playerId: 'p1', teamId: 'h', started: true, minutes: 30, points: 10, fgm: 0, fga: 0, tpm: 0, tpa: 0, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 0, totalRebounds: 0, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 0, attempted: 0 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 0, attempted: 0 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
+        p2: { playerId: 'p2', teamId: 'a', started: true, minutes: 30, points: 10, fgm: 0, fga: 0, tpm: 0, tpa: 0, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 0, totalRebounds: 0, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 0, attempted: 0 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 0, attempted: 0 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
+      },
+      keyPlays: [],
+    } as unknown as BoxScoreResult
+    const result = checkConsistency(box)
+    expect(result.ok).toBe(false)
+    expect(result.issues.some((i) => i.includes('Home FT'))).toBe(true)
+    expect(result.issues.some((i) => i.includes('Home AST'))).toBe(true)
+    expect(result.issues.some((i) => i.includes('Home STL'))).toBe(true)
+    expect(result.issues.some((i) => i.includes('Home BLK'))).toBe(true)
+    expect(result.issues.some((i) => i.includes('Home PF'))).toBe(true)
+    expect(result.issues.some((i) => i.includes('Away 3P'))).toBe(true)
+    expect(result.issues.some((i) => i.includes('Away 3PA'))).toBe(true)
+  })
+
+  it('passes when all stat categories are consistent', () => {
+    const box = {
+      homeTeamId: 'h',
+      awayTeamId: 'a',
+      homeScore: 5,
+      awayScore: 3,
+      homeWin: true,
+      overtimeOccurred: false,
+      teamStats: {
+        home: { teamId: 'h', points: 5, fgm: 2, fga: 4, tpm: 1, tpa: 2, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 2, totalRebounds: 2, assists: 1, turnovers: 0, steals: 0, blocks: 0, fouls: 0, fastBreakPoints: 0, pointsInPaint: 4, secondChancePoints: 0, benchPoints: 0 },
+        away: { teamId: 'a', points: 3, fgm: 1, fga: 3, tpm: 1, tpa: 1, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 1, totalRebounds: 1, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, fastBreakPoints: 0, pointsInPaint: 0, secondChancePoints: 0, benchPoints: 0 },
+      },
+      playerStats: {
+        h1: { playerId: 'h1', teamId: 'h', started: true, minutes: 30, points: 2, fgm: 1, fga: 2, tpm: 0, tpa: 0, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 1, totalRebounds: 1, assists: 1, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 1, attempted: 2 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 0, attempted: 0 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
+        h2: { playerId: 'h2', teamId: 'h', started: true, minutes: 30, points: 3, fgm: 1, fga: 2, tpm: 1, tpa: 2, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveRebounds: 1, totalRebounds: 1, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 0, attempted: 0 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 1, attempted: 2 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
+        a1: { playerId: 'a1', teamId: 'a', started: true, minutes: 30, points: 3, fgm: 1, fga: 3, tpm: 1, tpa: 1, ftm: 0, fta: 0, offensiveRebounds: 0, defensiveReounds: 1, totalRebounds: 1, assists: 0, turnovers: 0, steals: 0, blocks: 0, fouls: 0, plusMinus: 0, shotsAtRim: { made: 0, attempted: 0 }, shotsShortMid: { made: 0, attempted: 0 }, shotsLongMid: { made: 0, attempted: 0 }, shotsCornerThree: { made: 1, attempted: 1 }, shotsAboveBreakThree: { made: 0, attempted: 0 } },
+      },
+      keyPlays: [],
+    } as unknown as BoxScoreResult
+    const result = checkConsistency(box)
+    expect(result.ok).toBe(true)
+    expect(result.issues.length).toBe(0)
+  })
 })

@@ -16,6 +16,11 @@ import {
   restoreSave as dbRestoreSave,
 } from '@/db/saveRepository'
 import { buildSave } from '@/game/core/saveBuilder'
+import {
+  clearActiveSaveId,
+  getActiveSaveId,
+  setActiveSaveId,
+} from '@/game/core/activeSavePersistence'
 import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
 import type { TrainingFocus } from '@/game/models/training'
 import type { TeamStrategy } from '@/game/models/team'
@@ -109,6 +114,7 @@ interface GameStore {
     settings: GameSettings,
   ) => Promise<void>
   loadSaveFromDb: (id: string) => Promise<void>
+  restoreActiveSave: () => Promise<void>
   loadSavesList: () => Promise<void>
   deleteSave: (id: string) => Promise<void>
   duplicateSave: (id: string, newName: string) => Promise<GameSave | null>
@@ -225,6 +231,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         settings,
       })
       await dbCreateSave(save)
+      setActiveSaveId(save.metadata.id)
       set({
         save,
         saveStatus: 'ready',
@@ -245,6 +252,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       if (!save) {
         throw new Error('Save not found.')
       }
+      setActiveSaveId(save.metadata.id)
       set({
         save,
         saveStatus: 'ready',
@@ -255,6 +263,34 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       set({ saveStatus: 'error', error: msg })
       throw err instanceof Error ? err : new Error(msg)
     }
+  },
+
+  restoreActiveSave: async () => {
+    const id = getActiveSaveId()
+    if (!id) {
+      await get().loadSavesList()
+      return
+    }
+
+    set({ saveStatus: 'loading', error: null })
+    try {
+      const save = await dbLoadSave(id)
+      if (!save) {
+        clearActiveSaveId()
+        set({ save: null, saveStatus: 'idle' })
+      } else {
+        setActiveSaveId(save.metadata.id)
+        set({
+          save,
+          saveStatus: 'ready',
+          lastSavedAt: save.metadata.updatedAt,
+        })
+      }
+    } catch {
+      clearActiveSaveId()
+      set({ save: null, saveStatus: 'idle', error: null })
+    }
+    await get().loadSavesList()
   },
 
   loadSavesList: async () => {
@@ -271,6 +307,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     await dbDeleteSave(id)
     const { save } = get()
     if (save?.metadata.id === id) {
+      clearActiveSaveId()
       set({ save: null, saveStatus: 'idle' })
     }
     await get().loadSavesList()
@@ -286,6 +323,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     set({ saveStatus: 'loading', error: null })
     try {
       const imported = await dbImportSaveFromFile(file)
+      setActiveSaveId(imported.metadata.id)
       set({
         save: imported,
         saveStatus: 'ready',
@@ -321,6 +359,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   restoreBackup: async (id: string) => {
     const restored = await dbRestoreSave(id)
     if (restored) {
+      setActiveSaveId(restored.metadata.id)
       set({
         save: restored,
         saveStatus: 'ready',
@@ -332,6 +371,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   },
 
   clearActiveSave: () => {
+    clearActiveSaveId()
     set({
       save: null,
       saveStatus: 'idle',

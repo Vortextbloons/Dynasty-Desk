@@ -16,7 +16,8 @@
     "test:run": "vitest run",
     "data:build": "go run -C scripts/generate . && npx tsx scripts/deriveOverall.ts",
     "data:build:python": "py scripts/import_nba/run_all.py",
-    "data:headshots": "npx tsx scripts/import/importHeadshots.ts"
+    "data:headshots": "npx tsx scripts/import/importHeadshots.ts",
+    "calibrate": "tsx scripts/calibrate.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

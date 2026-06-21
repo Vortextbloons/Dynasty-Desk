@@ -24,6 +24,12 @@ export interface SubstitutionContext {
   closingMarginLeq5: boolean
 }
 
+// Injured players are explicitly excluded from playing time:
+// - healthyOnCourt filters them out so they're never considered for minutes
+// - injuredOnCourt immediately subs them out
+// - pickHealthySubstitute excludes injured bench players
+// Result: injured players always receive 0 minutes.
+
 export function planSubstitutions(ctx: SubstitutionContext): PlannedSub[] {
   const subs: PlannedSub[] = []
   const healthyOnCourt = ctx.onCourt.filter((id) => {
@@ -59,8 +65,9 @@ export function planSubstitutions(ctx: SubstitutionContext): PlannedSub[] {
   }
 
   if (
-    ctx.period === 4 &&
-    ctx.timeRemainingSeconds <= 120 &&
+    ctx.period >= 4 &&
+    ctx.timeRemainingSeconds <= 300 &&
+    ctx.closingMarginLeq5 &&
     ctx.lineup.closingLineup.length === 5
   ) {
     const closingSet = new Set(ctx.lineup.closingLineup)

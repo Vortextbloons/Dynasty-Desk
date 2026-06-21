@@ -67,6 +67,9 @@ export interface LeagueState {
 
   activeProposals: TradeProposal[]
 
+  /** playerId -> seasonLabel when the player was last traded. Used for 2nd-apron reacquire rule. */
+  recentlyTraded?: Record<string, string>
+
   playoffBracket?: PlayoffBracket
 
   rivalries: Record<string, Rivalry>

@@ -42,8 +42,6 @@ export function computeFullTaxBill(
     ? TAX_BRACKETS_REPEATER
     : TAX_BRACKETS_NON_REPEATER
 
-  const taxRate = brackets[0]?.rate ?? rules.luxuryTaxRates.nonTaxpayer
-
   const bracketDetail: LuxuryTaxBreakdown['bracketDetail'] = []
   let remaining = excess
   let bracketTax = 0
@@ -72,7 +70,6 @@ export function computeFullTaxBill(
 
   const triggersPickFreeze =
     rules.secondApron > 0 && team.finances.payroll >= rules.secondApron
-  void taxRate
   void currentYear
 
   return {

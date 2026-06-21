@@ -190,3 +190,57 @@ describe('formatLast10', () => {
     expect(formatLast10('')).toBe('—')
   })
 })
+
+describe('head-to-head tiebreaker', () => {
+  it('computes head-to-head wins in tiebreaker', () => {
+    const g1 = makeGame({ id: 'g1', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100, isConference: true })
+    const g2 = makeGame({ id: 'g2', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100, isConference: true, date: '2025-10-22' })
+    const games = { [g1.id]: g1, [g2.id]: g2 }
+    const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
+    expect(standings['bos']!.tiebreaker.headToHeadWins).toBe(2)
+    expect(standings['nyk']!.tiebreaker.headToHeadWins).toBe(0)
+  })
+
+  it('uses head-to-head wins as tiebreaker when W-L and conference pct are tied', () => {
+    const g1 = makeGame({
+      id: 'g1', homeTeamId: 'bos', awayTeamId: 'nyk',
+      homeScore: 110, awayScore: 100, isConference: true, isDivision: false,
+    })
+    const g2 = makeGame({
+      id: 'g2', homeTeamId: 'bos', awayTeamId: 'nyk',
+      homeScore: 110, awayScore: 100, isConference: true, isDivision: false,
+      date: '2025-10-22',
+    })
+    const games = { [g1.id]: g1, [g2.id]: g2 }
+    const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
+    // bos 2-0, nyk 0-2 → bos ranked higher
+    expect(standings['bos']!.conferenceRank).toBe(1)
+    expect(standings['nyk']!.conferenceRank).toBe(2)
+  })
+})
+
+describe('streak via computeTeamStreak', () => {
+  it('computes streak from most recent game', () => {
+    const g1 = makeGame({ id: 'g1', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100 })
+    const g2 = makeGame({ id: 'g2', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100, date: '2025-10-22' })
+    const g3 = makeGame({ id: 'g3', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 100, awayScore: 110, date: '2025-10-23' })
+    const games = { [g1.id]: g1, [g2.id]: g2, [g3.id]: g3 }
+    const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
+    // bos won 2, lost 1 — most recent is loss → streak -1
+    expect(standings['bos']!.streak).toBe(-1)
+    // nyk lost 2, won 1 — most recent is win → streak 1
+    expect(standings['nyk']!.streak).toBe(1)
+  })
+
+  it('reports win streak when most recent games are wins', () => {
+    const g1 = makeGame({ id: 'g1', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 100, awayScore: 110 })
+    const g2 = makeGame({ id: 'g2', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100, date: '2025-10-22' })
+    const g3 = makeGame({ id: 'g3', homeTeamId: 'bos', awayTeamId: 'nyk', homeScore: 110, awayScore: 100, date: '2025-10-23' })
+    const games = { [g1.id]: g1, [g2.id]: g2, [g3.id]: g3 }
+    const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
+    // bos lost 1, won 2 — streak is W2
+    expect(standings['bos']!.streak).toBe(2)
+    // nyk won 1, lost 2 — streak is L2
+    expect(standings['nyk']!.streak).toBe(-2)
+  })
+})

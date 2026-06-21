@@ -253,6 +253,30 @@ export function validateTradeLegality(
     }
   }
 
+  if (apronEnforced) {
+    for (const side of proposal.sides) {
+      const teamApron = apronStatus[side.teamId]!
+      if (teamApron === 'second') {
+        for (const asset of side.incoming) {
+          if (asset.type === 'player' && asset.playerId) {
+            const recentSeason = league.recentlyTraded?.[asset.playerId]
+            if (recentSeason) {
+              const tradedYear = parseSeasonStartYear(recentSeason)
+              const currentYear = parseSeasonStartYear(league.rules.seasonLabel)
+              if (currentYear - tradedYear <= 1) {
+                return {
+                  ...result,
+                  legal: false,
+                  reason: `2nd-apron team cannot reacquire a player traded within the last season.`,
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   return result
 }
 
@@ -319,7 +343,11 @@ function computeCapHitForPlayer(player: Player, _rules: LeagueRules): number {
   const salary = player.contract.salaryByYear[0] ?? 0
   const signingBonus = player.contract.signingBonusByYear[0] ?? 0
   const likelyBonus = player.contract.likelyBonusesByYear[0] ?? 0
-  return salary + signingBonus + likelyBonus
+  const base = salary + signingBonus + likelyBonus
+  if (player.contract.baseYearCompensation) {
+    return base * 0.5
+  }
+  return base
 }
 
 function checkSalaryMatch(
@@ -387,6 +415,11 @@ export function executeTrade(
     if (toTeam && !toTeam.roster.includes(player.id)) {
       toTeam.roster = [...toTeam.roster, player.id]
     }
+  }
+
+  if (!newLeague.recentlyTraded) newLeague.recentlyTraded = {}
+  for (const move of playerMoves) {
+    newLeague.recentlyTraded[move.player.id] = league.rules.seasonLabel
   }
 
   for (const side of proposal.sides) {

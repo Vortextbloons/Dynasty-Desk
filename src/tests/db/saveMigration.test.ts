@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
-import { migrateToV2, migrateToV3, migrateToV4, migrateToV5, migrateToV6 } from '@/db/saveMigration'
+import { migrateToV2, migrateToV3, migrateToV4, migrateToV5, migrateToV6, migrateToCurrent } from '@/db/saveMigration'
 import type { GameSave } from '@/game/models'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
@@ -704,5 +704,23 @@ describe('migrateToV6', () => {
     const originalPicks = JSON.parse(JSON.stringify(v5.league.draftPicks))
     const v6 = migrateToV6(v5) as GameSave
     expect(v6.league.draftPicks).toHaveLength(originalPicks.length)
+  })
+})
+
+describe('migration chain (decision 7c)', () => {
+  it('migrateToCurrent runs all steps v1→v9 in order', async () => {
+    const v1 = makeV1Save()
+    const result = migrateToCurrent(v1)
+    expect(result.metadata.schemaVersion).toBe(9)
+  })
+
+  it('v1 save reaches v9 through sequential migration', async () => {
+    const v1 = makeV1Save()
+    const result = migrateToCurrent(v1)
+    expect(result.metadata.schemaVersion).toBe(9)
+    // Verify key fields exist at v9
+    expect(result.league.rivalries).toBeDefined()
+    expect(result.league.records).toBeDefined()
+    expect(result.league.hallOfFame).toBeDefined()
   })
 })

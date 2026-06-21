@@ -1,6 +1,7 @@
 import type { TeamStanding } from '@/game/models/game'
 import type { ScheduledGame } from '@/game/models/game'
 import type { Team } from '@/game/models/team'
+import { computeTeamStreak } from '@/game/league/teamStreak'
 
 export function initializeStandings(
   teams: Team[],
@@ -47,6 +48,28 @@ export function initializeStandings(
     }
   }
   return standings
+}
+
+function computeAllHeadToHeadWins(
+  games: Record<string, ScheduledGame>,
+): Map<string, Map<string, number>> {
+  const h2h = new Map<string, Map<string, number>>()
+
+  for (const game of Object.values(games)) {
+    if (!game || game.status !== 'final') continue
+    if (game.homeScore == null || game.awayScore == null) continue
+
+    const winnerId = game.homeScore > game.awayScore ? game.homeTeamId : game.awayTeamId
+    const loserId = winnerId === game.homeTeamId ? game.awayTeamId : game.homeTeamId
+
+    if (!h2h.has(winnerId)) h2h.set(winnerId, new Map())
+    if (!h2h.has(loserId)) h2h.set(loserId, new Map())
+
+    const winnerMap = h2h.get(winnerId)!
+    winnerMap.set(loserId, (winnerMap.get(loserId) ?? 0) + 1)
+  }
+
+  return h2h
 }
 
 export function recomputeStandings(
@@ -102,10 +125,8 @@ export function recomputeStandings(
     if (homeWin) {
       home.wins++
       home.homeWins++
-      home.streak = home.streak >= 0 ? home.streak + 1 : 1
       away.losses++
       away.awayLosses++
-      away.streak = away.streak <= 0 ? away.streak - 1 : -1
 
       const hg = teamGames.get(game.homeTeamId)
       const ag = teamGames.get(game.awayTeamId)
@@ -114,10 +135,8 @@ export function recomputeStandings(
     } else if (awayWin) {
       home.losses++
       home.homeLosses++
-      home.streak = home.streak <= 0 ? home.streak - 1 : -1
       away.wins++
       away.awayWins++
-      away.streak = away.streak >= 0 ? away.streak + 1 : 1
 
       const hg = teamGames.get(game.homeTeamId)
       const ag = teamGames.get(game.awayTeamId)
@@ -126,10 +145,8 @@ export function recomputeStandings(
     } else {
       home.losses++
       home.homeLosses++
-      home.streak = home.streak <= 0 ? home.streak - 1 : -1
       away.losses++
       away.awayLosses++
-      away.streak = away.streak <= 0 ? away.streak - 1 : -1
 
       const hg = teamGames.get(game.homeTeamId)
       const ag = teamGames.get(game.awayTeamId)
@@ -158,6 +175,36 @@ export function recomputeStandings(
     }
   }
 
+  const allH2h = computeAllHeadToHeadWins(games)
+
+  for (const tid of teamIds) {
+    const s = standings[tid]
+    if (!s) continue
+    const { wins, losses } = computeTeamStreak(games, tid)
+    if (wins > 0 && losses === 0) {
+      s.streak = wins
+    } else if (losses > 0 && wins === 0) {
+      s.streak = -losses
+    } else if (wins > losses) {
+      s.streak = wins
+    } else if (losses > wins) {
+      s.streak = -losses
+    } else {
+      const recent = Object.values(games)
+        .filter(
+          (g): g is ScheduledGame =>
+            g?.status === 'final' &&
+            (g.homeTeamId === tid || g.awayTeamId === tid),
+        )
+        .sort((a, b) => b.date.localeCompare(a.date))[0]
+      const won =
+        recent &&
+        ((recent.homeTeamId === tid && (recent.homeScore ?? 0) > (recent.awayScore ?? 0)) ||
+          (recent.awayTeamId === tid && (recent.awayScore ?? 0) > (recent.homeScore ?? 0)))
+      s.streak = won ? 1 : -1
+    }
+  }
+
   for (const [tid, data] of teamGames) {
     const s = standings[tid]
     if (!s) continue
@@ -166,8 +213,10 @@ export function recomputeStandings(
     s.last10 = data.results.slice(-10).join('')
 
     const confGames = s.conferenceWins + s.conferenceLosses
+    const h2hMap = allH2h.get(tid)
+    const h2hTotal = h2hMap ? Array.from(h2hMap.values()).reduce((a, b) => a + b, 0) : 0
     s.tiebreaker = {
-      headToHeadWins: 0,
+      headToHeadWins: h2hTotal,
       conferenceWinPct: confGames > 0 ? s.conferenceWins / confGames : 0,
       pointDifferential: s.pointDifferential,
     }
@@ -193,6 +242,9 @@ function sortAndRank(
     if (sa.losses !== sb.losses) return sa.losses - sb.losses
     if (sa.tiebreaker.conferenceWinPct !== sb.tiebreaker.conferenceWinPct) {
       return sb.tiebreaker.conferenceWinPct - sa.tiebreaker.conferenceWinPct
+    }
+    if (sa.tiebreaker.headToHeadWins !== sb.tiebreaker.headToHeadWins) {
+      return sb.tiebreaker.headToHeadWins - sa.tiebreaker.headToHeadWins
     }
     return sb.pointDifferential - sa.pointDifferential
   })
