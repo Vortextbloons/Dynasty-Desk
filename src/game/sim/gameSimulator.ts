@@ -31,6 +31,11 @@ import {
   SUB_INTERVAL_SECONDS,
   BASE_TIME_SECONDS,
 } from '@/game/sim/simConstants'
+import {
+  buildLiveGameSnapshot,
+  type LiveGameSnapshot,
+} from '@/game/sim/liveGameSnapshot'
+import { LIVE_SIM_POSSESSION_DELAY_MS } from '@/game/league/scheduleConstants'
 
 export interface SimulateGameInput {
   id: string
@@ -47,6 +52,7 @@ export interface SimulateGameInput {
   injuriesEnabled: boolean
   fatigueEnabled: boolean
   simSpeed: 'instant' | 'normal'
+  onTick?: (snapshot: LiveGameSnapshot) => void | Promise<void>
 }
 
 export interface SimulateGameOutput {
@@ -107,13 +113,7 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
     homeWin: null,
   }
 
-  let possessionsSinceYield = 0
   for (let period = 1 as 1 | 2 | 3 | 4; period <= 4; period = (period + 1) as 1 | 2 | 3 | 4) {
-    state.clock = { period, timeRemainingSeconds: QUARTER_SECONDS }
-    state.events.push({ type: 'endOfPeriod', period: period - 1 })
-    playPeriod(state, input, homeById, awayById, period)
-    await yieldIfNormal(input.simSpeed, ++possessionsSinceYield)
-  }
 
   if (state.score.home === state.score.away && input.rng.chance(0.05)) {
     let otPeriod = 5 as 5 | 6 | 7
@@ -121,7 +121,7 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
       state.overtimeOccurred = true
       state.clock = { period: otPeriod, timeRemainingSeconds: OT_SECONDS }
       state.events.push({ type: 'endOfPeriod', period: otPeriod - 1 })
-      playPeriod(state, input, homeById, awayById, otPeriod)
+      await playPeriod(state, input, homeById, awayById, otPeriod)
       otPeriod = (otPeriod + 1) as 5 | 6 | 7
     }
   }
@@ -141,13 +141,13 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
   return { gameState: state, keyPlays, gameFatigue: state.gameFatigue }
 }
 
-function playPeriod(
+async function playPeriod(
   state: GameState,
   input: SimulateGameInput,
   homeById: Map<string, Player>,
   awayById: Map<string, Player>,
   period: number,
-): void {
+): Promise<void> {
   const periodSeconds = period >= 5 ? OT_SECONDS : QUARTER_SECONDS
   let secondsRemaining = periodSeconds
   let possessionsThisHalf = 0
@@ -249,6 +249,11 @@ function playPeriod(
       state.possession = defTeam
       state.arrow = offTeam
       possessionsThisHalf++
+    }
+
+    if (input.simSpeed === 'normal' && input.onTick) {
+      await input.onTick(buildLiveGameSnapshot(state))
+      await simDelay(LIVE_SIM_POSSESSION_DELAY_MS)
     }
   }
 
