@@ -162,18 +162,24 @@ def fetch_roster(season: str, team_external_id: str) -> list[dict[str, Any]]:
         df = r.get_data_frames()[0]
         out: list[dict[str, Any]] = []
         for _, row in df.iterrows():
+            full_name = str(row.get("PLAYER", "")).strip()
+            nickname = str(row.get("NICKNAME", "")).strip()
+            parts = full_name.split(None, 1) if full_name else ["", ""]
+            first = nickname if nickname else (parts[0] if len(parts) > 0 else "")
+            last = parts[1] if len(parts) > 1 else (parts[0] if len(parts) == 1 else "")
             out.append(
                 {
                     "externalId": str(int(row["PLAYER_ID"])),
-                    "firstName": row.get("PLAYER_FIRST_NAME", ""),
-                    "lastName": row.get("PLAYER_LAST_NAME", ""),
+                    "firstName": first,
+                    "lastName": last,
                     "teamExternalId": team_external_id,
                     "position": row.get("POSITION", ""),
                     "jersey": row.get("NUM", ""),
                     "height": row.get("HEIGHT", ""),
                     "weight": row.get("WEIGHT", ""),
                     "birthDate": row.get("BIRTH_DATE", ""),
-                    "age": row.get("AGE", None),
+                    "age": int(row.get("AGE", 25) or 25),
+                    "college": row.get("SCHOOL", ""),
                 }
             )
         return out
@@ -259,22 +265,37 @@ def run(season: str) -> None:
                     weight_lbs = int(weight_str)
                 elif isinstance(weight_str, (int, float)):
                     try:
-                        weight_lbs = int(weight_str)
+                        import math
+                        if math.isnan(weight_str) or math.isinf(weight_str):
+                            weight_lbs = 200
+                        else:
+                            weight_lbs = int(weight_str)
                     except (ValueError, OverflowError):
                         weight_lbs = 200
+
+                age_val = p.get("age", 25)
+                if isinstance(age_val, float):
+                    try:
+                        import math
+                        age_val = 25 if math.isnan(age_val) else int(age_val)
+                    except (ValueError, OverflowError):
+                        age_val = 25
+                elif not isinstance(age_val, int):
+                    age_val = 25
 
                 roster_out.append({
                     "id": pid,
                     "externalId": p["externalId"],
-                    "firstName": p["firstName"],
-                    "lastName": p["lastName"],
-                    "age": p.get("age") or 25,
+                    "firstName": fn,
+                    "lastName": ln,
+                    "age": age_val,
                     "position": p.get("position", "F"),
                     "secondaryPositions": [],
                     "heightInches": height_inches,
                     "weightLbs": weight_lbs,
                     "teamId": internal_id,
                     "teamExternalId": team_id,
+                    "college": p.get("college", ""),
                 })
             if done % 10 == 0 or done == len(team_ids):
                 print(f"  ... {done}/{len(team_ids)} teams fetched")
