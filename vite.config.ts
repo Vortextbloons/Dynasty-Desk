@@ -21,12 +21,6 @@ export default defineConfig({
     setupFiles: './src/tests/setup.ts',
     css: false,
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        maxThreads: 4,
-        minThreads: 2,
-      },
-    },
     deps: {
       optimizer: {
         web: {

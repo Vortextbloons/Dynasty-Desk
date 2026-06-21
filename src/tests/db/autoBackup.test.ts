@@ -1,6 +1,6 @@
 // @vitest-environment node
 import 'fake-indexeddb/auto'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeAll } from 'vitest'
 import { createBackup, restoreFromBackup, deleteBackup, backupExists } from '@/db/autoBackup'
 import { initDB } from '@/db/dexie'
 import type { GameSave } from '@/game/models'
