@@ -8,6 +8,7 @@ import { computeOverall } from '@/game/ratings/overallWeights'
 import type { SeededRandom } from '@/game/sim/rng'
 import { inductPlayers } from '@/game/league/hallOfFameEngine'
 import { createMilestoneEvent } from '@/game/league/newsEngine'
+import { checkSeasonRecords } from '@/game/league/recordTracker'
 
 const MAJOR_AWARDS: AwardType[] = ['mvp', 'dpoy', 'roy', 'smoy', 'mip', 'coty']
 
@@ -76,6 +77,26 @@ export function runLeagueSeasonAwards(league: LeagueState): NewsEvent[] {
     const player = league.players[entry.playerId]
     if (player) {
       news.push(createMilestoneEvent(player, 'Hall of Fame induction', league.currentDate))
+    }
+  }
+
+  const newSeasonRecords = checkSeasonRecords(league)
+  for (const record of newSeasonRecords) {
+    if (!league.records) league.records = []
+    const existingIdx = league.records.findIndex(
+      (r) => r.category === record.category && r.seasonYear === record.seasonYear,
+    )
+    if (existingIdx >= 0) {
+      league.records[existingIdx] = record
+    } else {
+      league.records.push(record)
+    }
+    if (record.playerId) {
+      const player = league.players[record.playerId]
+      if (player) {
+        const catLabel = record.category.replace(/_/g, ' ')
+        news.push(createMilestoneEvent(player, `New ${catLabel} record: ${record.value}`, league.currentDate))
+      }
     }
   }
 

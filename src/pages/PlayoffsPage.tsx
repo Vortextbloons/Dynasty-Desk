@@ -8,6 +8,7 @@ import { PlayoffListMobile } from '@/components/playoffs/PlayoffListMobile'
 import { PlayInSection } from '@/components/playoffs/PlayInSection'
 import { FinalsCard } from '@/components/playoffs/FinalsCard'
 import { ChampionCard } from '@/components/playoffs/ChampionCard'
+import { PlayoffBracketChart } from '@/components/charts/PlayoffBracketChart'
 import { cn } from '@/lib/utils'
 import { Trophy, Play, Square, FastForward } from 'lucide-react'
 
@@ -183,6 +184,12 @@ export function PlayoffsPage() {
       {bracket?.playIn && bracket.status === 'play_in' && (
         <div className="mb-6">
           <PlayInSection playIn={bracket.playIn} teams={teams} />
+        </div>
+      )}
+
+      {bracket && (
+        <div className="mb-6">
+          <PlayoffBracketChart bracket={bracket} />
         </div>
       )}
 

@@ -20,6 +20,7 @@ import { Chip } from '@/components/shared/Chip'
 import { InjuryHistoryList } from '@/components/health/InjuryHistoryList'
 import { MoraleDetailCard } from '@/components/morale/MoraleDetailCard'
 import { ClutchProfileCard } from '@/components/player/ClutchProfileCard'
+import { PlayerRatingTrendChart } from '@/components/charts/PlayerRatingTrendChart'
 import { getPlayerAwards, formatAwardChip } from '@/game/league/playerAwards'
 import { type PlayerSeasonStats } from '@/game/models/playerSeasonStats'
 import { cn } from '@/lib/utils'
@@ -206,7 +207,12 @@ export function PlayerPage() {
         </div>
       )}
 
-      {tab === 'ratings' && <RatingsTable ratings={player.ratings} />}
+      {tab === 'ratings' && (
+        <div className="space-y-4">
+          <RatingsTable ratings={player.ratings} />
+          <PlayerRatingTrendChart player={player} />
+        </div>
+      )}
       {tab === 'tendencies' && <TendenciesList tendencies={player.tendencies} />}
       {tab === 'health' && <InjuryHistoryList player={player} />}
       {tab === 'morale' && <MoraleDetailCard player={player} />}

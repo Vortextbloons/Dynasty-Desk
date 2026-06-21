@@ -104,7 +104,8 @@ export async function updateSave(save: GameSave): Promise<void> {
   try {
     const existing = await db.saves.get(save.metadata.id)
     if (existing?.data) {
-      await createBackup(existing.data as GameSave)
+      const backupTime = await createBackup(existing.data as GameSave)
+      save.metadata.backupCreatedAt = backupTime
     }
   } catch {
     // Backup failure should not block the save

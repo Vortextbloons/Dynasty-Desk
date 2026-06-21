@@ -1,7 +1,7 @@
 import type { GameSave } from '@/game/models/save'
 import { db } from '@/db/dexie'
 
-export async function createBackup(save: GameSave): Promise<void> {
+export async function createBackup(save: GameSave): Promise<string> {
   const backupId = `backup-${save.metadata.id}`
   const now = new Date().toISOString()
 
@@ -12,7 +12,7 @@ export async function createBackup(save: GameSave): Promise<void> {
     createdAt: now,
   })
 
-  save.metadata.backupCreatedAt = now
+  return now
 }
 
 export async function restoreFromBackup(saveId: string): Promise<GameSave | null> {

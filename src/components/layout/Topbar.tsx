@@ -1,4 +1,4 @@
-import { Bell, Sun, Moon, Loader2 } from 'lucide-react'
+import { Bell, Sun, Moon, Loader2, Menu } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useGameStore } from '@/store/useGameStore'
@@ -19,6 +19,9 @@ function titleFor(pathname: string): string {
   if (pathname.startsWith('/news')) return 'League News'
   if (pathname.startsWith('/awards')) return 'Awards'
   if (pathname.startsWith('/settings')) return 'Settings'
+  if (pathname.startsWith('/records')) return 'Records'
+  if (pathname.startsWith('/hall-of-fame')) return 'Hall of Fame'
+  if (pathname.startsWith('/rivalries')) return 'Rivalries'
   return 'Dynasty Desk'
 }
 
@@ -30,7 +33,7 @@ function readInitialTheme(): 'dark' | 'light' {
   return initial
 }
 
-export function Topbar() {
+export function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const location = useLocation()
   const [theme, setTheme] = useState<'dark' | 'light'>(readInitialTheme)
   const save = useGameStore((s) => s.save)
@@ -46,6 +49,15 @@ export function Topbar() {
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--color-line-soft)] bg-[var(--color-background)]/75 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-5 lg:px-8">
+        {onMenuToggle && (
+          <button
+            onClick={onMenuToggle}
+            className="md:hidden size-9 grid place-items-center rounded-md text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface-2)]"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="size-4" />
+          </button>
+        )}
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
             Section

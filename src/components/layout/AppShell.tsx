@@ -1,6 +1,7 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
+import { MobileSidebar } from './MobileSidebar'
 import { SimProgressOverlay } from '@/components/feedback/SimProgressOverlay'
 import { SaveIndicator } from '@/components/feedback/SaveIndicator'
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay'
@@ -11,6 +12,8 @@ interface AppShellProps {
 }
 
 export function AppShell({ children, hideChrome = false }: AppShellProps) {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
   if (hideChrome) {
     return <main className="min-h-screen">{children}</main>
   }
@@ -18,9 +21,10 @@ export function AppShell({ children, hideChrome = false }: AppShellProps) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
+      <MobileSidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
         <SaveIndicator />
-        <Topbar />
+        <Topbar onMenuToggle={() => setMobileNavOpen(true)} />
         <main className="flex-1 min-w-0">
           <div className="mx-auto w-full max-w-7xl px-5 py-6 lg:px-8 lg:py-8">
             {children}

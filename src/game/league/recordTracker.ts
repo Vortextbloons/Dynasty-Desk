@@ -53,6 +53,7 @@ export function checkRecords(
 
 export function checkSeasonRecords(league: LeagueState): LeagueRecord[] {
   const newRecords: LeagueRecord[] = []
+  const records = league.records ?? []
 
   const categories: { category: RecordCategory; getter: (s: { ppg: number; apg: number; rpg: number }) => number; source: (p: LeagueState['players'][string]) => number }[] = [
     { category: 'season_ppg', getter: (s) => s.ppg, source: (p) => p.seasonStats.gamesPlayed > 0 ? p.seasonStats.points / p.seasonStats.gamesPlayed : 0 },
@@ -75,7 +76,7 @@ export function checkSeasonRecords(league: LeagueState): LeagueRecord[] {
 
     if (bestPlayerId === null || bestValue === 0) continue
 
-    const existing = league.records.find((r) => r.category === category && r.seasonYear === league.seasonYear)
+    const existing = records.find((r) => r.category === category && r.seasonYear === league.seasonYear)
     if (existing && bestValue <= existing.value) continue
 
     const player = league.players[bestPlayerId]

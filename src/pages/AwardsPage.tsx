@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AWARD_SHORT_LABELS } from '@/game/models/award'
+import { AWARD_SHORT_LABELS, AWARD_LABELS } from '@/game/models/award'
 import { playerName } from '@/game/league/awardsEngine'
+import { AwardRaceChart } from '@/components/charts/AwardRaceChart'
 
 type Tab = 'current' | 'past'
 
@@ -48,6 +49,10 @@ export function AwardsPage() {
           </button>
         ))}
       </div>
+
+      {races.mvp && races.mvp.length > 0 && (
+        <AwardRaceChart entries={races.mvp} awardName={AWARD_LABELS.mvp} />
+      )}
 
       {tab === 'current' ? (
         <div className="grid gap-4 md:grid-cols-2">

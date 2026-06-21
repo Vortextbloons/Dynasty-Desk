@@ -160,7 +160,14 @@ export function finalizeSimulatedGame(
 
   const newRecords = checkRecords(league, boxScore, game.date)
   for (const record of newRecords) {
-    league.records.push(record)
+    const existingIdx = league.records.findIndex(
+      (r) => r.category === record.category && r.seasonYear === record.seasonYear,
+    )
+    if (existingIdx >= 0) {
+      league.records[existingIdx] = record
+    } else {
+      league.records.push(record)
+    }
   }
 
   const isPlayoff = league.phase === 'playoffs'

@@ -13,6 +13,7 @@ import { PhaseTimeline } from '@/components/offseason/PhaseTimeline'
 import { InjuryReportCard } from '@/components/health/InjuryReportCard'
 import { MoraleAlertsCard } from '@/components/morale/MoraleCard'
 import { NewsTicker } from '@/components/news/NewsTicker'
+import { TeamStatTrendChart } from '@/components/charts/TeamStatTrendChart'
 import { StreakCard } from '@/components/dashboard/StreakCard'
 import { recomputeStandings, computeGB } from '@/game/league/standingsEngine'
 import { computeTeamStreak } from '@/game/league/teamStreak'
@@ -628,6 +629,10 @@ export function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {userTeam && (
+        <TeamStatTrendChart seasonResults={[]} teamName={userTeam.name} />
       )}
 
       <div className="grid gap-4 lg:grid-cols-3">
