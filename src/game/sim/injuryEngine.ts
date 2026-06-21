@@ -3,6 +3,17 @@ import type { InjuryRecord, InjurySeverity, InjuryType } from '@/game/models/inj
 import type { PlayerHealth } from '@/game/models/player'
 import type { SeededRandom } from '@/game/sim/rng'
 import { clamp } from '@/lib/utils'
+import {
+  INJURY_RATE_PER_GAME,
+  INJURY_CLAMP_MIN,
+  INJURY_CLAMP_MAX,
+  INJURY_FATIGUE_THRESHOLD,
+  INJURY_MINUTES_THRESHOLD,
+  INJURY_FATIGUE_MULTIPLIER,
+  INJURY_MINUTES_MULTIPLIER,
+  INJURY_B2B_MULTIPLIER,
+  INJURY_AGE_MULTIPLIER,
+} from '@/game/sim/simConstants'
 
 const BODY_PARTS = ['knee', 'ankle', 'hamstring', 'back', 'shoulder', 'wrist', 'groin', 'calf']
 
@@ -50,17 +61,17 @@ function gamesForDays(days: number): number {
 export function injuryChance(player: Player, ctx: InjuryRollContext): number {
   if (!ctx.injuriesEnabled || player.health.status === 'season_ending') return 0
 
-  let chance = 0.005
+  let chance = INJURY_RATE_PER_GAME
   const durability = player.ratings.durability / 100
   chance *= 1.4 - durability * 0.8
 
-  if (ctx.fatigue > 70) chance *= 1.5
-  if (ctx.minutes > 38) chance *= 1.3
-  if (ctx.backToBack) chance *= 1.2
-  if (player.age >= 32) chance *= 1.15
+  if (ctx.fatigue > INJURY_FATIGUE_THRESHOLD) chance *= INJURY_FATIGUE_MULTIPLIER
+  if (ctx.minutes > INJURY_MINUTES_THRESHOLD) chance *= INJURY_MINUTES_MULTIPLIER
+  if (ctx.backToBack) chance *= INJURY_B2B_MULTIPLIER
+  if (player.age >= 32) chance *= INJURY_AGE_MULTIPLIER
   chance += (player.traits.injuryRisk - 50) / 10000
 
-  return clamp(chance, 0.001, 0.03)
+  return clamp(chance, INJURY_CLAMP_MIN, INJURY_CLAMP_MAX)
 }
 
 export function rollInjurySeverity(rng: SeededRandom): InjurySeverity {

@@ -77,6 +77,6 @@ describe('migrateToV8', () => {
       settings: {},
       rngState: { seed: 'x', position: 0 },
     })
-    expect(result.metadata.schemaVersion).toBe(8)
+    expect(result.metadata.schemaVersion).toBe(9)
   })
 })

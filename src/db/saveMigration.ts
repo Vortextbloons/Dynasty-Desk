@@ -527,6 +527,32 @@ export function migrateToV7(input: unknown): GameSave {
   }
 }
 
+export function migrateToV9(input: unknown): GameSave {
+  const save = input as GameSave
+  const league = save.league as unknown as Record<string, unknown>
+
+  return {
+    ...save,
+    metadata: {
+      ...save.metadata,
+      schemaVersion: 9,
+      notes: typeof save.metadata.notes === 'string' ? save.metadata.notes : '',
+    },
+    league: {
+      ...save.league,
+      rivalries: league.rivalries && typeof league.rivalries === 'object'
+        ? (league.rivalries as GameSave['league']['rivalries'])
+        : {},
+      records: Array.isArray(league.records)
+        ? (league.records as GameSave['league']['records'])
+        : [],
+      hallOfFame: Array.isArray(league.hallOfFame)
+        ? (league.hallOfFame as GameSave['league']['hallOfFame'])
+        : [],
+    } as unknown as GameSave['league'],
+  }
+}
+
 export function migrateToCurrent(input: unknown): GameSave {
   let save = input as GameSave
   const version = save.metadata.schemaVersion
@@ -556,6 +582,10 @@ export function migrateToCurrent(input: unknown): GameSave {
 
   if (save.metadata.schemaVersion < 8) {
     save = migrateToV8(save)
+  }
+
+  if (save.metadata.schemaVersion < 9) {
+    save = migrateToV9(save)
   }
 
   return save

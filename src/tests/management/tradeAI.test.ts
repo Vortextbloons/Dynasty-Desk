@@ -82,6 +82,9 @@ function buildLeague() {
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: 'user',
   }
   return { league, user, contender, rebuilding, user2, star1, star2, filler, fillerFor }

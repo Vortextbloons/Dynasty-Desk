@@ -1,6 +1,7 @@
 import type { Player } from '@/game/models/player'
 import type { LineupSettings } from '@/game/models/team'
 import { isInjured } from '@/game/management/rotationValidator'
+import { FOUL_LIMIT, MIN_BENCH_FOR_SUB } from '@/game/sim/simConstants'
 
 export interface PlannedSub {
   teamId: string
@@ -22,9 +23,6 @@ export interface SubstitutionContext {
   foulsByPlayer: Record<string, number>
   closingMarginLeq5: boolean
 }
-
-const FOUL_LIMIT = 5
-const MIN_BENCH_FOR_SUB = 1
 
 export function planSubstitutions(ctx: SubstitutionContext): PlannedSub[] {
   const subs: PlannedSub[] = []

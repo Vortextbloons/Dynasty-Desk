@@ -3,6 +3,17 @@ import type { ShotZone } from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
 import { positionFoulDrawnFactor } from '@/game/sim/shotZones'
 import { clamp } from '@/lib/utils'
+import {
+  SHOOTING_FOUL_BASE,
+  SHOOTING_FOUL_CLAMP_MIN,
+  SHOOTING_FOUL_CLAMP_MAX,
+  NON_SHOOTING_FOUL_BASE,
+  NON_SHOOTING_FOUL_CLAMP_MIN,
+  NON_SHOOTING_FOUL_CLAMP_MAX,
+  OFFENSIVE_FOUL_BASE,
+  OFFENSIVE_FOUL_CLAMP_MIN,
+  OFFENSIVE_FOUL_CLAMP_MAX,
+} from '@/game/sim/simConstants'
 
 export type ResolvedFoulKind = 'shooting' | 'non_shooting' | 'offensive'
 
@@ -25,23 +36,23 @@ export function shootingFoulChance(
   const defenderDiscipline = 1 - (defender.ratings.defensiveIq - 50) / 200
 
   const raw =
-    0.04 +
+    SHOOTING_FOUL_BASE +
     (tendency * 0.12 + ftRate * 0.05 + positionFactor * 0.04) * zoneFactor * defenderDiscipline
 
-  return clamp(raw, 0.02, 0.25)
+  return clamp(raw, SHOOTING_FOUL_CLAMP_MIN, SHOOTING_FOUL_CLAMP_MAX)
 }
 
 export function nonShootingFoulChance(defender: Player): number {
   const physicality = (defender.ratings.strength - 50) / 50
   const iq = (defender.ratings.defensiveIq - 50) / 100
-  const raw = 0.05 + physicality * 0.04 - iq * 0.02
-  return clamp(raw, 0.02, 0.15)
+  const raw = NON_SHOOTING_FOUL_BASE + physicality * 0.04 - iq * 0.02
+  return clamp(raw, NON_SHOOTING_FOUL_CLAMP_MIN, NON_SHOOTING_FOUL_CLAMP_MAX)
 }
 
 export function offensiveFoulChance(offense: Player): number {
   const discipline = (offense.ratings.offensiveIq - 50) / 100
-  const raw = 0.04 - discipline * 0.02
-  return clamp(raw, 0.01, 0.08)
+  const raw = OFFENSIVE_FOUL_BASE - discipline * 0.02
+  return clamp(raw, OFFENSIVE_FOUL_CLAMP_MIN, OFFENSIVE_FOUL_CLAMP_MAX)
 }
 
 export function resolveFoul(

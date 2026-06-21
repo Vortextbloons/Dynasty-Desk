@@ -1,10 +1,11 @@
 import type { Player } from '@/game/models/player'
 import { clamp } from '@/lib/utils'
-
-const CLUTCH_WINDOW_SECONDS = 5 * 60
-const CLUTCH_MARGIN = 5
-const STAR_CLUTCH_BONUS = 0.05
-const LOW_CLUTCH_PENALTY = 0.03
+import {
+  CLUTCH_WINDOW_SECONDS,
+  CLUTCH_MARGIN,
+  STAR_CLUTCH_BONUS,
+  LOW_CLUTCH_PENALTY,
+} from '@/game/sim/simConstants'
 
 export function isClutch(
   period: number,

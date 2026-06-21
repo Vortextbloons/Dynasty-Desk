@@ -25,6 +25,7 @@ function makeSave(): GameSave {
       currentDate: '2025-10-21',
       leagueName: 'Dynasty',
       snapshotId: 'nba-2025-26',
+      notes: '',
     },
     user: { managerName: 'GM', teamId: 't-home' },
     settings: {
@@ -201,6 +202,9 @@ function makeSave(): GameSave {
       champions: [],
       awards: [],
       activeProposals: [],
+      rivalries: {},
+      records: [],
+      hallOfFame: [],
     },
   }
 }

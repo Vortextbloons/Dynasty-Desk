@@ -2,6 +2,13 @@ import type { Player } from '@/game/models/player'
 import type { ShotZone } from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
 import { clamp } from '@/lib/utils'
+import {
+  BASE_OREB_CHANCE,
+  OREB_CLAMP_MIN,
+  OREB_CLAMP_MAX,
+  SHORT_REBOUND_BONUS,
+  LONG_REBOUND_PENALTY,
+} from '@/game/sim/simConstants'
 
 export interface ResolvedRebound {
   playerId: string
@@ -29,15 +36,15 @@ export function offensiveReboundChance(
         defense.length
 
   const ratio = (offOREB - defDREB) / 50
-  let base = 0.26 + ratio * 0.05
+  let base = BASE_OREB_CHANCE + ratio * 0.05
 
   if (SHORT_REBOUND_ZONES.has(zone)) {
-    base += 0.04
+    base += SHORT_REBOUND_BONUS
   } else {
-    base -= 0.04
+    base -= LONG_REBOUND_PENALTY
   }
 
-  return clamp(base, 0.18, 0.34)
+  return clamp(base, OREB_CLAMP_MIN, OREB_CLAMP_MAX)
 }
 
 export function resolveRebound(

@@ -57,6 +57,9 @@ function buildFixture(): { league: LeagueState; proposal: TradeProposal } {
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: 'user',
   }
   const proposal: TradeProposal = {

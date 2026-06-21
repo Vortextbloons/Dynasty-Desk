@@ -1,6 +1,5 @@
 import type { SimEvent } from '@/game/models/sim'
-
-export const KEY_PLAYS_LIMIT = 5
+import { KEY_PLAYS_LIMIT } from '@/game/sim/simConstants'
 
 export function eventImpact(event: SimEvent): number {
   switch (event.type) {

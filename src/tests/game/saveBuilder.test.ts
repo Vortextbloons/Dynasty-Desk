@@ -229,7 +229,7 @@ describe('buildSave', () => {
     expect(save.metadata.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     )
-    expect(save.metadata.schemaVersion).toBe(8)
+    expect(save.metadata.schemaVersion).toBe(9)
     expect(save.metadata.name).toBe('Test Dynasty')
     expect(save.metadata.teamId).toBe('team-1')
     expect(save.metadata.snapshotId).toBe('test-snapshot')

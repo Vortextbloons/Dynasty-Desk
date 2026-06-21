@@ -284,6 +284,9 @@ export function buildSave(input: NewSaveInput): GameSave {
     champions: snapshot.champions,
     awards: snapshot.awards,
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: teamId,
   }
 
@@ -293,7 +296,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     createdAt: now,
     updatedAt: now,
     appVersion: '0.1.0',
-    schemaVersion: 8,
+    schemaVersion: 9,
     teamId,
     teamName:
       snapshot.teams.find((t) => t.id === teamId)?.name ?? teamId,
@@ -301,6 +304,7 @@ export function buildSave(input: NewSaveInput): GameSave {
     currentDate: league.currentDate,
     leagueName,
     snapshotId: snapshot.id,
+    notes: '',
   }
 
   return {

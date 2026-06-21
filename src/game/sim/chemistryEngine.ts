@@ -1,6 +1,12 @@
 import type { Team } from '@/game/models/team'
 import type { Player } from '@/game/models/player'
 import { clamp } from '@/lib/utils'
+import {
+  CHEM_WIN_STREAK_THRESHOLD,
+  CHEM_LOSE_STREAK_THRESHOLD,
+  CHEM_WIN_STREAK_BONUS,
+  CHEM_LOSE_STREAK_PENALTY,
+} from '@/game/sim/simConstants'
 
 export interface ChemistryContext {
   wins: number
@@ -56,8 +62,8 @@ export function updateChemistry(
   chemistry -= ctx.recentTrades * 8
   chemistry -= ctx.egoConflicts * 0.5
 
-  if (ctx.winStreak >= 5) chemistry += 5
-  if (ctx.loseStreak >= 5) chemistry -= 6
+  if (ctx.winStreak >= CHEM_WIN_STREAK_THRESHOLD) chemistry += CHEM_WIN_STREAK_BONUS
+  if (ctx.loseStreak >= CHEM_LOSE_STREAK_THRESHOLD) chemistry -= CHEM_LOSE_STREAK_PENALTY
 
   return clamp(chemistry, 0, 100)
 }

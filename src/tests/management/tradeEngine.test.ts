@@ -58,6 +58,9 @@ function baseLeague(teams: Team[], players: Player[], picks: DraftPick[] = []): 
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: 'a',
   }
 }

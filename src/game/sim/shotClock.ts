@@ -1,7 +1,14 @@
 import type { SeededRandom } from '@/game/sim/rng'
 import { clamp } from '@/lib/utils'
+import {
+  SHOT_CLOCK_SECONDS,
+  TRANSITION_SHOT_CLOCK,
+  LATE_CLOCK_THRESHOLD,
+  RUSH_CHANCE_LATE,
+  RUSH_CHANCE_NORMAL,
+} from '@/game/sim/simConstants'
 
-export const SHOT_CLOCK_SECONDS = 24
+export { SHOT_CLOCK_SECONDS } from '@/game/sim/simConstants'
 
 export interface ShotClockContext {
   shotClockRemaining: number
@@ -20,7 +27,7 @@ export interface ShotClockResult {
 export function initialShotClock(
   possessionType: 'half_court' | 'transition',
 ): number {
-  return possessionType === 'transition' ? 18 : SHOT_CLOCK_SECONDS
+  return possessionType === 'transition' ? TRANSITION_SHOT_CLOCK : SHOT_CLOCK_SECONDS
 }
 
 export function shotClockHandler(
@@ -45,8 +52,8 @@ export function shotClockHandler(
     }
   }
 
-  const lateShot = remaining <= 4
-  const rushChance = lateShot ? 0.85 : 0.15
+  const lateShot = remaining <= LATE_CLOCK_THRESHOLD
+  const rushChance = lateShot ? RUSH_CHANCE_LATE : RUSH_CHANCE_NORMAL
   const shotAttempt = rng.chance(rushChance) || remaining <= 2
 
   return {

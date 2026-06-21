@@ -4,6 +4,7 @@ import { validateSave } from '@/game/core/saveValidation'
 import { initDB } from './dexie'
 import { downloadTextFile } from '@/lib/download'
 import { migrateToCurrent } from './saveMigration'
+import { createBackup, restoreFromBackup } from './autoBackup'
 
 let dbInitialized = false
 
@@ -97,6 +98,12 @@ export async function updateSave(save: GameSave): Promise<void> {
   save.metadata.updatedAt = now
   save.metadata.currentDate = save.league.currentDate
 
+  try {
+    await createBackup(save)
+  } catch {
+    // Backup failure should not block the save
+  }
+
   const row: SaveRow = {
     id: save.metadata.id,
     updatedAt: now,
@@ -118,6 +125,36 @@ export async function exportSaveToFile(id: string): Promise<void> {
     json,
     'application/json',
   )
+}
+
+export async function renameSave(id: string, newName: string): Promise<void> {
+  await ensureDB()
+  const save = await loadSave(id)
+  if (!save) throw new Error(`Save not found: ${id}`)
+
+  save.metadata.name = newName
+  save.metadata.updatedAt = new Date().toISOString()
+  save.league.name = newName
+
+  const row: SaveRow = {
+    id: save.metadata.id,
+    updatedAt: save.metadata.updatedAt,
+    teamId: save.metadata.teamId,
+    seasonYear: save.metadata.currentSeason,
+    data: save,
+    metadata: save.metadata,
+  }
+  await db.saves.put(row)
+}
+
+export async function restoreSave(id: string): Promise<GameSave | null> {
+  await ensureDB()
+  const backup = await restoreFromBackup(id)
+  if (!backup) return null
+
+  backup.metadata.updatedAt = new Date().toISOString()
+  await createSave(backup)
+  return backup
 }
 
 export async function importSaveFromFile(file: File): Promise<GameSave> {

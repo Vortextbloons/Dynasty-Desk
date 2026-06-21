@@ -34,6 +34,11 @@ export * from './news'
 export * from './owner'
 export * from './playoff'
 
+// M12: Rivalries, records, hall of fame
+export * from './rivalry'
+export * from './record'
+export * from './hallOfFame'
+
 // Persistence and static data
 export * from './save'
 export * from './static'

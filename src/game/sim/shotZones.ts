@@ -3,14 +3,9 @@ import type { PlayerTendencies } from '@/game/models/tendencies'
 import type { EraConfig } from '@/game/models/eraConfig'
 import type { Player } from '@/game/models/player'
 import { clamp } from '@/lib/utils'
+import { BASE_ZONE_PCT as BASE_ZONE_PCT_CONST } from '@/game/sim/simConstants'
 
-export const BASE_ZONE_PCT: Record<ShotZone, number> = {
-  at_rim: 0.65,
-  short_mid: 0.42,
-  long_mid: 0.39,
-  corner_three: 0.39,
-  above_break_three: 0.36,
-}
+export const BASE_ZONE_PCT: Record<ShotZone, number> = { ...BASE_ZONE_PCT_CONST }
 
 export const ZONE_POINTS: Record<ShotZone, 2 | 3> = {
   at_rim: 2,

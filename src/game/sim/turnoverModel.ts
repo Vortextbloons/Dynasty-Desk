@@ -2,6 +2,7 @@ import type { Player } from '@/game/models/player'
 import type { TurnoverType } from '@/game/models/sim'
 import type { SeededRandom } from '@/game/sim/rng'
 import { clamp } from '@/lib/utils'
+import { TURNOVER_IMPACT, STEAL_PROBABILITY_ON_TO, STEAL_THRESHOLD } from '@/game/sim/simConstants'
 
 export interface ResolvedTurnover {
   turnoverType: TurnoverType
@@ -10,8 +11,6 @@ export interface ResolvedTurnover {
   impact: number
   isStolen: boolean
 }
-
-const TURNOVER_IMPACT = 35
 
 export function turnoverChance(
   ballHandler: Player,
@@ -46,10 +45,10 @@ export function resolveTurnover(
   defense: readonly Player[],
   rng: SeededRandom,
 ): ResolvedTurnover {
-  const isStolen = rng.chance(0.3)
+  const isStolen = rng.chance(STEAL_PROBABILITY_ON_TO)
   let stolenBy: string | undefined
   if (isStolen && defense.length > 0) {
-    const stealers = defense.filter((d) => d.ratings.steal >= 55)
+    const stealers = defense.filter((d) => d.ratings.steal >= STEAL_THRESHOLD)
     const pool = stealers.length > 0 ? stealers : defense
     const weights = pool.map((d) => Math.max(1, d.ratings.steal))
     stolenBy = rng.weightedPick(pool, weights).id

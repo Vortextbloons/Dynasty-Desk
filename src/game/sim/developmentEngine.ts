@@ -4,6 +4,19 @@ import type { PlayerSeasonStat } from '@/game/models/player'
 import type { TrainingFocus } from '@/game/models/training'
 import type { SeededRandom } from '@/game/sim/rng'
 import { clamp } from '@/lib/utils'
+import {
+  DEV_YOUNG_GROWTH_MIN,
+  DEV_YOUNG_GROWTH_MAX,
+  DEV_PRIME_GROWTH_MIN,
+  DEV_PRIME_GROWTH_MAX,
+  DEV_PLATEAU_MIN,
+  DEV_PLATEAU_MAX,
+  DEV_DECLINE_MIN,
+  DEV_DECLINE_MAX,
+  DEV_EARLY_CURVE_MULT,
+  DEV_LATE_CURVE_MULT,
+  DEV_VETERAN_DECLINE_MULT,
+} from '@/game/sim/simConstants'
 
 const RATING_KEYS: (keyof PlayerRatings)[] = [
   'insideScoring',
@@ -27,10 +40,10 @@ const RATING_KEYS: (keyof PlayerRatings)[] = [
 ]
 
 function ageGrowthBand(age: number): { min: number; max: number } {
-  if (age <= 22) return { min: 0.5, max: 2.0 }
-  if (age <= 26) return { min: 0, max: 1.0 }
-  if (age <= 31) return { min: -0.5, max: 0.5 }
-  return { min: -2.0, max: -0.5 }
+  if (age <= 22) return { min: DEV_YOUNG_GROWTH_MIN, max: DEV_YOUNG_GROWTH_MAX }
+  if (age <= 26) return { min: DEV_PRIME_GROWTH_MIN, max: DEV_PRIME_GROWTH_MAX }
+  if (age <= 31) return { min: DEV_PLATEAU_MIN, max: DEV_PLATEAU_MAX }
+  return { min: DEV_DECLINE_MIN, max: DEV_DECLINE_MAX }
 }
 
 function focusRatings(focus: TrainingFocus): (keyof PlayerRatings)[] {
@@ -69,11 +82,11 @@ export function endOfSeasonDevelopment(
   const band = ageGrowthBand(player.age)
   const curveMult =
     player.development.progressionCurve === 'early'
-      ? 1.2
+      ? DEV_EARLY_CURVE_MULT
       : player.development.progressionCurve === 'late'
-        ? 0.85
+        ? DEV_LATE_CURVE_MULT
         : player.development.progressionCurve === 'veteran_decline'
-          ? 1.3
+          ? DEV_VETERAN_DECLINE_MULT
           : 1
 
   let ovrDelta = band.min + rng.next() * (band.max - band.min)

@@ -70,6 +70,9 @@ function makeOffseasonLeague(phase: LeagueState['phase'] = 'offseason'): LeagueS
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: 'user',
   }
 }

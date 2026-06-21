@@ -1,5 +1,13 @@
 import type { Player } from '@/game/models/player'
 import { clamp } from '@/lib/utils'
+import {
+  FATIGUE_GAIN_PER_MINUTE,
+  FATIGUE_HIGH_USAGE_MULTIPLIER,
+  FATIGUE_PENALTY_THRESHOLD,
+  FATIGUE_SHOOTING_DEFENSE_SCALE,
+  FATIGUE_TO_FOUL_SCALE,
+  FATIGUE_RECOVERY_PER_DAY,
+} from '@/game/sim/simConstants'
 
 export type FatigueStat = 'shooting' | 'defense' | 'turnovers' | 'fouls'
 
@@ -17,8 +25,8 @@ export function updateFatigue(
   isHighUsage = false,
 ): number {
   const paceMult = PACE_MULTIPLIER[pace] ?? 1
-  const usageMult = isHighUsage ? 1.2 : 1
-  const gain = minutesPlayed * 2.8 * paceMult * usageMult
+  const usageMult = isHighUsage ? FATIGUE_HIGH_USAGE_MULTIPLIER : 1
+  const gain = minutesPlayed * FATIGUE_GAIN_PER_MINUTE * paceMult * usageMult
   return clamp(currentFatigue + gain, 0, 100)
 }
 
@@ -27,14 +35,14 @@ export function applyFatiguePenalty(
   fatigue: number,
   stat: FatigueStat,
 ): number {
-  if (fatigue <= 50) return 0
-  const excess = fatigue - 50
-  const scale = stat === 'shooting' || stat === 'defense' ? 0.001 : 0.0008
+  if (fatigue <= FATIGUE_PENALTY_THRESHOLD) return 0
+  const excess = fatigue - FATIGUE_PENALTY_THRESHOLD
+  const scale = stat === 'shooting' || stat === 'defense' ? FATIGUE_SHOOTING_DEFENSE_SCALE : FATIGUE_TO_FOUL_SCALE
   return -(excess * scale)
 }
 
 export function recoverFatigue(currentFatigue: number, daysOff: number): number {
-  const recovery = daysOff * 12
+  const recovery = daysOff * FATIGUE_RECOVERY_PER_DAY
   return clamp(currentFatigue - recovery, 0, 100)
 }
 

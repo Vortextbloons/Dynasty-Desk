@@ -11,6 +11,8 @@ export interface SaveMetadata {
   currentDate: string
   leagueName: string
   snapshotId: string
+  notes: string
+  backupCreatedAt?: string
 }
 
 export type SimSpeed = 'instant' | 'normal' | 'slow' | 'balanced' | 'fast'

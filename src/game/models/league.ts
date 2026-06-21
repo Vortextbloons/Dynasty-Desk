@@ -14,6 +14,9 @@ import type { EraConfig } from './eraConfig'
 import type { LeagueRules } from './leagueRules'
 import type { PlayoffBracket } from './playoff'
 import type { TradeProposal } from './trade'
+import type { Rivalry } from './rivalry'
+import type { LeagueRecord } from './record'
+import type { HallOfFameEntry } from './hallOfFame'
 
 export type TeamSeasonResult =
   | 'missed_playoffs'
@@ -65,6 +68,10 @@ export interface LeagueState {
   activeProposals: TradeProposal[]
 
   playoffBracket?: PlayoffBracket
+
+  rivalries: Record<string, Rivalry>
+  records: LeagueRecord[]
+  hallOfFame: HallOfFameEntry[]
 
   userTeamId: string
   /** Award race snapshots updated during the season. */

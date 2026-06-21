@@ -24,6 +24,13 @@ import {
 } from '@/game/sim/substitutionEngine'
 import { rankKeyPlays } from '@/game/sim/keyPlays'
 import { isInjured } from '@/game/management/rotationValidator'
+import {
+  QUARTER_SECONDS,
+  OT_SECONDS,
+  MAX_POSSESSIONS_PER_PERIOD,
+  SUB_INTERVAL_SECONDS,
+  BASE_TIME_SECONDS,
+} from '@/game/sim/simConstants'
 
 export interface SimulateGameInput {
   id: string
@@ -47,11 +54,6 @@ export interface SimulateGameOutput {
   keyPlays: SimEvent[]
   gameFatigue: Record<string, number>
 }
-
-const QUARTER_SECONDS = 12 * 60
-const OT_SECONDS = 5 * 60
-const MAX_POSSESSIONS_PER_PERIOD = 200
-const SUB_INTERVAL_SECONDS = 60
 
 export async function simulateGame(input: SimulateGameInput): Promise<SimulateGameOutput> {
   const homeById = playerMap(input.homePlayers)
@@ -205,7 +207,7 @@ function playPeriod(
         possessionType: type,
         period,
         timeRemainingSeconds: secondsRemaining,
-        baseTimeSeconds: 15,
+        baseTimeSeconds: BASE_TIME_SECONDS,
         minutesPlayed: state.minutesPlayed,
         offenseStrategy: offTeamObj.strategy,
         defenseStrategy: defTeamObj.strategy,

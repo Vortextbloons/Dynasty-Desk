@@ -63,6 +63,9 @@ function buildLeague(): { league: LeagueState; user: Team; other: Team; star: Pl
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: 'user',
   }
   return { league, user, other, star }

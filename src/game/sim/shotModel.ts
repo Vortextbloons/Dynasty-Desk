@@ -11,6 +11,15 @@ import {
 import { clamp } from '@/lib/utils'
 import { applyFatiguePenalty } from '@/game/sim/fatigueEngine'
 import { lateClockMakePenalty } from '@/game/sim/shotClock'
+import {
+  CLUTCH_BONUS,
+  HOME_MAKE_BONUS as HOME_BONUS,
+  CONTEST_PENALTY_MAX,
+  SPACING_BONUS_MAX,
+  PASSER_BONUS_MAX,
+  SHOT_QUALITY_BASE_BONUS,
+  SKILL_ADJUSTMENT_RANGE,
+} from '@/game/sim/simConstants'
 
 export interface ShotContext {
   shooter: Player
@@ -41,14 +50,6 @@ export interface ResolvedShot {
   wasPutback: boolean
   shotClockViolation: boolean
 }
-
-const CLUTCH_BONUS = 0.03
-const HOME_BONUS = 0.02
-const CONTEST_PENALTY_MAX = 0.18
-const SPACING_BONUS_MAX = 0.06
-const PASSER_BONUS_MAX = 0.05
-const SHOT_QUALITY_BASE_BONUS = 0.04
-const SKILL_ADJUSTMENT_RANGE = 0.18
 
 export function makeChance(ctx: ShotContext): number {
   const base = BASE_ZONE_PCT[ctx.zone] ?? 0.4

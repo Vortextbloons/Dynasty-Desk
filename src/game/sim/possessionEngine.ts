@@ -21,6 +21,7 @@ import {
 } from '@/game/sim/shotClock'
 import { clamp } from '@/lib/utils'
 import { applyStrategyToPossession } from '@/game/sim/strategyEngine'
+import { TRANSITION_PROBABILITY } from '@/game/sim/simConstants'
 
 export interface PossessionInput {
   offense: Player[]
@@ -44,8 +45,6 @@ export interface PossessionInput {
   homeScore: number
   awayScore: number
 }
-
-const TRANSITION_PROBABILITY = 0.18
 
 export function selectPossessionType(rng: SeededRandom): 'half_court' | 'transition' {
   return rng.chance(TRANSITION_PROBABILITY) ? 'transition' : 'half_court'

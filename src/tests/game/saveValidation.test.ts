@@ -20,6 +20,7 @@ function makeValidSave(): GameSave {
       currentDate: '2025-10-21',
       leagueName: 'Test Dynasty',
       snapshotId: 'nba-2025-26',
+      notes: '',
     },
     league: {
       id: 'league-1',
@@ -237,6 +238,9 @@ function makeValidSave(): GameSave {
       champions: [],
       awards: [],
       activeProposals: [],
+      rivalries: {},
+      records: [],
+      hallOfFame: [],
       userTeamId: 'team-1',
     },
     user: { managerName: 'Coach', teamId: 'team-1' },

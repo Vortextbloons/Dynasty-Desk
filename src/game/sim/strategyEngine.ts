@@ -2,6 +2,23 @@ import type { TeamStrategy } from '@/game/models/team'
 import type { EraConfig } from '@/game/models/eraConfig'
 import { threePointRateForTeam } from '@/game/sim/shotZones'
 import type { Player } from '@/game/models/player'
+import {
+  FAST_PACE_TIME_MULT,
+  SLOW_PACE_TIME_MULT,
+  THREE_HEAVY_3PA_BONUS,
+  THREE_HEAVY_3PT_MAKE_BONUS,
+  PAINT_RIM_BONUS,
+  PAINT_FT_BONUS,
+  PAINT_3PA_PENALTY,
+  HIGH_PRESSURE_STEAL_BONUS,
+  HIGH_PRESSURE_FOUL_BONUS,
+  LOW_PRESSURE_STEAL_PENALTY,
+  LOW_PRESSURE_FOUL_PENALTY,
+  HIGH_CRASH_OREB_BONUS,
+  HIGH_CRASH_TRANSITION_PENALTY,
+  LOW_CRASH_OREB_PENALTY,
+  LOW_CRASH_TRANSITION_PENALTY,
+} from '@/game/sim/simConstants'
 
 export interface PossessionAdjustments {
   possessionTimeMultiplier: number
@@ -40,38 +57,38 @@ export function applyStrategyToPossession(
   const { offense, defense } = strategy
 
   if (offense.pace === 'fast') {
-    adj.possessionTimeMultiplier = 0.92
+    adj.possessionTimeMultiplier = FAST_PACE_TIME_MULT
     adj.turnoverChanceBonus = 0.03
     adj.transitionRateBonus = 0.05
   } else if (offense.pace === 'slow') {
-    adj.possessionTimeMultiplier = 1.08
+    adj.possessionTimeMultiplier = SLOW_PACE_TIME_MULT
     adj.turnoverChanceBonus = -0.01
     adj.transitionRateBonus = -0.03
   }
 
   if (offense.shotProfile === 'three_heavy') {
-    adj.threePointRateBonus = 0.12
-    adj.threePointMakeBonus = 0.02
+    adj.threePointRateBonus = THREE_HEAVY_3PA_BONUS
+    adj.threePointMakeBonus = THREE_HEAVY_3PT_MAKE_BONUS
   } else if (offense.shotProfile === 'paint') {
-    adj.rimAttemptBonus = 0.08
-    adj.freeThrowRateBonus = 0.03
-    adj.threePointRateBonus = -0.06
+    adj.rimAttemptBonus = PAINT_RIM_BONUS
+    adj.freeThrowRateBonus = PAINT_FT_BONUS
+    adj.threePointRateBonus = PAINT_3PA_PENALTY
   }
 
   if (offense.crashOffensiveGlass === 'high') {
-    adj.offensiveReboundBonus = 0.03
-    adj.opponentTransitionBonus = 0.02
+    adj.offensiveReboundBonus = HIGH_CRASH_OREB_BONUS
+    adj.opponentTransitionBonus = HIGH_CRASH_TRANSITION_PENALTY
   } else if (offense.crashOffensiveGlass === 'low') {
-    adj.offensiveReboundBonus = -0.02
-    adj.opponentTransitionBonus = -0.01
+    adj.offensiveReboundBonus = LOW_CRASH_OREB_PENALTY
+    adj.opponentTransitionBonus = LOW_CRASH_TRANSITION_PENALTY
   }
 
   if (defense.pressure === 'high') {
-    adj.stealChanceBonus = 0.02
-    adj.foulChanceBonus = 0.03
+    adj.stealChanceBonus = HIGH_PRESSURE_STEAL_BONUS
+    adj.foulChanceBonus = HIGH_PRESSURE_FOUL_BONUS
   } else if (defense.pressure === 'low') {
-    adj.stealChanceBonus = -0.01
-    adj.foulChanceBonus = -0.01
+    adj.stealChanceBonus = LOW_PRESSURE_STEAL_PENALTY
+    adj.foulChanceBonus = LOW_PRESSURE_FOUL_PENALTY
   }
 
   if (defense.reboundingFocus === 'secure_boards') {

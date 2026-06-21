@@ -12,7 +12,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "strict": true,
-    "types": ["node"]
+    "types": ["node", "vitest/globals"]
   },
   "include": ["vite.config.ts"]
 }

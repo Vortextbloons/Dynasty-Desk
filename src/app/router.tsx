@@ -23,6 +23,9 @@ import { ScoutingPage } from '@/pages/ScoutingPage'
 import { PlayoffsPage } from '@/pages/PlayoffsPage'
 import { TrainingPage } from '@/pages/TrainingPage'
 import { TeamStrategyPage } from '@/pages/TeamStrategyPage'
+import { RecordsPage } from '@/pages/RecordsPage'
+import { HallOfFamePage } from '@/pages/HallOfFamePage'
+import { RivalriesPage } from '@/pages/RivalriesPage'
 import { AppShell } from '@/components/layout/AppShell'
 
 export function AppRouter() {
@@ -197,6 +200,31 @@ export function AppRouter() {
         element={
           <AppShell>
             <PlayoffsPage />
+          </AppShell>
+        }
+      />
+
+      <Route
+        path="/records"
+        element={
+          <AppShell>
+            <RecordsPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/hall-of-fame"
+        element={
+          <AppShell>
+            <HallOfFamePage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/rivalries"
+        element={
+          <AppShell>
+            <RivalriesPage />
           </AppShell>
         }
       />

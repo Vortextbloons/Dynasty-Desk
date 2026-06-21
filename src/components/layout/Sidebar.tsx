@@ -58,6 +58,9 @@ const navItems: NavItem[] = [
   { to: '/news', label: 'News', icon: Newspaper, group: 'League' },
   { to: '/awards', label: 'Awards', icon: Award, group: 'League' },
   { to: '/all-time', label: 'All-time', icon: Trophy, group: 'League' },
+  { to: '/records', label: 'Records', icon: Trophy, group: 'League' },
+  { to: '/hall-of-fame', label: 'Hall of Fame', icon: Award, group: 'League' },
+  { to: '/rivalries', label: 'Rivalries', icon: Shield, group: 'League' },
   { to: '/settings', label: 'Settings', icon: SettingsIcon, group: 'League' },
 ]
 

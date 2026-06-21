@@ -15,14 +15,28 @@ export interface SettingsRow {
   value: unknown
 }
 
+export interface BackupRow {
+  id: string
+  saveId: string
+  data: GameSave
+  createdAt: string
+}
+
 const db = new Dexie('DynastyDeskDB') as Dexie & {
   saves: EntityTable<SaveRow, 'id'>
   settings: EntityTable<SettingsRow, 'key'>
+  backups: EntityTable<BackupRow, 'id'>
 }
 
 db.version(1).stores({
   saves: 'id, updatedAt, teamId, seasonYear',
   settings: 'key',
+})
+
+db.version(2).stores({
+  saves: 'id, updatedAt, teamId, seasonYear',
+  settings: 'key',
+  backups: 'id, saveId, createdAt',
 })
 
 export { db }

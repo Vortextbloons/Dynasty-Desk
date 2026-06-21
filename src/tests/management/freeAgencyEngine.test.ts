@@ -42,6 +42,9 @@ function makeLeague(player: ReturnType<typeof makePlayer>, team: ReturnType<type
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: team.id,
   }
 }

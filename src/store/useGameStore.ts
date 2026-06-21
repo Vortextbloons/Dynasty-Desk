@@ -12,6 +12,8 @@ import {
   updateSave as dbUpdateSave,
   exportSaveToFile as dbExportSaveToFile,
   importSaveFromFile as dbImportSaveFromFile,
+  renameSave as dbRenameSave,
+  restoreSave as dbRestoreSave,
 } from '@/db/saveRepository'
 import { buildSave } from '@/game/core/saveBuilder'
 import { normalizeModernSimSpeed } from '@/game/core/settingsPersistence'
@@ -112,6 +114,8 @@ interface GameStore {
   duplicateSave: (id: string, newName: string) => Promise<GameSave | null>
   importSaveFromFile: (file: File) => Promise<void>
   exportSave: (id: string) => Promise<void>
+  renameSave: (id: string, newName: string) => Promise<void>
+  restoreBackup: (id: string) => Promise<GameSave | null>
   clearActiveSave: () => void
   scheduleAutoSave: () => void
   cutPlayer: (playerId: string) => ContractActionResult
@@ -297,6 +301,30 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   exportSave: async (id: string) => {
     await dbExportSaveToFile(id)
+  },
+
+  renameSave: async (id: string, newName: string) => {
+    await dbRenameSave(id, newName)
+    const { save } = get()
+    if (save?.metadata.id === id) {
+      save.metadata.name = newName
+      save.league.name = newName
+      set({ save: { ...save } })
+    }
+    await get().loadSavesList()
+  },
+
+  restoreBackup: async (id: string) => {
+    const restored = await dbRestoreSave(id)
+    if (restored) {
+      set({
+        save: restored,
+        saveStatus: 'ready',
+        lastSavedAt: restored.metadata.updatedAt,
+      })
+      await get().loadSavesList()
+    }
+    return restored
   },
 
   clearActiveSave: () => {

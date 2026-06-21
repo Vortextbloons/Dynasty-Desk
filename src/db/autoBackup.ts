@@ -1,0 +1,41 @@
+import type { GameSave } from '@/game/models/save'
+import { db } from '@/db/dexie'
+
+export interface BackupRow {
+  id: string
+  saveId: string
+  data: GameSave
+  createdAt: string
+}
+
+export async function createBackup(save: GameSave): Promise<void> {
+  const backupId = `backup-${save.metadata.id}`
+  const now = new Date().toISOString()
+
+  await db.backups.put({
+    id: backupId,
+    saveId: save.metadata.id,
+    data: structuredClone(save),
+    createdAt: now,
+  })
+
+  save.metadata.backupCreatedAt = now
+}
+
+export async function restoreFromBackup(saveId: string): Promise<GameSave | null> {
+  const backupId = `backup-${saveId}`
+  const backup = await db.backups.get(backupId)
+  if (!backup) return null
+  return structuredClone(backup.data) as GameSave
+}
+
+export async function backupExists(saveId: string): Promise<boolean> {
+  const backupId = `backup-${saveId}`
+  const backup = await db.backups.get(backupId)
+  return !!backup
+}
+
+export async function deleteBackup(saveId: string): Promise<void> {
+  const backupId = `backup-${saveId}`
+  await db.backups.delete(backupId)
+}

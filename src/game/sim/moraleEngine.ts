@@ -1,5 +1,10 @@
 import type { PlayerMorale } from '@/game/models/player'
 import { clamp } from '@/lib/utils'
+import {
+  MORALE_MINUTES_UNDER_THRESHOLD,
+  MORALE_MINUTES_OVER_THRESHOLD,
+  MORALE_TRADE_REQUEST_THRESHOLD,
+} from '@/game/sim/simConstants'
 
 export interface MoraleUpdateContext {
   minutes: number
@@ -24,10 +29,10 @@ export function updateMorale(
   let tradeRequestLevel = morale.tradeRequestLevel
 
   const minutesDelta = ctx.minutes - ctx.targetMinutes
-  if (minutesDelta < -8) {
+  if (minutesDelta < MORALE_MINUTES_UNDER_THRESHOLD) {
     roleSatisfaction -= 8
     happiness -= 5
-  } else if (minutesDelta > 8) {
+  } else if (minutesDelta > MORALE_MINUTES_OVER_THRESHOLD) {
     roleSatisfaction += 3
   }
 
@@ -72,7 +77,7 @@ export function updateMorale(
   tradeRequestLevel = clamp(tradeRequestLevel, 0, 100)
 
   const level = Math.round((happiness + roleSatisfaction + teamSatisfaction) / 3)
-  const tradeRequest = tradeRequestLevel >= 80
+  const tradeRequest = tradeRequestLevel >= MORALE_TRADE_REQUEST_THRESHOLD
 
   return {
     level,
@@ -85,7 +90,7 @@ export function updateMorale(
 }
 
 export function shouldRequestTrade(morale: PlayerMorale): boolean {
-  return morale.tradeRequestLevel >= 80
+  return morale.tradeRequestLevel >= MORALE_TRADE_REQUEST_THRESHOLD
 }
 
 /** Morale shifts effective consistency rating for sim. */

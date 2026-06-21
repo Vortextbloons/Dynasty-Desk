@@ -79,6 +79,9 @@ function makeMiniLeague(): LeagueState {
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: 't0',
   }
 }

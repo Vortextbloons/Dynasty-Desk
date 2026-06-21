@@ -129,6 +129,9 @@ function makeLeague(overrides: Record<string, any> = {}): LeagueState {
     champions: [],
     awards: [],
     activeProposals: [],
+    rivalries: {},
+    records: [],
+    hallOfFame: [],
     userTeamId: 'east-1',
     ...restOverrides,
   } as LeagueState

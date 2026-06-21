@@ -4,9 +4,6 @@ import {
   ArrowLeft,
   FolderOpen,
   Upload,
-  Download,
-  Trash2,
-  Copy,
   Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -14,32 +11,23 @@ import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { AppShell } from '@/components/layout/AppShell'
 import { useGameStore } from '@/store/useGameStore'
-import type { SaveMetadata } from '@/game/models'
+import { SaveCard } from '@/components/save/SaveCard'
 import { toast } from 'sonner'
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 
 export function LoadGamePage() {
   const navigate = useNavigate()
   const saves = useGameStore((s) => s.saves)
+  const save = useGameStore((s) => s.save)
   const loadSavesList = useGameStore((s) => s.loadSavesList)
   const loadSaveFromDb = useGameStore((s) => s.loadSaveFromDb)
   const deleteSave = useGameStore((s) => s.deleteSave)
   const duplicateSave = useGameStore((s) => s.duplicateSave)
   const importSaveFromFile = useGameStore((s) => s.importSaveFromFile)
   const exportSave = useGameStore((s) => s.exportSave)
+  const renameSave = useGameStore((s) => s.renameSave)
+  const restoreBackup = useGameStore((s) => s.restoreBackup)
 
   const [importing, setImporting] = useState(false)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -57,26 +45,20 @@ export function LoadGamePage() {
   }
 
   async function handleDelete(id: string) {
-    setDeletingId(id)
     try {
       await deleteSave(id)
       toast.success('Save deleted.')
     } catch {
       toast.error('Failed to delete save.')
-    } finally {
-      setDeletingId(null)
     }
   }
 
   async function handleDuplicate(id: string, name: string) {
-    setDuplicatingId(id)
     try {
       await duplicateSave(id, `${name} (Copy)`)
       toast.success('Save duplicated.')
     } catch {
       toast.error('Failed to duplicate save.')
-    } finally {
-      setDuplicatingId(null)
     }
   }
 
@@ -86,6 +68,24 @@ export function LoadGamePage() {
       toast.success('Save exported.')
     } catch {
       toast.error('Failed to export save.')
+    }
+  }
+
+  async function handleRename(id: string, newName: string) {
+    try {
+      await renameSave(id, newName)
+      toast.success('Save renamed.')
+    } catch {
+      toast.error('Failed to rename save.')
+    }
+  }
+
+  async function handleRestoreBackup(id: string) {
+    try {
+      await restoreBackup(id)
+      toast.success('Backup restored.')
+    } catch {
+      toast.error('Failed to restore backup.')
     }
   }
 
@@ -113,6 +113,9 @@ export function LoadGamePage() {
         description="Pick up a saved league, or import a save file from another device."
         actions={
           <div className="flex items-center gap-2">
+            <Button asChild>
+              <Link to="/new-league">New League</Link>
+            </Button>
             <input
               ref={fileInputRef}
               type="file"
@@ -161,132 +164,26 @@ export function LoadGamePage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {saves.map((s) => (
-            <SaveRow
+            <SaveCard
               key={s.id}
               save={s}
-              onLoad={handleLoad}
-              onDelete={handleDelete}
-              onDuplicate={handleDuplicate}
-              onExport={handleExport}
-              deletingId={deletingId}
-              duplicatingId={duplicatingId}
+              isActive={save?.metadata.id === s.id}
+              onLoad={() => handleLoad(s.id)}
+              onDelete={() => handleDelete(s.id)}
+              onDuplicate={() => handleDuplicate(s.id, s.name)}
+              onExport={() => handleExport(s.id)}
+              onRename={(name) => handleRename(s.id, name)}
+              onRestoreBackup={
+                s.backupCreatedAt
+                  ? () => handleRestoreBackup(s.id)
+                  : undefined
+              }
             />
           ))}
         </div>
       )}
     </AppShell>
   )
-}
-
-function SaveRow({
-  save,
-  onLoad,
-  onDelete,
-  onDuplicate,
-  onExport,
-  deletingId,
-  duplicatingId,
-}: {
-  save: SaveMetadata
-  onLoad: (id: string) => void
-  onDelete: (id: string) => void
-  onDuplicate: (id: string, name: string) => void
-  onExport: (id: string) => void
-  deletingId: string | null
-  duplicatingId: string | null
-}) {
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const date = new Date(save.updatedAt)
-  const timeAgo = formatTimeAgo(date)
-
-  return (
-    <Card>
-      <CardContent className="p-4 flex items-center gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="font-display text-base truncate">{save.name}</div>
-          <div className="text-xs text-[var(--color-muted-foreground)] mt-0.5">
-            {save.teamName} · {save.snapshotId} · {save.currentSeason}
-          </div>
-          <div className="text-[10px] text-[var(--color-muted-foreground)] mt-0.5">
-            Last played {timeAgo}
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <Button size="sm" onClick={() => onLoad(save.id)}>
-            Load
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => onExport(save.id)}
-          >
-            <Download className="size-3.5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={duplicatingId === save.id}
-            onClick={() => onDuplicate(save.id, save.name)}
-          >
-            {duplicatingId === save.id ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Copy className="size-3.5" />
-            )}
-          </Button>
-          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <AlertDialogTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                disabled={deletingId === save.id}
-                aria-label={`Delete ${save.name}`}
-              >
-                {deletingId === save.id ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <Trash2 className="size-3.5" />
-                )}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete save?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Delete &quot;{save.name}&quot;? This cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    onDelete(save.id)
-                    setConfirmOpen(false)
-                  }}
-                >
-                  Delete
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function formatTimeAgo(date: Date): string {
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMin = Math.floor(diffMs / 60000)
-  if (diffMin < 1) return 'just now'
-  if (diffMin < 60) return `${diffMin}m ago`
-  const diffHr = Math.floor(diffMin / 60)
-  if (diffHr < 24) return `${diffHr}h ago`
-  const diffDay = Math.floor(diffHr / 24)
-  if (diffDay < 30) return `${diffDay}d ago`
-  return date.toLocaleDateString()
 }
