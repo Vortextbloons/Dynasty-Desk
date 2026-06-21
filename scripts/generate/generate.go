@@ -173,30 +173,42 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 		{Pos: types.PositionSF, Height: 79, Weight: 220, Age: 28},
 		{Pos: types.PositionPF, Height: 81, Weight: 240, Age: 28},
 		{Pos: types.PositionC, Height: 83, Weight: 260, Age: 29},
+		{Pos: types.PositionPG, Height: 74, Weight: 185, Age: 25},
+		{Pos: types.PositionSG, Height: 76, Weight: 200, Age: 24},
+		{Pos: types.PositionSF, Height: 78, Weight: 215, Age: 26},
+		{Pos: types.PositionPF, Height: 80, Weight: 235, Age: 27},
+		{Pos: types.PositionC, Height: 82, Weight: 255, Age: 26},
 	}
 
 	firstNames := []string{
 		"Luka", "Jayson", "Joel", "Giannis", "Nikola", "Shai", "Anthony", "Kawhi",
 		"Devin", "Trae", "Donovan", "Tyrese", "Jaylen", "Paolo", "Cade", "Scottie",
-		"Alperen", "Chet", "Franz", "Jalen",
+		"Alperen", "Chet", "Franz", "Jalen", "Derrick", "James", "Damian", "Jimmy",
+		"Kyrie", "Paul", "De'Aaron", "Bam", "Victor", "Lamelo",
 	}
 	lastNames := []string{
 		"Doncic", "Tatum", "Embiid", "Antetokounmpo", "Jokic", "Gilgeous-Alexander",
 		"Edwards", "Leonard", "Booker", "Young", "Mitchell", "Haliburton", "Brown",
 		"Banchero", "Cunningham", "Barnes", "Sengun", "Holmgren", "Wagner", "Brunson",
+		"White", "Harden", "Lillard", "Butler", "Irving", "George", "Fox", "Adebayo",
+		"Wembanyama", "Ball",
 	}
 
 	var players []types.StaticPlayer
 	idx := 0
 	for _, team := range teams {
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 10; i++ {
 			profile := profiles[i]
-			fn := firstNames[(idx+i)%len(firstNames)]
-			ln := lastNames[(idx+i)%len(lastNames)]
+			fn := firstNames[(idx*3+i)%len(firstNames)]
+			ln := lastNames[(idx*3+i)%len(lastNames)]
 
+			isStarter := i < 5
 			rating := clampFloat(95-float64(idx)*0.4-float64(i)*0.8+float64(randInt(r, -2, 2)), 60, 99)
+			if !isStarter {
+				rating = clampFloat(rating-float64(randInt(r, 8, 15)), 55, 85)
+			}
 			ri := int(rating)
-			isStar := idx < 4
+			isStar := idx < 4 && isStarter
 
 			age := clampInt(profile.Age+randInt(r, -3, 3), 20, 38)
 			teamId := team.Id
@@ -206,6 +218,10 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 			if i == 0 {
 				secPos = []types.Position{types.PositionSG}
 			} else if i == 4 {
+				secPos = []types.Position{types.PositionPF}
+			} else if i == 5 {
+				secPos = []types.Position{types.PositionSG}
+			} else if i == 9 {
 				secPos = []types.Position{types.PositionPF}
 			}
 
@@ -514,7 +530,7 @@ func generateManifest() error {
 			StartYear:   startYear,
 			BasePath:    fmt.Sprintf("/data/nba/%s", s),
 			TeamCount:   30,
-			PlayerCount: 150,
+			PlayerCount: 300,
 		}
 	}
 

@@ -10,7 +10,7 @@
       "startYear": 1990,
       "basePath": "/data/nba/1990-91",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1991-92",
@@ -20,7 +20,7 @@
       "startYear": 1991,
       "basePath": "/data/nba/1991-92",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1992-93",
@@ -30,7 +30,7 @@
       "startYear": 1992,
       "basePath": "/data/nba/1992-93",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1993-94",
@@ -40,7 +40,7 @@
       "startYear": 1993,
       "basePath": "/data/nba/1993-94",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1994-95",
@@ -50,7 +50,7 @@
       "startYear": 1994,
       "basePath": "/data/nba/1994-95",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1995-96",
@@ -60,7 +60,7 @@
       "startYear": 1995,
       "basePath": "/data/nba/1995-96",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1996-97",
@@ -70,7 +70,7 @@
       "startYear": 1996,
       "basePath": "/data/nba/1996-97",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1997-98",
@@ -80,7 +80,7 @@
       "startYear": 1997,
       "basePath": "/data/nba/1997-98",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1998-99",
@@ -90,7 +90,7 @@
       "startYear": 1998,
       "basePath": "/data/nba/1998-99",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-1999-00",
@@ -100,7 +100,7 @@
       "startYear": 1999,
       "basePath": "/data/nba/1999-00",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2000-01",
@@ -110,7 +110,7 @@
       "startYear": 2000,
       "basePath": "/data/nba/2000-01",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2001-02",
@@ -120,7 +120,7 @@
       "startYear": 2001,
       "basePath": "/data/nba/2001-02",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2002-03",
@@ -130,7 +130,7 @@
       "startYear": 2002,
       "basePath": "/data/nba/2002-03",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2003-04",
@@ -140,7 +140,7 @@
       "startYear": 2003,
       "basePath": "/data/nba/2003-04",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2004-05",
@@ -150,7 +150,7 @@
       "startYear": 2004,
       "basePath": "/data/nba/2004-05",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2005-06",
@@ -160,7 +160,7 @@
       "startYear": 2005,
       "basePath": "/data/nba/2005-06",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2006-07",
@@ -170,7 +170,7 @@
       "startYear": 2006,
       "basePath": "/data/nba/2006-07",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2007-08",
@@ -180,7 +180,7 @@
       "startYear": 2007,
       "basePath": "/data/nba/2007-08",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2008-09",
@@ -190,7 +190,7 @@
       "startYear": 2008,
       "basePath": "/data/nba/2008-09",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2009-10",
@@ -200,7 +200,7 @@
       "startYear": 2009,
       "basePath": "/data/nba/2009-10",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2010-11",
@@ -210,7 +210,7 @@
       "startYear": 2010,
       "basePath": "/data/nba/2010-11",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2011-12",
@@ -220,7 +220,7 @@
       "startYear": 2011,
       "basePath": "/data/nba/2011-12",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2012-13",
@@ -230,7 +230,7 @@
       "startYear": 2012,
       "basePath": "/data/nba/2012-13",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2013-14",
@@ -240,7 +240,7 @@
       "startYear": 2013,
       "basePath": "/data/nba/2013-14",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2014-15",
@@ -250,7 +250,7 @@
       "startYear": 2014,
       "basePath": "/data/nba/2014-15",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2015-16",
@@ -260,7 +260,7 @@
       "startYear": 2015,
       "basePath": "/data/nba/2015-16",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2016-17",
@@ -270,7 +270,7 @@
       "startYear": 2016,
       "basePath": "/data/nba/2016-17",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2017-18",
@@ -280,7 +280,7 @@
       "startYear": 2017,
       "basePath": "/data/nba/2017-18",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2018-19",
@@ -290,7 +290,7 @@
       "startYear": 2018,
       "basePath": "/data/nba/2018-19",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2019-20",
@@ -300,7 +300,7 @@
       "startYear": 2019,
       "basePath": "/data/nba/2019-20",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2020-21",
@@ -310,7 +310,7 @@
       "startYear": 2020,
       "basePath": "/data/nba/2020-21",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2021-22",
@@ -320,7 +320,7 @@
       "startYear": 2021,
       "basePath": "/data/nba/2021-22",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2022-23",
@@ -330,7 +330,7 @@
       "startYear": 2022,
       "basePath": "/data/nba/2022-23",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2023-24",
@@ -340,7 +340,7 @@
       "startYear": 2023,
       "basePath": "/data/nba/2023-24",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2024-25",
@@ -350,7 +350,7 @@
       "startYear": 2024,
       "basePath": "/data/nba/2024-25",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     },
     {
       "id": "nba-2025-26",
@@ -360,7 +360,7 @@
       "startYear": 2025,
       "basePath": "/data/nba/2025-26",
       "teamCount": 30,
-      "playerCount": 150
+      "playerCount": 300
     }
   ]
 }
