@@ -35,8 +35,7 @@
       "durability": 96,
       "clutch": 96,
       "consistency": 98,
-      "potential": 97,
-      "overall": 95
+      "potential": 97
     },
     "tendencies": {
       "usageRate": 31,
@@ -157,8 +156,7 @@
       "durability": 98,
       "clutch": 97,
       "consistency": 93,
-      "potential": 96,
-      "overall": 92
+      "potential": 96
     },
     "tendencies": {
       "usageRate": 27,
@@ -279,8 +277,7 @@
       "durability": 91,
       "clutch": 92,
       "consistency": 92,
-      "potential": 99,
-      "overall": 92
+      "potential": 99
     },
     "tendencies": {
       "usageRate": 25,
@@ -401,8 +398,7 @@
       "durability": 87,
       "clutch": 88,
       "consistency": 88,
-      "potential": 98,
-      "overall": 89
+      "potential": 98
     },
     "tendencies": {
       "usageRate": 25,
@@ -525,8 +521,7 @@
       "durability": 88,
       "clutch": 95,
       "consistency": 94,
-      "potential": 89,
-      "overall": 89
+      "potential": 89
     },
     "tendencies": {
       "usageRate": 22,
@@ -649,8 +644,7 @@
       "durability": 95,
       "clutch": 97,
       "consistency": 94,
-      "potential": 94,
-      "overall": 92
+      "potential": 94
     },
     "tendencies": {
       "usageRate": 19,
@@ -771,8 +765,7 @@
       "durability": 90,
       "clutch": 92,
       "consistency": 94,
-      "potential": 91,
-      "overall": 91
+      "potential": 91
     },
     "tendencies": {
       "usageRate": 19,
@@ -883,8 +876,7 @@
       "durability": 90,
       "clutch": 89,
       "consistency": 90,
-      "potential": 92,
-      "overall": 88
+      "potential": 92
     },
     "tendencies": {
       "usageRate": 22,
@@ -1005,8 +997,7 @@
       "durability": 95,
       "clutch": 93,
       "consistency": 91,
-      "potential": 89,
-      "overall": 91
+      "potential": 89
     },
     "tendencies": {
       "usageRate": 17,
@@ -1129,8 +1120,7 @@
       "durability": 94,
       "clutch": 89,
       "consistency": 87,
-      "potential": 88,
-      "overall": 88
+      "potential": 88
     },
     "tendencies": {
       "usageRate": 22,
@@ -1253,8 +1243,7 @@
       "durability": 94,
       "clutch": 92,
       "consistency": 89,
-      "potential": 90,
-      "overall": 92
+      "potential": 90
     },
     "tendencies": {
       "usageRate": 22,
@@ -1375,8 +1364,7 @@
       "durability": 89,
       "clutch": 90,
       "consistency": 89,
-      "potential": 91,
-      "overall": 89
+      "potential": 91
     },
     "tendencies": {
       "usageRate": 20,
@@ -1497,8 +1485,7 @@
       "durability": 87,
       "clutch": 86,
       "consistency": 86,
-      "potential": 92,
-      "overall": 84
+      "potential": 92
     },
     "tendencies": {
       "usageRate": 21,
@@ -1619,8 +1606,7 @@
       "durability": 85,
       "clutch": 86,
       "consistency": 85,
-      "potential": 90,
-      "overall": 83
+      "potential": 90
     },
     "tendencies": {
       "usageRate": 17,
@@ -1743,8 +1729,7 @@
       "durability": 90,
       "clutch": 89,
       "consistency": 88,
-      "potential": 86,
-      "overall": 83
+      "potential": 86
     },
     "tendencies": {
       "usageRate": 18,
@@ -1867,8 +1852,7 @@
       "durability": 86,
       "clutch": 94,
       "consistency": 91,
-      "potential": 93,
-      "overall": 88
+      "potential": 93
     },
     "tendencies": {
       "usageRate": 22,
@@ -1989,8 +1973,7 @@
       "durability": 85,
       "clutch": 92,
       "consistency": 92,
-      "potential": 92,
-      "overall": 87
+      "potential": 92
     },
     "tendencies": {
       "usageRate": 17,
@@ -2111,8 +2094,7 @@
       "durability": 88,
       "clutch": 87,
       "consistency": 87,
-      "potential": 88,
-      "overall": 85
+      "potential": 88
     },
     "tendencies": {
       "usageRate": 18,
@@ -2233,8 +2215,7 @@
       "durability": 81,
       "clutch": 87,
       "consistency": 85,
-      "potential": 84,
-      "overall": 82
+      "potential": 84
     },
     "tendencies": {
       "usageRate": 18,
@@ -2357,8 +2338,7 @@
       "durability": 86,
       "clutch": 82,
       "consistency": 86,
-      "potential": 88,
-      "overall": 81
+      "potential": 88
     },
     "tendencies": {
       "usageRate": 20,
@@ -2481,8 +2461,7 @@
       "durability": 84,
       "clutch": 84,
       "consistency": 86,
-      "potential": 89,
-      "overall": 85
+      "potential": 89
     },
     "tendencies": {
       "usageRate": 22,
@@ -2593,8 +2572,7 @@
       "durability": 84,
       "clutch": 84,
       "consistency": 86,
-      "potential": 85,
-      "overall": 81
+      "potential": 85
     },
     "tendencies": {
       "usageRate": 17,
@@ -2705,8 +2683,7 @@
       "durability": 80,
       "clutch": 86,
       "consistency": 86,
-      "potential": 83,
-      "overall": 81
+      "potential": 83
     },
     "tendencies": {
       "usageRate": 17,
@@ -2827,8 +2804,7 @@
       "durability": 78,
       "clutch": 80,
       "consistency": 83,
-      "potential": 79,
-      "overall": 80
+      "potential": 79
     },
     "tendencies": {
       "usageRate": 17,
@@ -2951,8 +2927,7 @@
       "durability": 83,
       "clutch": 81,
       "consistency": 80,
-      "potential": 81,
-      "overall": 79
+      "potential": 81
     },
     "tendencies": {
       "usageRate": 20,
@@ -3075,8 +3050,7 @@
       "durability": 88,
       "clutch": 89,
       "consistency": 89,
-      "potential": 87,
-      "overall": 87
+      "potential": 87
     },
     "tendencies": {
       "usageRate": 19,
@@ -3197,8 +3171,7 @@
       "durability": 80,
       "clutch": 82,
       "consistency": 82,
-      "potential": 82,
-      "overall": 84
+      "potential": 82
     },
     "tendencies": {
       "usageRate": 22,
@@ -3319,8 +3292,7 @@
       "durability": 78,
       "clutch": 84,
       "consistency": 80,
-      "potential": 83,
-      "overall": 82
+      "potential": 83
     },
     "tendencies": {
       "usageRate": 18,
@@ -3441,8 +3413,7 @@
       "durability": 77,
       "clutch": 84,
       "consistency": 79,
-      "potential": 82,
-      "overall": 80
+      "potential": 82
     },
     "tendencies": {
       "usageRate": 18,
@@ -3565,8 +3536,7 @@
       "durability": 78,
       "clutch": 79,
       "consistency": 80,
-      "potential": 77,
-      "overall": 79
+      "potential": 77
     },
     "tendencies": {
       "usageRate": 23,
@@ -3689,8 +3659,7 @@
       "durability": 76,
       "clutch": 84,
       "consistency": 81,
-      "potential": 82,
-      "overall": 81
+      "potential": 82
     },
     "tendencies": {
       "usageRate": 22,
@@ -3811,8 +3780,7 @@
       "durability": 87,
       "clutch": 85,
       "consistency": 82,
-      "potential": 82,
-      "overall": 82
+      "potential": 82
     },
     "tendencies": {
       "usageRate": 18,
@@ -3933,8 +3901,7 @@
       "durability": 86,
       "clutch": 84,
       "consistency": 84,
-      "potential": 79,
-      "overall": 79
+      "potential": 79
     },
     "tendencies": {
       "usageRate": 23,
@@ -4055,8 +4022,7 @@
       "durability": 78,
       "clutch": 79,
       "consistency": 80,
-      "potential": 82,
-      "overall": 77
+      "potential": 82
     },
     "tendencies": {
       "usageRate": 23,
@@ -4179,8 +4145,7 @@
       "durability": 75,
       "clutch": 81,
       "consistency": 77,
-      "potential": 76,
-      "overall": 77
+      "potential": 76
     },
     "tendencies": {
       "usageRate": 20,
@@ -4303,8 +4268,7 @@
       "durability": 75,
       "clutch": 77,
       "consistency": 82,
-      "potential": 78,
-      "overall": 77
+      "potential": 78
     },
     "tendencies": {
       "usageRate": 18,
@@ -4425,8 +4389,7 @@
       "durability": 84,
       "clutch": 81,
       "consistency": 80,
-      "potential": 83,
-      "overall": 78
+      "potential": 83
     },
     "tendencies": {
       "usageRate": 20,
@@ -4547,8 +4510,7 @@
       "durability": 80,
       "clutch": 78,
       "consistency": 81,
-      "potential": 79,
-      "overall": 78
+      "potential": 79
     },
     "tendencies": {
       "usageRate": 20,
@@ -4669,8 +4631,7 @@
       "durability": 74,
       "clutch": 79,
       "consistency": 76,
-      "potential": 82,
-      "overall": 78
+      "potential": 82
     },
     "tendencies": {
       "usageRate": 18,
@@ -4793,8 +4754,7 @@
       "durability": 70,
       "clutch": 75,
       "consistency": 74,
-      "potential": 73,
-      "overall": 72
+      "potential": 73
     },
     "tendencies": {
       "usageRate": 22,
@@ -4917,8 +4877,7 @@
       "durability": 83,
       "clutch": 78,
       "consistency": 82,
-      "potential": 78,
-      "overall": 78
+      "potential": 78
     },
     "tendencies": {
       "usageRate": 22,
@@ -5039,8 +4998,7 @@
       "durability": 73,
       "clutch": 77,
       "consistency": 77,
-      "potential": 75,
-      "overall": 74
+      "potential": 75
     },
     "tendencies": {
       "usageRate": 22,
@@ -5161,8 +5119,7 @@
       "durability": 73,
       "clutch": 79,
       "consistency": 78,
-      "potential": 78,
-      "overall": 75
+      "potential": 78
     },
     "tendencies": {
       "usageRate": 19,
@@ -5283,8 +5240,7 @@
       "durability": 77,
       "clutch": 75,
       "consistency": 72,
-      "potential": 78,
-      "overall": 73
+      "potential": 78
     },
     "tendencies": {
       "usageRate": 17,
@@ -5407,8 +5363,7 @@
       "durability": 72,
       "clutch": 78,
       "consistency": 74,
-      "potential": 77,
-      "overall": 74
+      "potential": 77
     },
     "tendencies": {
       "usageRate": 18,
@@ -5531,8 +5486,7 @@
       "durability": 75,
       "clutch": 79,
       "consistency": 79,
-      "potential": 75,
-      "overall": 76
+      "potential": 75
     },
     "tendencies": {
       "usageRate": 23,
@@ -5653,8 +5607,7 @@
       "durability": 68,
       "clutch": 76,
       "consistency": 76,
-      "potential": 70,
-      "overall": 72
+      "potential": 70
     },
     "tendencies": {
       "usageRate": 17,
@@ -5775,8 +5728,7 @@
       "durability": 79,
       "clutch": 75,
       "consistency": 78,
-      "potential": 75,
-      "overall": 77
+      "potential": 75
     },
     "tendencies": {
       "usageRate": 17,
@@ -5897,8 +5849,7 @@
       "durability": 75,
       "clutch": 72,
       "consistency": 73,
-      "potential": 75,
-      "overall": 72
+      "potential": 75
     },
     "tendencies": {
       "usageRate": 22,
@@ -6021,8 +5972,7 @@
       "durability": 72,
       "clutch": 76,
       "consistency": 70,
-      "potential": 73,
-      "overall": 73
+      "potential": 73
     },
     "tendencies": {
       "usageRate": 22,
@@ -6145,8 +6095,7 @@
       "durability": 79,
       "clutch": 79,
       "consistency": 75,
-      "potential": 79,
-      "overall": 75
+      "potential": 79
     },
     "tendencies": {
       "usageRate": 18,
@@ -6267,8 +6216,7 @@
       "durability": 73,
       "clutch": 73,
       "consistency": 74,
-      "potential": 75,
-      "overall": 72
+      "potential": 75
     },
     "tendencies": {
       "usageRate": 17,
@@ -6389,8 +6337,7 @@
       "durability": 67,
       "clutch": 72,
       "consistency": 69,
-      "potential": 75,
-      "overall": 69
+      "potential": 75
     },
     "tendencies": {
       "usageRate": 20,
@@ -6511,8 +6458,7 @@
       "durability": 70,
       "clutch": 72,
       "consistency": 74,
-      "potential": 71,
-      "overall": 70
+      "potential": 71
     },
     "tendencies": {
       "usageRate": 18,
@@ -6635,8 +6581,7 @@
       "durability": 68,
       "clutch": 66,
       "consistency": 67,
-      "potential": 66,
-      "overall": 68
+      "potential": 66
     },
     "tendencies": {
       "usageRate": 22,
@@ -6759,8 +6704,7 @@
       "durability": 76,
       "clutch": 73,
       "consistency": 72,
-      "potential": 73,
-      "overall": 71
+      "potential": 73
     },
     "tendencies": {
       "usageRate": 23,
@@ -6881,8 +6825,7 @@
       "durability": 67,
       "clutch": 69,
       "consistency": 68,
-      "potential": 72,
-      "overall": 70
+      "potential": 72
     },
     "tendencies": {
       "usageRate": 17,
@@ -7003,8 +6946,7 @@
       "durability": 67,
       "clutch": 68,
       "consistency": 71,
-      "potential": 73,
-      "overall": 67
+      "potential": 73
     },
     "tendencies": {
       "usageRate": 18,
@@ -7125,8 +7067,7 @@
       "durability": 70,
       "clutch": 74,
       "consistency": 74,
-      "potential": 69,
-      "overall": 71
+      "potential": 69
     },
     "tendencies": {
       "usageRate": 21,
@@ -7249,8 +7190,7 @@
       "durability": 69,
       "clutch": 66,
       "consistency": 68,
-      "potential": 69,
-      "overall": 67
+      "potential": 69
     },
     "tendencies": {
       "usageRate": 19,
@@ -7373,8 +7313,7 @@
       "durability": 74,
       "clutch": 73,
       "consistency": 71,
-      "potential": 70,
-      "overall": 68
+      "potential": 70
     },
     "tendencies": {
       "usageRate": 19,
@@ -7495,8 +7434,7 @@
       "durability": 72,
       "clutch": 71,
       "consistency": 71,
-      "potential": 69,
-      "overall": 69
+      "potential": 69
     },
     "tendencies": {
       "usageRate": 20,
@@ -7607,8 +7545,7 @@
       "durability": 66,
       "clutch": 65,
       "consistency": 63,
-      "potential": 65,
-      "overall": 65
+      "potential": 65
     },
     "tendencies": {
       "usageRate": 20,
@@ -7729,8 +7666,7 @@
       "durability": 65,
       "clutch": 62,
       "consistency": 68,
-      "potential": 64,
-      "overall": 63
+      "potential": 64
     },
     "tendencies": {
       "usageRate": 21,
@@ -7853,8 +7789,7 @@
       "durability": 70,
       "clutch": 68,
       "consistency": 65,
-      "potential": 64,
-      "overall": 62
+      "potential": 64
     },
     "tendencies": {
       "usageRate": 17,
@@ -7977,8 +7912,7 @@
       "durability": 73,
       "clutch": 70,
       "consistency": 73,
-      "potential": 74,
-      "overall": 70
+      "potential": 74
     },
     "tendencies": {
       "usageRate": 23,
@@ -8099,8 +8033,7 @@
       "durability": 67,
       "clutch": 71,
       "consistency": 69,
-      "potential": 67,
-      "overall": 64
+      "potential": 67
     },
     "tendencies": {
       "usageRate": 23,
@@ -8221,8 +8154,7 @@
       "durability": 59,
       "clutch": 62,
       "consistency": 62,
-      "potential": 62,
-      "overall": 63
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 17,
@@ -8343,8 +8275,7 @@
       "durability": 70,
       "clutch": 62,
       "consistency": 68,
-      "potential": 67,
-      "overall": 62
+      "potential": 67
     },
     "tendencies": {
       "usageRate": 17,
@@ -8467,8 +8398,7 @@
       "durability": 63,
       "clutch": 69,
       "consistency": 69,
-      "potential": 64,
-      "overall": 62
+      "potential": 64
     },
     "tendencies": {
       "usageRate": 17,
@@ -8591,8 +8521,7 @@
       "durability": 65,
       "clutch": 66,
       "consistency": 68,
-      "potential": 65,
-      "overall": 66
+      "potential": 65
     },
     "tendencies": {
       "usageRate": 17,
@@ -8713,8 +8642,7 @@
       "durability": 66,
       "clutch": 63,
       "consistency": 64,
-      "potential": 62,
-      "overall": 64
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 23,
@@ -8835,8 +8763,7 @@
       "durability": 63,
       "clutch": 67,
       "consistency": 67,
-      "potential": 67,
-      "overall": 64
+      "potential": 67
     },
     "tendencies": {
       "usageRate": 17,
@@ -8957,8 +8884,7 @@
       "durability": 67,
       "clutch": 60,
       "consistency": 65,
-      "potential": 60,
-      "overall": 61
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 22,
@@ -9081,8 +9007,7 @@
       "durability": 66,
       "clutch": 64,
       "consistency": 63,
-      "potential": 64,
-      "overall": 62
+      "potential": 64
     },
     "tendencies": {
       "usageRate": 19,
@@ -9205,8 +9130,7 @@
       "durability": 59,
       "clutch": 66,
       "consistency": 64,
-      "potential": 64,
-      "overall": 60
+      "potential": 64
     },
     "tendencies": {
       "usageRate": 21,
@@ -9327,8 +9251,7 @@
       "durability": 67,
       "clutch": 60,
       "consistency": 64,
-      "potential": 60,
-      "overall": 62
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 20,
@@ -9449,8 +9372,7 @@
       "durability": 61,
       "clutch": 61,
       "consistency": 63,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 19,
@@ -9571,8 +9493,7 @@
       "durability": 58,
       "clutch": 64,
       "consistency": 62,
-      "potential": 62,
-      "overall": 59
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 18,
@@ -9695,8 +9616,7 @@
       "durability": 58,
       "clutch": 57,
       "consistency": 63,
-      "potential": 62,
-      "overall": 59
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 19,
@@ -9819,8 +9739,7 @@
       "durability": 67,
       "clutch": 62,
       "consistency": 61,
-      "potential": 61,
-      "overall": 60
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 18,
@@ -9941,8 +9860,7 @@
       "durability": 56,
       "clutch": 57,
       "consistency": 60,
-      "potential": 61,
-      "overall": 57
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 17,
@@ -10053,8 +9971,7 @@
       "durability": 59,
       "clutch": 57,
       "consistency": 60,
-      "potential": 63,
-      "overall": 57
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 18,
@@ -10175,8 +10092,7 @@
       "durability": 61,
       "clutch": 64,
       "consistency": 64,
-      "potential": 62,
-      "overall": 59
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 19,
@@ -10299,8 +10215,7 @@
       "durability": 55,
       "clutch": 58,
       "consistency": 58,
-      "potential": 58,
-      "overall": 62
+      "potential": 58
     },
     "tendencies": {
       "usageRate": 20,
@@ -10423,8 +10338,7 @@
       "durability": 66,
       "clutch": 63,
       "consistency": 63,
-      "potential": 61,
-      "overall": 62
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 17,
@@ -10545,8 +10459,7 @@
       "durability": 60,
       "clutch": 59,
       "consistency": 62,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 20,
@@ -10657,8 +10570,7 @@
       "durability": 58,
       "clutch": 59,
       "consistency": 59,
-      "potential": 57,
-      "overall": 59
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 17,
@@ -10779,8 +10691,7 @@
       "durability": 65,
       "clutch": 59,
       "consistency": 62,
-      "potential": 57,
-      "overall": 59
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 19,
@@ -10903,8 +10814,7 @@
       "durability": 65,
       "clutch": 57,
       "consistency": 57,
-      "potential": 61,
-      "overall": 57
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 21,
@@ -11027,8 +10937,7 @@
       "durability": 55,
       "clutch": 58,
       "consistency": 62,
-      "potential": 61,
-      "overall": 58
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 23,
@@ -11149,8 +11058,7 @@
       "durability": 55,
       "clutch": 59,
       "consistency": 63,
-      "potential": 60,
-      "overall": 58
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 17,
@@ -11261,8 +11169,7 @@
       "durability": 65,
       "clutch": 58,
       "consistency": 61,
-      "potential": 63,
-      "overall": 57
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 18,
@@ -11383,8 +11290,7 @@
       "durability": 60,
       "clutch": 60,
       "consistency": 61,
-      "potential": 63,
-      "overall": 58
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 19,
@@ -11507,8 +11413,7 @@
       "durability": 63,
       "clutch": 62,
       "consistency": 60,
-      "potential": 60,
-      "overall": 59
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 23,
@@ -11631,8 +11536,7 @@
       "durability": 58,
       "clutch": 58,
       "consistency": 62,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 18,
@@ -11753,8 +11657,7 @@
       "durability": 55,
       "clutch": 61,
       "consistency": 60,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 17,
@@ -11875,8 +11778,7 @@
       "durability": 64,
       "clutch": 59,
       "consistency": 57,
-      "potential": 61,
-      "overall": 57
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 19,
@@ -11997,8 +11899,7 @@
       "durability": 65,
       "clutch": 59,
       "consistency": 61,
-      "potential": 59,
-      "overall": 58
+      "potential": 59
     },
     "tendencies": {
       "usageRate": 18,
@@ -12121,8 +12022,7 @@
       "durability": 60,
       "clutch": 59,
       "consistency": 61,
-      "potential": 60,
-      "overall": 56
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 22,
@@ -12245,8 +12145,7 @@
       "durability": 55,
       "clutch": 62,
       "consistency": 63,
-      "potential": 58,
-      "overall": 59
+      "potential": 58
     },
     "tendencies": {
       "usageRate": 17,
@@ -12367,8 +12266,7 @@
       "durability": 63,
       "clutch": 63,
       "consistency": 63,
-      "potential": 58,
-      "overall": 60
+      "potential": 58
     },
     "tendencies": {
       "usageRate": 21,
@@ -12489,8 +12387,7 @@
       "durability": 63,
       "clutch": 63,
       "consistency": 62,
-      "potential": 61,
-      "overall": 59
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 21,
@@ -12611,8 +12508,7 @@
       "durability": 60,
       "clutch": 61,
       "consistency": 62,
-      "potential": 62,
-      "overall": 59
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 23,
@@ -12735,8 +12631,7 @@
       "durability": 55,
       "clutch": 59,
       "consistency": 63,
-      "potential": 62,
-      "overall": 56
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 18,
@@ -12859,8 +12754,7 @@
       "durability": 57,
       "clutch": 57,
       "consistency": 59,
-      "potential": 59,
-      "overall": 60
+      "potential": 59
     },
     "tendencies": {
       "usageRate": 17,
@@ -12981,8 +12875,7 @@
       "durability": 58,
       "clutch": 63,
       "consistency": 58,
-      "potential": 57,
-      "overall": 60
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 20,
@@ -13093,8 +12986,7 @@
       "durability": 60,
       "clutch": 59,
       "consistency": 63,
-      "potential": 60,
-      "overall": 59
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 21,
@@ -13215,8 +13107,7 @@
       "durability": 61,
       "clutch": 58,
       "consistency": 59,
-      "potential": 63,
-      "overall": 57
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 19,
@@ -13339,8 +13230,7 @@
       "durability": 61,
       "clutch": 59,
       "consistency": 61,
-      "potential": 60,
-      "overall": 59
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 23,
@@ -13463,8 +13353,7 @@
       "durability": 60,
       "clutch": 60,
       "consistency": 60,
-      "potential": 57,
-      "overall": 58
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 21,
@@ -13585,8 +13474,7 @@
       "durability": 61,
       "clutch": 57,
       "consistency": 58,
-      "potential": 59,
-      "overall": 58
+      "potential": 59
     },
     "tendencies": {
       "usageRate": 22,
@@ -13707,8 +13595,7 @@
       "durability": 56,
       "clutch": 62,
       "consistency": 63,
-      "potential": 57,
-      "overall": 58
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 18,
@@ -13829,8 +13716,7 @@
       "durability": 58,
       "clutch": 60,
       "consistency": 57,
-      "potential": 58,
-      "overall": 59
+      "potential": 58
     },
     "tendencies": {
       "usageRate": 21,
@@ -13953,8 +13839,7 @@
       "durability": 61,
       "clutch": 62,
       "consistency": 61,
-      "potential": 60,
-      "overall": 55
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 22,
@@ -14077,8 +13962,7 @@
       "durability": 56,
       "clutch": 62,
       "consistency": 63,
-      "potential": 60,
-      "overall": 60
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 17,
@@ -14199,8 +14083,7 @@
       "durability": 63,
       "clutch": 59,
       "consistency": 59,
-      "potential": 60,
-      "overall": 57
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 21,
@@ -14321,8 +14204,7 @@
       "durability": 62,
       "clutch": 61,
       "consistency": 57,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 19,
@@ -14443,8 +14325,7 @@
       "durability": 58,
       "clutch": 60,
       "consistency": 60,
-      "potential": 63,
-      "overall": 57
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 18,
@@ -14567,8 +14448,7 @@
       "durability": 63,
       "clutch": 62,
       "consistency": 62,
-      "potential": 59,
-      "overall": 59
+      "potential": 59
     },
     "tendencies": {
       "usageRate": 18,
@@ -14691,8 +14571,7 @@
       "durability": 56,
       "clutch": 57,
       "consistency": 57,
-      "potential": 61,
-      "overall": 59
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 19,
@@ -14813,8 +14692,7 @@
       "durability": 57,
       "clutch": 57,
       "consistency": 58,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 20,
@@ -14925,8 +14803,7 @@
       "durability": 58,
       "clutch": 61,
       "consistency": 58,
-      "potential": 60,
-      "overall": 57
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 23,
@@ -15047,8 +14924,7 @@
       "durability": 55,
       "clutch": 57,
       "consistency": 58,
-      "potential": 63,
-      "overall": 58
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 23,
@@ -15171,8 +15047,7 @@
       "durability": 63,
       "clutch": 61,
       "consistency": 62,
-      "potential": 62,
-      "overall": 58
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 21,
@@ -15295,8 +15170,7 @@
       "durability": 61,
       "clutch": 59,
       "consistency": 59,
-      "potential": 58,
-      "overall": 57
+      "potential": 58
     },
     "tendencies": {
       "usageRate": 17,
@@ -15417,8 +15291,7 @@
       "durability": 57,
       "clutch": 58,
       "consistency": 58,
-      "potential": 58,
-      "overall": 57
+      "potential": 58
     },
     "tendencies": {
       "usageRate": 23,
@@ -15529,8 +15402,7 @@
       "durability": 61,
       "clutch": 62,
       "consistency": 57,
-      "potential": 63,
-      "overall": 58
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 20,
@@ -15651,8 +15523,7 @@
       "durability": 61,
       "clutch": 57,
       "consistency": 60,
-      "potential": 62,
-      "overall": 56
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 23,
@@ -15775,8 +15646,7 @@
       "durability": 65,
       "clutch": 60,
       "consistency": 59,
-      "potential": 60,
-      "overall": 57
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 23,
@@ -15899,8 +15769,7 @@
       "durability": 63,
       "clutch": 59,
       "consistency": 63,
-      "potential": 57,
-      "overall": 58
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 21,
@@ -16021,8 +15890,7 @@
       "durability": 59,
       "clutch": 58,
       "consistency": 61,
-      "potential": 61,
-      "overall": 58
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 18,
@@ -16143,8 +16011,7 @@
       "durability": 65,
       "clutch": 59,
       "consistency": 60,
-      "potential": 59,
-      "overall": 59
+      "potential": 59
     },
     "tendencies": {
       "usageRate": 19,
@@ -16265,8 +16132,7 @@
       "durability": 56,
       "clutch": 62,
       "consistency": 62,
-      "potential": 58,
-      "overall": 59
+      "potential": 58
     },
     "tendencies": {
       "usageRate": 17,
@@ -16389,8 +16255,7 @@
       "durability": 57,
       "clutch": 63,
       "consistency": 58,
-      "potential": 57,
-      "overall": 57
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 20,
@@ -16513,8 +16378,7 @@
       "durability": 63,
       "clutch": 61,
       "consistency": 57,
-      "potential": 60,
-      "overall": 58
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 18,
@@ -16635,8 +16499,7 @@
       "durability": 56,
       "clutch": 63,
       "consistency": 57,
-      "potential": 60,
-      "overall": 59
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 20,
@@ -16757,8 +16620,7 @@
       "durability": 58,
       "clutch": 60,
       "consistency": 63,
-      "potential": 63,
-      "overall": 56
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 22,
@@ -16879,8 +16741,7 @@
       "durability": 63,
       "clutch": 61,
       "consistency": 63,
-      "potential": 60,
-      "overall": 58
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 21,
@@ -17003,8 +16864,7 @@
       "durability": 65,
       "clutch": 60,
       "consistency": 57,
-      "potential": 61,
-      "overall": 60
+      "potential": 61
     },
     "tendencies": {
       "usageRate": 17,
@@ -17127,8 +16987,7 @@
       "durability": 60,
       "clutch": 62,
       "consistency": 61,
-      "potential": 62,
-      "overall": 60
+      "potential": 62
     },
     "tendencies": {
       "usageRate": 19,
@@ -17249,8 +17108,7 @@
       "durability": 59,
       "clutch": 57,
       "consistency": 62,
-      "potential": 63,
-      "overall": 60
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 18,
@@ -17371,8 +17229,7 @@
       "durability": 65,
       "clutch": 58,
       "consistency": 60,
-      "potential": 60,
-      "overall": 57
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 19,
@@ -17493,8 +17350,7 @@
       "durability": 59,
       "clutch": 58,
       "consistency": 57,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 17,
@@ -17617,8 +17473,7 @@
       "durability": 62,
       "clutch": 60,
       "consistency": 60,
-      "potential": 59,
-      "overall": 56
+      "potential": 59
     },
     "tendencies": {
       "usageRate": 21,
@@ -17741,8 +17596,7 @@
       "durability": 64,
       "clutch": 57,
       "consistency": 60,
-      "potential": 57,
-      "overall": 59
+      "potential": 57
     },
     "tendencies": {
       "usageRate": 17,
@@ -17863,8 +17717,7 @@
       "durability": 55,
       "clutch": 59,
       "consistency": 61,
-      "potential": 59,
-      "overall": 58
+      "potential": 59
     },
     "tendencies": {
       "usageRate": 19,
@@ -17975,8 +17828,7 @@
       "durability": 65,
       "clutch": 58,
       "consistency": 58,
-      "potential": 60,
-      "overall": 58
+      "potential": 60
     },
     "tendencies": {
       "usageRate": 21,
@@ -18097,8 +17949,7 @@
       "durability": 61,
       "clutch": 61,
       "consistency": 57,
-      "potential": 63,
-      "overall": 59
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 21,
@@ -18221,8 +18072,7 @@
       "durability": 65,
       "clutch": 63,
       "consistency": 58,
-      "potential": 63,
-      "overall": 57
+      "potential": 63
     },
     "tendencies": {
       "usageRate": 23,

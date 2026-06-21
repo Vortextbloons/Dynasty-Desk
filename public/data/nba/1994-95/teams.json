@@ -1,6 +1,7 @@
 [
   {
     "id": "team-bos",
+    "externalId": "1610612738",
     "city": "Boston",
     "name": "Celtics",
     "abbreviation": "BOS",
@@ -31,6 +32,7 @@
   },
   {
     "id": "team-lal",
+    "externalId": "1610612747",
     "city": "Los Angeles",
     "name": "Lakers",
     "abbreviation": "LAL",
@@ -61,6 +63,7 @@
   },
   {
     "id": "team-gsw",
+    "externalId": "1610612744",
     "city": "Golden State",
     "name": "Warriors",
     "abbreviation": "GSW",
@@ -91,6 +94,7 @@
   },
   {
     "id": "team-mil",
+    "externalId": "1610612749",
     "city": "Milwaukee",
     "name": "Bucks",
     "abbreviation": "MIL",
@@ -121,6 +125,7 @@
   },
   {
     "id": "team-den",
+    "externalId": "1610612743",
     "city": "Denver",
     "name": "Nuggets",
     "abbreviation": "DEN",
@@ -151,6 +156,7 @@
   },
   {
     "id": "team-okc",
+    "externalId": "1610612760",
     "city": "Oklahoma City",
     "name": "Thunder",
     "abbreviation": "OKC",
@@ -181,6 +187,7 @@
   },
   {
     "id": "team-mia",
+    "externalId": "1610612748",
     "city": "Miami",
     "name": "Heat",
     "abbreviation": "MIA",
@@ -211,6 +218,7 @@
   },
   {
     "id": "team-phi",
+    "externalId": "1610612755",
     "city": "Philadelphia",
     "name": "76ers",
     "abbreviation": "PHI",
@@ -241,6 +249,7 @@
   },
   {
     "id": "team-bkn",
+    "externalId": "1610612751",
     "city": "Brooklyn",
     "name": "Nets",
     "abbreviation": "BKN",
@@ -271,6 +280,7 @@
   },
   {
     "id": "team-nyk",
+    "externalId": "1610612752",
     "city": "New York",
     "name": "Knicks",
     "abbreviation": "NYK",
@@ -301,6 +311,7 @@
   },
   {
     "id": "team-chi",
+    "externalId": "1610612741",
     "city": "Chicago",
     "name": "Bulls",
     "abbreviation": "CHI",
@@ -331,6 +342,7 @@
   },
   {
     "id": "team-atl",
+    "externalId": "1610612737",
     "city": "Atlanta",
     "name": "Hawks",
     "abbreviation": "ATL",
@@ -361,6 +373,7 @@
   },
   {
     "id": "team-cle",
+    "externalId": "1610612739",
     "city": "Cleveland",
     "name": "Cavaliers",
     "abbreviation": "CLE",
@@ -391,6 +404,7 @@
   },
   {
     "id": "team-det",
+    "externalId": "1610612765",
     "city": "Detroit",
     "name": "Pistons",
     "abbreviation": "DET",
@@ -421,6 +435,7 @@
   },
   {
     "id": "team-ind",
+    "externalId": "1610612754",
     "city": "Indiana",
     "name": "Pacers",
     "abbreviation": "IND",
@@ -451,6 +466,7 @@
   },
   {
     "id": "team-mem",
+    "externalId": "1610612763",
     "city": "Memphis",
     "name": "Grizzlies",
     "abbreviation": "MEM",
@@ -481,6 +497,7 @@
   },
   {
     "id": "team-uta",
+    "externalId": "1610612762",
     "city": "Utah",
     "name": "Jazz",
     "abbreviation": "UTA",
@@ -511,6 +528,7 @@
   },
   {
     "id": "team-tor",
+    "externalId": "1610612761",
     "city": "Toronto",
     "name": "Raptors",
     "abbreviation": "TOR",
@@ -541,6 +559,7 @@
   },
   {
     "id": "team-min",
+    "externalId": "1610612750",
     "city": "Minnesota",
     "name": "Timberwolves",
     "abbreviation": "MIN",
@@ -571,6 +590,7 @@
   },
   {
     "id": "team-port",
+    "externalId": "1610612757",
     "city": "Portland",
     "name": "Trail Blazers",
     "abbreviation": "POR",
@@ -601,6 +621,7 @@
   },
   {
     "id": "team-sac",
+    "externalId": "1610612758",
     "city": "Sacramento",
     "name": "Kings",
     "abbreviation": "SAC",
@@ -631,6 +652,7 @@
   },
   {
     "id": "team-phx",
+    "externalId": "1610612756",
     "city": "Phoenix",
     "name": "Suns",
     "abbreviation": "PHX",
@@ -661,6 +683,7 @@
   },
   {
     "id": "team-lac",
+    "externalId": "1610612746",
     "city": "Los Angeles",
     "name": "Clippers",
     "abbreviation": "LAC",
@@ -691,6 +714,7 @@
   },
   {
     "id": "team-dal",
+    "externalId": "1610612742",
     "city": "Dallas",
     "name": "Mavericks",
     "abbreviation": "DAL",
@@ -721,6 +745,7 @@
   },
   {
     "id": "team-hou",
+    "externalId": "1610612745",
     "city": "Houston",
     "name": "Rockets",
     "abbreviation": "HOU",
@@ -751,6 +776,7 @@
   },
   {
     "id": "team-nop",
+    "externalId": "1610612740",
     "city": "New Orleans",
     "name": "Pelicans",
     "abbreviation": "NOP",
@@ -781,6 +807,7 @@
   },
   {
     "id": "team-was",
+    "externalId": "1610612764",
     "city": "Washington",
     "name": "Wizards",
     "abbreviation": "WAS",
@@ -811,6 +838,7 @@
   },
   {
     "id": "team-cha",
+    "externalId": "1610612766",
     "city": "Charlotte",
     "name": "Hornets",
     "abbreviation": "CHA",
@@ -841,6 +869,7 @@
   },
   {
     "id": "team-orl",
+    "externalId": "1610612753",
     "city": "Orlando",
     "name": "Magic",
     "abbreviation": "ORL",
@@ -871,6 +900,7 @@
   },
   {
     "id": "team-sas",
+    "externalId": "1610612759",
     "city": "San Antonio",
     "name": "Spurs",
     "abbreviation": "SAS",
