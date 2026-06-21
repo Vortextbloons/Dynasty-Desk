@@ -48,9 +48,9 @@ DEFAULT_SEASONS = [
     "1995-96",
 ]
 
-RATE_LIMIT_SECONDS = float(os.environ.get("DD_NBA_RATE_LIMIT", "0.6"))
-MAX_RETRIES = int(os.environ.get("DD_NBA_MAX_RETRIES", "4"))
-MAX_WORKERS = int(os.environ.get("DD_NBA_MAX_WORKERS", "8"))
+RATE_LIMIT_SECONDS = float(os.environ.get("DD_NBA_RATE_LIMIT", "0.8"))
+MAX_RETRIES = int(os.environ.get("DD_NBA_MAX_RETRIES", "6"))
+MAX_WORKERS = int(os.environ.get("DD_NBA_MAX_WORKERS", "4"))
 
 
 def season_to_season_type(season: str) -> str:

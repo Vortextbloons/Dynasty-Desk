@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, TypeVar
@@ -10,6 +11,22 @@ from typing import Any, Callable, TypeVar
 from .config import MAX_RETRIES, RAW_CACHE, RATE_LIMIT_SECONDS
 
 T = TypeVar("T")
+
+# Global rate limiter: max 4 concurrent requests, 1 per 0.8s
+_api_semaphore = threading.Semaphore(4)
+_last_request_time = 0.0
+_rate_lock = threading.Lock()
+
+
+def _global_rate_wait() -> None:
+    """Thread-safe global rate limiter."""
+    global _last_request_time
+    with _rate_lock:
+        now = time.monotonic()
+        wait = RATE_LIMIT_SECONDS - (now - _last_request_time)
+        if wait > 0:
+            time.sleep(wait)
+        _last_request_time = time.monotonic()
 
 
 def cache_key(name: str, **params: Any) -> str:
@@ -41,21 +58,24 @@ def with_retry(fn: Callable[[], T]) -> T:
     last_err: Exception | None = None
     for attempt in range(MAX_RETRIES):
         try:
-            result = fn()
+            _global_rate_wait()
+            with _api_semaphore:
+                result = fn()
             if attempt > 0:
                 print(f"  [OK] recovered after {attempt} retries")
             return result
         except Exception as exc:  # noqa: BLE001
             last_err = exc
-            backoff = RATE_LIMIT_SECONDS * (2 ** attempt)
-            print(f"  ! attempt {attempt + 1} failed: {exc} — sleeping {backoff:.1f}s")
+            backoff = RATE_LIMIT_SECONDS * (2 ** (attempt + 1))
+            print(f"  ! attempt {attempt + 1} failed: {exc} -- retrying in {backoff:.1f}s")
             time.sleep(backoff)
     assert last_err is not None
     raise last_err
 
 
 def rate_limit_sleep() -> None:
-    time.sleep(RATE_LIMIT_SECONDS)
+    """Thread-safe rate limit sleep."""
+    _global_rate_wait()
 
 
 def write_json(path: Path, value: Any) -> None:
