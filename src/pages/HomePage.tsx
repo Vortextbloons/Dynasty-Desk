@@ -9,7 +9,6 @@ import {
   Trophy,
   Activity,
   CircleDot,
-  ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -101,40 +100,7 @@ export function HomePage() {
           </ol>
         </section>
 
-        <section id="roadmap" className="mt-20">
-          <SectionHeader
-            eyebrow="Roadmap"
-            title="Built in public, milestone by milestone"
-            description="Each milestone ships a complete, testable feature set. No stubs, no placeholder screens."
-          />
-          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {milestones.map((m) => (
-              <Card
-                key={m.id}
-                className={cn(
-                  'transition-all duration-200',
-                  m.status === 'in_progress' &&
-                    'border-[var(--color-primary)]/50 shadow-[0_0_15px_rgba(255,190,50,0.08)]',
-                  m.status === 'done' &&
-                    'opacity-80 hover:opacity-100',
-                )}
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
-                      {m.id}
-                    </div>
-                    <Badge status={m.status} />
-                  </div>
-                  <div className="mt-2 font-display text-base">{m.title}</div>
-                  <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-                    {m.summary}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+
 
         <Footer />
       </main>
@@ -159,9 +125,6 @@ function TopNav() {
           <a href="#loop" className="hover:text-[var(--color-foreground)] transition-colors">
             The loop
           </a>
-          <a href="#roadmap" className="hover:text-[var(--color-foreground)] transition-colors">
-            Roadmap
-          </a>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <a
@@ -183,7 +146,7 @@ function Hero({ hasSaves }: { hasSaves: boolean }) {
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-positive)]/30 bg-[var(--color-positive)]/10 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--color-positive)]">
           <span className="size-1.5 rounded-full bg-[var(--color-positive)] animate-pulse" />
-          M8 Complete · M9 Next
+          All milestones complete
         </div>
         <h1 className="mt-5 font-display text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
           Run a franchise.
@@ -416,37 +379,7 @@ function Divider() {
   return <span className="size-1 rounded-full bg-[var(--color-line-strong)]" />
 }
 
-function Badge({ status }: { status: Milestone['status'] }) {
-  const map = {
-    done: {
-      label: 'Done',
-      cls: 'bg-[var(--color-positive)]/15 text-[var(--color-positive)] border-[var(--color-positive)]/30',
-    },
-    in_progress: {
-      label: 'In Progress',
-      cls: 'bg-[var(--color-primary)]/15 text-[var(--color-primary)] border-[var(--color-primary)]/30',
-    },
-    next: {
-      label: 'Next',
-      cls: 'bg-[var(--color-surface-3)] text-[var(--color-muted-foreground)] border-[var(--color-line-soft)]',
-    },
-    later: {
-      label: 'Later',
-      cls: 'bg-[var(--color-surface-2)] text-[var(--color-muted-foreground)] border-[var(--color-line-soft)]',
-    },
-  } as const
-  const m = map[status]
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.18em]',
-        m.cls,
-      )}
-    >
-      {m.label}
-    </span>
-  )
-}
+
 
 function Footer() {
   return (
@@ -464,102 +397,13 @@ function Footer() {
           <a href="#loop" className="hover:text-[var(--color-foreground)] transition-colors">
             The loop
           </a>
-          <a href="#roadmap" className="hover:text-[var(--color-foreground)] transition-colors">
-            Roadmap
-          </a>
         </div>
       </div>
     </footer>
   )
 }
 
-interface Milestone {
-  id: string
-  title: string
-  summary: string
-  status: 'done' | 'in_progress' | 'next' | 'later'
-}
 
-const milestones: Milestone[] = [
-  {
-    id: 'M0',
-    title: 'App shell',
-    summary: 'Vite + React + Tailwind + routing + dark theme.',
-    status: 'done',
-  },
-  {
-    id: 'M1',
-    title: 'Real NBA data',
-    summary: 'Static snapshot, ~450 players, 30 teams.',
-    status: 'done',
-  },
-  {
-    id: 'M2',
-    title: 'Saves & persistence',
-    summary: 'Dexie storage, export/import JSON, auto-save.',
-    status: 'done',
-  },
-  {
-    id: 'M3',
-    title: 'Money & finance',
-    summary: 'Contracts, cap engine, revenue, owner system.',
-    status: 'done',
-  },
-  {
-    id: 'M4',
-    title: 'Roster & player UI',
-    summary: 'Sortable roster, player profiles, compare, search.',
-    status: 'done',
-  },
-  {
-    id: 'M5',
-    title: 'Lineups & rotation',
-    summary: 'Starters, bench, target minutes, closing lineup.',
-    status: 'done',
-  },
-  {
-    id: 'M6',
-    title: 'Single-game sim',
-    summary: 'Possession engine, shot/turnover/foul/rebound models.',
-    status: 'done',
-  },
-  {
-    id: 'M7',
-    title: 'Schedule & standings',
-    summary: 'Season sim end-to-end with dashboard updates.',
-    status: 'done',
-  },
-  {
-    id: 'M8',
-    title: 'Playoffs',
-    summary: 'Bracket, best-of-7 series, champion history.',
-    status: 'done',
-  },
-  {
-    id: 'M9',
-    title: 'Trades & contracts',
-    summary: 'Trade builder, AI accept/reject, payroll ledger.',
-    status: 'in_progress',
-  },
-  {
-    id: 'M10',
-    title: 'Draft & free agency',
-    summary: 'Prospects, scouting, multi-year offers.',
-    status: 'next',
-  },
-  {
-    id: 'M11',
-    title: 'Realism expansion',
-    summary: 'Injuries, fatigue, morale, awards, news.',
-    status: 'later',
-  },
-  {
-    id: 'M12',
-    title: 'Polish & calibration',
-    summary: 'Tune sim distributions, charts, accessibility.',
-    status: 'later',
-  },
-]
 
 const loop = [
   { label: 'Pick a franchise', body: 'Choose one of 30 NBA teams.' },

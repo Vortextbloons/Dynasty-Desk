@@ -67,13 +67,20 @@ import {
 } from '@/game/league/playoffEngine'
 import { computeFinalsMvp } from '@/game/league/awardsEngine'
 import { transitionToOffseason as doTransitionToOffseason } from '@/game/league/offseasonTransition'
-import { beginOffseason, advancePhase as advanceOffseasonPhase, decideOption, upcomingDraftYear } from '@/game/league/offseasonEngine'
+import {
+  beginOffseason,
+  advancePhase as advanceOffseasonPhase,
+  decideOption,
+  upcomingDraftYear,
+  isOffseasonPhaseReadyToAdvance,
+} from '@/game/league/offseasonEngine'
 import {
   simulateDraftPick,
   autoDraftOffClock,
   autoPickForTeam,
   getCurrentPickOwner,
   getDraftClassForYear,
+  getActiveDraft,
   repairDraftPickOrder,
   syncDraftClock,
 } from '@/game/league/draftEngine'
@@ -139,6 +146,7 @@ interface GameStore {
     exception: ExceptionType,
   ) => ContractActionResult
   advancePhase: () => Promise<{ newPhase: LeaguePhase; blocked?: boolean; reason?: string } | void>
+  advancePhaseIfReady: () => Promise<{ newPhase: LeaguePhase; blocked?: boolean; reason?: string } | void>
   allocateScoutingPoints: (prospectId: string, points: number) => { ok: boolean; reason?: string }
   makeDraftPick: (prospectId: string, isTwoWay?: boolean) => { ok: boolean; reason?: string }
   autoDraftOffClock: () => {
@@ -567,6 +575,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
   },
 
+  advancePhaseIfReady: async () => {
+    const { save } = get()
+    if (!save) return
+    if (!isOffseasonPhaseReadyToAdvance(save.league, save.league.userTeamId)) return
+    return get().advancePhase()
+  },
+
   allocateScoutingPoints: (prospectId, points) => {
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
@@ -591,8 +606,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if (save.league.phase !== 'draft') {
       return { ok: false, reason: 'Not in draft phase.' }
     }
-    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
-    if (!draft) return { ok: false, reason: 'No draft in progress.' }
+    const draft = getActiveDraft(save.league)
+    if (!draft || draft.status !== 'in_progress') {
+      return { ok: false, reason: 'No draft in progress.' }
+    }
     const owner = getCurrentPickOwner(save.league, draft)
     if (owner?.teamId !== save.league.userTeamId) {
       return { ok: false, reason: 'Not your pick.' }
@@ -610,17 +627,23 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     if ('error' in result) return { ok: false, reason: result.error }
     save.rngState = rng.state
     autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
+    syncDraftClock(save.league, draft)
     save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
+    if (draft.status === 'complete') {
+      void get().advancePhaseIfReady()
+    }
     return { ok: true }
   },
 
   autoDraftOffClock: () => {
     const { save } = get()
     if (!save) return { ok: false, reason: 'No active save.' }
-    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
-    if (!draft) return { ok: false, reason: 'No draft in progress.' }
+    const draft = getActiveDraft(save.league)
+    if (!draft || draft.status !== 'in_progress') {
+      return { ok: false, reason: 'No draft in progress.' }
+    }
 
     const startPick = draft.currentPickNumber
     const rng = new SeededRandom(save.rngState)
@@ -638,6 +661,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const draftComplete = draft.status === 'complete'
 
     if (draftComplete) {
+      void get().advancePhaseIfReady()
       return { ok: true, picksSimulated, onUserClock: false, draftComplete: true }
     }
 
@@ -658,34 +682,47 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   ensureDraftProgress: () => {
     const { save } = get()
     if (!save || save.league.phase !== 'draft') return
-    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
+    const draft = getActiveDraft(save.league)
     if (!draft) return
 
-    const rng = new SeededRandom(save.rngState)
-    const repaired = repairDraftPickOrder(save.league, draft, rng)
-    const beforePick = draft.currentPickNumber
-    syncDraftClock(save.league, draft)
-    save.rngState = rng.state
+    if (draft.status === 'in_progress') {
+      const rng = new SeededRandom(save.rngState)
+      const repaired = repairDraftPickOrder(save.league, draft, rng)
+      const beforePick = draft.currentPickNumber
+      syncDraftClock(save.league, draft)
+      save.rngState = rng.state
 
-    if (repaired || draft.currentPickNumber !== beforePick || draft.status === 'complete') {
+      if (repaired || draft.currentPickNumber !== beforePick) {
+        set({ save: { ...save } })
+        get().scheduleAutoSave()
+      }
+    }
+
+    syncDraftClock(save.league, draft)
+    if (draft.status === 'complete') {
       set({ save: { ...save } })
       get().scheduleAutoSave()
+      void get().advancePhaseIfReady()
     }
   },
 
   skipDraftPick: () => {
     const { save } = get()
     if (!save) return
-    const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
-    if (!draft) return
+    const draft = getActiveDraft(save.league)
+    if (!draft || draft.status !== 'in_progress') return
     const owner = getCurrentPickOwner(save.league, draft)
     if (owner?.teamId !== save.league.userTeamId) return
     const rng = new SeededRandom(save.rngState)
     autoPickForTeam(save.league, draft, save.league.userTeamId, rng)
     autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
+    syncDraftClock(save.league, draft)
     save.rngState = rng.state
     set({ save: { ...save } })
     get().scheduleAutoSave()
+    if (draft.status === 'complete') {
+      void get().advancePhaseIfReady()
+    }
   },
 
   makeFreeAgentOffer: (playerId, offer) => {

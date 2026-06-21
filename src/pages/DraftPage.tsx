@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
@@ -8,6 +8,7 @@ import { ProspectCard } from '@/components/draft/ProspectCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
+  getActiveDraft,
   getCurrentPickOwner,
   getAvailableProspects,
   totalDraftSlotsForSeason,
@@ -20,10 +21,13 @@ export function DraftPage() {
   const autoDraftOffClock = useGameStore((s) => s.autoDraftOffClock)
   const skipDraftPick = useGameStore((s) => s.skipDraftPick)
   const ensureDraftProgress = useGameStore((s) => s.ensureDraftProgress)
+  const advancePhaseIfReady = useGameStore((s) => s.advancePhaseIfReady)
+  const navigate = useNavigate()
+  const autoAdvancedRef = useRef(false)
 
   const draft = useMemo(() => {
-    if (!save) return null
-    return Object.values(save.league.drafts).find((d) => d?.status === 'in_progress' || d?.status === 'complete') ?? null
+    if (!save || save.league.phase !== 'draft') return null
+    return getActiveDraft(save.league) ?? null
   }, [save])
 
   const draftClass = useMemo(() => {
@@ -40,6 +44,24 @@ export function DraftPage() {
   useEffect(() => {
     ensureDraftProgress()
   }, [ensureDraftProgress, save?.metadata.id, save?.league.phase])
+
+  useEffect(() => {
+    autoAdvancedRef.current = false
+  }, [save?.metadata.id, save?.league.seasonYear])
+
+  useEffect(() => {
+    if (autoAdvancedRef.current) return
+    if (!save || save.league.phase !== 'draft') return
+    if (draft?.status !== 'complete') return
+    autoAdvancedRef.current = true
+    void (async () => {
+      const result = await advancePhaseIfReady()
+      if (result?.newPhase === 'free_agency') {
+        toast.success('Draft complete — moving to free agency')
+        void navigate('/free-agency')
+      }
+    })()
+  }, [save, draft?.status, advancePhaseIfReady, navigate])
 
   if (!save) {
     return <div className="p-6 text-sm text-[var(--color-muted-foreground)]">No active save.</div>

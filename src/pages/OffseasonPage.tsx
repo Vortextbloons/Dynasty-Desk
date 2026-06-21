@@ -12,6 +12,7 @@ import {
   getPendingPlayerOptionCount,
   getPlayersWithPendingOptions,
   canAdvancePhase,
+  isOffseasonPhaseReadyToAdvance,
 } from '@/game/league/offseasonEngine'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ const OFFSEASON_PHASES = ['offseason', 'draft', 'free_agency', 'preseason'] as c
 export function OffseasonPage() {
   const save = useGameStore((s) => s.save)
   const advancePhase = useGameStore((s) => s.advancePhase)
+  const advancePhaseIfReady = useGameStore((s) => s.advancePhaseIfReady)
   const decideOption = useGameStore((s) => s.decideOption)
   const navigate = useNavigate()
   const [advancing, setAdvancing] = useState(false)
@@ -48,6 +50,8 @@ export function OffseasonPage() {
         toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
         if (result.newPhase === 'draft') {
           void navigate('/draft')
+        } else if (result.newPhase === 'free_agency') {
+          void navigate('/free-agency')
         } else if (result.newPhase === 'regular_season') {
           void navigate('/dashboard')
         }
@@ -60,18 +64,27 @@ export function OffseasonPage() {
   }
 
   useEffect(() => {
+    autoAdvancedRef.current = false
+  }, [league?.phase, save?.metadata.id, league?.seasonYear])
+
+  useEffect(() => {
     if (autoAdvancedRef.current) return
     if (!league || !teamId) return
-    if (league.phase !== 'offseason') return
-    const guard = canAdvancePhase(league)
-    if (!guard.ok) return
-    const hasPendingOptions = getPlayersWithPendingOptions(league, teamId).length > 0
-    const hasPendingQOs = league.qualifyingOffers.some((q) => q.teamId === teamId)
-    if (!hasPendingOptions && !hasPendingQOs) {
-      autoAdvancedRef.current = true
-      void handleAdvance()
-    }
-  }, [league, teamId])
+    if (!isOffseasonPhaseReadyToAdvance(league, teamId)) return
+    autoAdvancedRef.current = true
+    void (async () => {
+      const result = await advancePhaseIfReady()
+      if (result?.newPhase === 'draft') {
+        toast.success('Moving to draft')
+        void navigate('/draft')
+      } else if (result?.newPhase === 'free_agency') {
+        toast.success('Moving to free agency')
+        void navigate('/free-agency')
+      } else if (result?.newPhase) {
+        toast.success(`Advanced to ${result.newPhase.replace(/_/g, ' ')}`)
+      }
+    })()
+  }, [league, teamId, advancePhaseIfReady, navigate])
 
   if (!save) {
     return <div className="p-6 text-sm text-[var(--color-muted-foreground)]">No active save.</div>

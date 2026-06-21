@@ -18,6 +18,7 @@ import {
   repairDraftPickOrder,
   syncDraftClock,
   totalDraftSlotsForSeason,
+  getActiveDraft,
 } from '@/game/league/draftEngine'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 import { SeededRandom } from '@/game/sim/rng'
@@ -297,6 +298,37 @@ describe('canTeamDraft', () => {
   it('rejects for nonexistent team', () => {
     const league = makeMiniLeague()
     expect(canTeamDraft(league, 'nonexistent').ok).toBe(false)
+  })
+})
+
+describe('getActiveDraft', () => {
+  it('returns the upcoming draft while older completed drafts remain', () => {
+    const league = makeMiniLeague()
+    league.phase = 'draft'
+    league.seasonYear = 2026
+    league.drafts['draft-2026'] = {
+      id: 'draft-2026',
+      seasonYear: 2026,
+      draftClassId: 'class-old',
+      status: 'complete',
+      picks: [],
+      currentPickNumber: 5,
+      startedAt: '2026-07-01',
+      completedAt: '2026-07-02',
+      orderSource: 'lottery',
+    }
+    league.drafts['draft-2027'] = {
+      id: 'draft-2027',
+      seasonYear: 2027,
+      draftClassId: 'class-new',
+      status: 'in_progress',
+      picks: [],
+      currentPickNumber: 1,
+      startedAt: '2027-07-01',
+      orderSource: 'lottery',
+    }
+
+    expect(getActiveDraft(league)?.id).toBe('draft-2027')
   })
 })
 

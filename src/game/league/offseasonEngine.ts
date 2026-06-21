@@ -17,6 +17,7 @@ import {
   formatTeamDisplayName,
   getDraftClassForYear,
   getDraftForYear,
+  getActiveDraft,
   prepareDraftClass,
   extendDraftClassToSlotCount,
 } from './draftEngine'
@@ -140,7 +141,7 @@ export function canAdvancePhase(
   }
 
   if (league.phase === 'draft' && next === 'free_agency') {
-    const draft = getDraftForYear(league, upcomingDraftYear(league))
+    const draft = getActiveDraft(league) ?? getDraftForYear(league, upcomingDraftYear(league))
     if (!draft) {
       return { ok: false, reason: 'Draft has not started.' }
     }
@@ -528,6 +529,24 @@ export function getNextPhase(phase: LeaguePhase): LeaguePhase | null {
   const idx = PHASE_ORDER.indexOf(phase)
   if (idx < 0 || idx >= PHASE_ORDER.length - 1) return null
   return PHASE_ORDER[idx + 1] ?? null
+}
+
+/** True when the league can leave the current offseason phase without user input. */
+export function isOffseasonPhaseReadyToAdvance(league: LeagueState, userTeamId: string): boolean {
+  if (!canAdvancePhase(league).ok) return false
+
+  if (league.phase === 'offseason') {
+    const hasPendingOptions = getPlayersWithPendingOptions(league, userTeamId).length > 0
+    const hasPendingQOs = league.qualifyingOffers.some((q) => q.teamId === userTeamId)
+    return !hasPendingOptions && !hasPendingQOs
+  }
+
+  if (league.phase === 'draft') {
+    const draft = getActiveDraft(league)
+    return draft?.status === 'complete'
+  }
+
+  return false
 }
 
 export function getPendingTeamOptionCount(league: LeagueState, teamId: string): number {

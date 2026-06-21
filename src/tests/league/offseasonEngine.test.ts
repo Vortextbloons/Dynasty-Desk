@@ -7,10 +7,12 @@ import {
   canAdvancePhase,
   mergeCompensationPicksIntoDraftPicks,
   upcomingDraftYear,
+  isOffseasonPhaseReadyToAdvance,
 } from '@/game/league/offseasonEngine'
 import {
   prepareDraftClass,
   getDraftClassForYear,
+  getActiveDraft,
   assignPickNumbers,
   extendDraftClassToSlotCount,
   countDraftSlots,
@@ -18,6 +20,7 @@ import {
   startDraft,
   forfeitDraftPick,
   formatSeasonLabel,
+  syncDraftClock,
 } from '@/game/league/draftEngine'
 import { finalizeStrandedFreeAgents, identifyFreeAgents } from '@/game/management/freeAgencyEngine'
 import { makeTeam, makeRoster, emptyM10LeagueFields } from '@/tests/fixtures'
@@ -396,6 +399,64 @@ describe('offseasonEngine', () => {
     expect(countDraftSlots(league, draftYear)).toBe(61)
   })
 
+  it('allows advancing after the second season draft completes', async () => {
+    const league = makeOffseasonLeague('offseason')
+    seedDraftPickAssets(league)
+
+    const completeDraftCycle = async () => {
+      let result = await advancePhase(league, 'user', rng)
+      expect(result.blocked).toBeUndefined()
+      expect(league.phase).toBe('draft')
+
+      const draft = getActiveDraft(league)!
+      expect(draft).toBeDefined()
+      while (draft.status === 'in_progress') {
+        autoDraftOffClock(league, draft, 'user', rng)
+        if (draft.status === 'in_progress') {
+          forfeitDraftPick(league, draft)
+        }
+      }
+      syncDraftClock(league, draft)
+      expect(draft.status).toBe('complete')
+      expect(isOffseasonPhaseReadyToAdvance(league, 'user')).toBe(true)
+
+      result = await advancePhase(league, 'user', rng)
+      expect(result.blocked).toBeUndefined()
+      expect(league.phase).toBe('free_agency')
+
+      result = await advancePhase(league, 'user', rng)
+      expect(league.phase).toBe('preseason')
+
+      result = await advancePhase(league, 'user', rng)
+      expect(league.phase).toBe('regular_season')
+    }
+
+    await completeDraftCycle()
+    beginOffseason(league, rng)
+    league.phase = 'offseason'
+
+    let result = await advancePhase(league, 'user', rng)
+    expect(result.blocked).toBeUndefined()
+    expect(league.phase).toBe('draft')
+
+    const secondDraft = getActiveDraft(league)!
+    expect(secondDraft).toBeDefined()
+    while (secondDraft.status === 'in_progress') {
+      autoDraftOffClock(league, secondDraft, 'user', rng)
+      if (secondDraft.status === 'in_progress') {
+        forfeitDraftPick(league, secondDraft)
+      }
+    }
+    syncDraftClock(league, secondDraft)
+    expect(secondDraft.status).toBe('complete')
+    expect(isOffseasonPhaseReadyToAdvance(league, 'user')).toBe(true)
+    expect(canAdvancePhase(league).ok).toBe(true)
+
+    result = await advancePhase(league, 'user', rng)
+    expect(result.blocked).toBeUndefined()
+    expect(league.phase).toBe('free_agency')
+  })
+
   it('autoDraftOffClock forfeit completes draft when prospects are exhausted', () => {
     const league = makeOffseasonLeague('draft')
     const draftYear = upcomingDraftYear(league)
@@ -462,4 +523,27 @@ describe('offseasonEngine', () => {
 
 function playersFirstId(league: LeagueState): string {
   return Object.keys(league.players)[0]!
+}
+
+function seedDraftPickAssets(league: LeagueState): void {
+  const teamIds = Object.keys(league.teams)
+  const picks: LeagueState['draftPicks'] = []
+  for (let yearOffset = 1; yearOffset <= 5; yearOffset++) {
+    const seasonYear = league.seasonYear + yearOffset
+    const seasonLabel = formatSeasonLabel(seasonYear)
+    for (const teamId of teamIds) {
+      for (let round = 1; round <= 2; round++) {
+        picks.push({
+          id: `pick-${teamId}-${seasonYear}-r${round}`,
+          season: seasonLabel,
+          round,
+          pickNumber: 0,
+          originalTeamId: teamId,
+          currentTeamId: teamId,
+          prospectId: null,
+        })
+      }
+    }
+  }
+  league.draftPicks = picks
 }

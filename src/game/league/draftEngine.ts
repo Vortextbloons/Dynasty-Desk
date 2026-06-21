@@ -570,6 +570,13 @@ export function getDraftForYear(league: LeagueState, seasonYear: number): Draft 
   return Object.values(league.drafts).find((d) => d?.seasonYear === seasonYear)
 }
 
+/** Draft for the upcoming draft year while the league is in draft phase. */
+export function getActiveDraft(league: LeagueState): Draft | undefined {
+  if (league.phase !== 'draft') return undefined
+  const draftYear = league.seasonYear + 1
+  return getDraftForYear(league, draftYear)
+}
+
 export function getCurrentPickOwner(
   league: LeagueState,
   draft: Draft,
