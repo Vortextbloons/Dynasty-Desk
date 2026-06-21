@@ -19,12 +19,26 @@ export function ProspectCard({ prospect, scoutingPoints, onSelect, onTwoWay, sel
     <Card className={selected ? 'ring-2 ring-[var(--color-primary)]' : ''}>
       <CardContent className="p-3 space-y-2">
         <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="font-medium">
-              {prospect.firstName} {prospect.lastName}
-            </div>
-            <div className="text-xs text-[var(--color-muted-foreground)]">
-              {prospect.position} · {prospect.age}y · {prospect.archetype}
+          <div className="flex items-center gap-3">
+            {prospect.externalId ? (
+              <img
+                src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${prospect.externalId}.png`}
+                alt={`${prospect.firstName} ${prospect.lastName}`}
+                className="rounded-md object-cover"
+                style={{ width: 48, height: 48 }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                }}
+              />
+            ) : null}
+            <div>
+              <div className="font-medium">
+                {prospect.firstName} {prospect.lastName}
+              </div>
+              <div className="text-xs text-[var(--color-muted-foreground)]">
+                {prospect.position} · {prospect.age}y · {prospect.archetype}
+              </div>
             </div>
           </div>
           <Chip label={prospect.source === 'real' ? 'Real' : 'Synth'} variant="default" />

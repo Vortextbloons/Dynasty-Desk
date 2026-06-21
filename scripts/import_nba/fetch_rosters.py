@@ -39,6 +39,39 @@ DIVISION_MAP = {
     "Southwest": "Southwest",
 }
 
+TEAM_COLORS = {
+    "1610612738": {"primary": "#007a33", "secondary": "#ba9653"},  # Celtics
+    "1610612747": {"primary": "#552583", "secondary": "#fdb927"},  # Lakers
+    "1610612744": {"primary": "#1d428a", "secondary": "#ffc72c"},  # Warriors
+    "1610612749": {"primary": "#00471b", "secondary": "#eee1c6"},  # Bucks
+    "1610612743": {"primary": "#0e2240", "secondary": "#fec524"},  # Nuggets
+    "1610612760": {"primary": "#007ac1", "secondary": "#ef3b24"},  # Thunder
+    "1610612748": {"primary": "#98002e", "secondary": "#f9a01b"},  # Heat
+    "1610612755": {"primary": "#006bb6", "secondary": "#ed174c"},  # 76ers
+    "1610612751": {"primary": "#000000", "secondary": "#ffffff"},  # Nets
+    "1610612752": {"primary": "#006bb6", "secondary": "#f58426"},  # Knicks
+    "1610612741": {"primary": "#ce1141", "secondary": "#000000"},  # Bulls
+    "1610612737": {"primary": "#e03a3e", "secondary": "#c1d32f"},  # Hawks
+    "1610612739": {"primary": "#860038", "secondary": "#fdbb30"},  # Cavaliers
+    "1610612765": {"primary": "#c8102e", "secondary": "#1d42ba"},  # Pistons
+    "1610612754": {"primary": "#002d62", "secondary": "#fdbb30"},  # Pacers
+    "1610612763": {"primary": "#5d76a9", "secondary": "#12173f"},  # Grizzlies
+    "1610612762": {"primary": "#002b5c", "secondary": "#f9a01b"},  # Jazz
+    "1610612761": {"primary": "#ce1141", "secondary": "#000000"},  # Raptors
+    "1610612750": {"primary": "#0c2340", "secondary": "#236192"},  # Timberwolves
+    "1610612757": {"primary": "#00788c", "secondary": "#e56020"},  # Trail Blazers
+    "1610612758": {"primary": "#5d2d92", "secondary": "#63727a"},  # Kings
+    "1610612756": {"primary": "#1d1160", "secondary": "#e56020"},  # Suns
+    "1610612746": {"primary": "#c8102e", "secondary": "#000000"},  # Clippers
+    "1610612742": {"primary": "#00538c", "secondary": "#002b5e"},  # Mavericks
+    "1610612745": {"primary": "#ce1141", "secondary": "#000000"},  # Rockets
+    "1610612740": {"primary": "#0c2340", "secondary": "#c8102e"},  # Pelicans
+    "1610612764": {"primary": "#00788c", "secondary": "#ef3b24"},  # Wizards
+    "1610612766": {"primary": "#1d428a", "secondary": "#c8102e"},  # Hornets
+    "1610612753": {"primary": "#00788c", "secondary": "#c4ced4"},  # Magic
+    "1610612759": {"primary": "#c4ced4", "secondary": "#000000"},  # Spurs
+}
+
 
 def fetch_team_definitions() -> list[dict[str, Any]]:
     cached = read_cache("teams_static")
@@ -58,6 +91,8 @@ def fetch_team_definitions() -> list[dict[str, Any]]:
                     "conference": CONFERENCE_MAP.get(row["conference"], row["conference"]),
                     "division": DIVISION_MAP.get(row["division"], row["division"]),
                     "fullName": row["full_name"],
+                    "arena": row.get("arena", ""),
+                    "capacity": int(row.get("capacity", 0)) if row.get("capacity") else 0,
                 }
             )
         return out
@@ -141,6 +176,7 @@ def run(season: str) -> None:
         ext = t["externalId"]
         internal = f"team-{t['abbreviation'].lower()}"
         team_internal_ids[ext] = internal
+        colors = TEAM_COLORS.get(ext, {"primary": "#1d428a", "secondary": "#c8102e"})
         teams_out.append(
             {
                 "id": internal,
@@ -150,10 +186,9 @@ def run(season: str) -> None:
                 "abbreviation": t["abbreviation"],
                 "conference": t["conference"],
                 "division": t["division"],
-                "colors": {
-                    "primary": "#1d428a",
-                    "secondary": "#c8102e",
-                },
+                "colors": colors,
+                "arena": t.get("arena", ""),
+                "capacity": t.get("capacity", 0),
                 "marketSize": 5,
                 "prestige": 70,
                 "fanPatience": 60,

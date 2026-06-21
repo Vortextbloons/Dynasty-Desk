@@ -19,6 +19,8 @@ export interface StaticTeam {
   conference: 'East' | 'West'
   division: string
   colors: { primary: string; secondary: string }
+  arena?: string
+  capacity?: number
   marketSize: number
   prestige: number
   fanPatience: number
@@ -37,6 +39,12 @@ export interface StaticPlayer {
   weightLbs: number
   teamId: string | null
   headshotUrl?: string
+  college?: string
+  country?: string
+  draftYear?: number
+  draftRound?: number
+  draftPick?: number
+  birthDate?: string
 
   ratings: PlayerRatings
   tendencies: PlayerTendencies

@@ -2,6 +2,7 @@ import type { PlayoffSeries } from '@/game/models/playoff'
 import type { Team } from '@/game/models/team'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { TeamLogo } from '@/components/team/TeamLogo'
 import { cn } from '@/lib/utils'
 
 interface SeriesCardProps {
@@ -101,6 +102,7 @@ export function SeriesCard({
               <span className="text-xs font-bold text-[var(--color-muted-foreground)] w-4 text-center">
                 {series.higherSeed}
               </span>
+              {higherTeam && <TeamLogo team={higherTeam} size={20} />}
               <span
                 className={cn(
                   'text-sm font-medium',
@@ -125,6 +127,7 @@ export function SeriesCard({
               <span className="text-xs font-bold text-[var(--color-muted-foreground)] w-4 text-center">
                 {series.lowerSeed}
               </span>
+              {lowerTeam && <TeamLogo team={lowerTeam} size={20} />}
               <span
                 className={cn(
                   'text-sm font-medium',

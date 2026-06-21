@@ -127,12 +127,15 @@ export interface LineupSettings {
 
 export interface Team {
   id: string
+  externalId?: string
   city: string
   name: string
   abbreviation: string
   conference: 'East' | 'West'
   division: string
   colors: { primary: string; secondary: string }
+  arena?: string
+  capacity?: number
 
   roster: string[]
   lineup: LineupSettings

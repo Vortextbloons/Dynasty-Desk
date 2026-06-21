@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { TeamLogo } from '@/components/team/TeamLogo'
 
 export function GlobalSearch() {
   const [query, setQuery] = useState('')
@@ -110,12 +111,7 @@ export function GlobalSearch() {
                   onClick={() => handleSelect('team', t.id)}
                   className="w-full flex items-center gap-3 px-3 py-2 hover:bg-[var(--color-surface-2)] transition-colors text-left"
                 >
-                  <div
-                    className="size-8 rounded-md grid place-items-center font-display text-[10px] shrink-0"
-                    style={{ backgroundColor: t.colors?.primary ?? '#1d428a', color: '#0b0d10' }}
-                  >
-                    {t.abbreviation}
-                  </div>
+                  <TeamLogo team={t} size={32} />
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">
                       {t.city} {t.name}

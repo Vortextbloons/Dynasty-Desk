@@ -16,14 +16,29 @@ export function PlayerHeadshot({
   const [imgError, setImgError] = useState(false)
 
   const externalId = player.externalId
-  const headshotUrl = externalId
+  const cdnUrl = externalId
+    ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${externalId}.png`
+    : undefined
+  const localUrl = externalId
     ? `${import.meta.env.BASE_URL}data/nba/headshots/${externalId}.png`
     : undefined
 
-  if (headshotUrl && !imgError) {
+  if (cdnUrl && !imgError) {
     return (
       <img
-        src={headshotUrl}
+        src={cdnUrl}
+        alt={`${player.firstName} ${player.lastName}`}
+        className="rounded-md object-cover"
+        style={{ width: size, height: size }}
+        onError={() => setImgError(true)}
+      />
+    )
+  }
+
+  if (localUrl && !imgError) {
+    return (
+      <img
+        src={localUrl}
         alt={`${player.firstName} ${player.lastName}`}
         className="rounded-md object-cover"
         style={{ width: size, height: size }}

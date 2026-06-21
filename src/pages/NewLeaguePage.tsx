@@ -9,6 +9,7 @@ import { useSnapshot, useStaticData } from '@/data/useStaticData'
 import { getEraConfig, getLeagueRules } from '@/game/models'
 import { seasonOpeningNight } from '@/game/core/seasonCalendar'
 import { useGameStore } from '@/store/useGameStore'
+import { TeamLogo } from '@/components/team/TeamLogo'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -146,15 +147,7 @@ export function NewLeaguePage() {
                         : 'border-[var(--color-line-soft)] hover:border-[var(--color-line-strong)]',
                     )}
                   >
-                    <div
-                      className="size-9 rounded-md grid place-items-center font-display text-xs"
-                      style={{
-                        backgroundColor: t.colors.primary,
-                        color: '#0b0d10',
-                      }}
-                    >
-                      {t.abbreviation}
-                    </div>
+                    <TeamLogo team={t} size={36} />
                     <div className="min-w-0">
                       <div className="font-display text-sm truncate">
                         {t.city} {t.name}

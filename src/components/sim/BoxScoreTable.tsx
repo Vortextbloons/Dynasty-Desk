@@ -2,7 +2,7 @@ import type { PlayerGameStats } from '@/game/models'
 
 interface Props {
   players: PlayerGameStats[]
-  playerLookup: Map<string, { firstName: string; lastName: string; position: string }>
+  playerLookup: Map<string, { firstName: string; lastName: string; position: string; externalId?: string }>
   title: string
 }
 
@@ -55,6 +55,18 @@ export function BoxScoreTable({ players, playerLookup, title }: Props) {
                 >
                   <td className="px-3 py-1.5 font-medium">
                     <div className="flex items-center gap-2">
+                      {meta?.externalId ? (
+                        <img
+                          src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${meta.externalId}.png`}
+                          alt={name}
+                          className="rounded-md object-cover"
+                          style={{ width: 24, height: 24 }}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                          }}
+                        />
+                      ) : null}
                       <span>{name}</span>
                       {meta && (
                         <span className="text-[10px] text-[var(--color-muted-foreground)]">

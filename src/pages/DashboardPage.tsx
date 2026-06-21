@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useGameStore } from '@/store/useGameStore'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { TeamLogo } from '@/components/team/TeamLogo'
 import { Chip } from '@/components/shared/Chip'
 import { SimSpeedToggle } from '@/components/sim/SimSpeedToggle'
 import { Button } from '@/components/ui/button'
@@ -354,9 +355,16 @@ export function DashboardPage() {
                 Next Game
               </div>
               <div className="mt-2">
-                <div className="text-sm font-medium">
-                  {nextUserGame.homeTeamId === league.userTeamId ? 'vs' : '@'}{' '}
-                  {league.teams[nextUserGame.homeTeamId === league.userTeamId ? nextUserGame.awayTeamId : nextUserGame.homeTeamId]?.abbreviation ?? '???'}
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const opponentId = nextUserGame.homeTeamId === league.userTeamId ? nextUserGame.awayTeamId : nextUserGame.homeTeamId
+                    const opponent = league.teams[opponentId]
+                    return opponent ? <TeamLogo team={opponent} size={24} /> : null
+                  })()}
+                  <span className="text-sm font-medium">
+                    {nextUserGame.homeTeamId === league.userTeamId ? 'vs' : '@'}{' '}
+                    {league.teams[nextUserGame.homeTeamId === league.userTeamId ? nextUserGame.awayTeamId : nextUserGame.homeTeamId]?.abbreviation ?? '???'}
+                  </span>
                 </div>
                 <div className="text-[10px] text-[var(--color-muted-foreground)]">
                   {nextUserGame.date}
@@ -416,9 +424,16 @@ export function DashboardPage() {
                 Last Game
               </div>
               <div className="mt-2">
-                <div className="text-sm font-medium">
-                  {lastUserGame.homeTeamId === league.userTeamId ? 'vs' : '@'}{' '}
-                  {league.teams[lastUserGame.homeTeamId === league.userTeamId ? lastUserGame.awayTeamId : lastUserGame.homeTeamId]?.abbreviation ?? '???'}
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const opponentId = lastUserGame.homeTeamId === league.userTeamId ? lastUserGame.awayTeamId : lastUserGame.homeTeamId
+                    const opponent = league.teams[opponentId]
+                    return opponent ? <TeamLogo team={opponent} size={24} /> : null
+                  })()}
+                  <span className="text-sm font-medium">
+                    {lastUserGame.homeTeamId === league.userTeamId ? 'vs' : '@'}{' '}
+                    {league.teams[lastUserGame.homeTeamId === league.userTeamId ? lastUserGame.awayTeamId : lastUserGame.homeTeamId]?.abbreviation ?? '???'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="font-mono">

@@ -7,6 +7,7 @@ import type { LeagueRules } from '@/game/models/leagueRules'
 import { Card, CardContent } from '@/components/ui/card'
 import { Chip } from '@/components/shared/Chip'
 import { PlayerHeadshot } from '@/components/player/PlayerHeadshot'
+import { TeamLogo } from '@/components/team/TeamLogo'
 import { PickProtectionEditor } from './PickProtectionEditor'
 import { AssetPickerDialog } from './AssetPickerDialog'
 import { computeCapHit } from '@/game/management/capEngine'
@@ -92,11 +93,7 @@ export function TradeSideColumn({
               <Chip label={team.direction} size="sm" variant="default" />
             </div>
           </div>
-          <div
-            className="size-3 rounded-full"
-            style={{ background: team.colors.primary }}
-            aria-hidden
-          />
+          <TeamLogo team={team} size={20} />
         </div>
 
         <div className="space-y-3">

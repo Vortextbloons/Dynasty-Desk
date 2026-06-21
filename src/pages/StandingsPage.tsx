@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { recomputeStandings, computeGB, formatLast10 } from '@/game/league/standingsEngine'
 import { TeamDirectionBadge } from '@/components/team/TeamDirectionBadge'
+import { TeamLogo } from '@/components/team/TeamLogo'
 import { toast } from 'sonner'
 import { FastForward, Trophy } from 'lucide-react'
 
@@ -256,6 +257,7 @@ export function StandingsPage() {
                       </td>
                       <td className="px-3 py-2.5">
                         <div className="flex items-center gap-2 flex-wrap">
+                          <TeamLogo team={team} size={28} />
                           <span className={`text-sm font-medium ${isUser ? 'text-[var(--color-primary)]' : ''}`}>
                             {team.abbreviation}
                           </span>

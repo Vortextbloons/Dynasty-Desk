@@ -40,12 +40,15 @@ export function buildSave(input: NewSaveInput): GameSave {
   for (const st of snapshot.teams) {
     teams[st.id] = {
       id: st.id,
+      externalId: st.externalId,
       city: st.city,
       name: st.name,
       abbreviation: st.abbreviation,
       conference: st.conference,
       division: st.division,
       colors: { primary: st.colors.primary, secondary: st.colors.secondary },
+      arena: st.arena,
+      capacity: st.capacity,
       roster: [],
       lineup: {
         starters: [],

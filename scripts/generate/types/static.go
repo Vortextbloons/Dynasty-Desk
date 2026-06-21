@@ -30,6 +30,8 @@ type StaticTeam struct {
 	Conference   string        `json:"conference"`
 	Division     string        `json:"division"`
 	Colors       TeamColors    `json:"colors"`
+	Arena        string        `json:"arena,omitempty"`
+	Capacity     int           `json:"capacity,omitempty"`
 	MarketSize   int           `json:"marketSize"`
 	Prestige     int           `json:"prestige"`
 	FanPatience  int           `json:"fanPatience"`

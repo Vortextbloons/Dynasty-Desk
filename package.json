@@ -14,9 +14,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "data:build": "go run -C scripts/generate . && npx tsx scripts/deriveOverall.ts",
-    "data:build:python": "py scripts/import_nba/run_all.py",
+    "data:build": "npm run data:generate && npm run data:import",
+    "data:generate": "go run -C scripts/generate . && npx tsx scripts/deriveOverall.ts",
+    "data:import": "py scripts/import_nba/run_all.py",
     "data:headshots": "npx tsx scripts/import/importHeadshots.ts",
+    "data:logos": "echo 'Logos loaded from cdn.nba.com at runtime'",
     "calibrate": "npx tsx scripts/calibrate.ts"
   },
   "dependencies": {

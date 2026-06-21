@@ -75,7 +75,7 @@ export async function simulateGame(input: SimulateGameInput): Promise<SimulateGa
     date: input.date,
     status: 'in_progress',
     attendance: 18000,
-    arena: `${input.home.city} Arena`,
+    arena: input.home.arena ?? `${input.home.city} Arena`,
     clock: { period: 1, timeRemainingSeconds: QUARTER_SECONDS },
     score: { home: 0, away: 0 },
     possession: input.rng.chance(0.5) ? 'home' : 'away',

@@ -63,21 +63,68 @@ type teamTemplate struct {
 	Conference   string
 	Division     string
 	Colors       types.TeamColors
+	Arena        string
+	Capacity     int
 	MarketSize   int
 	Prestige     int
 	FanPatience  int
 }
 
+var playerNameToId = map[string]string{
+	"Luka Doncic":             "1629029",
+	"Jayson Tatum":            "1628369",
+	"Joel Embiid":             "203954",
+	"Giannis Antetokounmpo":   "203507",
+	"Nikola Jokic":            "203999",
+	"Shai Gilgeous-Alexander": "1628983",
+	"Anthony Edwards":         "1630169",
+	"Kawhi Leonard":           "6450",
+	"Devin Booker":            "1626164",
+	"Trae Young":              "1628973",
+	"Donovan Mitchell":        "1628378",
+	"Tyrese Haliburton":       "1630169",
+	"Jaylen Brown":            "1627759",
+	"Paolo Banchero":          "1631000",
+	"Cade Cunningham":         "1630596",
+	"Scottie Barnes":          "1631104",
+	"Alperen Sengun":          "1630596",
+	"Chet Holmgren":           "1631096",
+	"Franz Wagner":            "1630596",
+	"Jalen Brunson":           "1628973",
+}
+
 func generateTeams(season string, r *rand.Rand) []types.StaticTeam {
 	templates := []teamTemplate{
-		{Id: "team-bos", City: "Boston", Name: "Celtics", Abbreviation: "BOS", Conference: "East", Division: "Atlantic", Colors: types.TeamColors{Primary: "#007a33", Secondary: "#ba9653"}, MarketSize: 7, Prestige: 90, FanPatience: 75},
-		{Id: "team-lal", City: "Los Angeles", Name: "Lakers", Abbreviation: "LAL", Conference: "West", Division: "Pacific", Colors: types.TeamColors{Primary: "#552583", Secondary: "#fdb927"}, MarketSize: 10, Prestige: 95, FanPatience: 60},
-		{Id: "team-gsw", City: "Golden State", Name: "Warriors", Abbreviation: "GSW", Conference: "West", Division: "Pacific", Colors: types.TeamColors{Primary: "#1d428a", Secondary: "#ffc72c"}, MarketSize: 8, Prestige: 88, FanPatience: 70},
-		{Id: "team-mil", City: "Milwaukee", Name: "Bucks", Abbreviation: "MIL", Conference: "East", Division: "Central", Colors: types.TeamColors{Primary: "#00471b", Secondary: "#eee1c6"}, MarketSize: 5, Prestige: 75, FanPatience: 70},
-		{Id: "team-den", City: "Denver", Name: "Nuggets", Abbreviation: "DEN", Conference: "West", Division: "Northwest", Colors: types.TeamColors{Primary: "#0e2240", Secondary: "#fec524"}, MarketSize: 6, Prestige: 80, FanPatience: 75},
-		{Id: "team-okc", City: "Oklahoma City", Name: "Thunder", Abbreviation: "OKC", Conference: "West", Division: "Northwest", Colors: types.TeamColors{Primary: "#007ac1", Secondary: "#ef3b24"}, MarketSize: 5, Prestige: 82, FanPatience: 80},
-		{Id: "team-mia", City: "Miami", Name: "Heat", Abbreviation: "MIA", Conference: "East", Division: "Southeast", Colors: types.TeamColors{Primary: "#98002e", Secondary: "#f9a01b"}, MarketSize: 7, Prestige: 85, FanPatience: 65},
-		{Id: "team-phi", City: "Philadelphia", Name: "76ers", Abbreviation: "PHI", Conference: "East", Division: "Atlantic", Colors: types.TeamColors{Primary: "#006bb6", Secondary: "#ed174c"}, MarketSize: 7, Prestige: 78, FanPatience: 60},
+		{Id: "team-bos", City: "Boston", Name: "Celtics", Abbreviation: "BOS", Conference: "East", Division: "Atlantic", Colors: types.TeamColors{Primary: "#007a33", Secondary: "#ba9653"}, Arena: "TD Garden", Capacity: 19156, MarketSize: 8, Prestige: 90, FanPatience: 75},
+		{Id: "team-lal", City: "Los Angeles", Name: "Lakers", Abbreviation: "LAL", Conference: "West", Division: "Pacific", Colors: types.TeamColors{Primary: "#552583", Secondary: "#fdb927"}, Arena: "Crypto.com Arena", Capacity: 18997, MarketSize: 10, Prestige: 95, FanPatience: 60},
+		{Id: "team-gsw", City: "Golden State", Name: "Warriors", Abbreviation: "GSW", Conference: "West", Division: "Pacific", Colors: types.TeamColors{Primary: "#1d428a", Secondary: "#ffc72c"}, Arena: "Chase Center", Capacity: 18064, MarketSize: 9, Prestige: 88, FanPatience: 70},
+		{Id: "team-mil", City: "Milwaukee", Name: "Bucks", Abbreviation: "MIL", Conference: "East", Division: "Central", Colors: types.TeamColors{Primary: "#00471b", Secondary: "#eee1c6"}, Arena: "Fiserv Forum", Capacity: 17341, MarketSize: 4, Prestige: 75, FanPatience: 70},
+		{Id: "team-den", City: "Denver", Name: "Nuggets", Abbreviation: "DEN", Conference: "West", Division: "Northwest", Colors: types.TeamColors{Primary: "#0e2240", Secondary: "#fec524"}, Arena: "Ball Arena", Capacity: 19520, MarketSize: 5, Prestige: 80, FanPatience: 75},
+		{Id: "team-okc", City: "Oklahoma City", Name: "Thunder", Abbreviation: "OKC", Conference: "West", Division: "Northwest", Colors: types.TeamColors{Primary: "#007ac1", Secondary: "#ef3b24"}, Arena: "Paycom Center", Capacity: 18203, MarketSize: 3, Prestige: 82, FanPatience: 80},
+		{Id: "team-mia", City: "Miami", Name: "Heat", Abbreviation: "MIA", Conference: "East", Division: "Southeast", Colors: types.TeamColors{Primary: "#98002e", Secondary: "#f9a01b"}, Arena: "Kaseya Center", Capacity: 19600, MarketSize: 8, Prestige: 85, FanPatience: 65},
+		{Id: "team-phi", City: "Philadelphia", Name: "76ers", Abbreviation: "PHI", Conference: "East", Division: "Atlantic", Colors: types.TeamColors{Primary: "#006bb6", Secondary: "#ed174c"}, Arena: "Wells Fargo Center", Capacity: 20478, MarketSize: 7, Prestige: 78, FanPatience: 60},
+		{Id: "team-bkn", City: "Brooklyn", Name: "Nets", Abbreviation: "BKN", Conference: "East", Division: "Atlantic", Colors: types.TeamColors{Primary: "#000000", Secondary: "#ffffff"}, Arena: "Barclays Center", Capacity: 17732, MarketSize: 10, Prestige: 60, FanPatience: 50},
+		{Id: "team-nyk", City: "New York", Name: "Knicks", Abbreviation: "NYK", Conference: "East", Division: "Atlantic", Colors: types.TeamColors{Primary: "#006bb6", Secondary: "#f58426"}, Arena: "Madison Square Garden", Capacity: 19812, MarketSize: 10, Prestige: 80, FanPatience: 55},
+		{Id: "team-chi", City: "Chicago", Name: "Bulls", Abbreviation: "CHI", Conference: "East", Division: "Central", Colors: types.TeamColors{Primary: "#ce1141", Secondary: "#000000"}, Arena: "United Center", Capacity: 20917, MarketSize: 9, Prestige: 75, FanPatience: 60},
+		{Id: "team-atl", City: "Atlanta", Name: "Hawks", Abbreviation: "ATL", Conference: "East", Division: "Southeast", Colors: types.TeamColors{Primary: "#e03a3e", Secondary: "#c1d32f"}, Arena: "State Farm Arena", Capacity: 18118, MarketSize: 7, Prestige: 65, FanPatience: 55},
+		{Id: "team-cle", City: "Cleveland", Name: "Cavaliers", Abbreviation: "CLE", Conference: "East", Division: "Central", Colors: types.TeamColors{Primary: "#860038", Secondary: "#fdbb30"}, Arena: "Rocket Mortgage FieldHouse", Capacity: 19432, MarketSize: 5, Prestige: 70, FanPatience: 65},
+		{Id: "team-det", City: "Detroit", Name: "Pistons", Abbreviation: "DET", Conference: "East", Division: "Central", Colors: types.TeamColors{Primary: "#c8102e", Secondary: "#1d42ba"}, Arena: "Little Caesars Arena", Capacity: 20332, MarketSize: 6, Prestige: 60, FanPatience: 55},
+		{Id: "team-ind", City: "Indiana", Name: "Pacers", Abbreviation: "IND", Conference: "East", Division: "Central", Colors: types.TeamColors{Primary: "#002d62", Secondary: "#fdbb30"}, Arena: "Gainbridge Fieldhouse", Capacity: 17923, MarketSize: 4, Prestige: 65, FanPatience: 65},
+		{Id: "team-mem", City: "Memphis", Name: "Grizzlies", Abbreviation: "MEM", Conference: "West", Division: "Southwest", Colors: types.TeamColors{Primary: "#5d76a9", Secondary: "#12173f"}, Arena: "FedExForum", Capacity: 17794, MarketSize: 3, Prestige: 75, FanPatience: 70},
+		{Id: "team-uta", City: "Utah", Name: "Jazz", Abbreviation: "UTA", Conference: "West", Division: "Northwest", Colors: types.TeamColors{Primary: "#002b5c", Secondary: "#f9a01b"}, Arena: "Delta Center", Capacity: 18306, MarketSize: 3, Prestige: 65, FanPatience: 60},
+		{Id: "team-tor", City: "Toronto", Name: "Raptors", Abbreviation: "TOR", Conference: "East", Division: "Atlantic", Colors: types.TeamColors{Primary: "#ce1141", Secondary: "#000000"}, Arena: "Scotiabank Arena", Capacity: 19800, MarketSize: 7, Prestige: 65, FanPatience: 55},
+		{Id: "team-min", City: "Minnesota", Name: "Timberwolves", Abbreviation: "MIN", Conference: "West", Division: "Northwest", Colors: types.TeamColors{Primary: "#0c2340", Secondary: "#236192"}, Arena: "Target Center", Capacity: 18798, MarketSize: 4, Prestige: 75, FanPatience: 70},
+		{Id: "team-port", City: "Portland", Name: "Trail Blazers", Abbreviation: "POR", Conference: "West", Division: "Northwest", Colors: types.TeamColors{Primary: "#00788c", Secondary: "#e56020"}, Arena: "Moda Center", Capacity: 19441, MarketSize: 4, Prestige: 60, FanPatience: 60},
+		{Id: "team-sac", City: "Sacramento", Name: "Kings", Abbreviation: "SAC", Conference: "West", Division: "Pacific", Colors: types.TeamColors{Primary: "#5d2d92", Secondary: "#63727a"}, Arena: "Golden 1 Center", Capacity: 17608, MarketSize: 4, Prestige: 70, FanPatience: 65},
+		{Id: "team-phx", City: "Phoenix", Name: "Suns", Abbreviation: "PHX", Conference: "West", Division: "Pacific", Colors: types.TeamColors{Primary: "#1d1160", Secondary: "#e56020"}, Arena: "Footprint Center", Capacity: 18055, MarketSize: 6, Prestige: 75, FanPatience: 60},
+		{Id: "team-lac", City: "Los Angeles", Name: "Clippers", Abbreviation: "LAC", Conference: "West", Division: "Pacific", Colors: types.TeamColors{Primary: "#c8102e", Secondary: "#000000"}, Arena: "Intuit Dome", Capacity: 18000, MarketSize: 10, Prestige: 70, FanPatience: 55},
+		{Id: "team-dal", City: "Dallas", Name: "Mavericks", Abbreviation: "DAL", Conference: "West", Division: "Southwest", Colors: types.TeamColors{Primary: "#00538c", Secondary: "#002b5e"}, Arena: "American Airlines Center", Capacity: 19200, MarketSize: 8, Prestige: 80, FanPatience: 65},
+		{Id: "team-hou", City: "Houston", Name: "Rockets", Abbreviation: "HOU", Conference: "West", Division: "Southwest", Colors: types.TeamColors{Primary: "#ce1141", Secondary: "#000000"}, Arena: "Toyota Center", Capacity: 18055, MarketSize: 7, Prestige: 70, FanPatience: 60},
+		{Id: "team-nop", City: "New Orleans", Name: "Pelicans", Abbreviation: "NOP", Conference: "West", Division: "Southwest", Colors: types.TeamColors{Primary: "#0c2340", Secondary: "#c8102e"}, Arena: "Smoothie King Center", Capacity: 16867, MarketSize: 3, Prestige: 65, FanPatience: 60},
+		{Id: "team-was", City: "Washington", Name: "Wizards", Abbreviation: "WAS", Conference: "East", Division: "Southeast", Colors: types.TeamColors{Primary: "#00788c", Secondary: "#ef3b24"}, Arena: "Capital One Arena", Capacity: 20356, MarketSize: 7, Prestige: 55, FanPatience: 50},
+		{Id: "team-cha", City: "Charlotte", Name: "Hornets", Abbreviation: "CHA", Conference: "East", Division: "Southeast", Colors: types.TeamColors{Primary: "#1d428a", Secondary: "#c8102e"}, Arena: "Spectrum Center", Capacity: 19077, MarketSize: 4, Prestige: 55, FanPatience: 55},
+		{Id: "team-orl", City: "Orlando", Name: "Magic", Abbreviation: "ORL", Conference: "East", Division: "Southeast", Colors: types.TeamColors{Primary: "#00788c", Secondary: "#c4ced4"}, Arena: "Kia Center", Capacity: 18846, MarketSize: 5, Prestige: 60, FanPatience: 55},
+		{Id: "team-sas", City: "San Antonio", Name: "Spurs", Abbreviation: "SAS", Conference: "West", Division: "Southwest", Colors: types.TeamColors{Primary: "#c4ced4", Secondary: "#000000"}, Arena: "Frost Bank Center", Capacity: 18400, MarketSize: 4, Prestige: 70, FanPatience: 75},
 	}
 
 	teams := make([]types.StaticTeam, len(templates))
@@ -94,6 +141,8 @@ func generateTeams(season string, r *rand.Rand) []types.StaticTeam {
 			Conference:   t.Conference,
 			Division:     t.Division,
 			Colors:       t.Colors,
+			Arena:        t.Arena,
+			Capacity:     t.Capacity,
 			MarketSize:   t.MarketSize,
 			Prestige:     t.Prestige,
 			FanPatience:  t.FanPatience,
@@ -158,9 +207,15 @@ func generatePlayers(teams []types.StaticTeam, season string, r *rand.Rand) []ty
 				secPos = []types.Position{types.PositionPF}
 			}
 
+			realName := fn + " " + ln
+			externalId := playerNameToId[realName]
+			if externalId == "" {
+				externalId = fmt.Sprintf("%d", 10000+idx*10+i)
+			}
+
 			player := types.StaticPlayer{
 				Id:                playerId,
-				ExternalId:        fmt.Sprintf("%d", 10000+idx*10+i),
+				ExternalId:        externalId,
 				FirstName:         fn,
 				LastName:          ln,
 				Age:               age,
@@ -383,32 +438,38 @@ func generateSeasonSnapshot(season string) error {
 
 func generateShared() error {
 	base := filepath.Join(PUBLIC_DATA, "shared")
-	awards := []types.AwardWinner{}
 
-	champions := make([]types.Champion, len(data.ChampionsHistory))
-	for i, c := range data.ChampionsHistory {
-		champions[i] = types.Champion{
-			Season:            c.Season,
-			ChampionTeamId:    fmt.Sprintf("team-%s", strings.ToLower(c.ChampionAbbrev)),
-			RunnerUpTeamId:    fmt.Sprintf("team-%s", strings.ToLower(c.RunnerUpAbbrev)),
-			FinalsMvpPlayerId: "unknown",
-			SeriesResult:      c.SeriesResult,
+	awardsPath := filepath.Join(base, "awards-history.json")
+	if _, err := os.Stat(awardsPath); os.IsNotExist(err) {
+		awards := []types.AwardWinner{}
+		if err := writeJSON(awardsPath, map[string]interface{}{
+			"version":   "0.2.0",
+			"updatedAt": "2026-01-01T00:00:00Z",
+			"awards":    awards,
+		}); err != nil {
+			return err
 		}
 	}
 
-	if err := writeJSON(filepath.Join(base, "awards-history.json"), map[string]interface{}{
-		"version":   "0.2.0",
-		"updatedAt": "2026-01-01T00:00:00Z",
-		"awards":    awards,
-	}); err != nil {
-		return err
-	}
-	if err := writeJSON(filepath.Join(base, "champions.json"), map[string]interface{}{
-		"version":   "0.2.0",
-		"updatedAt": "2026-01-01T00:00:00Z",
-		"champions": champions,
-	}); err != nil {
-		return err
+	championsPath := filepath.Join(base, "champions.json")
+	if _, err := os.Stat(championsPath); os.IsNotExist(err) {
+		champions := make([]types.Champion, len(data.ChampionsHistory))
+		for i, c := range data.ChampionsHistory {
+			champions[i] = types.Champion{
+				Season:            c.Season,
+				ChampionTeamId:    fmt.Sprintf("team-%s", strings.ToLower(c.ChampionAbbrev)),
+				RunnerUpTeamId:    fmt.Sprintf("team-%s", strings.ToLower(c.RunnerUpAbbrev)),
+				FinalsMvpPlayerId: "unknown",
+				SeriesResult:      c.SeriesResult,
+			}
+		}
+		if err := writeJSON(championsPath, map[string]interface{}{
+			"version":   "0.2.0",
+			"updatedAt": "2026-01-01T00:00:00Z",
+			"champions": champions,
+		}); err != nil {
+			return err
+		}
 	}
 	if err := writeJSON(filepath.Join(base, "league-rules.json"), data.GetLeagueRules("2025-26")); err != nil {
 		return err
@@ -450,8 +511,8 @@ func generateManifest() error {
 			SeasonLabel: s,
 			StartYear:   startYear,
 			BasePath:    fmt.Sprintf("/data/nba/%s", s),
-			TeamCount:   8,
-			PlayerCount: 40,
+			TeamCount:   30,
+			PlayerCount: 150,
 		}
 	}
 
