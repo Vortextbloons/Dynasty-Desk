@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { OVERALL_WEIGHTS, computeOverall } from '../src/game/ratings/overallWeights'
 import type { Position } from '../src/game/models/position'
+import type { PlayerRatings } from '../src/game/models/ratings'
 
 const DATA_DIR = join(import.meta.dirname, '..', 'public', 'data', 'nba')
 
@@ -10,6 +11,12 @@ interface SnapshotEntry {
   id: string
   seasonLabel: string
   basePath: string
+  [key: string]: unknown
+}
+
+interface DataManifest {
+  snapshots: SnapshotEntry[]
+  [key: string]: unknown
 }
 
 interface StaticPlayer {
@@ -33,7 +40,7 @@ function deriveOverallForSnapshot(snapshotDir: string): number {
     const position = player.position as Position
     if (!(position in OVERALL_WEIGHTS)) continue
 
-    const overall = computeOverall(player.ratings as any, position)
+    const overall = computeOverall(player.ratings as PlayerRatings, position)
     player.ratings.overall = overall
     updated++
   }
@@ -49,8 +56,8 @@ function main() {
     process.exit(1)
   }
 
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-  const snapshots: SnapshotEntry[] = manifest.snapshots ?? []
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as DataManifest
+  const snapshots = manifest.snapshots ?? []
 
   let totalPlayers = 0
   let totalSnapshots = 0

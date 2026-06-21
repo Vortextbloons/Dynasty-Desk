@@ -16,6 +16,18 @@ interface StaticPlayer {
   [key: string]: unknown
 }
 
+interface ManifestEntry {
+  id: string
+  seasonLabel: string
+  basePath: string
+  [key: string]: unknown
+}
+
+interface DataManifest {
+  snapshots: ManifestEntry[]
+  [key: string]: unknown
+}
+
 interface Manifest {
   updatedAt: string
   succeeded: string[]
@@ -64,8 +76,8 @@ async function main() {
     process.exit(1)
   }
 
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-  const snapshots: { basePath: string }[] = manifest.snapshots ?? []
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as DataManifest
+  const snapshots = manifest.snapshots ?? []
 
   const allExternalIds = new Set<string>()
   for (const snapshot of snapshots) {
