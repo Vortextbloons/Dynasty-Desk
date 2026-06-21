@@ -307,6 +307,51 @@ function fillRatings(partial: Partial<PlayerRatings>, position: Position): Playe
   return { ...base, ...partial, overall: partial.overall ?? base.overall }
 }
 
+export function formatTeamDisplayName(
+  league: LeagueState,
+  teamId: string | undefined,
+): string {
+  if (!teamId) return 'Unknown'
+  const team = league.teams[teamId]
+  if (!team) return 'Unknown'
+  if (team.city && team.name) return `${team.city} ${team.name}`
+  return team.name || team.abbreviation || teamId
+}
+
+function sortTeamsByRecordAsc(league: LeagueState, teamIds: string[]): string[] {
+  return [...teamIds].sort((a, b) => {
+    const sa = league.standings[a]
+    const sb = league.standings[b]
+    const winsA = sa?.wins ?? 0
+    const winsB = sb?.wins ?? 0
+    if (winsA !== winsB) return winsA - winsB
+    return (sb?.losses ?? 82) - (sa?.losses ?? 82)
+  })
+}
+
+function drawLotteryOrder(
+  league: LeagueState,
+  lotteryTeams: string[],
+  rng: SeededRandom,
+): string[] {
+  const remaining = [...lotteryTeams]
+  const topFour: string[] = []
+  const pool = LOTTERY_ODDS.slice(0, remaining.length)
+
+  for (let i = 0; i < Math.min(4, remaining.length); i++) {
+    const weights = remaining.map((teamId) => {
+      const rank = lotteryTeams.indexOf(teamId) + 1
+      return pool.find((p) => p.rank === rank)?.combinations ?? 1
+    })
+    const picked = rng.weightedPick(remaining, weights)
+    topFour.push(picked)
+    remaining.splice(remaining.indexOf(picked), 1)
+  }
+
+  const restByRecord = sortTeamsByRecordAsc(league, remaining)
+  return [...topFour, ...restByRecord]
+}
+
 export function getNonPlayoffTeams(league: LeagueState): string[] {
   const playoffTeams = new Set<string>()
   const bracket = league.playoffBracket
@@ -325,62 +370,68 @@ export function getNonPlayoffTeams(league: LeagueState): string[] {
     return !standing.clinchedPlayoff && !playoffTeams.has(id)
   })
 
-  return nonPlayoff.sort((a, b) => {
-    const sa = league.standings[a]
-    const sb = league.standings[b]
-    const winsA = sa?.wins ?? 0
-    const winsB = sb?.wins ?? 0
-    if (winsA !== winsB) return winsA - winsB
-    return (sa?.losses ?? 82) - (sb?.losses ?? 82)
-  })
+  const sorted = sortTeamsByRecordAsc(league, nonPlayoff)
+  if (sorted.length === 0) {
+    return sortTeamsByRecordAsc(league, allTeams)
+  }
+  return sorted
 }
 
 export function runLottery(
   league: LeagueState,
   rng: SeededRandom,
 ): { teamId: string; pickNumber: number }[] {
-  const lotteryTeams = getNonPlayoffTeams(league).slice(0, 14)
-  if (lotteryTeams.length === 0) {
-    return runInverseWLDraftOrder(league)
-  }
+  const teamCount = Object.keys(league.teams).length
+  if (teamCount === 0) return []
 
-  const remaining = [...lotteryTeams]
-  const topFour: string[] = []
-  const pool = LOTTERY_ODDS.slice(0, remaining.length)
+  const lotteryPool = getNonPlayoffTeams(league).slice(0, 14)
+  const lotteryOrdered =
+    lotteryPool.length > 0
+      ? drawLotteryOrder(league, lotteryPool, rng)
+      : sortTeamsByRecordAsc(league, Object.keys(league.teams)).slice(
+          0,
+          Math.min(14, teamCount),
+        )
 
-  for (let i = 0; i < Math.min(4, remaining.length); i++) {
-    const weights = remaining.map((teamId) => {
-      const rank = lotteryTeams.indexOf(teamId) + 1
-      return pool.find((p) => p.rank === rank)?.combinations ?? 1
-    })
-    const picked = rng.weightedPick(remaining, weights)
-    topFour.push(picked)
-    remaining.splice(remaining.indexOf(picked), 1)
-  }
+  const lotterySet = new Set(lotteryOrdered)
+  const playoffOrdered = sortTeamsByRecordAsc(
+    league,
+    Object.keys(league.teams).filter((id) => !lotterySet.has(id)),
+  )
 
-  const restByRecord = [...remaining].sort((a, b) => {
-    const sa = league.standings[a]
-    const sb = league.standings[b]
-    return (sa?.wins ?? 0) - (sb?.wins ?? 0)
-  })
-
-  const ordered = [...topFour, ...restByRecord]
-  return ordered.map((teamId, idx) => ({ teamId, pickNumber: idx + 1 }))
+  const fullOrder = [...lotteryOrdered, ...playoffOrdered].slice(0, teamCount)
+  return fullOrder.map((teamId, idx) => ({ teamId, pickNumber: idx + 1 }))
 }
 
 export function runInverseWLDraftOrder(
   league: LeagueState,
 ): { teamId: string; pickNumber: number }[] {
-  const teams = getNonPlayoffTeams(league)
-  const ordered = [...teams].sort((a, b) => {
-    const sa = league.standings[a]
-    const sb = league.standings[b]
-    const winsA = sa?.wins ?? 0
-    const winsB = sb?.wins ?? 0
-    if (winsA !== winsB) return winsA - winsB
-    return (sb?.losses ?? 0) - (sa?.losses ?? 0)
-  })
+  const ordered = sortTeamsByRecordAsc(league, Object.keys(league.teams))
   return ordered.map((teamId, idx) => ({ teamId, pickNumber: idx + 1 }))
+}
+
+export function repairDraftPickOrder(
+  league: LeagueState,
+  draft: Draft,
+  rng: SeededRandom,
+): boolean {
+  if (countDraftSlots(league, draft.seasonYear) > 0) return false
+
+  const seasonLabel = formatSeasonLabel(draft.seasonYear)
+  const order =
+    draft.lotteryResults && draft.lotteryResults.length > 0
+      ? draft.lotteryResults
+      : draft.orderSource === 'lottery'
+        ? runLottery(league, rng)
+        : runInverseWLDraftOrder(league)
+
+  if (order.length === 0) return false
+
+  assignPickNumbers(league, order, seasonLabel)
+  if (!draft.lotteryResults || draft.lotteryResults.length === 0) {
+    draft.lotteryResults = order
+  }
+  return true
 }
 
 export function assignPickNumbers(

@@ -113,14 +113,106 @@ describe('draftEngine', () => {
   it('runLottery returns ordered picks', () => {
     const league = makeMiniLeague()
     const results = runLottery(league, rng)
-    expect(results.length).toBeGreaterThan(0)
+    expect(results.length).toBe(4)
     expect(results[0]?.pickNumber).toBe(1)
+    expect(results[0]?.teamId).toBeTruthy()
+    expect(league.teams[results[0]!.teamId]).toBeDefined()
+  })
+
+  it('runLottery still produces order when every team is in the playoff bracket', () => {
+    const league = makeMiniLeague()
+    league.playoffBracket = {
+      seasonYear: 2026,
+      format: 'top8',
+      east: [
+        {
+          id: 's1',
+          conference: 'East',
+          round: 1,
+          higherSeedTeamId: 't0',
+          lowerSeedTeamId: 't1',
+          higherSeed: 1,
+          lowerSeed: 2,
+          seriesLength: 7,
+          higherSeedWins: 4,
+          lowerSeedWins: 2,
+          status: 'final',
+          games: [],
+          winnerTeamId: 't0',
+          isUpset: false,
+          startDate: '2026-06-01',
+        },
+      ],
+      west: [
+        {
+          id: 's2',
+          conference: 'West',
+          round: 1,
+          higherSeedTeamId: 't2',
+          lowerSeedTeamId: 't3',
+          higherSeed: 1,
+          lowerSeed: 2,
+          seriesLength: 7,
+          higherSeedWins: 4,
+          lowerSeedWins: 1,
+          status: 'final',
+          games: [],
+          winnerTeamId: 't2',
+          isUpset: false,
+          startDate: '2026-06-01',
+        },
+      ],
+      status: 'complete',
+      championTeamId: 't0',
+      runnerUpTeamId: 't2',
+    }
+    for (const id of Object.keys(league.teams)) {
+      const standing = league.standings[id]
+      if (standing) standing.clinchedPlayoff = true
+    }
+
+    const results = runLottery(league, rng)
+    expect(results.length).toBe(4)
+    expect(league.teams[results[0]!.teamId]).toBeDefined()
   })
 
   it('runInverseWLDraftOrder returns strict inverse W-L', () => {
     const league = makeMiniLeague()
     const results = runInverseWLDraftOrder(league)
     expect(results[0]?.teamId).toBe('t0')
+  })
+  it('assignPickNumbers numbers all first-round picks for a full league order', () => {
+    const league = makeMiniLeague()
+    const seasonLabel = '2027-28'
+    league.draftPicks = Object.keys(league.teams).flatMap((teamId) => [
+      {
+        id: `r1-${teamId}`,
+        season: seasonLabel,
+        round: 1,
+        pickNumber: 0,
+        originalTeamId: teamId,
+        currentTeamId: teamId,
+        prospectId: null,
+      },
+      {
+        id: `r2-${teamId}`,
+        season: seasonLabel,
+        round: 2,
+        pickNumber: 0,
+        originalTeamId: teamId,
+        currentTeamId: teamId,
+        prospectId: null,
+      },
+    ])
+
+    const order = runLottery(league, rng)
+    assignPickNumbers(league, order, seasonLabel)
+
+    const numbered = league.draftPicks.filter(
+      (p) => p.season === seasonLabel && p.pickNumber > 0,
+    )
+    expect(numbered.length).toBe(8)
+    expect(countDraftSlots(league, 2027)).toBe(8)
   })
 })
 

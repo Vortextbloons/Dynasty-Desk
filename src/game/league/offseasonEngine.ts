@@ -14,6 +14,7 @@ import {
   startDraft,
   autoDraftOffClock,
   formatSeasonLabel,
+  formatTeamDisplayName,
   getDraftClassForYear,
   getDraftForYear,
   prepareDraftClass,
@@ -489,16 +490,18 @@ function createLotteryNews(
   league: LeagueState,
   order: { teamId: string; pickNumber: number }[],
 ): NewsEvent {
-  const top = order[0]
-  const team = top ? league.teams[top.teamId] : null
-  const name = team ? `${team.city} ${team.name}` : 'Unknown'
+  const top = order.find((o) => o.pickNumber === 1) ?? order[0]
+  const name = formatTeamDisplayName(league, top?.teamId)
   return {
     id: `news-lottery-${league.seasonYear}`,
     date: league.currentDate,
     type: 'lottery_result',
-    headline: `${name} win the #1 pick`,
-    body: `The draft lottery has been conducted. ${name} will pick first.`,
-    teamIds: top ? [top.teamId] : [],
+    headline: order.length > 0 ? `${name} win the #1 pick` : 'Draft lottery conducted',
+    body:
+      order.length > 0
+        ? `The draft lottery has been conducted. ${name} will pick first.`
+        : 'The draft lottery has been conducted.',
+    teamIds: top?.teamId ? [top.teamId] : [],
     playerIds: [],
     importance: 'high',
   }

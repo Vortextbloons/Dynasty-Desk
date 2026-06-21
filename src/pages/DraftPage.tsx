@@ -93,7 +93,17 @@ export function DraftPage() {
         <Card>
           <CardContent className="p-4 flex items-center justify-between">
             <span className="text-sm">Waiting for other teams to pick…</span>
-            <Button size="sm" onClick={() => autoDraftOffClock()}>
+            <Button
+              size="sm"
+              onClick={() => {
+                const result = autoDraftOffClock()
+                if (!result.ok) {
+                  toast.error(result.reason ?? 'Could not sim to your pick.')
+                } else if (result.picksSimulated === 0) {
+                  toast.message('Already on your pick.')
+                }
+              }}
+            >
               Sim to my pick
             </Button>
           </CardContent>
