@@ -24,15 +24,15 @@ function makePlayer(contract: Player['contract']): Player {
     heightInches: 75,
     weightLbs: 190,
     teamId: 'team-1',
-    ratings: {} as any,
-    tendencies: {} as any,
-    traits: {} as any,
+    ratings: {} as Player['ratings'],
+    tendencies: {} as Player['tendencies'],
+    traits: {} as Player['traits'],
     contract,
     morale: { level: 50, happiness: 50, roleSatisfaction: 75, teamSatisfaction: 50, tradeRequest: false, tradeRequestLevel: 0 },
     health: emptyHealth(),
     development: emptyDevelopment(),
     fatigue: 0,
-    seasonStats: {} as any,
+    seasonStats: {} as Player['seasonStats'],
     careerStats: [],
     historicalSeasons: [],
   }
@@ -55,7 +55,7 @@ function makeTeam(payroll: number): Team {
       targetMinutes: {},
       autoRotation: true,
     },
-    strategy: { offense: {} as any, defense: {} as any },
+    strategy: { offense: {} as Team['strategy']['offense'], defense: {} as Team['strategy']['defense'] },
     finances: {
       salaryCap: DEFAULT_LEAGUE_RULES.salaryCap,
       apron: DEFAULT_LEAGUE_RULES.apron,
@@ -92,7 +92,7 @@ function makeTeam(payroll: number): Team {
     taxpayerHistory: [],
     trainingFocus: 'balanced',
     loadManagement: [],
-  } as Team
+  }
 }
 
 const rules = getLeagueRules('2025-26')

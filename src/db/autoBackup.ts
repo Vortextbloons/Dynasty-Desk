@@ -19,7 +19,7 @@ export async function restoreFromBackup(saveId: string): Promise<GameSave | null
   const backupId = `backup-${saveId}`
   const backup = await db.backups.get(backupId)
   if (!backup) return null
-  return structuredClone(backup.data) as GameSave
+  return structuredClone(backup.data)
 }
 
 export async function backupExists(saveId: string): Promise<boolean> {

@@ -11,7 +11,7 @@ export function updateRivalry(
   isPlayoff: boolean,
 ): Rivalry {
   const id = createRivalryId(teamAId, teamBId)
-  let rivalry = rivalries[id] ?? emptyRivalry(teamAId, teamBId)
+  const rivalry = rivalries[id] ?? emptyRivalry(teamAId, teamBId)
 
   if (isPlayoff) {
     rivalry.playoffMeetings++

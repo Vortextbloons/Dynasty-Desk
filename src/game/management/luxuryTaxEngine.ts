@@ -12,7 +12,7 @@ export interface LuxuryTaxBreakdown {
   isTaxpayer: boolean
   isRepeater: boolean
   triggersPickFreeze: boolean
-  bracketDetail: Array<{ threshold: number; rate: number; amount: number }>
+  bracketDetail: { threshold: number; rate: number; amount: number }[]
 }
 
 export function computeFullTaxBill(

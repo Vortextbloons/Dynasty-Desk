@@ -39,10 +39,7 @@ export function TutorialOverlay() {
     tutorial.currentStep !== null ? FIRST_RUN_TUTORIAL[tutorial.currentStep] : undefined
 
   useEffect(() => {
-    if (!step) {
-      setTargetRect(null)
-      return
-    }
+    if (!step) return
 
     let raf: number
     let retries = 0

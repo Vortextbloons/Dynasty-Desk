@@ -2,13 +2,14 @@
 import { describe, it, expect } from 'vitest'
 import { transitionToOffseason } from '@/game/league/offseasonTransition'
 import { makeTeam, makeRoster } from '@/tests/fixtures'
+import type { Player } from '@/game/models/player'
 import type { LeagueState } from '@/game/models/league'
 import type { PlayoffBracket } from '@/game/models/playoff'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
 function makeTestLeague(): LeagueState {
   const teams: Record<string, ReturnType<typeof makeTeam>> = {}
-  const players: Record<string, any> = {}
+  const players: Record<string, Player> = {}
 
   const t1 = makeTeam({ id: 'champ', city: 'Boston', name: 'Celtics', abbreviation: 'BOS', conference: 'East' })
   const t2 = makeTeam({ id: 'runner', city: 'Oklahoma City', name: 'Thunder', abbreviation: 'OKC', conference: 'West' })

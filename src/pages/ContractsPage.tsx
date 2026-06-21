@@ -212,7 +212,7 @@ export function ContractsPage() {
                 players={freeAgents}
                 rules={league.rules}
                 isUserTeam={false}
-                onAction={() => {}}
+                onAction={() => { /* noop - free agents have no actions */ }}
               />
               {freeAgents.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">

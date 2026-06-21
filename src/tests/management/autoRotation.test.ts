@@ -6,7 +6,7 @@ import { validateRotation } from '@/game/management/rotationValidator'
 import type { Player } from '@/game/models/player'
 import { makePlayer } from '@/tests/fixtures'
 
-function makePlayers(specs: Array<{ id: string; overall: number; position?: Player['position']; ballHandling?: number; passing?: number; interiorDefense?: number; health?: Player['health'] }>): Map<string, Player> {
+function makePlayers(specs: { id: string; overall: number; position?: Player['position']; ballHandling?: number; passing?: number; interiorDefense?: number; health?: Player['health'] }[]): Map<string, Player> {
   const map = new Map<string, Player>()
   for (const s of specs) {
     map.set(s.id, makePlayer({
@@ -66,8 +66,8 @@ describe('generateAutoRotation', () => {
     const roster = specs.map((s) => s.id)
 
     const lineup = generateAutoRotation(roster, players)
-    const p1Minutes = lineup.targetMinutes['p1'] ?? 0
-    const p2Minutes = lineup.targetMinutes['p2'] ?? 0
+    const p1Minutes = lineup.targetMinutes.p1 ?? 0
+    const p2Minutes = lineup.targetMinutes.p2 ?? 0
     expect(p1Minutes).toBe(36)
     expect(p2Minutes).toBe(36)
   })
@@ -206,7 +206,7 @@ describe('generateAutoRotation', () => {
   })
 
   it('produces a rotation that passes validation', () => {
-    const specs: Array<{ id: string; overall: number; position?: Player['position']; ballHandling?: number; passing?: number; interiorDefense?: number; health?: Player['health'] }> = Array.from({ length: 13 }, (_, i) => ({
+    const specs: { id: string; overall: number; position?: Player['position']; ballHandling?: number; passing?: number; interiorDefense?: number; health?: Player['health'] }[] = Array.from({ length: 13 }, (_, i) => ({
       id: `p${i + 1}`,
       overall: 80 - i * 2,
       position: (['PG', 'SG', 'SF', 'PF', 'C'] as const)[i % 5],

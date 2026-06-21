@@ -6,6 +6,28 @@ interface WorkerProgress {
   total: number
 }
 
+interface WorkerResultMessage {
+  type: 'result'
+  payload: SimulateGameOutput
+}
+
+interface WorkerProgressMessage {
+  type: 'progress'
+  current: number
+  total: number
+}
+
+interface WorkerBatchResultMessage {
+  type: 'batchResult'
+  payload: SimulateGameOutput[]
+}
+
+interface WorkerCancelledMessage {
+  type: 'cancelled'
+}
+
+type WorkerMessage = WorkerResultMessage | WorkerProgressMessage | WorkerBatchResultMessage | WorkerCancelledMessage
+
 export function useWorkerSimulator() {
   const workerRef = useRef<Worker | null>(null)
 
@@ -16,12 +38,10 @@ export function useWorkerSimulator() {
   }, [])
 
   const getWorker = useCallback(() => {
-    if (!workerRef.current) {
-      workerRef.current = new Worker(
-        new URL('@/workers/simWorker.ts', import.meta.url),
-        { type: 'module' },
-      )
-    }
+    workerRef.current ??= new Worker(
+      new URL('@/workers/simWorker.ts', import.meta.url),
+      { type: 'module' },
+    )
     return workerRef.current
   }, [])
 
@@ -29,7 +49,7 @@ export function useWorkerSimulator() {
     (input: SimulateGameInput): Promise<SimulateGameOutput> => {
       return new Promise((resolve) => {
         const worker = getWorker()
-        const handler = (e: MessageEvent) => {
+        const handler = (e: MessageEvent<WorkerMessage>) => {
           if (e.data.type === 'result') {
             worker.removeEventListener('message', handler)
             resolve(e.data.payload)
@@ -49,7 +69,7 @@ export function useWorkerSimulator() {
     ): Promise<SimulateGameOutput[]> => {
       return new Promise((resolve, reject) => {
         const worker = getWorker()
-        const handler = (e: MessageEvent) => {
+        const handler = (e: MessageEvent<WorkerMessage>) => {
           if (e.data.type === 'progress') {
             onProgress?.({ current: e.data.current, total: e.data.total })
           } else if (e.data.type === 'batchResult') {

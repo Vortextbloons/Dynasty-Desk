@@ -52,7 +52,7 @@ export function RecordsPage() {
   const save = useGameStore((s) => s.save)
   const [tab, setTab] = useState<Tab>('single_game')
 
-  const records = save?.league.records ?? []
+  const records = useMemo(() => save?.league.records ?? [], [save])
   const players = save?.league.players ?? {}
   const teams = save?.league.teams ?? {}
 

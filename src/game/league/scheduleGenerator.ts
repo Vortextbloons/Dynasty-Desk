@@ -28,13 +28,13 @@ function buildMatchups(teams: Team[]): Matchup[] {
   const byConfDiv: Record<string, Team[]> = {}
   for (const team of teams) {
     const key = `${team.conference}-${team.division}`
-    if (!byConfDiv[key]) byConfDiv[key] = []
-    byConfDiv[key]!.push(team)
+    byConfDiv[key] ??= []
+    byConfDiv[key].push(team)
   }
 
   const byConf: Record<string, Team[]> = {}
   for (const team of teams) {
-    if (!byConf[team.conference]) byConf[team.conference] = []
+    byConf[team.conference] ??= []
     byConf[team.conference]!.push(team)
   }
 

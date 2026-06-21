@@ -39,7 +39,7 @@ export function ProspectCard({ prospect, scoutingPoints, onSelect, onTwoWay, sel
             Scouted: {scoutingPoints}/100
           </div>
         )}
-        {(onSelect || onTwoWay) && (
+        {(onSelect ?? onTwoWay) && (
           <div className="flex gap-2">
             {onSelect && (
               <Button size="sm" variant="secondary" className="flex-1" onClick={onSelect}>

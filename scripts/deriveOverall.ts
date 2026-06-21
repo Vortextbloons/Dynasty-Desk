@@ -33,11 +33,11 @@ function deriveOverallForSnapshot(snapshotDir: string): number {
   const rosterPath = join(snapshotDir, 'roster.json')
   if (!existsSync(rosterPath)) return 0
 
-  const players: StaticPlayer[] = JSON.parse(readFileSync(rosterPath, 'utf-8'))
+  const players = JSON.parse(readFileSync(rosterPath, 'utf-8')) as StaticPlayer[]
   let updated = 0
 
   for (const player of players) {
-    const position = player.position as Position
+    const position = player.position
     if (!(position in OVERALL_WEIGHTS)) continue
 
     const overall = computeOverall(player.ratings as PlayerRatings, position)

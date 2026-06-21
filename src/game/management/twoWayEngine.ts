@@ -31,7 +31,7 @@ export function isPlayoffEligible(playerId: string, league: LeagueState): boolea
 }
 
 export function addTwoWayPlayer(team: Team, playerId: string): void {
-  if (!team.twoWayPlayers) team.twoWayPlayers = []
+  team.twoWayPlayers ??= []
   if (!team.twoWayPlayers.includes(playerId)) {
     team.twoWayPlayers.push(playerId)
   }

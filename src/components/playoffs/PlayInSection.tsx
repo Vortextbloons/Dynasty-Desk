@@ -54,7 +54,7 @@ function PlayInConference({ conference, games, teams }: PlayInConferenceProps) {
               winnerId={game9v10.winnerTeamId}
             />
           )}
-          {finalGame && finalGame.homeTeamId && (
+          {finalGame?.homeTeamId && (
             <PlayInGameRow
               label="Final Play-In"
               homeTeam={teams[finalGame.homeTeamId]}

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function HallOfFamePage() {
   const save = useGameStore((s) => s.save)
-  const hallOfFame = save?.league.hallOfFame ?? []
+  const hallOfFame = useMemo(() => save?.league.hallOfFame ?? [], [save])
   const players = save?.league.players ?? {}
 
   const grouped = useMemo(() => {

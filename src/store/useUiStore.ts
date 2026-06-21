@@ -15,11 +15,13 @@ interface UiStore {
 
 const TUTORIAL_STORAGE_KEY = 'dd-tutorial-state'
 
-function loadTutorialState() {
+function loadTutorialState(): { completedSteps: string[]; dismissed: boolean } {
   try {
     const raw = localStorage.getItem(TUTORIAL_STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
-  } catch {}
+    if (raw) return JSON.parse(raw) as { completedSteps: string[]; dismissed: boolean }
+  } catch {
+    // ignore corrupt localStorage data
+  }
   return { completedSteps: [], dismissed: false }
 }
 

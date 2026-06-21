@@ -167,7 +167,7 @@ export function AssetPickerDialog({
                 picks.map((pick) => (
                   <button
                     key={pick.id}
-                    disabled={pick.stepienBlocked || (requiresTarget && !targetTeamId)}
+                    disabled={pick.stepienBlocked ? true : (requiresTarget && !targetTeamId)}
                     onClick={() => {
                       onSelect(withTarget({ type: 'pick', pickId: pick.id }))
                       onOpenChange(false)

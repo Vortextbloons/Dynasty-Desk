@@ -83,7 +83,7 @@ async function main() {
   for (const snapshot of snapshots) {
     const rosterPath = join(DATA_DIR, snapshot.basePath.replace('/data/nba/', ''), 'roster.json')
     if (!existsSync(rosterPath)) continue
-    const players: StaticPlayer[] = JSON.parse(readFileSync(rosterPath, 'utf-8'))
+    const players = JSON.parse(readFileSync(rosterPath, 'utf-8')) as StaticPlayer[]
     for (const p of players) {
       if (p.externalId) allExternalIds.add(p.externalId)
     }

@@ -63,7 +63,7 @@ export function PhaseTimeline({
           )}
           <Button
             onClick={onAdvance}
-            disabled={advancing || !canAdvance}
+            disabled={advancing ? true : !canAdvance}
             size="sm"
           >
             Advance to {PHASES.find((p) => p.id === next)?.label ?? next}

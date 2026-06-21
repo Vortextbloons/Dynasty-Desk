@@ -441,7 +441,7 @@ describe('offseasonEngine', () => {
     ]
     const draft = startDraft(
       league,
-      league.draftClasses[classId]!,
+      league.draftClasses[classId],
       [
         { teamId: 'other', pickNumber: 1 },
         { teamId: 'user', pickNumber: 2 },

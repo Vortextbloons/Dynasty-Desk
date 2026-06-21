@@ -4,6 +4,8 @@ import { turnoverChance, resolveTurnover } from '@/game/sim/turnoverModel'
 import { SeededRandom } from '@/game/sim/rng'
 import { createRngState } from '@/game/core/seededRandom'
 import { makePlayer } from '@/tests/sim/fixtures'
+import type { PlayerRatings } from '@/game/models/ratings'
+import type { PlayerTendencies } from '@/game/models/tendencies'
 
 describe('turnoverChance', () => {
   it('is bounded between 0.05 and 0.30', () => {
@@ -11,7 +13,7 @@ describe('turnoverChance', () => {
       makePlayer({ id: 'bh' }),
       makePlayer({
         id: 'd1',
-        ratings: { perimeterDefense: 50, steal: 50, defensiveIq: 50 } as any,
+        ratings: { perimeterDefense: 50, steal: 50, defensiveIq: 50 } as PlayerRatings,
       }),
     ]
     for (let t = 0; t < 50; t++) {
@@ -24,12 +26,12 @@ describe('turnoverChance', () => {
   it('high turnover tendency + weak handles → ~upper bound', () => {
     const bh = makePlayer({
       id: 'risky',
-      tendencies: { turnoverRate: 30 } as any,
-      ratings: { ballHandling: 40, passing: 50 } as any,
+      tendencies: { turnoverRate: 30 } as PlayerTendencies,
+      ratings: { ballHandling: 40, passing: 50 } as PlayerRatings,
     })
     const d = makePlayer({
       id: 'd1',
-      ratings: { perimeterDefense: 95, steal: 95, defensiveIq: 95 } as any,
+      ratings: { perimeterDefense: 95, steal: 95, defensiveIq: 95 } as PlayerRatings,
     })
     const c = turnoverChance(bh, [d])
     expect(c).toBeGreaterThan(0.15)
@@ -38,12 +40,12 @@ describe('turnoverChance', () => {
   it('low tendency + great handles → ~lower bound', () => {
     const bh = makePlayer({
       id: 'safe',
-      tendencies: { turnoverRate: 5 } as any,
-      ratings: { ballHandling: 95, passing: 95 } as any,
+      tendencies: { turnoverRate: 5 } as PlayerTendencies,
+      ratings: { ballHandling: 95, passing: 95 } as PlayerRatings,
     })
     const d = makePlayer({
       id: 'd1',
-      ratings: { perimeterDefense: 40, steal: 40, defensiveIq: 40 } as any,
+      ratings: { perimeterDefense: 40, steal: 40, defensiveIq: 40 } as PlayerRatings,
     })
     const c = turnoverChance(bh, [d])
     expect(c).toBeLessThan(0.15)

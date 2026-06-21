@@ -127,7 +127,7 @@ describe('evaluateTradeForAI', () => {
       currentTeamId: 'contender',
       prospectId: null,
     }
-    league.draftPicks = [pick as never]
+    league.draftPicks = [pick]
 
     const proposal: TradeProposal = {
       id: 'p3team',

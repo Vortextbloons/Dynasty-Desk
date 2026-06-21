@@ -19,7 +19,7 @@ export function findTrades(
   options: TradeFinderOptions,
 ): TradeProposal[] {
   const target = league.players[targetPlayerId]
-  if (!target || !target.teamId) return []
+  if (!target?.teamId) return []
 
   const holdingTeam = league.teams[target.teamId]
   if (!holdingTeam) return []
@@ -152,7 +152,7 @@ function findMultiTeamTrades(
   options: TradeFinderOptions,
 ): TradeProposal[] {
   const target = league.players[targetPlayerId]
-  if (!target || !target.teamId) return []
+  if (!target?.teamId) return []
   const holdingTeam = league.teams[target.teamId]
   if (!holdingTeam) return []
 

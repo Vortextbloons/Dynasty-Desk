@@ -254,7 +254,7 @@ function computePositionNeed(team: Team, players: Record<string, Player>): Recor
   for (const pos of Object.keys(need) as Position[]) {
     const count = positionCounts[pos]?.length ?? 0
     const avgOvr = positionCounts[pos]?.length
-      ? positionCounts[pos]!.reduce((a, b) => a + b, 0) / positionCounts[pos]!.length
+      ? positionCounts[pos].reduce((a, b) => a + b, 0) / positionCounts[pos].length
       : 0
     const countGap = Math.max(0, maxPerPos - count) / maxPerPos
     const qualityGap = Math.max(0, 70 - avgOvr) / 70

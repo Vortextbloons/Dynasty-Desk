@@ -13,7 +13,7 @@ export function AwardsPage() {
   const [tab, setTab] = useState<Tab>('current')
 
   const races = save?.league.awardRaces ?? {}
-  const history = save?.league.awardsHistory ?? []
+  const history = useMemo(() => save?.league.awardsHistory ?? [], [save])
   const players = save?.league.players ?? {}
 
   const pastSeasons = useMemo(

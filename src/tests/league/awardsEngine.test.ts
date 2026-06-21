@@ -6,12 +6,12 @@ import type { LeagueState } from '@/game/models/league'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 import type { PlayoffBracket } from '@/game/models/playoff'
 import type { ScheduledGame } from '@/game/models/game'
-import type { BoxScoreResult } from '@/game/models/sim'
+import type { BoxScoreResult, PlayerGameStats } from '@/game/models/sim'
 
 function makeBoxScore(
   playerStats: Record<string, { points: number; totalRebounds: number; assists: number; minutes: number; teamId: string }>,
 ): BoxScoreResult {
-  const stats: Record<string, any> = {}
+  const stats: Record<string, PlayerGameStats> = {}
   for (const [id, s] of Object.entries(playerStats)) {
     stats[id] = {
       playerId: id,

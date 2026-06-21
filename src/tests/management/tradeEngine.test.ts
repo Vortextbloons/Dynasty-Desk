@@ -681,7 +681,7 @@ describe('CRIT fixes', () => {
       status: 'draft',
     }
     const result = executeTrade(proposal, league, rules)
-    expect(result.league.recentlyTraded?.['a1']).toBe('2025-26')
-    expect(result.league.recentlyTraded?.['b1']).toBe('2025-26')
+    expect(result.league.recentlyTraded?.a1).toBe('2025-26')
+    expect(result.league.recentlyTraded?.b1).toBe('2025-26')
   })
 })

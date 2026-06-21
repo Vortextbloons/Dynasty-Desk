@@ -12,7 +12,9 @@ import {
 } from '@/game/league/playoffEngine'
 import { SeededRandom } from '@/game/sim/rng'
 import type { LeagueState } from '@/game/models/league'
+import type { PlayoffBracket } from '@/game/models/playoff'
 import type { TeamStanding } from '@/game/models/game'
+import type { LeagueRules } from '@/game/models/leagueRules'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
 function makeStanding(overrides: Partial<TeamStanding> = {}): TeamStanding {
@@ -51,7 +53,7 @@ function makeStanding(overrides: Partial<TeamStanding> = {}): TeamStanding {
   }
 }
 
-function makeLeague(overrides: Record<string, any> = {}): LeagueState {
+function makeLeague(overrides: Partial<Omit<LeagueState, 'rules'>> & { rules?: Partial<LeagueRules> } = {}): LeagueState {
   const eastTeams = Array.from({ length: 10 }, (_, i) =>
     makeTeam({ id: `east-${i + 1}`, conference: 'East', abbreviation: `E${i + 1}` })
   )
@@ -134,7 +136,7 @@ function makeLeague(overrides: Record<string, any> = {}): LeagueState {
     hallOfFame: [],
     userTeamId: 'east-1',
     ...restOverrides,
-  } as LeagueState
+  }
 }
 
 beforeEach(() => {
@@ -365,8 +367,8 @@ describe('getPlayoffSeeds', () => {
 
 describe('isBracketComplete', () => {
   it('returns true when status is complete', () => {
-    expect(isBracketComplete({ status: 'complete' } as any)).toBe(true)
-    expect(isBracketComplete({ status: 'bracket' } as any)).toBe(false)
+    expect(isBracketComplete({ status: 'complete' } as PlayoffBracket)).toBe(true)
+    expect(isBracketComplete({ status: 'bracket' } as PlayoffBracket)).toBe(false)
   })
 })
 

@@ -132,7 +132,7 @@ export function endOfSeasonDevelopment(
     }
     delta = Math.round(delta * 10) / 10
     if (Math.abs(delta) < 0.1) continue
-    const current = newRatings[key] as number
+    const current = newRatings[key]
     const next = clamp(Math.round(current + delta), 25, 99)
     ratingsDelta[key] = next - current
     ;(newRatings as Record<string, number>)[key] = next

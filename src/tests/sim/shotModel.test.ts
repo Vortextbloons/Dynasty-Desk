@@ -11,11 +11,11 @@ import type { PlayerTendencies } from '@/game/models/tendencies'
 import type { ShotContext } from '@/game/sim/shotModel'
 
 function overrideRatings(p: ReturnType<typeof makePlayer>, partial: Partial<PlayerRatings>) {
-  return makePlayer({ id: p.id, position: p.position, ratings: { ...p.ratings, ...partial } as PlayerRatings })
+  return makePlayer({ id: p.id, position: p.position, ratings: { ...p.ratings, ...partial } })
 }
 
 function overrideTendencies(p: ReturnType<typeof makePlayer>, partial: Partial<PlayerTendencies>) {
-  return makePlayer({ id: p.id, position: p.position, tendencies: { ...p.tendencies, ...partial } as PlayerTendencies })
+  return makePlayer({ id: p.id, position: p.position, tendencies: { ...p.tendencies, ...partial } })
 }
 
 function ctx(overrides: Partial<ShotContext> = {}): ShotContext {
@@ -34,8 +34,8 @@ function ctx(overrides: Partial<ShotContext> = {}): ShotContext {
     }),
   ]
   return {
-    shooter: overrides.shooter ?? (offense[0] as any),
-    defender: overrides.defender ?? (defense[0] as any),
+    shooter: overrides.shooter ?? offense[0]!,
+    defender: overrides.defender ?? defense[0]!,
     offenseLineup: offense,
     defenseLineup: defense,
     zone: overrides.zone ?? 'at_rim',

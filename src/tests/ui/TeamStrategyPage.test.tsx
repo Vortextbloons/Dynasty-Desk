@@ -5,7 +5,7 @@ import { defaultStrategy } from '@/game/models/defaults'
 
 const mockUseGameStore = vi.fn()
 vi.mock('@/store/useGameStore', () => ({
-  useGameStore: (selector: (s: unknown) => unknown) => mockUseGameStore(selector),
+  useGameStore: (selector: (s: unknown) => unknown): unknown => mockUseGameStore(selector),
 }))
 
 describe('TeamStrategyPage', () => {

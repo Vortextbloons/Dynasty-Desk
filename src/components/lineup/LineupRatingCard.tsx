@@ -60,7 +60,7 @@ export function LineupRatingCard({ rating }: LineupRatingCardProps) {
       <CardContent>
         <div className="grid gap-2 sm:grid-cols-2">
           {dimensions.map(([key, label]) => {
-            const value = rating[key as keyof LineupRating] as number
+            const value = rating[key as keyof LineupRating]
             return (
               <div key={key} className="flex items-center gap-2">
                 <span className="w-24 text-xs text-[var(--color-muted-foreground)] shrink-0">

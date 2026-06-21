@@ -325,8 +325,9 @@ describe('buildSave', () => {
 
   it('computes overall when snapshot rating omits it', () => {
     const snapshot = makeFakeSnapshot()
-    const player = snapshot.players[0] as any
-    delete player.ratings.overall
+    const player = snapshot.players[0]!
+    const { overall: _removed, ...ratingsWithout } = player.ratings
+    player.ratings = ratingsWithout as typeof player.ratings
 
     const save = buildSave({
       snapshot,

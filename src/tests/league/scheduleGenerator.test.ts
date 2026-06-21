@@ -106,7 +106,7 @@ describe('generateSchedule', () => {
     for (const game of games) {
       const homeTeam = TEAMS.find((t) => t.id === game.homeTeamId)
       const awayTeam = TEAMS.find((t) => t.id === game.awayTeamId)
-      if (homeTeam && awayTeam && homeTeam.conference === awayTeam.conference && homeTeam.division === awayTeam.division) {
+      if (homeTeam && homeTeam.conference === awayTeam?.conference && homeTeam.division === awayTeam.division) {
         const key = [homeTeam.id, awayTeam.id].sort().join('-')
         divisionMatchups.set(key, (divisionMatchups.get(key) ?? 0) + 1)
       }
@@ -121,7 +121,7 @@ describe('generateSchedule', () => {
     for (const game of games) {
       const homeTeam = TEAMS.find((t) => t.id === game.homeTeamId)
       const awayTeam = TEAMS.find((t) => t.id === game.awayTeamId)
-      if (homeTeam && awayTeam && homeTeam.conference === awayTeam.conference && homeTeam.division !== awayTeam.division) {
+      if (homeTeam && homeTeam.conference === awayTeam?.conference && homeTeam.division !== awayTeam.division) {
         const key = [homeTeam.id, awayTeam.id].sort().join('-')
         confMatchups.set(key, (confMatchups.get(key) ?? 0) + 1)
       }

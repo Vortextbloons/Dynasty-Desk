@@ -17,8 +17,8 @@ const COMP_STANDARD_THRESHOLD_M = 15_000_000
 
 export function identifyFreeAgents(league: LeagueState): string[] {
   return Object.values(league.players)
-    .filter((p) => p && p.teamId === null && p.contract.yearsRemaining <= 0)
-    .map((p) => p!.id)
+    .filter((p) => p?.teamId === null && p.contract.yearsRemaining <= 0)
+    .map((p) => p.id)
 }
 
 export function identifyRestrictedFreeAgents(
@@ -29,12 +29,11 @@ export function identifyRestrictedFreeAgents(
   return Object.values(league.players)
     .filter(
       (p) =>
-        p &&
-        p.teamId === null &&
+        p?.teamId === null &&
         p.contract.yearsRemaining <= 0 &&
         qoPlayers.has(p.id),
     )
-    .map((p) => p!.id)
+    .map((p) => p.id)
 }
 
 export function yearsWithTeam(player: Player, teamId: string): number {
@@ -420,7 +419,7 @@ export function finalizeStrandedFreeAgents(
 
     for (const playerId of faIds) {
       const player = league.players[playerId]
-      if (!player || player.teamId !== null) continue
+      if (player?.teamId !== null) continue
 
       const candidates = Object.values(league.teams)
         .filter(

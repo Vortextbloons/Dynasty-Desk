@@ -197,7 +197,7 @@ export async function advancePhase(
     }
   }
 
-  const currentIdx = PHASE_ORDER.indexOf(league.phase as typeof PHASE_ORDER[number])
+  const currentIdx = PHASE_ORDER.indexOf(league.phase)
   if (currentIdx < 0 || currentIdx >= PHASE_ORDER.length - 1) {
     return { newPhase: league.phase, newsEvents: [] }
   }
@@ -296,7 +296,7 @@ function finalizePreseasonFreeAgency(
 
 function signUnsignedRookies(league: LeagueState): void {
   for (const draft of Object.values(league.drafts)) {
-    if (!draft || draft.status !== 'complete') continue
+    if (draft?.status !== 'complete') continue
     for (const pick of draft.picks) {
       if (pick.signedAt) continue
       const team = league.teams[pick.pickedByTeamId]
@@ -326,7 +326,7 @@ function signUnsignedRookies(league: LeagueState): void {
       team.finances.capSpace = league.rules.salaryCap - team.finances.payroll
 
       if (pick.isTwoWay) {
-        if (!team.twoWayPlayers) team.twoWayPlayers = []
+        team.twoWayPlayers ??= []
         team.twoWayPlayers.push(player.id)
       }
     }
@@ -346,9 +346,7 @@ export function regenerateScheduleForNewSeason(
   league.games = {}
   league.playoffBracket = undefined
 
-  const teams = Object.values(league.teams).filter(Boolean) as NonNullable<
-    (typeof league.teams)[string]
-  >[]
+  const teams = Object.values(league.teams).filter(Boolean)
   league.standings = initializeStandings(teams, seasonLabel, league.rules.regularSeasonGames)
   league.scheduleGenerated = false
 
@@ -524,7 +522,7 @@ function formatPhaseLabel(phase: LeaguePhase): string {
 }
 
 export function getNextPhase(phase: LeaguePhase): LeaguePhase | null {
-  const idx = PHASE_ORDER.indexOf(phase as typeof PHASE_ORDER[number])
+  const idx = PHASE_ORDER.indexOf(phase)
   if (idx < 0 || idx >= PHASE_ORDER.length - 1) return null
   return PHASE_ORDER[idx + 1] ?? null
 }
@@ -532,7 +530,7 @@ export function getNextPhase(phase: LeaguePhase): LeaguePhase | null {
 export function getPendingTeamOptionCount(league: LeagueState, teamId: string): number {
   let count = 0
   for (const p of Object.values(league.players)) {
-    if (!p || p.teamId !== teamId) continue
+    if (p?.teamId !== teamId) continue
     if (p.contract.option === 'team' && p.contract.yearsRemaining <= 1) count++
   }
   return count
@@ -541,7 +539,7 @@ export function getPendingTeamOptionCount(league: LeagueState, teamId: string): 
 export function getPendingPlayerOptionCount(league: LeagueState, teamId: string): number {
   let count = 0
   for (const p of Object.values(league.players)) {
-    if (!p || p.teamId !== teamId) continue
+    if (p?.teamId !== teamId) continue
     if (p.contract.option === 'player' && p.contract.yearsRemaining <= 1) count++
   }
   return count
@@ -568,7 +566,7 @@ export function getPlayersWithPendingOptions(
 export function getExpiringContractCount(league: LeagueState, teamId: string): number {
   let count = 0
   for (const p of Object.values(league.players)) {
-    if (!p || p.teamId !== teamId) continue
+    if (p?.teamId !== teamId) continue
     if (p.contract.yearsRemaining <= 1) count++
   }
   return count

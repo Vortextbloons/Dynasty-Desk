@@ -142,8 +142,7 @@ describe('PlayerHeadshot', () => {
   })
 
   it('has img element when externalId is provided', () => {
-    const player = makePlayer() as any
-    player.externalId = '12345'
+    const player = makePlayer({ externalId: '12345' })
 
     render(
       <MemoryRouter>
@@ -162,7 +161,7 @@ describe('TradeValueCard', () => {
   it('renders numeric trade value score for overall 95', () => {
     render(
       <MemoryRouter>
-        <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 95 } as any })} />
+        <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 95 } })} />
       </MemoryRouter>,
     )
 
@@ -172,7 +171,7 @@ describe('TradeValueCard', () => {
   it('renders overall factor for overall 72', () => {
     render(
       <MemoryRouter>
-        <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 72 } as any })} />
+        <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 72 } })} />
       </MemoryRouter>,
     )
 
@@ -182,7 +181,7 @@ describe('TradeValueCard', () => {
   it('renders low score for overall 30', () => {
     render(
       <MemoryRouter>
-        <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 30 } as any })} />
+        <TradeValueCard player={makePlayer({ ratings: { ...makePlayer().ratings, overall: 30 } })} />
       </MemoryRouter>,
     )
 

@@ -132,7 +132,7 @@ describe('TradeBuilder', () => {
         onSaveProtection={() => undefined}
       />,
     )
-    const meter = screen.queryByText(/AI interest/) || screen.queryByText(/Likely/) || screen.queryByText(/Vetoed/) || screen.queryByText(/Illegal Trade/)
+    const meter = screen.queryByText(/AI interest/) ?? screen.queryByText(/Likely/) ?? screen.queryByText(/Vetoed/) ?? screen.queryByText(/Illegal Trade/)
     expect(meter).toBeTruthy()
   })
 

@@ -27,7 +27,7 @@ describe('PickProtectionEditor', () => {
     )
     const badge = screen.getByText(/top-1-10/)
     fireEvent.click(badge)
-    const input = screen.getByPlaceholderText(/1-10/) as HTMLInputElement
+    const input = screen.getByPlaceholderText(/1-10/)
     fireEvent.change(input, { target: { value: '1-5' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onSave).toHaveBeenCalledWith('p1', '1-5')
@@ -44,7 +44,7 @@ describe('PickProtectionEditor', () => {
       />,
     )
     fireEvent.click(screen.getByText(/top-1-10/))
-    const input = screen.getByPlaceholderText(/1-10/) as HTMLInputElement
+    const input = screen.getByPlaceholderText(/1-10/)
     fireEvent.change(input, { target: { value: '' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onSave).toHaveBeenCalledWith('p1', null)
@@ -61,7 +61,7 @@ describe('PickProtectionEditor', () => {
       />,
     )
     fireEvent.click(screen.getByText(/top-1-10/))
-    const input = screen.getByPlaceholderText(/1-10/) as HTMLInputElement
+    const input = screen.getByPlaceholderText(/1-10/)
     fireEvent.change(input, { target: { value: '1-3' } })
     fireEvent.keyDown(input, { key: 'Escape' })
     expect(onSave).not.toHaveBeenCalled()

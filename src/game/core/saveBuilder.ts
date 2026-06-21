@@ -385,7 +385,7 @@ function seedDraftPicks(snapshot: StaticSnapshot): DraftPick[] {
 }
 
 function parseSeasonYear(seasonLabel: string): number {
-  const match = seasonLabel.match(/^(\d{4})/)
+  const match = /^(\d{4})/.exec(seasonLabel)
   return match ? Number(match[1]) : new Date().getFullYear()
 }
 

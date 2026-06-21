@@ -104,7 +104,7 @@ export async function updateSave(save: GameSave): Promise<void> {
   try {
     const existing = await db.saves.get(save.metadata.id)
     if (existing?.data) {
-      const backupTime = await createBackup(existing.data as GameSave)
+      const backupTime = await createBackup(existing.data)
       save.metadata.backupCreatedAt = backupTime
     }
   } catch {

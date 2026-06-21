@@ -59,7 +59,7 @@ export function computeBackToBackTeams(
   const prevDate = addDays(gameDate, -1)
   const backToBack = new Set<string>()
   for (const g of Object.values(games)) {
-    if (!g || g.status !== 'final' || g.date !== prevDate) continue
+    if (g?.status !== 'final' || g.date !== prevDate) continue
     if (g.homeTeamId === homeTeamId || g.awayTeamId === homeTeamId) {
       backToBack.add(homeTeamId)
     }

@@ -44,7 +44,7 @@ export function formatSeasonLabel(startYear: number): string {
 }
 
 export function parseSeasonStartYear(season: string): number {
-  const m = season.match(/^(\d{4})/)
+  const m = /^(\d{4})/.exec(season)
   return m ? Number(m[1]) : new Date().getFullYear()
 }
 
@@ -518,7 +518,7 @@ export function simulateDraftPick(
   if (!prospect) return { error: 'Prospect not available.' }
 
   const owner = getCurrentPickOwner(league, draft)
-  if (!owner || owner.teamId !== teamId) {
+  if (owner?.teamId !== teamId) {
     return { error: 'Not your pick.' }
   }
 
@@ -587,7 +587,7 @@ export function autoPickForTeam(
   rng: SeededRandom,
 ): DraftPickResult | { error: string } | null {
   const owner = getCurrentPickOwner(league, draft)
-  if (!owner || owner.teamId !== teamId) return null
+  if (owner?.teamId !== teamId) return null
 
   const available = getAvailableProspects(league, draft)
   if (available.length === 0) return { error: 'No prospects left.' }

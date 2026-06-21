@@ -6,6 +6,7 @@ import {
 } from '@/game/league/gameFinalization'
 import { makePlayer } from '@/tests/fixtures'
 import type { ScheduledGame } from '@/game/models/game'
+import type { LeagueState } from '@/game/models/league'
 
 describe('gameFinalization helpers', () => {
   it('detects back-to-back teams from prior final game', () => {
@@ -56,7 +57,7 @@ describe('gameFinalization helpers', () => {
     })
     const league = {
       players: { p1: injured, p2: idle },
-    } as any
+    } as LeagueState
 
     applyLeagueInjuryRecovery(league, 2)
     expect(injured.health.gamesRemaining).toBe(3)

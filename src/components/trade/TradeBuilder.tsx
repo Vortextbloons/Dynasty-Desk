@@ -53,10 +53,13 @@ export function TradeBuilder({
 
   const legality = validateTradeLegality(proposal, league, league.rules)
 
-  const projectedWins: Record<string, number> = {}
-  for (const [tid, standing] of Object.entries(league.standings)) {
-    projectedWins[tid] = standing.wins || 41
-  }
+  const projectedWins: Record<string, number> = useMemo(() => {
+    const wins: Record<string, number> = {}
+    for (const [tid, standing] of Object.entries(league.standings)) {
+      wins[tid] = standing.wins || 41
+    }
+    return wins
+  }, [league.standings])
 
   const aiSide = proposal.sides.find((s) => s.teamId !== userTeamId)
   const aiTeam = aiSide ? league.teams[aiSide.teamId] : null
@@ -113,13 +116,13 @@ export function TradeBuilder({
   function handleSubmit() {
     const result = onSubmit()
     if (result.vetoReason) {
-      // eslint-disable-next-line no-alert
+       
       alert(`Vetoed: ${result.vetoReason}`)
     } else if (result.counterOffer) {
-      // eslint-disable-next-line no-alert
+       
       alert('AI proposed a counter-offer — check the active proposals.')
     } else if (result.rejectionReason) {
-      // eslint-disable-next-line no-alert
+       
       alert(`Rejected: ${result.rejectionReason}`)
     }
   }

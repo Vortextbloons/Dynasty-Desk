@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto'
 import { describe, it, expect, beforeAll } from 'vitest'
 import { createBackup, restoreFromBackup, deleteBackup, backupExists } from '@/db/autoBackup'
 import { initDB } from '@/db/dexie'
-import type { GameSave } from '@/game/models'
+import type { GameSave, LeagueRules, EraConfig } from '@/game/models'
 
 beforeAll(async () => {
   await initDB()
@@ -32,8 +32,8 @@ function makeTestSave(id = 'test-save-1'): GameSave {
       currentDate: '2025-10-21',
       seasonYear: 2025,
       phase: 'regular_season',
-      rules: {} as any,
-      eraConfig: {} as any,
+      rules: {} as LeagueRules,
+      eraConfig: {} as EraConfig,
       snapshotId: 'nba-2025-26',
       teams: {},
       players: {},

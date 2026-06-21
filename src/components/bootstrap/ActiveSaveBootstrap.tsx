@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { getActiveSaveId } from '@/game/core/activeSavePersistence'
 import { useGameStore } from '@/store/useGameStore'
@@ -9,7 +9,7 @@ interface ActiveSaveBootstrapProps {
 
 export function ActiveSaveBootstrap({ children }: ActiveSaveBootstrapProps) {
   const restoreActiveSave = useGameStore((s) => s.restoreActiveSave)
-  const needsRestore = useRef(getActiveSaveId()).current
+  const [needsRestore] = useState(() => !!getActiveSaveId())
   const [ready, setReady] = useState(!needsRestore)
 
   useEffect(() => {

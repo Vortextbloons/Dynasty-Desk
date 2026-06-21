@@ -19,7 +19,7 @@ export interface BoxScoreConsistency {
   issues: string[]
 }
 
-type TeamStatsPair = { home: TeamGameStats; away: TeamGameStats }
+interface TeamStatsPair { home: TeamGameStats; away: TeamGameStats }
 
 interface BoxScoreContext {
   home: string

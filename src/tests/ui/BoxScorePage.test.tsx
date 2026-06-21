@@ -3,11 +3,15 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { BoxScorePage } from '@/pages/BoxScorePage'
 import type { GameSave } from '@/game/models'
+import type { LeagueRules } from '@/game/models/leagueRules'
+import type { EraConfig } from '@/game/models/eraConfig'
+import type { TeamStrategy, TeamFinances } from '@/game/models/team'
+import type { Player } from '@/game/models/player'
 import { emptyM10LeagueFields } from '@/tests/fixtures'
 
 const mockUseGameStore = vi.fn()
 vi.mock('@/store/useGameStore', () => ({
-  useGameStore: (selector: any) => mockUseGameStore(selector),
+  useGameStore: (selector: unknown) => mockUseGameStore(selector) as unknown,
 }))
 
 function makeSave(): GameSave {
@@ -45,8 +49,8 @@ function makeSave(): GameSave {
       currentDate: '2025-10-21',
       seasonYear: 2025,
       phase: 'regular_season',
-      rules: {} as any,
-      eraConfig: {} as any,
+      rules: {} as LeagueRules,
+      eraConfig: {} as EraConfig,
       snapshotId: 'nba-2025-26',
       userTeamId: 't-home',
       teams: {
@@ -66,8 +70,8 @@ function makeSave(): GameSave {
             targetMinutes: { p1: 36, p2: 36, p3: 24, p4: 24, p5: 24 },
             autoRotation: false,
           },
-          strategy: {} as any,
-          finances: {} as any,
+          strategy: {} as TeamStrategy,
+          finances: {} as TeamFinances,
           direction: 'middle',
           chemistry: 50,
           morale: 50,
@@ -95,8 +99,8 @@ function makeSave(): GameSave {
             targetMinutes: { p6: 36, p7: 36, p8: 24, p9: 24, p10: 24 },
             autoRotation: false,
           },
-          strategy: {} as any,
-          finances: {} as any,
+          strategy: {} as TeamStrategy,
+          finances: {} as TeamFinances,
           direction: 'middle',
           chemistry: 50,
           morale: 50,
@@ -110,16 +114,16 @@ function makeSave(): GameSave {
         },
       },
       players: {
-        p1: { id: 'p1', firstName: 'LeBron', lastName: 'James', position: 'SF', teamId: 't-home', age: 40 } as any,
-        p2: { id: 'p2', firstName: 'A', lastName: 'Davis', position: 'PF', teamId: 't-home', age: 32 } as any,
-        p3: { id: 'p3', firstName: 'A', lastName: 'Reaves', position: 'SG', teamId: 't-home', age: 27 } as any,
-        p4: { id: 'p4', firstName: 'D', lastName: 'Russell', position: 'PG', teamId: 't-home', age: 28 } as any,
-        p5: { id: 'p5', firstName: 'A', lastName: 'Hachimura', position: 'PF', teamId: 't-home', age: 27 } as any,
-        p6: { id: 'p6', firstName: 'Jayson', lastName: 'Tatum', position: 'SF', teamId: 't-away', age: 27 } as any,
-        p7: { id: 'p7', firstName: 'J', lastName: 'Brown', position: 'SG', teamId: 't-away', age: 28 } as any,
-        p8: { id: 'p8', firstName: 'K', lastName: 'Porzingis', position: 'C', teamId: 't-away', age: 29 } as any,
-        p9: { id: 'p9', firstName: 'D', lastName: 'White', position: 'PG', teamId: 't-away', age: 30 } as any,
-        p10: { id: 'p10', firstName: 'J', lastName: 'Holiday', position: 'PG', teamId: 't-away', age: 34 } as any,
+        p1: { id: 'p1', firstName: 'LeBron', lastName: 'James', position: 'SF', teamId: 't-home', age: 40 } as Player,
+        p2: { id: 'p2', firstName: 'A', lastName: 'Davis', position: 'PF', teamId: 't-home', age: 32 } as Player,
+        p3: { id: 'p3', firstName: 'A', lastName: 'Reaves', position: 'SG', teamId: 't-home', age: 27 } as Player,
+        p4: { id: 'p4', firstName: 'D', lastName: 'Russell', position: 'PG', teamId: 't-home', age: 28 } as Player,
+        p5: { id: 'p5', firstName: 'A', lastName: 'Hachimura', position: 'PF', teamId: 't-home', age: 27 } as Player,
+        p6: { id: 'p6', firstName: 'Jayson', lastName: 'Tatum', position: 'SF', teamId: 't-away', age: 27 } as Player,
+        p7: { id: 'p7', firstName: 'J', lastName: 'Brown', position: 'SG', teamId: 't-away', age: 28 } as Player,
+        p8: { id: 'p8', firstName: 'K', lastName: 'Porzingis', position: 'C', teamId: 't-away', age: 29 } as Player,
+        p9: { id: 'p9', firstName: 'D', lastName: 'White', position: 'PG', teamId: 't-away', age: 30 } as Player,
+        p10: { id: 'p10', firstName: 'J', lastName: 'Holiday', position: 'PG', teamId: 't-away', age: 34 } as Player,
       },
       games: {
         g1: {
@@ -210,13 +214,13 @@ function makeSave(): GameSave {
 }
 
 function renderWithSave(save: GameSave | null, id = 'g1') {
-  mockUseGameStore.mockImplementation((selector: any) => {
+  mockUseGameStore.mockImplementation((selector: unknown) => {
     const state = {
       save,
       simOneGame: vi.fn(),
       simNextGame: vi.fn(),
     }
-    return selector(state)
+    return selector(state) as unknown
   })
   return render(
     <MemoryRouter initialEntries={[`/game/${id}`]}>
@@ -243,10 +247,10 @@ describe('BoxScorePage', () => {
   it('shows box score tables for both teams', () => {
     renderWithSave(makeSave())
     const lakersMatches = screen.getAllByText((_, el) =>
-      Boolean(el && el.textContent && el.textContent.includes('Lakers') && el.textContent.includes('Box Score')),
+      Boolean(el?.textContent?.includes('Lakers') && el.textContent.includes('Box Score')),
     )
     const celticsMatches = screen.getAllByText((_, el) =>
-      Boolean(el && el.textContent && el.textContent.includes('Celtics') && el.textContent.includes('Box Score')),
+      Boolean(el?.textContent?.includes('Celtics') && el.textContent.includes('Box Score')),
     )
     expect(lakersMatches.length).toBeGreaterThan(0)
     expect(celticsMatches.length).toBeGreaterThan(0)

@@ -5,7 +5,7 @@ import { LeagueNewsPage } from '@/pages/LeagueNewsPage'
 
 const mockUseGameStore = vi.fn()
 vi.mock('@/store/useGameStore', () => ({
-  useGameStore: (selector: (s: unknown) => unknown) => mockUseGameStore(selector),
+  useGameStore: (selector: (s: unknown) => unknown): unknown => mockUseGameStore(selector),
 }))
 
 describe('LeagueNewsPage', () => {

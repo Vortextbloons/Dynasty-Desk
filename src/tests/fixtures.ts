@@ -109,7 +109,7 @@ export function makePlayer(overrides: Partial<Player> = {}): Player {
     careerStats: overrides.careerStats ?? [],
     historicalSeasons: overrides.historicalSeasons ?? [],
     ...overrides,
-  } as Player
+  }
 }
 
 let teamCounter = 0
@@ -166,7 +166,7 @@ export function makeTeam(overrides: Partial<Team> = {}): Team {
     twoWayPlayers: overrides.twoWayPlayers ?? [],
     trainingFocus: overrides.trainingFocus ?? 'balanced',
     loadManagement: overrides.loadManagement ?? [],
-  } as Team
+  }
 }
 
 export function defaultLineup(): LineupSettings {

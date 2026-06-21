@@ -4,7 +4,7 @@ export function recomputeStepienFlags(league: LeagueState): void {
   const teamsById = league.teams
   const teamIds = Object.keys(teamsById)
 
-  const ownedByTeam: Record<string, Array<{ year: number; round: number }>> = {}
+  const ownedByTeam: Record<string, { year: number; round: number }[]> = {}
   for (const teamId of teamIds) {
     ownedByTeam[teamId] = []
   }
@@ -39,6 +39,6 @@ export function recomputeStepienFlags(league: LeagueState): void {
 }
 
 function parseSeasonStartYear(season: string): number {
-  const m = season.match(/^(\d{4})/)
+  const m = /^(\d{4})/.exec(season)
   return m ? Number(m[1]) : 0
 }

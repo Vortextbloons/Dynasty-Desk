@@ -1,6 +1,7 @@
 import type { GameSave } from '@/game/models'
-import type { TeamFinances } from '@/game/models/team'
+import type { TeamFinances, LoadManagementEntry } from '@/game/models/team'
 import type { DraftPick } from '@/game/models/draft'
+import type { TradeException } from '@/game/models/trade'
 import {
   OPERATING_EXPENSES_BASELINE,
   OWNER_CASH_INITIAL,
@@ -310,24 +311,24 @@ export function migrateToV6(input: unknown): GameSave {
     ...save.league.rules,
     maxCashPerSide: typeof rules.maxCashPerSide === 'number' ? rules.maxCashPerSide : 1_000_000,
     pickFreezeYears: typeof rules.pickFreezeYears === 'number' ? rules.pickFreezeYears : 7,
-  } as GameSave['league']['rules']
+  }
 
   const teamsRaw = (league.teams as Record<string, Record<string, unknown>>) ?? {}
   const teams: GameSave['league']['teams'] = {}
   for (const [tid, t] of Object.entries(teamsRaw)) {
     teams[tid] = {
       ...t,
-      tradeExceptions: Array.isArray(t.tradeExceptions) ? t.tradeExceptions : [],
-      frozenPicks: Array.isArray(t.frozenPicks) ? t.frozenPicks : [],
+      tradeExceptions: Array.isArray(t.tradeExceptions) ? (t.tradeExceptions as TradeException[]) : [],
+      frozenPicks: Array.isArray(t.frozenPicks) ? (t.frozenPicks as string[]) : [],
       directionAutoUpdatedAt:
         typeof t.directionAutoUpdatedAt === 'string' ? t.directionAutoUpdatedAt : undefined,
       priorTaxpayerYears:
         typeof t.priorTaxpayerYears === 'number' ? t.priorTaxpayerYears : 0,
-      taxpayerHistory: Array.isArray(t.taxpayerHistory) ? t.taxpayerHistory : [],
+      taxpayerHistory: Array.isArray(t.taxpayerHistory) ? (t.taxpayerHistory as number[]) : [],
     } as GameSave['league']['teams'][string]
   }
 
-  const picksRaw = (league.draftPicks as Array<Record<string, unknown>>) ?? []
+  const picksRaw = (league.draftPicks as Record<string, unknown>[]) ?? []
   let draftPicks: GameSave['league']['draftPicks'] = picksRaw.map((p) => ({
     ...p,
     protected: typeof p.protected === 'string' ? p.protected : undefined,
@@ -364,7 +365,7 @@ export function migrateToV6(input: unknown): GameSave {
       teams,
       draftPicks,
       activeProposals,
-    } as unknown as GameSave['league'],
+    },
   }
 }
 
@@ -398,7 +399,7 @@ function backfillDraftPicks(
 }
 
 function parseSeasonStartYear(season: string): number {
-  const m = season.match(/^(\d{4})/)
+  const m = /^(\d{4})/.exec(season)
   return m ? Number(m[1]) : new Date().getFullYear()
 }
 
@@ -454,7 +455,7 @@ export function migrateToV8(input: unknown): GameSave {
     teams[tid] = {
       ...(t as unknown as GameSave['league']['teams'][string]),
       trainingFocus: parseTrainingFocus(t.trainingFocus),
-      loadManagement: Array.isArray(t.loadManagement) ? t.loadManagement : [],
+      loadManagement: Array.isArray(t.loadManagement) ? (t.loadManagement as LoadManagementEntry[]) : [],
     }
   }
 
@@ -480,7 +481,7 @@ export function migrateToV8(input: unknown): GameSave {
         league.awardRaces && typeof league.awardRaces === 'object'
           ? (league.awardRaces as GameSave['league']['awardRaces'])
           : {},
-    } as unknown as GameSave['league'],
+    },
   }
 }
 
@@ -523,7 +524,7 @@ export function migrateToV7(input: unknown): GameSave {
       rosterSizeCap:
         typeof league.rosterSizeCap === 'number' ? league.rosterSizeCap : 15,
       draftClasses: (league.draftClasses as GameSave['league']['draftClasses']) ?? {},
-    } as unknown as GameSave['league'],
+    },
   }
 }
 
@@ -549,7 +550,7 @@ export function migrateToV9(input: unknown): GameSave {
       hallOfFame: Array.isArray(league.hallOfFame)
         ? (league.hallOfFame as GameSave['league']['hallOfFame'])
         : [],
-    } as unknown as GameSave['league'],
+    },
   }
 }
 

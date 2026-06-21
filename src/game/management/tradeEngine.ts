@@ -296,7 +296,7 @@ function yearsUntilSeason(targetSeason: string, currentSeason: string): number {
 }
 
 function parseSeasonStartYear(season: string): number {
-  const m = season.match(/^(\d{4})/)
+  const m = /^(\d{4})/.exec(season)
   return m ? Number(m[1]) : 0
 }
 
@@ -308,11 +308,11 @@ function computeFinalRosterSize(
   const outPlayerIds = new Set(
     side.outgoing
       .filter((a) => a.type === 'player' && a.playerId)
-      .map((a) => a.playerId as string),
+      .map((a) => a.playerId!),
   )
   const inPlayerIds = side.incoming
     .filter((a) => a.type === 'player' && a.playerId)
-    .map((a) => a.playerId as string)
+    .map((a) => a.playerId!)
     .filter((pid) => {
       const p = league.players[pid]
       return p && p.teamId !== team.id
@@ -390,7 +390,7 @@ export function executeTrade(
     news: [...league.news],
   }
 
-  const playerMoves: Array<{ player: Player; toTeamId: string }> = []
+  const playerMoves: { player: Player; toTeamId: string }[] = []
   for (const side of proposal.sides) {
     for (const asset of side.outgoing) {
       if (asset.type === 'player' && asset.playerId) {
@@ -418,7 +418,7 @@ export function executeTrade(
     }
   }
 
-  if (!newLeague.recentlyTraded) newLeague.recentlyTraded = {}
+  newLeague.recentlyTraded ??= {}
   for (const move of playerMoves) {
     newLeague.recentlyTraded[move.player.id] = league.rules.seasonLabel
     const fromTeam = move.player.teamId ? newLeague.teams[move.player.teamId] : null

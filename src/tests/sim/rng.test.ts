@@ -15,8 +15,8 @@ describe('SeededRandom', () => {
   it('produces different sequences for different seeds', () => {
     const a = new SeededRandom(createRngState('alpha'))
     const b = new SeededRandom(createRngState('beta'))
-    let aFirst = a.next()
-    let bFirst = b.next()
+    const aFirst = a.next()
+    const bFirst = b.next()
     expect(aFirst).not.toBe(bFirst)
   })
 

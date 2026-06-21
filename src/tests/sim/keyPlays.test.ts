@@ -44,9 +44,9 @@ describe('rankKeyPlays', () => {
   it('orders by impact desc', () => {
     const events = [shot(60), shot(80), turnover(35)]
     const out = rankKeyPlays(events, 5)
-    expect((out[0] as any).impact).toBe(80)
-    expect((out[1] as any).impact).toBe(60)
-    expect((out[2] as any).impact).toBe(35)
+    expect((out[0] as SimEvent & { impact: number }).impact).toBe(80)
+    expect((out[1] as SimEvent & { impact: number }).impact).toBe(60)
+    expect((out[2] as SimEvent & { impact: number }).impact).toBe(35)
   })
 
   it('drops zero-impact events (subs, end of period)', () => {

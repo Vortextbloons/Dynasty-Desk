@@ -113,7 +113,7 @@ export function StandingsPage() {
     const result = await simSeason()
     if (result.phaseTransitioned) {
       toast.success('Regular season complete! Moving to playoffs...')
-      navigate('/playoffs')
+      void navigate('/playoffs')
     } else if (result.cancelled) {
       toast.info(`Sim cancelled. ${result.gamesSimulated} games simulated.`)
     } else {

@@ -73,8 +73,8 @@ describe('buildBoxScore', () => {
       },
     ]
     const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: events })
-    expect(box.playerStats['h1']!.points).toBe(4)
-    expect(box.playerStats['a1']!.points).toBe(3)
+    expect(box.playerStats.h1!.points).toBe(4)
+    expect(box.playerStats.a1!.points).toBe(3)
     expect(box.teamStats.home.fga).toBe(2)
     expect(box.teamStats.away.tpm).toBe(1)
   })
@@ -89,8 +89,8 @@ describe('buildBoxScore', () => {
       },
     ]
     const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: events })
-    expect(box.playerStats['h1']!.points).toBe(3)
-    expect(box.playerStats['h2']!.assists).toBe(1)
+    expect(box.playerStats.h1!.points).toBe(3)
+    expect(box.playerStats.h2!.assists).toBe(1)
     expect(box.teamStats.home.assists).toBe(1)
   })
 
@@ -104,7 +104,7 @@ describe('buildBoxScore', () => {
       },
     ]
     const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: events })
-    expect(box.playerStats['a2']!.blocks).toBe(1)
+    expect(box.playerStats.a2!.blocks).toBe(1)
   })
 
   it('counts a steal on turnover', () => {
@@ -116,9 +116,9 @@ describe('buildBoxScore', () => {
       },
     ]
     const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: events })
-    expect(box.playerStats['a3']!.steals).toBe(1)
+    expect(box.playerStats.a3!.steals).toBe(1)
     expect(box.teamStats.away.steals).toBe(1)
-    expect(box.playerStats['h1']!.turnovers).toBe(1)
+    expect(box.playerStats.h1!.turnovers).toBe(1)
     expect(box.teamStats.home.turnovers).toBe(1)
   })
 
@@ -128,8 +128,8 @@ describe('buildBoxScore', () => {
       { type: 'freeThrow', playerId: 'h1', teamId: 't-home', attempt: 2, made: true, period: 1, timeRemainingSeconds: 600 },
     ]
     const box = buildBoxScore({ gameState: makeGameState(events), keyPlays: events })
-    expect(box.playerStats['h1']!.ftm).toBe(2)
-    expect(box.playerStats['h1']!.points).toBe(2)
+    expect(box.playerStats.h1!.ftm).toBe(2)
+    expect(box.playerStats.h1!.points).toBe(2)
   })
 })
 

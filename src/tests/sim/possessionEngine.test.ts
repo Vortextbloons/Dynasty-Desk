@@ -108,8 +108,8 @@ describe('selectPrimaryPlayer', () => {
 
   it('higher usage players are chosen more often', () => {
     const offense = [
-      makePlayer({ id: 'star', tendencies: { usageRate: 35 } as any }),
-      makePlayer({ id: 'bench', tendencies: { usageRate: 10 } as any }),
+      makePlayer({ id: 'star', tendencies: { usageRate: 35 } }),
+      makePlayer({ id: 'bench', tendencies: { usageRate: 10 } }),
     ]
     const rng = new SeededRandom(createRngState('pe-usage'))
     let starPicks = 0

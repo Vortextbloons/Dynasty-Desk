@@ -21,6 +21,7 @@ const WARNING_LABELS: Record<RotationWarning, string> = {
   bench_too_large: 'Bench too large',
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- pure utility, not a component
 export function warningMessage(code: RotationWarning): string {
   return WARNING_LABELS[code] ?? code
 }

@@ -13,6 +13,15 @@ function fmt(n: number): string {
 
 type SortKey = 'name' | 'salary' | 'years' | 'capHit' | 'option' | 'guaranteed'
 
+function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: 'asc' | 'desc' }) {
+  if (sortKey !== col) return null
+  return sortDir === 'asc' ? (
+    <ChevronUp className="inline size-3 ml-0.5" />
+  ) : (
+    <ChevronDown className="inline size-3 ml-0.5" />
+  )
+}
+
 interface ContractTableProps {
   players: Player[]
   rules: LeagueRules
@@ -65,37 +74,28 @@ export function ContractTable({
     return sortDir === 'asc' ? cmp : -cmp
   })
 
-  function SortIcon({ col }: { col: SortKey }) {
-    if (sortKey !== col) return null
-    return sortDir === 'asc' ? (
-      <ChevronUp className="inline size-3 ml-0.5" />
-    ) : (
-      <ChevronDown className="inline size-3 ml-0.5" />
-    )
-  }
-
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-[var(--color-line-soft)] text-left text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-foreground)]">
             <th className="pb-2 pr-4 cursor-pointer select-none" onClick={() => toggleSort('name')}>
-              Player<SortIcon col="name" />
+              Player<SortIcon col="name" sortKey={sortKey} sortDir={sortDir} />
             </th>
             <th className="pb-2 pr-4 text-right cursor-pointer select-none" onClick={() => toggleSort('salary')}>
-              Salary<SortIcon col="salary" />
+              Salary<SortIcon col="salary" sortKey={sortKey} sortDir={sortDir} />
             </th>
             <th className="pb-2 pr-4 text-right cursor-pointer select-none" onClick={() => toggleSort('years')}>
-              Years<SortIcon col="years" />
+              Years<SortIcon col="years" sortKey={sortKey} sortDir={sortDir} />
             </th>
             <th className="pb-2 pr-4 text-right cursor-pointer select-none" onClick={() => toggleSort('capHit')}>
-              Cap Hit<SortIcon col="capHit" />
+              Cap Hit<SortIcon col="capHit" sortKey={sortKey} sortDir={sortDir} />
             </th>
             <th className="pb-2 pr-4 text-center cursor-pointer select-none" onClick={() => toggleSort('option')}>
-              Option<SortIcon col="option" />
+              Option<SortIcon col="option" sortKey={sortKey} sortDir={sortDir} />
             </th>
             <th className="pb-2 pr-4 text-center cursor-pointer select-none" onClick={() => toggleSort('guaranteed')}>
-              Guaranteed<SortIcon col="guaranteed" />
+              Guaranteed<SortIcon col="guaranteed" sortKey={sortKey} sortDir={sortDir} />
             </th>
             <th className="pb-2 text-center">NTC</th>
             {isUserTeam && <th className="pb-2 text-right">Actions</th>}

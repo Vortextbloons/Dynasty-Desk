@@ -20,7 +20,7 @@ export function computeFinalsMvp(
   games: Record<string, ScheduledGame>,
 ): string | null {
   const finals = bracket.finals
-  if (!finals || finals.status !== 'final') return null
+  if (finals?.status !== 'final') return null
 
   const finalsGames = finals.games
     .map((id) => games[id])
@@ -83,7 +83,7 @@ export function getCandidatesForFinals(
   games: Record<string, ScheduledGame>,
 ): FinalsMvpCandidate[] {
   const finals = bracket.finals
-  if (!finals || finals.status !== 'final') return []
+  if (finals?.status !== 'final') return []
 
   const finalsGames = finals.games
     .map((id) => games[id])

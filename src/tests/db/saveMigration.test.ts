@@ -1,10 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { migrateToV2, migrateToV3, migrateToV4, migrateToV5, migrateToV6, migrateToCurrent } from '@/db/saveMigration'
-import type { GameSave } from '@/game/models'
 import { DEFAULT_LEAGUE_RULES } from '@/game/models/leagueRules'
 
-function makeV1Save(): any {
+function makeV1Save() {
   return {
     metadata: {
       id: 'test-save',
@@ -162,13 +161,13 @@ function makeV1Save(): any {
       snapshotId: 'nba-2025-26',
     },
     rngState: { seed: 'test-seed', position: 0 },
-  }
+  } as ReturnType<typeof migrateToV2>
 }
 
 describe('migrateToV2', () => {
   it('v1 save loads as v2 with hydrated finances', () => {
     const v1 = makeV1Save()
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     expect(result.metadata.schemaVersion).toBe(2)
 
@@ -183,7 +182,7 @@ describe('migrateToV2', () => {
 
   it('computes payroll from league.players via roster', () => {
     const v1 = makeV1Save()
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     const team = result.league.teams['team-1']
     // Player has $50M salary in year 0, lives in league.players
@@ -192,7 +191,7 @@ describe('migrateToV2', () => {
 
   it('sets capSpace = salaryCap - payroll', () => {
     const v1 = makeV1Save()
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     const team = result.league.teams['team-1']
     expect(team!.finances.capSpace).toBe(DEFAULT_LEAGUE_RULES.salaryCap - 50_000_000)
@@ -200,7 +199,7 @@ describe('migrateToV2', () => {
 
   it('initializes default financial fields', () => {
     const v1 = makeV1Save()
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     const team = result.league.teams['team-1']
     expect(team!.finances.taxBill).toBe(0)
@@ -218,17 +217,17 @@ describe('migrateToV2', () => {
 
   it('preserves existing ownerCash and cashReserves', () => {
     const v1 = makeV1Save()
-    v1.league.teams['team-1'].finances = { ownerCash: 75_000_000, cashReserves: 200_000_000 }
-    const result = migrateToV2(v1) as GameSave
+    ;(v1.league.teams['team-1'] as { finances?: Record<string, unknown> }).finances = { ownerCash: 75_000_000, cashReserves: 200_000_000 }
+    const result = migrateToV2(v1)
 
-    const team = result.league.teams['team-1']
-    expect(team!.finances.ownerCash).toBe(75_000_000)
-    expect(team!.finances.cashReserves).toBe(200_000_000)
+    const team = result.league.teams['team-1']!
+    expect(team.finances.ownerCash).toBe(75_000_000)
+    expect(team.finances.cashReserves).toBe(200_000_000)
   })
 
   it('defaults ownerCash and cashReserves when not present', () => {
     const v1 = makeV1Save()
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     const team = result.league.teams['team-1']
     expect(team!.finances.ownerCash).toBe(50_000_000)
@@ -238,10 +237,10 @@ describe('migrateToV2', () => {
 
   it('v2 save roundtrips (no error on re-migration)', () => {
     const v1 = makeV1Save()
-    const v2 = migrateToV2(v1) as GameSave
+    const v2 = migrateToV2(v1)
 
     // Re-migrating a v2 save should still work (schemaVersion becomes 2 again)
-    const v2Again = migrateToV2(v2 as any) as GameSave
+    const v2Again = migrateToV2(v2)
     expect(v2Again.metadata.schemaVersion).toBe(2)
     expect(v2Again.league.teams['team-1']!.finances.payroll).toBe(
       v2.league.teams['team-1']!.finances.payroll,
@@ -254,7 +253,7 @@ describe('migrateToV2', () => {
     v1.league.teams['team-1'].players = {
       'player-1': v1.league.players['player-1'],
     }
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     // Migration does not validate values; negative salary produces negative payroll
     const team = result.league.teams['team-1']
@@ -265,7 +264,7 @@ describe('migrateToV2', () => {
     const v1 = makeV1Save()
     v1.league.teams['team-1'].roster = []
     v1.league.players = {}
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     const team = result.league.teams['team-1']
     expect(team!.finances.payroll).toBe(0)
@@ -275,14 +274,14 @@ describe('migrateToV2', () => {
   it('handles multiple teams', () => {
     const v1 = makeV1Save()
     v1.league.teams['team-2'] = {
-      ...JSON.parse(JSON.stringify(v1.league.teams['team-1'])),
+      ...JSON.parse(JSON.stringify(v1.league.teams['team-1'])) as Record<string, unknown>,
       id: 'team-2',
       roster: [],
     }
     delete v1.league.players // team-2 has no players
-    v1.league.players = v1.league.players || {}
+    v1.league.players = v1.league.players ?? {}
 
-    const result = migrateToV2(v1) as GameSave
+    const result = migrateToV2(v1)
 
     expect(result.league.teams['team-1']).toBeDefined()
     expect(result.league.teams['team-2']).toBeDefined()
@@ -290,11 +289,11 @@ describe('migrateToV2', () => {
   })
 })
 
-function makeV2Save(): any {
+function makeV2Save() {
   const v1 = makeV1Save()
   const v2 = migrateToV2(v1)
   v2.metadata.schemaVersion = 2
-  const p = v2.league.players['player-1'] as any
+  const p = v2.league.players['player-1']!
   p.ratings = {
     insideScoring: 80, closeShot: 75, midrange: 70, threePoint: 74, freeThrow: 75,
     ballHandling: 80, passing: 90, offensiveIq: 95,
@@ -312,13 +311,13 @@ function makeV2Save(): any {
 describe('migrateToV3', () => {
   it('bumps schemaVersion to 3', () => {
     const v2 = makeV2Save()
-    const result = migrateToV3(v2) as GameSave
+    const result = migrateToV3(v2)
     expect(result.metadata.schemaVersion).toBe(3)
   })
 
   it('adds overall to ratings when missing', () => {
     const v2 = makeV2Save()
-    const result = migrateToV3(v2) as GameSave
+    const result = migrateToV3(v2)
     const player = result.league.players['player-1']
     expect(typeof player!.ratings.overall).toBe('number')
     expect(player!.ratings.overall).toBeGreaterThan(0)
@@ -327,13 +326,13 @@ describe('migrateToV3', () => {
   it('preserves existing overall when present', () => {
     const v2 = makeV2Save()
     v2.league.players['player-1'].ratings.overall = 99
-    const result = migrateToV3(v2) as GameSave
+    const result = migrateToV3(v2)
     expect(result.league.players['player-1']!.ratings.overall).toBe(99)
   })
 
   it('extends morale with new fields', () => {
     const v2 = makeV2Save()
-    const result = migrateToV3(v2) as GameSave
+    const result = migrateToV3(v2)
     const morale = result.league.players['player-1']!.morale
     expect(morale.roleSatisfaction).toBe(75)
     expect(morale.teamSatisfaction).toBe(75)
@@ -343,7 +342,7 @@ describe('migrateToV3', () => {
 
   it('extends health with daysRemaining', () => {
     const v2 = makeV2Save()
-    const result = migrateToV3(v2) as GameSave
+    const result = migrateToV3(v2)
     const health = result.league.players['player-1']!.health
     expect(health.daysRemaining).toBe(0)
     expect(health.gamesRemaining).toBe(0)
@@ -351,7 +350,7 @@ describe('migrateToV3', () => {
 
   it('extends development with new fields', () => {
     const v2 = makeV2Save()
-    const result = migrateToV3(v2) as GameSave
+    const result = migrateToV3(v2)
     const dev = result.league.players['player-1']!.development
     expect(dev.ageAtPeak).toBe(27)
     expect(dev.progressionCurve).toBe('normal')
@@ -362,8 +361,8 @@ describe('migrateToV3', () => {
 
   it('v3 save roundtrips (re-migration is idempotent)', () => {
     const v2 = makeV2Save()
-    const v3 = migrateToV3(v2) as GameSave
-    const v3Again = migrateToV3(v3) as GameSave
+    const v3 = migrateToV3(v2)
+    const v3Again = migrateToV3(v3)
     expect(v3Again.metadata.schemaVersion).toBe(3)
     expect(v3Again.league.players['player-1']!.ratings.overall).toBe(
       v3.league.players['player-1']!.ratings.overall,
@@ -374,65 +373,65 @@ describe('migrateToV3', () => {
 describe('migrateToV4', () => {
   it('bumps schemaVersion to 4', () => {
     const v2 = makeV2Save()
-    const v3 = migrateToV3(v2) as GameSave
-    const result = migrateToV4(v3) as GameSave
+    const v3 = migrateToV3(v2)
+    const result = migrateToV4(v3)
 
     expect(result.metadata.schemaVersion).toBe(4)
   })
 
   it('migrates legacy fast simSpeed to instant', () => {
     const v2 = makeV2Save()
-    const v3 = migrateToV3(v2) as GameSave
+    const v3 = migrateToV3(v2)
     v3.settings.simSpeed = 'fast'
 
-    const result = migrateToV4(v3) as GameSave
+    const result = migrateToV4(v3)
 
     expect(result.settings.simSpeed).toBe('instant')
   })
 
   it('migrates legacy slow simSpeed to normal', () => {
     const v2 = makeV2Save()
-    const v3 = migrateToV3(v2) as GameSave
+    const v3 = migrateToV3(v2)
     v3.settings.simSpeed = 'slow'
 
-    const result = migrateToV4(v3) as GameSave
+    const result = migrateToV4(v3)
 
     expect(result.settings.simSpeed).toBe('normal')
   })
 
   it('preserves instant simSpeed through migration', () => {
     const v2 = makeV2Save()
-    const v3 = migrateToV3(v2) as GameSave
+    const v3 = migrateToV3(v2)
     v3.settings.simSpeed = 'instant'
 
-    const result = migrateToV4(v3) as GameSave
+    const result = migrateToV4(v3)
 
     expect(result.settings.simSpeed).toBe('instant')
   })
 
   it('is idempotent when re-migrating v4 saves', () => {
     const v2 = makeV2Save()
-    const v3 = migrateToV3(v2) as GameSave
+    const v3 = migrateToV3(v2)
     const v4 = migrateToV4({
       ...v3,
       metadata: { ...v3.metadata, schemaVersion: 4 },
       settings: { ...v3.settings, simSpeed: 'normal' },
-    }) as GameSave
-    const v4Again = migrateToV4(v4) as GameSave
+    })
+    const v4Again = migrateToV4(v4)
 
     expect(v4Again.metadata.schemaVersion).toBe(4)
     expect(v4Again.settings.simSpeed).toBe('normal')
   })
 })
 
-function makeV4SaveForV5(): any {
+function makeV4SaveForV5() {
   const v2 = makeV2Save()
-  const v3 = migrateToV3(v2) as GameSave
+  const v3 = migrateToV3(v2)
   const v4 = migrateToV4({
     ...v3,
     metadata: { ...v3.metadata, schemaVersion: 4 },
     settings: { ...v3.settings, simSpeed: 'normal' },
-  }) as GameSave
+  })
   v4.league.games = {
     'game-1': {
       id: 'game-1',
@@ -445,8 +444,12 @@ function makeV4SaveForV5(): any {
       awayScore: null,
       boxScoreId: null,
       boxScore: null,
+      isConference: false,
+      isDivision: false,
+      seasonYear: 0,
+      isUserTeamGame: false,
     },
-  } as any
+  }
   v4.league.standings = {
     'team-1': {
       teamId: 'team-1',
@@ -469,36 +472,46 @@ function makeV4SaveForV5(): any {
       clinchedPlayoff: false,
       clinchedDivision: false,
       eliminated: false,
+      conferenceWins: 0,
+      conferenceLosses: 0,
+      divisionWins: 0,
+      divisionLosses: 0,
+      pointsPerGame: 0,
+      pointsAllowedPerGame: 0,
+      pointDifferentialPerGame: 0,
+      gamesRemaining: 82,
+      magicNumber: 0,
+      tiebreaker: { headToHeadWins: 0, conferenceWinPct: 0, pointDifferential: 0 },
     },
-  } as any
+  }
   return v4
 }
 
 describe('migrateToV5', () => {
   it('bumps schemaVersion to 5', () => {
     const v4 = makeV4SaveForV5()
-    const result = migrateToV5(v4) as GameSave
+    const result = migrateToV5(v4)
     expect(result.metadata.schemaVersion).toBe(5)
   })
 
   it('adds scheduleGenerated default', () => {
     const v4 = makeV4SaveForV5()
     delete v4.league.scheduleGenerated
-    const result = migrateToV5(v4) as GameSave
+    const result = migrateToV5(v4)
     expect(result.league.scheduleGenerated).toBe(false)
   })
 
   it('preserves existing scheduleGenerated', () => {
     const v4 = makeV4SaveForV5()
     v4.league.scheduleGenerated = true
-    const result = migrateToV5(v4) as GameSave
+    const result = migrateToV5(v4)
     expect(result.league.scheduleGenerated).toBe(true)
   })
 
   it('adds new standing fields with defaults', () => {
     const v4 = makeV4SaveForV5()
-    const result = migrateToV5(v4) as GameSave
-    const standing = result.league.standings['team-1'] as any
+    const result = migrateToV5(v4)
+    const standing = result.league.standings['team-1']!
     expect(standing.conferenceWins).toBe(0)
     expect(standing.conferenceLosses).toBe(0)
     expect(standing.divisionWins).toBe(0)
@@ -515,16 +528,16 @@ describe('migrateToV5', () => {
     const v4 = makeV4SaveForV5()
     v4.league.standings['team-1'].conferenceWins = 5
     v4.league.standings['team-1'].gamesRemaining = 40
-    const result = migrateToV5(v4) as GameSave
-    const standing = result.league.standings['team-1'] as any
+    const result = migrateToV5(v4)
+    const standing = result.league.standings['team-1']!
     expect(standing.conferenceWins).toBe(5)
     expect(standing.gamesRemaining).toBe(40)
   })
 
   it('adds new game fields with defaults', () => {
     const v4 = makeV4SaveForV5()
-    const result = migrateToV5(v4) as GameSave
-    const game = result.league.games['game-1'] as any
+    const result = migrateToV5(v4)
+    const game = result.league.games['game-1']!
     expect(game.isConference).toBe(false)
     expect(game.isDivision).toBe(false)
     expect(game.seasonYear).toBe(0)
@@ -535,23 +548,23 @@ describe('migrateToV5', () => {
     const v4 = makeV4SaveForV5()
     v4.league.games['game-1'].isConference = true
     v4.league.games['game-1'].seasonYear = 2025
-    const result = migrateToV5(v4) as GameSave
-    const game = result.league.games['game-1'] as any
+    const result = migrateToV5(v4)
+    const game = result.league.games['game-1']!
     expect(game.isConference).toBe(true)
     expect(game.seasonYear).toBe(2025)
   })
 
   it('is idempotent when re-migrating v5 saves', () => {
     const v4 = makeV4SaveForV5()
-    const v5 = migrateToV5(v4) as GameSave
-    const v5Again = migrateToV5(v5) as GameSave
+    const v5 = migrateToV5(v4)
+    const v5Again = migrateToV5(v5)
     expect(v5Again.metadata.schemaVersion).toBe(5)
     expect(v5Again.league.scheduleGenerated).toBe(false)
-    expect((v5Again.league.standings['team-1'] as any).conferenceWins).toBe(0)
+    expect((v5Again.league.standings['team-1']!).conferenceWins).toBe(0)
   })
 })
 
-function makeV5SaveForV6(): any {
+function makeV5SaveForV6() {
   const v1 = makeV1Save()
   const v2 = migrateToV2(v1)
   const v3 = migrateToV3(v2)
@@ -582,13 +595,13 @@ function makeV5SaveForV6(): any {
 describe('migrateToV6', () => {
   it('bumps schemaVersion to 6', () => {
     const v5 = makeV5SaveForV6()
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     expect(result.metadata.schemaVersion).toBe(6)
   })
 
   it('adds tradeExceptions and frozenPicks to each team', () => {
     const v5 = makeV5SaveForV6()
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     const team = result.league.teams['team-1']!
     expect(Array.isArray(team.tradeExceptions)).toBe(true)
     expect(team.tradeExceptions).toEqual([])
@@ -602,7 +615,7 @@ describe('migrateToV6', () => {
       { id: 'te-1', teamId: 'team-1', amount: 5_000_000, expiresAt: '2026-10-21', source: 'outgoing_salary' },
     ]
     v5.league.teams['team-1'].frozenPicks = ['pick-1']
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     const team = result.league.teams['team-1']!
     expect(team.tradeExceptions).toHaveLength(1)
     expect(team.frozenPicks).toContain('pick-1')
@@ -610,7 +623,7 @@ describe('migrateToV6', () => {
 
   it('adds protected, frozenUntilSeason, stepienBlocked to draft picks', () => {
     const v5 = makeV5SaveForV6()
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     const pick = result.league.draftPicks[0]!
     expect(pick.stepienBlocked).toBe(false)
     expect(pick.frozenUntilSeason).toBeUndefined()
@@ -621,7 +634,7 @@ describe('migrateToV6', () => {
     v5.league.draftPicks[0].stepienBlocked = true
     v5.league.draftPicks[0].protected = '1-10'
     v5.league.draftPicks[0].frozenUntilSeason = '2032-26'
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     const pick = result.league.draftPicks[0]!
     expect(pick.stepienBlocked).toBe(true)
     expect(pick.protected).toBe('1-10')
@@ -630,7 +643,7 @@ describe('migrateToV6', () => {
 
   it('adds maxCashPerSide and pickFreezeYears to rules', () => {
     const v5 = makeV5SaveForV6()
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     expect(result.league.rules.maxCashPerSide).toBe(1_000_000)
     expect(result.league.rules.pickFreezeYears).toBe(7)
   })
@@ -639,20 +652,20 @@ describe('migrateToV6', () => {
     const v5 = makeV5SaveForV6()
     v5.league.rules.maxCashPerSide = 2_000_000
     v5.league.rules.pickFreezeYears = 10
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     expect(result.league.rules.maxCashPerSide).toBe(2_000_000)
     expect(result.league.rules.pickFreezeYears).toBe(10)
   })
 
   it('initializes activeProposals to empty array', () => {
     const v5 = makeV5SaveForV6()
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     expect(result.league.activeProposals).toEqual([])
   })
 
   it('hydrates priorTaxpayerYears and taxpayerHistory', () => {
     const v5 = makeV5SaveForV6()
-    const result = migrateToV6(v5) as GameSave
+    const result = migrateToV6(v5)
     const team = result.league.teams['team-1']!
     expect(team.priorTaxpayerYears).toBe(0)
     expect(team.taxpayerHistory).toEqual([])
@@ -660,8 +673,8 @@ describe('migrateToV6', () => {
 
   it('is idempotent when re-migrating v6 saves', () => {
     const v5 = makeV5SaveForV6()
-    const v6 = migrateToV6(v5) as GameSave
-    const v6Again = migrateToV6(v6) as GameSave
+    const v6 = migrateToV6(v5)
+    const v6Again = migrateToV6(v6)
     expect(v6Again.metadata.schemaVersion).toBe(6)
     expect(v6Again.league.rules.maxCashPerSide).toBe(1_000_000)
   })
@@ -693,7 +706,7 @@ describe('migrateToV6', () => {
     const v5 = makeV5SaveForV6()
     v5.league.draftPicks = []
     expect(v5.league.draftPicks).toEqual([])
-    const v6 = migrateToV6(v5) as GameSave
+    const v6 = migrateToV6(v5)
     expect(v6.league.draftPicks.length).toBeGreaterThan(0)
     const seasons = new Set(v6.league.draftPicks.map((p) => p.season))
     expect(seasons.size).toBe(5)
@@ -701,20 +714,20 @@ describe('migrateToV6', () => {
 
   it('MED 4: does not backfill when picks already exist', () => {
     const v5 = makeV5SaveForV6()
-    const originalPicks = JSON.parse(JSON.stringify(v5.league.draftPicks))
-    const v6 = migrateToV6(v5) as GameSave
+    const originalPicks = JSON.parse(JSON.stringify(v5.league.draftPicks)) as unknown[]
+    const v6 = migrateToV6(v5)
     expect(v6.league.draftPicks).toHaveLength(originalPicks.length)
   })
 })
 
 describe('migration chain (decision 7c)', () => {
-  it('migrateToCurrent runs all steps v1→v9 in order', async () => {
+  it('migrateToCurrent runs all steps v1→v9 in order', () => {
     const v1 = makeV1Save()
     const result = migrateToCurrent(v1)
     expect(result.metadata.schemaVersion).toBe(9)
   })
 
-  it('v1 save reaches v9 through sequential migration', async () => {
+  it('v1 save reaches v9 through sequential migration', () => {
     const v1 = makeV1Save()
     const result = migrateToCurrent(v1)
     expect(result.metadata.schemaVersion).toBe(9)

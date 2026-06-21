@@ -156,7 +156,7 @@ function deriveAccolades(playerId: string, league: LeagueState): PlayerAccolades
 }
 
 function parseSeasonYear(season: string): number {
-  const m = season.match(/^(\d{4})/)
+  const m = /^(\d{4})/.exec(season)
   return m ? Number(m[1]) : 0
 }
 

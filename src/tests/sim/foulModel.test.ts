@@ -25,11 +25,11 @@ describe('shootingFoulChance', () => {
     const off = makePlayer({
       id: 'o',
       position: 'SF',
-      tendencies: { foulRate: 8, freeThrowRate: 25 } as any,
+      tendencies: { foulRate: 8, freeThrowRate: 25 },
     })
     const def = makePlayer({
       id: 'd',
-      ratings: { defensiveIq: 60 } as any,
+      ratings: { defensiveIq: 60 },
     })
     const atRim = shootingFoulChance(off, def, 'at_rim')
     const fromThree = shootingFoulChance(off, def, 'corner_three')
@@ -40,12 +40,12 @@ describe('shootingFoulChance', () => {
     const center = makePlayer({
       id: 'c',
       position: 'C',
-      tendencies: { foulRate: 8, freeThrowRate: 25 } as any,
+      tendencies: { foulRate: 8, freeThrowRate: 25 },
     })
     const pg = makePlayer({
       id: 'pg',
       position: 'PG',
-      tendencies: { foulRate: 8, freeThrowRate: 25 } as any,
+      tendencies: { foulRate: 8, freeThrowRate: 25 },
     })
     const def = makePlayer({ id: 'd' })
     const c = shootingFoulChance(center, def, 'at_rim')

@@ -86,7 +86,7 @@ export function PlayoffBracketChart({ bracket }: PlayoffBracketChartProps) {
 }
 
 function groupByRound(series: PlayoffSeries[]): PlayoffSeries[][] {
-  const rounds: Map<number, PlayoffSeries[]> = new Map()
+  const rounds = new Map<number, PlayoffSeries[]>()
   for (const s of series) {
     const existing = rounds.get(s.round) ?? []
     existing.push(s)

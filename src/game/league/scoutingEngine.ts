@@ -12,9 +12,7 @@ export function initScoutingForDraftClass(
 ): void {
   for (const teamId of Object.keys(league.teams)) {
     const key = `${teamId}-${draftClassId}`
-    if (!league.scoutingState[key]) {
-      league.scoutingState[key] = initScoutingState(teamId, draftClassId)
-    }
+    league.scoutingState[key] ??= initScoutingState(teamId, draftClassId)
   }
 }
 

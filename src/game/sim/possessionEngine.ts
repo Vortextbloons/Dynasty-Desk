@@ -146,7 +146,7 @@ export function resolvePossession(
   const strategyAdj = applyStrategyToPossession(input.offenseStrategy)
   const chemFx = chemistryEffects(input.teamChemistry)
 
-  let shotClock = initialShotClock(input.possessionType)
+  const shotClock = initialShotClock(input.possessionType)
   const clockResult = shotClockHandler(
     shotClock,
     {
@@ -157,7 +157,6 @@ export function resolvePossession(
     },
     rng,
   )
-  shotClock -= clockResult.timeElapsed
 
   if (clockResult.violation) {
     const primary = selectPrimaryPlayer(

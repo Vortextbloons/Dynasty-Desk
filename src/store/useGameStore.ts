@@ -583,7 +583,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
     if (!draft) return { ok: false, reason: 'No draft in progress.' }
     const owner = getCurrentPickOwner(save.league, draft)
-    if (!owner || owner.teamId !== save.league.userTeamId) {
+    if (owner?.teamId !== save.league.userTeamId) {
       return { ok: false, reason: 'Not your pick.' }
     }
     const rng = new SeededRandom(save.rngState)
@@ -622,7 +622,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const draft = Object.values(save.league.drafts).find((d) => d?.status === 'in_progress')
     if (!draft) return
     const owner = getCurrentPickOwner(save.league, draft)
-    if (!owner || owner.teamId !== save.league.userTeamId) return
+    if (owner?.teamId !== save.league.userTeamId) return
     const rng = new SeededRandom(save.rngState)
     autoPickForTeam(save.league, draft, save.league.userTeamId, rng)
     autoDraftOffClock(save.league, draft, save.league.userTeamId, rng)
@@ -638,7 +638,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return { ok: false, reason: 'Not in free agency or preseason.' }
     }
     const player = save.league.players[playerId]
-    if (!player || player.teamId !== null) {
+    if (player?.teamId !== null) {
       return { ok: false, reason: 'Player is not a free agent.' }
     }
     const validation = validateFreeAgentOffer(
@@ -667,7 +667,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const { save } = get()
     if (!save) return
     const offer = save.league.freeAgentOffers.find((o) => o.id === offerId)
-    if (offer && offer.teamId === save.league.userTeamId) {
+    if (offer?.teamId === save.league.userTeamId) {
       offer.status = 'withdrawn'
     }
     set({ save: { ...save } })
@@ -1250,7 +1250,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   simNextPlayoffGame: async () => {
     const { save } = get()
-    if (!save || !save.league.playoffBracket) {
+    if (!save?.league.playoffBracket) {
       return { gamesSimulated: 0, seriesCompleted: [], bracketComplete: false }
     }
 
@@ -1293,7 +1293,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   simPlayoffSeries: async (seriesId: string) => {
     const { save } = get()
-    if (!save || !save.league.playoffBracket) {
+    if (!save?.league.playoffBracket) {
       return { gamesSimulated: 0 }
     }
 
@@ -1312,7 +1312,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   simAllPlayoffGames: async () => {
     const { save } = get()
-    if (!save || !save.league.playoffBracket) {
+    if (!save?.league.playoffBracket) {
       return { gamesSimulated: 0, bracketComplete: false }
     }
 
@@ -1420,7 +1420,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const side = proposal.sides.find((s) => s.teamId === teamId)
     if (!side) return
     if (isAssetDuplicate(side.outgoing, asset)) return
-    let nextAsset: TradeAsset = { ...asset }
+    const nextAsset: TradeAsset = { ...asset }
     if (!nextAsset.toTeamId) {
       const inferred = inferTargetTeamId(proposal, teamId)
       if (inferred) nextAsset.toTeamId = inferred
@@ -1621,7 +1621,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const userTeam = save.league.teams[save.league.userTeamId]
     if (!userTeam) return []
     const target = save.league.players[playerId]
-    if (!target || !target.teamId) return []
+    if (!target?.teamId) return []
     const targetTeam = save.league.teams[target.teamId]
     if (!targetTeam) return []
     const teamIdMap: Record<string, string> = {}

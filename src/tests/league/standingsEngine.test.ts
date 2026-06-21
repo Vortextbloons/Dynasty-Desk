@@ -48,7 +48,7 @@ describe('initializeStandings', () => {
 
   it('initializes all new fields', () => {
     const standings = initializeStandings(TEAMS, '2025-26', 82)
-    const bos = standings['bos']!
+    const bos = standings.bos!
     expect(bos.conferenceWins).toBe(0)
     expect(bos.conferenceLosses).toBe(0)
     expect(bos.divisionWins).toBe(0)
@@ -75,10 +75,10 @@ describe('recomputeStandings', () => {
     const game = makeGame({ homeScore: 110, awayScore: 100 })
     const games = { [game.id]: game }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.wins).toBe(1)
-    expect(standings['bos']!.losses).toBe(0)
-    expect(standings['nyk']!.wins).toBe(0)
-    expect(standings['nyk']!.losses).toBe(1)
+    expect(standings.bos!.wins).toBe(1)
+    expect(standings.bos!.losses).toBe(0)
+    expect(standings.nyk!.wins).toBe(0)
+    expect(standings.nyk!.losses).toBe(1)
   })
 
   it('computes win percentage', () => {
@@ -92,9 +92,9 @@ describe('recomputeStandings', () => {
       games[g.id] = g
     }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.wins).toBe(6)
-    expect(standings['bos']!.losses).toBe(4)
-    expect(standings['bos']!.winPct).toBeCloseTo(0.6, 1)
+    expect(standings.bos!.wins).toBe(6)
+    expect(standings.bos!.losses).toBe(4)
+    expect(standings.bos!.winPct).toBeCloseTo(0.6, 1)
   })
 
   it('tracks home and away splits', () => {
@@ -102,35 +102,35 @@ describe('recomputeStandings', () => {
     const awayWin = makeGame({ id: 'g2', homeTeamId: 'nyk', awayTeamId: 'bos', homeScore: 90, awayScore: 100 })
     const games = { [homeWin.id]: homeWin, [awayWin.id]: awayWin }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.homeWins).toBe(1)
-    expect(standings['bos']!.awayWins).toBe(1)
-    expect(standings['nyk']!.homeLosses).toBe(1)
-    expect(standings['nyk']!.awayLosses).toBe(1)
+    expect(standings.bos!.homeWins).toBe(1)
+    expect(standings.bos!.awayWins).toBe(1)
+    expect(standings.nyk!.homeLosses).toBe(1)
+    expect(standings.nyk!.awayLosses).toBe(1)
   })
 
   it('tracks conference record', () => {
     const game = makeGame({ isConference: true, homeScore: 110, awayScore: 100 })
     const games = { [game.id]: game }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.conferenceWins).toBe(1)
-    expect(standings['nyk']!.conferenceLosses).toBe(1)
+    expect(standings.bos!.conferenceWins).toBe(1)
+    expect(standings.nyk!.conferenceLosses).toBe(1)
   })
 
   it('tracks division record', () => {
     const game = makeGame({ isDivision: true, homeScore: 110, awayScore: 100 })
     const games = { [game.id]: game }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.divisionWins).toBe(1)
-    expect(standings['nyk']!.divisionLosses).toBe(1)
+    expect(standings.bos!.divisionWins).toBe(1)
+    expect(standings.nyk!.divisionLosses).toBe(1)
   })
 
   it('computes points per game', () => {
     const game = makeGame({ homeScore: 120, awayScore: 100 })
     const games = { [game.id]: game }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.pointsPerGame).toBe(120)
-    expect(standings['bos']!.pointsAllowedPerGame).toBe(100)
-    expect(standings['bos']!.pointDifferentialPerGame).toBe(20)
+    expect(standings.bos!.pointsPerGame).toBe(120)
+    expect(standings.bos!.pointsAllowedPerGame).toBe(100)
+    expect(standings.bos!.pointDifferentialPerGame).toBe(20)
   })
 
   it('assigns conference ranks by wins', () => {
@@ -140,16 +140,16 @@ describe('recomputeStandings', () => {
     games[g1.id] = g1
     games[g2.id] = g2
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.conferenceRank).toBe(1)
-    expect(standings['nyk']!.conferenceRank).toBe(2)
+    expect(standings.bos!.conferenceRank).toBe(1)
+    expect(standings.nyk!.conferenceRank).toBe(2)
   })
 
   it('updates gamesRemaining', () => {
     const game = makeGame()
     const games = { [game.id]: game }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
-    expect(standings['bos']!.gamesRemaining).toBe(81)
-    expect(standings['nyk']!.gamesRemaining).toBe(81)
+    expect(standings.bos!.gamesRemaining).toBe(81)
+    expect(standings.nyk!.gamesRemaining).toBe(81)
   })
 })
 
@@ -198,8 +198,8 @@ describe('head-to-head tiebreaker', () => {
     const games = { [g1.id]: g1, [g2.id]: g2 }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
     // bos is 2-0, nyk is 0-2 — bos ranks higher by wins, not h2h
-    expect(standings['bos']!.conferenceRank).toBe(1)
-    expect(standings['nyk']!.conferenceRank).toBe(2)
+    expect(standings.bos!.conferenceRank).toBe(1)
+    expect(standings.nyk!.conferenceRank).toBe(2)
   })
 
   it('uses head-to-head wins as tiebreaker when W-L and conference pct are tied', () => {
@@ -215,8 +215,8 @@ describe('head-to-head tiebreaker', () => {
     const games = { [g1.id]: g1, [g2.id]: g2 }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
     // bos 2-0, nyk 0-2 → bos ranked higher
-    expect(standings['bos']!.conferenceRank).toBe(1)
-    expect(standings['nyk']!.conferenceRank).toBe(2)
+    expect(standings.bos!.conferenceRank).toBe(1)
+    expect(standings.nyk!.conferenceRank).toBe(2)
   })
 })
 
@@ -228,9 +228,9 @@ describe('streak via computeTeamStreak', () => {
     const games = { [g1.id]: g1, [g2.id]: g2, [g3.id]: g3 }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
     // bos won 2, lost 1 — most recent is loss → streak -1
-    expect(standings['bos']!.streak).toBe(-1)
+    expect(standings.bos!.streak).toBe(-1)
     // nyk lost 2, won 1 — most recent is win → streak 1
-    expect(standings['nyk']!.streak).toBe(1)
+    expect(standings.nyk!.streak).toBe(1)
   })
 
   it('reports win streak when most recent games are wins', () => {
@@ -240,8 +240,8 @@ describe('streak via computeTeamStreak', () => {
     const games = { [g1.id]: g1, [g2.id]: g2, [g3.id]: g3 }
     const standings = recomputeStandings(games, TEAMS_RECORD, '2025-26', 82)
     // bos lost 1, won 2 — streak is W2
-    expect(standings['bos']!.streak).toBe(2)
+    expect(standings.bos!.streak).toBe(2)
     // nyk won 1, lost 2 — streak is L2
-    expect(standings['nyk']!.streak).toBe(-2)
+    expect(standings.nyk!.streak).toBe(-2)
   })
 })

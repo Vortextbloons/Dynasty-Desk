@@ -193,7 +193,7 @@ export function generatePlayoffBracket(
   rules: LeagueRules,
 ): PlayoffBracket {
   const { standings, teams, seasonYear } = league
-  const seriesLength = rules.playoffSeriesLength as 1 | 3 | 5 | 7
+  const seriesLength = rules.playoffSeriesLength
   const seedCount = rules.hasPlayIn ? 10 : rules.playoffTeamsPerConference
   const playoffYear = seasonYear + 1
 
@@ -550,7 +550,7 @@ function updateSeriesFromGames(series: PlayoffSeries, games: Record<string, Sche
 
   for (const gameId of series.games) {
     const game = games[gameId]
-    if (!game || game.status !== 'final') continue
+    if (game?.status !== 'final') continue
 
     if (game.winnerTeamId === series.higherSeedTeamId) higherWins++
     else if (game.winnerTeamId === series.lowerSeedTeamId) lowerWins++
@@ -874,9 +874,7 @@ export function computeTeamSeasonResults(
   if (bracket.finals) processSeries(bracket.finals)
 
   for (const teamId of allTeamIds) {
-    if (!results[teamId]) {
-      results[teamId] = 'missed_playoffs'
-    }
+    results[teamId] ??= 'missed_playoffs'
   }
 
   return results

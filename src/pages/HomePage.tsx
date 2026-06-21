@@ -16,12 +16,12 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useGameStore } from '@/store/useGameStore'
 import { cn } from '@/lib/utils'
 
-const features: Array<{
+const features: {
   icon: React.ComponentType<{ className?: string }>
   title: string
   body: string
   accent: 'amber' | 'teal'
-}> = [
+}[] = [
   {
     icon: Database,
     title: 'Real NBA rosters',

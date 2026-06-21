@@ -10,13 +10,13 @@ describe('offensiveReboundChance', () => {
     const off = Array.from({ length: 5 }, (_, i) =>
       makePlayer({
         id: `o${i}`,
-        ratings: { offensiveRebound: 50 + (i % 5) * 5 } as any,
+        ratings: { offensiveRebound: 50 + (i % 5) * 5 },
       }),
     )
     const def = Array.from({ length: 5 }, (_, i) =>
       makePlayer({
         id: `d${i}`,
-        ratings: { defensiveRebound: 60 + (i % 5) * 5 } as any,
+        ratings: { defensiveRebound: 60 + (i % 5) * 5 },
       }),
     )
     for (const z of ['at_rim', 'short_mid', 'long_mid', 'corner_three', 'above_break_three'] as const) {
@@ -28,10 +28,10 @@ describe('offensiveReboundChance', () => {
 
   it('rim rebounds favor offense vs long three', () => {
     const off = Array.from({ length: 5 }, () =>
-      makePlayer({ id: 'o', ratings: { offensiveRebound: 60 } as any }),
+      makePlayer({ id: 'o', ratings: { offensiveRebound: 60 } }),
     )
     const def = Array.from({ length: 5 }, () =>
-      makePlayer({ id: 'd', ratings: { defensiveRebound: 70 } as any }),
+      makePlayer({ id: 'd', ratings: { defensiveRebound: 70 } }),
     )
     const rim = offensiveReboundChance(off, def, 'at_rim')
     const three = offensiveReboundChance(off, def, 'above_break_three')
@@ -61,10 +61,10 @@ describe('resolveRebound', () => {
   it('produces OREB% between 0.20 and 0.32 over many missed shots', () => {
     const rng = new SeededRandom(createRngState('reb-rate'))
     const off = Array.from({ length: 5 }, (_, i) =>
-      makePlayer({ id: `o${i}`, ratings: { offensiveRebound: 55 } as any }),
+      makePlayer({ id: `o${i}`, ratings: { offensiveRebound: 55 } }),
     )
     const def = Array.from({ length: 5 }, (_, i) =>
-      makePlayer({ id: `d${i}`, ratings: { defensiveRebound: 70 } as any }),
+      makePlayer({ id: `d${i}`, ratings: { defensiveRebound: 70 } }),
     )
     let o = 0
     const n = 1000

@@ -56,7 +56,7 @@ function computeAllHeadToHeadWins(
   const h2h = new Map<string, Map<string, number>>()
 
   for (const game of Object.values(games)) {
-    if (!game || game.status !== 'final') continue
+    if (game?.status !== 'final') continue
     if (game.homeScore == null || game.awayScore == null) continue
 
     const winnerId = game.homeScore > game.awayScore ? game.homeTeamId : game.awayTeamId
@@ -275,8 +275,8 @@ function assignConferenceRanks(
   for (const [tid, team] of Object.entries(teams)) {
     if (!team) continue
     const key = `${team.conference}-${team.division}`
-    if (!divisions[key]) divisions[key] = []
-    divisions[key]!.push(tid)
+    divisions[key] ??= []
+    divisions[key].push(tid)
   }
 
   for (const teamIds of Object.values(divisions)) {
@@ -365,8 +365,8 @@ function computeClinchAndElimination(
   for (const [tid, team] of Object.entries(teams)) {
     if (!team) continue
     const key = `${team.conference}-${team.division}`
-    if (!divisions[key]) divisions[key] = []
-    divisions[key]!.push(tid)
+    divisions[key] ??= []
+    divisions[key].push(tid)
   }
 
   for (const divTeamIds of Object.values(divisions)) {
