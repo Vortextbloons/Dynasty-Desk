@@ -494,13 +494,14 @@ def compute_for_season(season: str, force: bool = False) -> None:
         elif "heightInches" not in player:
             player["heightInches"] = 78
 
-        weight_str = player.get("weight", 0)
-        if isinstance(weight_str, str):
-            player["weightLbs"] = int(weight_str) if weight_str.isdigit() else 200
-        elif isinstance(weight_str, (int, float)):
-            player["weightLbs"] = int(weight_str)
-        elif "weightLbs" not in player:
-            player["weightLbs"] = 200
+        if player.get("weightLbs", 0) == 0:
+            weight_str = player.get("weight", 0)
+            if isinstance(weight_str, str) and weight_str.strip().isdigit():
+                player["weightLbs"] = int(weight_str.strip())
+            elif isinstance(weight_str, (int, float)) and weight_str > 0:
+                import math
+                if not math.isnan(weight_str) and not math.isinf(weight_str):
+                    player["weightLbs"] = int(weight_str)
 
         # Set secondaryPositions
         if "secondaryPositions" not in player:
