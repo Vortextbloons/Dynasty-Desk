@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/DynastyDesk/',
+  base: '/Dynasty-Desk/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
